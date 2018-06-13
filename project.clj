@@ -4,7 +4,9 @@
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]
                  [secretary "1.2.3"]
-                 [re-pressed "0.2.1"]]
+                 [re-pressed "0.2.1"]
+
+                 [kibu/pushy "0.3.8"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-less "1.7.5"]]

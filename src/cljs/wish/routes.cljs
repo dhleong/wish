@@ -1,31 +1,20 @@
 (ns wish.routes
   (:require-macros [secretary.core :refer [defroute]])
-  (:import goog.History)
-  (:require
-   [secretary.core :as secretary]
-   [goog.events :as gevents]
-   [goog.history.EventType :as EventType]
-   [re-frame.core :as re-frame]
-   [re-pressed.core :as rp]
-   [wish.events :as events]
-   ))
-
-(defn hook-browser-navigation! []
-  (doto (History.)
-    (gevents/listen
-     EventType/NAVIGATE
-     (fn [event]
-       (secretary/dispatch! (.-token event))))
-    (.setEnabled true)))
+  (:require [re-pressed.core :as rp]
+            [pushy.core :as pushy]
+            [wish.events :as events]
+            [wish.util :refer [>evt navigate!]]
+            [wish.util.nav :as nav :refer [hook-browser-navigation!]]))
 
 (defn app-routes []
-  (secretary/set-config! :prefix "#")
+  (nav/init!)
+
   ;; --------------------
   ;; define routes here
   (defroute "/" []
-    (re-frame/dispatch [::events/set-active-panel :home-panel])
-    (re-frame/dispatch [::events/set-re-pressed-example nil])
-    (re-frame/dispatch
+    (navigate! :home)
+    (>evt [::events/set-re-pressed-example nil])
+    (>evt
      [::rp/set-keydown-rules
       {:event-keys [[[::events/set-re-pressed-example "Hello, world!"]
                      [{:which 72} ;; h
@@ -41,8 +30,9 @@
     )
 
   (defroute "/about" []
-    (re-frame/dispatch [::events/set-active-panel :about-panel]))
+    (navigate! :about))
 
 
   ;; --------------------
   (hook-browser-navigation!))
+

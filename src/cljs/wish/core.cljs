@@ -1,13 +1,11 @@
 (ns wish.core
-  (:require
-   [reagent.core :as reagent]
-   [re-frame.core :as re-frame]
-   [re-pressed.core :as rp]
-   [wish.events :as events]
-   [wish.routes :as routes]
-   [wish.views :as views]
-   [wish.config :as config]
-   ))
+  (:require [reagent.core :as reagent]
+            [re-frame.core :as re-frame]
+            [re-pressed.core :as rp]
+            [wish.events :as events]
+            [wish.routes :as routes]
+            [wish.views :as views]
+            [wish.config :as config]))
 
 
 (defn dev-setup []
@@ -17,7 +15,7 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
-  (reagent/render [views/main-panel]
+  (reagent/render [views/main]
                   (.getElementById js/document "app")))
 
 (defn ^:export init []

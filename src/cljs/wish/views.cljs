@@ -3,6 +3,9 @@
    [re-frame.core :as re-frame]
    [re-pressed.core :as rp]
    [wish.subs :as subs]
+   [wish.util :refer [<sub]]
+   [wish.views.router :refer [router]]
+   [wish.views.widgets :refer [link]]
    ))
 
 
@@ -28,16 +31,15 @@
         rpe])]))
 
 (defn home-panel []
-  (let [name (re-frame/subscribe [::subs/name])]
-    [:div
-     [:h1 (str "Hello from " @name ". This is the Home Page.")]
+  [:div
+   [:h1 (str "Hello. This is the Home Page.")]
 
-     [:div
-      [:a {:href "#/about"}
-       "go to About Page"]]
+   [:div
+    [link {:href "/about"}
+     "go to About Page"]]
 
-     [display-re-pressed-example]
-     ]))
+   [display-re-pressed-example]
+   ])
 
 
 ;; about
@@ -47,21 +49,16 @@
    [:h1 "This is the About Page."]
 
    [:div
-    [:a {:href "#/"}
+    [link {:href "/"}
      "go to Home Page"]]])
 
 
 ;; main
 
-(defn- panels [panel-name]
-  (case panel-name
-    :home-panel [home-panel]
-    :about-panel [about-panel]
-    [:div]))
+(def pages
+  {:home #'home-panel
+   :about #'about-panel})
 
-(defn show-panel [panel-name]
-  [panels panel-name])
-
-(defn main-panel []
-  (let [active-panel (re-frame/subscribe [::subs/active-panel])]
-    [show-panel @active-panel]))
+(defn main []
+  [:div#main
+   [router pages]])
