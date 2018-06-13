@@ -1,0 +1,26 @@
+;; experiments with syntax of save files
+
+{:v [1 1] ; wish + sheet version numbers
+ :updated 1234 ; date
+
+ ; lists of ids; note that not all systems will support multi class or multi race,
+ ; but we'll allow it in the file
+ :classes []
+ :races []
+
+ ; map of limited-use ID -> number used
+ :limited-uses
+ {:paladin/lay-on-hands#uses 0}
+
+ ; map of feature-id -> options chosen
+ :options
+ {:paladin/oath [:paladin/vengeance]}
+
+ ; opaque, sheet-specific data
+ :sheet
+ {}
+
+ ; notes is a sequence of [date note] pairs
+ :notes
+ [[1234 "Note"]]}
+

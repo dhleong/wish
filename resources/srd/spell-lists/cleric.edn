@@ -1,0 +1,10 @@
+[:!add-to-list
+
+ {:id :cleric/spells-list
+  :#type :5e/spell}
+
+ [{:#level 1
+   :id :cure-wounds
+   :name "Cure Wounds"
+   :levels (fn [level spell-mod]
+             {:dice (str level "d8+" spell-mod)})}]]

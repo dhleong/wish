@@ -1,6 +1,6 @@
 # wish
 
-*The 5e character sheets you've always wished for*
+*The character sheets you've always wished for*
 
 ## Development Mode
 

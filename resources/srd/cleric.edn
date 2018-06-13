@@ -1,0 +1,11 @@
+[:!declare-class
+ {:id :cleric
+  :name "Cleric"
+  :attrs
+  [:5e/spellcaster
+   {:spells [:cleric/spells-list]
+    :prepares? true}
+   ]
+  :features
+  [:hit-dice/d8
+   ]}]

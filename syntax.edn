@@ -1,0 +1,274 @@
+;;
+;; Conventions
+;;
+
+; function call-like things are in brackets and the
+; "function" name starts with :!
+[:!function-call arg1 arg2]
+
+;;
+;; Modifying properties
+;;
+
+:>>name ; append
+:+name  ; semantic alias for append
+:&name  ; merge (maps only)
+
+;;
+;; Functions
+;; Some values can be functional
+;;
+
+; functions are always lists starting with fn
+(fn [injected values]
+  ; functions are compiled to look like, eg:
+  ;
+  ;  (fn [{:keys[injected, values]})
+  ;
+  ; and so are called with a single map
+  values)
+
+; Supported functions within a function:
+;   + - / *
+;   ceil floor
+;   max min
+
+;;
+;; Built in types:
+;;
+
+:class
+:feature
+:option
+:race
+
+;;
+;; Data Source directives
+;;
+
+[:!add-to-list
+
+ {:id,
+  :#type} ; sheet-specific type of all items in the list
+
+ ; varargs list of:
+ :list-id ; a list to copy items from
+ {} ; an item
+ ]
+
+[:!declare-class
+ {:id,
+  :name,
+  :attrs
+  [] ; vector of id, args for sheet-powered attributes
+  :features
+  [] ; list of features to include
+  }]
+
+[:!provide-feature
+ ; if conditions vector is provided, it will add the feature to an
+ ; existing class based on the conditions. This would generally be
+ ; used for homebrew features that amend built-in classes
+ optional-conditions-vector
+
+ ; feature-map
+ {:id,
+  :name,
+  :desc,
+  :options? true ; if the user should pick one or more options
+
+  ; can be a number or a list of `filter, number` pairs,
+  ; with a special filter `:total` that applies overall.
+  ; providing a number is sugar for `[:total number]`
+  :max-options,
+
+  ; an optional list of values or list-ids. Entries can of course
+  ; be provided via the !provide-options directive
+  :values []
+
+  ; map of level -> feature-map, where any keys in the feature-map
+  ; get replaced (or modified, following the above rules based on
+  ; prefixes to the keyword)
+  :levels {}
+
+  ; map of level -> feature-map where *all* keys <= the class level
+  ; get applied as per :levels
+  :&levels {}
+
+  ; list of directives to apply when the feature is granted
+  :! []
+  }
+ ]
+
+[:!provide-options
+
+ feature-id
+
+ ; varargs list of entities
+ ; each entity may have a `:features` key which grants the given features
+ ; when the option is taken. Such features may be a feature-map or an id
+ ...entities
+ ]
+
+;;
+;; Experiments:
+;;
+
+[:!provide-feature
+
+ ; optional conditions for availability
+ [[:#class :paladin]
+  [:#level :>= 1]]
+
+ ; the feature
+ {:id :paladin/lay-on-hands
+  :name "Lay on Hands"
+  :desc "description"
+  :! [[:!add-limited-use
+       {:id :paladin/lay-on-hands#uses
+        :name "Lay on Hands"
+        :restore-trigger :long-rest
+        ;; :restore-amount is optional and defaults to "all"
+        :uses (fn [level]
+                (* level 5))}]]}
+ ]
+
+[:!provide-feature
+
+ {:id :hit-dice/d10
+  :name "Hit Dice: D10"
+  :! [[:!add-limited-use
+       {:id :hit-dice/d10#uses
+        :name "D10"
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
+                level)}]]}]
+
+
+[:!add-to-list
+
+ {:id :cleric/spells-list
+  :#type :spells}
+
+ [{:id :cure-wounds
+   :name "Cure Wounds"}]]
+
+;; NOTE: the 5e sheet handles the :5e/spellcaster attr in order
+;; to properly provide spell slots for multicasters
+[:!declare-class
+ {:id :cleric
+  :name "Cleric"
+  :attrs
+  [:5e/spellcaster {:cantrips [1 3, 4 1, 10 1]
+                    :slots :standard
+                    :prepares? true
+                    :spells [:cleric/spells-list]
+                    }
+   {:spells [:cleric/spells-list]
+    :prepares? true}
+   ]
+  :features
+  [:hit-dice/d8
+   ]}]
+
+[:!provide-options
+
+ :rogue/archetype
+
+ {:id :rogue/arcane-trickster
+  :name "Arcane Trickster"
+  :! [[:!add-attrs
+       [:5e/spellcaster {:cantrips [3 3, 10 1]
+                         :slots {3 {1 2}
+                                 4 {1 3}}
+                         :spells [:wizard/spells-list]}]]
+      ]}
+ ]
+
+
+
+[:!provide-feature
+
+ {:id :cleric/spells
+  :name "Cleric Spells"
+  :options? true
+  
+  :max-options [:total 5
+                [:#level := 0] 3
+                [:#level :<= 1] 2]
+  :levels {2 ;; etc.
+           3 {:max-options [:total 9
+                            [:#level := 0] 3
+                            [:#level :<= 2] 6]}}}]
+
+[:!declare-class
+ {:id :sorcerer
+  :name "Sorcerer"
+  :features
+  [:sorcerer/origin]}]
+
+[:!provide-feature
+
+ {:id :sorcerer/origin
+  :name "Sorcerous Origin"
+  :desc ""
+  :options? true
+  :max-options 1
+
+  ; each val in the levels map
+  ; gets merged into the parent map
+  ; Prepending the key with >> will append strings
+  :levels {1 {:max-options 1
+              :>>desc "\nAt level 1 you can choose one origin"}}}]
+
+[:!provide-feature
+
+ {:id :sorcerer/spells
+  :name "Sorcerer Spells"
+  :options? true
+
+  ;; with filters, options
+  :max-options [:total 6
+                [:#level := 0] 4
+                [:#level := 1] 2]
+
+  :values [:sorcerer/spells-list]
+
+  :levels {2 {:max-options [:total 7
+                            [:#level := 0] 4
+                            [:#level :<= 1] 3]}
+           3 {:max-options [:total 10
+                            [:#level := 0] 4
+                            [:#level :<= 2] 6]}}
+  }]
+
+;;
+;; Options are provided to features
+[:!provide-options
+
+ ; feature to add it to
+ :sorcerer/origin
+
+ {:id :sorcerer/divine-soul
+  :name "Divine Soul"
+  :features
+  [{:id :sorcerer/divine-soul/divine-magic
+    :name "Divine magic"
+    :desc "Your link to the divine allows you to learn spells normally associated with the Cleric class. When your Spellcasting feature lets you learn a sorcerer cantrip or a sorcerer spell of 1st level or higher, you can choose the new spell from the cleric spell list or the sorcerer spell list. You must otherwise obey all the restrictions for selecting the spell, and it becomes a sorcerer spell for you.
+
+In addition, choose an affinity for the source of your divine power: good, evil, law, chaos, or neutrality. You learn an additional spell based on that affinity, as shown below. It is a sorcerer spell for you, but it doesn't count against your number of sorcerer spells known. If you later replace this spell, you must replace it with a spell from the cleric spell list."
+    :! [[:!provide-options
+         :sorcerer/spells
+         :cleric/spells-list]
+
+        ; grant an extra spell of any available level.
+        [:!mod-feature
+         :sorcerer/spells
+         {:&levels {1 {:>>max-options [[:#level := 1] 1]}
+                    2 {:>>max-options [[:#level := 1] 1]}
+                    3 {:>>max-options [[:#level :>= 1 :<= 2] 1]}
+                    4 {:>>max-options [[:#level :>= 1 :<= 2] 1]}
+                    5 {:>>max-options [[:#level :>= 1 :<= 3] 1]}}}]]}]}]
