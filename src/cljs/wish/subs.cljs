@@ -6,11 +6,12 @@
   (reg-sub
     name
     :<- [:sheet]
-    (fn [[sheet]]
+    (fn [sheet]
       (getter sheet))))
 
 (reg-sub :page :page)
-(reg-sub :sheet :sheet)
+(reg-sub :sheets :sheets)
+
 (reg-sheet-sub :sheet-data :sheet)
 (reg-sheet-sub :classes :classes)
 (reg-sheet-sub :races :races)
@@ -19,7 +20,24 @@
 (reg-sheet-sub :options :options)
 
 (reg-sub
-  :provided-sheets
+  :active-sheet-id
+  :<- [:page]
+  (fn [page-vec _]
+    (let [[page args] page-vec]
+      (when (= :sheet page)
+        ; NOTE: the first arg is the sheet kind;
+        ; the second is the id
+        (second args)))))
+
+(reg-sub
+  :sheet
+  :<- [:sheets]
+  :<- [:active-sheet-id]
+  (fn [[sheets id]]
+    (get sheets id)))
+
+(reg-sub
+  :provided-sheet
   (fn [db [_ sheet-id]]
     (get-in db [:sheets sheet-id])))
 

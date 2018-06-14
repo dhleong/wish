@@ -12,7 +12,7 @@
 
 (def pages
   {:home #'home
-   :sheets #'sheets/viewer
+   :sheet #'sheets/viewer
    })
 
 (defn main []

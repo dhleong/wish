@@ -17,7 +17,7 @@
 (defn viewer
   [[kind sheet-id]]
   (if-let [info (get sheets (keyword kind))]
-    (if-let [sheet (<sub [:provided-sheets sheet-id])]
+    (if-let [sheet (<sub [:provided-sheet sheet-id])]
       ; sheet is ready; render!
       [(:fn info)]
 

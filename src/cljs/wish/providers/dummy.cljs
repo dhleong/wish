@@ -8,6 +8,8 @@
    :updated 1234 ; date
    :id "my-sheet-id"
 
+   :name "Mal Reynolds"
+
    ; lists of ids; note that not all systems will support multi class or multi race,
    ; but we'll allow it in the file
    :classes []
@@ -32,4 +34,4 @@
 (defn init!
   []
   (println "INIT :dummy!")
-  (>evt [:put-sheet! :dummy-my-sheet-id dummy-sheet]))
+  (>evt [:put-sheet! :dummy/my-sheet-id dummy-sheet]))

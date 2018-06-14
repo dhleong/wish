@@ -2,22 +2,14 @@
       :doc "Data source providers"}
   wish.providers
   (:require [clojure.string :as str]
-            [wish.providers.dummy :as dummy]))
+            [wish.providers.dummy :as dummy]
+            [wish.sheets.util :refer [unpack-id]]))
 
 (def ^:private providers
   {:dummy
    {:id :dummy
     :name "Dummy"
     :init! dummy/init!}})
-
-(defn unpack-id
-  [sheet-id]
-  (let [s (if (keyword? sheet-id)
-            (name sheet-id)
-            (str sheet-id))
-        dash (str/index-of s "-")]
-    [(keyword (subs s 0 dash))
-     (subs s (inc dash))]))
 
 (defn init! []
   (println "INIT!")

@@ -29,8 +29,8 @@
          ]]}])
     )
 
-  (defroute "/sheets/:kind/:id" [kind id]
-    (navigate! :sheets [kind (keyword id)]))
+  (defroute #"/sheets/([a-z0-9-]+)/(.+)" [kind id]
+    (navigate! :sheet [kind (keyword id)]))
 
 
   ;; --------------------

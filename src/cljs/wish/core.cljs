@@ -16,6 +16,9 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
+  (when config/debug?
+    ; hot-reload providers
+    (wish.providers/init!))
   (reagent/render [views/main]
                   (.getElementById js/document "app")))
 
