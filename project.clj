@@ -1,12 +1,14 @@
 (defproject wish "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.10.238"]
+                 [org.clojure/core.async "0.4.474"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]
                  [secretary "1.2.3"]
                  [re-pressed "0.2.1"]
 
-                 [kibu/pushy "0.3.8"]]
+                 [kibu/pushy "0.3.8"]
+                 [cljs-ajax "0.7.3"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-less "1.7.5"]]
@@ -45,6 +47,8 @@
                    [figwheel-sidecar "0.5.16"]
                    [cider/piggieback "0.3.5"]
                    [org.clojure/tools.nrepl "0.2.13"]]
+
+    :source-paths ["src/cljs"]
 
     :plugins      [[lein-figwheel "0.5.16"]
                    [lein-doo "0.1.8"]

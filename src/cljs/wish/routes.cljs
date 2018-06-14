@@ -29,8 +29,8 @@
          ]]}])
     )
 
-  (defroute "/about" []
-    (navigate! :about))
+  (defroute "/sheets/:kind/:id" [kind id]
+    (navigate! :sheets [kind (keyword id)]))
 
 
   ;; --------------------

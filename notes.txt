@@ -4,13 +4,14 @@ Because multiclassing spellcasters have their own separate
 table spell slots table, spell slots are added to a class
 using the :5e/spellcasting attribute, which accepts:
 
-{:cantrips [] ; sequence of level, cantrips gained at that level
+{:cantrips []  ; sequence of level, cantrips gained at that level
  :slots  ; spellslots table, either a map of class level -> {spell level -> slots}
          ; or one of the keywords:  :standard, :standard/2
          ; where the latter is for rangers and paladins
- :prepares? true ; Whether the class prepares spells or just knows them
- :spells :class/spells ; id of a feature whose selected options
-                       ; provide available spells
+ :restore-trigger :long-rest  ; :long-rest is the default
+ :prepares? true  ; Whether the class prepares spells or just knows them
+ :spells :class/spells  ; id of a feature whose selected options
+                        ; provide available spells
  }
 
 Note that preparing vs knowing is really just a visual treatment.

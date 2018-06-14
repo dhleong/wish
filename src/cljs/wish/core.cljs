@@ -5,7 +5,8 @@
             [wish.events :as events]
             [wish.routes :as routes]
             [wish.views :as views]
-            [wish.config :as config]))
+            [wish.config :as config]
+            [wish.fx]))
 
 
 (defn dev-setup []
