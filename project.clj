@@ -24,12 +24,12 @@
              :nrepl-port 7002
              :server-ip "0.0.0.0"
              :nrepl-middleware
-             [cider.piggieback/wrap-cljs-repl cider.nrepl/cider-middleware]}
+             [cemerick.piggieback/wrap-cljs-repl cider.nrepl/cider-middleware]}
 
   :less {:source-paths ["less"]
          :target-path  "resources/public/css"}
 
-  :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
+  ;; :repl-options {:nrepl-middleware [cider.piggieback/wrap-cljs-repl]}
 
   :aliases {"dev" ["do" "clean"
                         ["pdo" ["less" "auto"]
@@ -45,14 +45,15 @@
                    [day8.re-frame/re-frame-10x "0.3.3"]
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.16"]
-                   [cider/piggieback "0.3.5"]
-                   [org.clojure/tools.nrepl "0.2.13"]]
+                   ;; [cider/piggieback "0.3.6"]
+                   [com.cemerick/piggieback "0.2.2"]]
 
     :source-paths ["src/cljs"]
 
     :plugins      [[lein-figwheel "0.5.16"]
-                   [lein-doo "0.1.8"]
+                   [lein-doo "0.1.10"]
                    [lein-pdo "0.1.1"]]}
+
    :prod { :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}}
 
   :cljsbuild
