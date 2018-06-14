@@ -10,6 +10,9 @@
 
    :name "Mal Reynolds"
 
+   ; list of ids
+   :sources [:wish/dnd5e-srd]
+
    ; lists of ids; note that not all systems will support multi class or multi race,
    ; but we'll allow it in the file
    :classes []

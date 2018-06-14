@@ -1,0 +1,50 @@
+;; TODO generate this
+
+[:!provide-feature
+
+ {:id :hit-dice/d8
+  :name "Hit Dice: D8"
+  :! [[:!add-limited-use
+       {:id :hit-dice/d8#uses
+        :name "D8"
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
+                level)}]]}
+
+ {:id :hit-dice/d10
+  :name "Hit Dice: D10"
+  :! [[:!add-limited-use
+       {:id :hit-dice/d10#uses
+        :name "D10"
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
+                level)}]]}]
+
+[:!add-to-list
+
+ {:id :cleric/spells-list
+  :#type :5e/spell}
+
+ [{:#level 1
+   :id :cure-wounds
+   :name "Cure Wounds"
+   :levels (fn [level spell-mod]
+             {:dice (str level "d8+" spell-mod)})}]]
+
+[:!declare-class
+ {:id :cleric
+  :name "Cleric"
+  :attrs
+  [:5e/spellcaster
+   {:spells [:cleric/spells-list]
+    :prepares? true}
+   ]
+  :features
+  [:hit-dice/d8
+   ]}]

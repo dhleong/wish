@@ -7,7 +7,7 @@
   []
   (let [common (<sub [:sheet])
         sheet (<sub [:sheet-data])]
-    [:div "D&D"
+    [:div.header "D&D"
      [:div.name (:name common)]
      [:div.race (:name (<sub [:race]))]]))
 

@@ -75,9 +75,10 @@
  {:id,
   :name,
   :desc,
-  :options? true ; if the user should pick one or more options
 
-  ; can be a number or a list of `filter, number` pairs,
+  ; when provided, indicates that the user should pick one
+  ; or more options.
+  ; can be a number, a fn, or a list of `filter, number` pairs,
   ; with a special filter `:total` that applies overall.
   ; providing a number is sugar for `[:total number]`
   :max-options,
@@ -95,7 +96,8 @@
   ; get applied as per :levels
   :&levels {}
 
-  ; list of directives to apply when the feature is granted
+  ; list of directives to apply to the character when the feature
+  ; is granted
   :! []
   }
  ]

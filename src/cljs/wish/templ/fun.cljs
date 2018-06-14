@@ -43,6 +43,10 @@
       (expose-fn - mathify)
       (expose-fn / mathify)
       (expose-fn * mathify)
+      (expose-fn <)
+      (expose-fn >)
+      (expose-fn <=)
+      (expose-fn >=)
       (expose-fn =)
       (expose-fn not=)
 
@@ -69,7 +73,10 @@
       (expose-fn mapcat)
       (expose-fn remove)
 
-      (expose-fn partial)))
+      (expose-fn partial)
+
+      ; for debugging
+      (expose-fn println)))
 
 ;;
 ;; Public API

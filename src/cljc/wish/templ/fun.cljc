@@ -1,5 +1,5 @@
 (ns ^{:author "Daniel Leong"
-      :doc "Macros for exposing fns to templat functions"}
+      :doc "Macros for exposing fns to template functions"}
   wish.templ.fun
   (:require [clojure.string :as str]))
 
