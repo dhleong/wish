@@ -1,5 +1,6 @@
 (ns wish.subs
-  (:require [re-frame.core :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]
+            [wish.sources.core :refer [find-class find-race]]))
 
 (defn reg-sheet-sub
   [name getter]
@@ -14,9 +15,8 @@
 (reg-sub :sheet-sources :sheet-sources)
 
 (reg-sheet-sub :sheet-data :sheet)
-(reg-sheet-sub :classes :classes)
-(reg-sheet-sub :races :races)
-(reg-sheet-sub :race (comp first :races)) ;; semantic convenience for single-race systems
+(reg-sheet-sub :class-metas (comp vals :classes))
+(reg-sheet-sub :race-ids :races)
 (reg-sheet-sub :limited-uses :limited-uses)
 (reg-sheet-sub :options :options)
 
@@ -31,6 +31,27 @@
         (second args)))))
 
 (reg-sub
+  :provided-sheet
+  :<- [:sheets]
+  (fn [sheets [_ sheet-id]]
+    (get sheets sheet-id)))
+
+; if a specific sheet-id is not provided, loads
+; for the active sheet id
+(reg-sub
+  :sheet-source
+  :<- [:sheet-sources]
+  :<- [:active-sheet-id]
+  (fn [[sources active-id] [_ sheet-id]]
+    (let [{:keys [source loaded?]} (get sources (or sheet-id
+                                                    active-id))]
+      (when loaded?
+        source))))
+
+
+; ======= Accessors for the active sheet ===================
+
+(reg-sub
   :sheet
   :<- [:sheets]
   :<- [:active-sheet-id]
@@ -38,20 +59,27 @@
     (get sheets id)))
 
 (reg-sub
-  :provided-sheet
-  :<- [:sheets]
-  (fn [sheets [_ sheet-id]]
-    (get sheets sheet-id)))
+  :classes
+  :<- [:sheet-source]
+  :<- [:class-metas]
+  (fn [[source metas] _]
+    (when source
+      (map (fn [m]
+             (assoc m :data (find-class source (:id m))))
+           metas))))
 
 (reg-sub
-  :sheet-source
-  :<- [:sheet-sources]
-  (fn [sources [_ sheet-id]]
-    (let [{:keys [source loaded?]} (get sources sheet-id)]
-      (when loaded?
-        source))))
+  :races
+  :<- [:sheet-source]
+  :<- [:race-ids]
+  (fn [[source ids] _]
+    (when source
+      (map (partial find-race source)
+           ids))))
 
+; semantic convenience for single-race systems
 (reg-sub
- ::re-pressed-example
- (fn [db _]
-   (:re-pressed-example db)))
+  :race
+  :<- [:races]
+  (fn [races _]
+    (first races)))

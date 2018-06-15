@@ -11,12 +11,17 @@
    :name "Mal Reynolds"
 
    ; list of ids
+   ; NOTE: a lot of these don't make sense but are here as reference
    :sources [:wish/dnd5e-srd]
 
    ; lists of ids; note that not all systems will support multi class or multi race,
    ; but we'll allow it in the file
-   :classes []
-   :races []
+   :classes
+   {:cleric {:id :cleric
+             :level 1
+             :primary? true}}
+
+   :races [:human]
 
    ; map of limited-use ID -> number used
    :limited-uses
@@ -28,7 +33,13 @@
 
    ; opaque, sheet-specific data
    :sheet
-   {}
+   {:abilities
+    {:str 12
+     :dex 13
+     :con 15
+     :int 10
+     :wis 14
+     :cha 8}}
 
    ; notes is a sequence of [date note] pairs
    :notes

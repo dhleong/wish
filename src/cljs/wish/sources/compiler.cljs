@@ -21,6 +21,12 @@
              assoc
              (:id class-map) class-map))
 
+   :!declare-race
+   (fn declare-race [state race-map]
+     (update state :races
+             assoc
+             (:id race-map) race-map))
+
    :!provide-feature
    (fn provide-feature [state & args]
      (let [features (->> args
