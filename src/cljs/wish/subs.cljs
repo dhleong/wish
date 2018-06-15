@@ -6,7 +6,7 @@
   [name getter]
   (reg-sub
     name
-    :<- [:sheet]
+    :<- [:sheet-meta]
     (fn [sheet]
       (getter sheet))))
 
@@ -14,7 +14,7 @@
 (reg-sub :sheets :sheets)
 (reg-sub :sheet-sources :sheet-sources)
 
-(reg-sheet-sub :sheet-data :sheet)
+(reg-sheet-sub :sheet :sheet)
 (reg-sheet-sub :class-metas (comp vals :classes))
 (reg-sheet-sub :race-ids :races)
 (reg-sheet-sub :limited-uses :limited-uses)
@@ -52,7 +52,7 @@
 ; ======= Accessors for the active sheet ===================
 
 (reg-sub
-  :sheet
+  :sheet-meta
   :<- [:sheets]
   :<- [:active-sheet-id]
   (fn [[sheets id]]

@@ -16,6 +16,35 @@
       (is (contains? (:features s)
                      :hit-dice/d10)))))
 
+(deftest class-test
+  (testing "Inflate features by id"
+    (let [s (compile-directives
+              [[:!declare-class
+                {:id :classy
+                 :features [:hit-dice/d10]}]
+               [:!provide-feature
+                {:id :hit-dice/d10
+                 :name "Hit Dice: D10"}]])]
+      (is (contains? s :classes))
+      (is (contains? (:classes s)
+                     :classy))
+      (is (= :hit-dice/d10
+             (-> s :classes :classy :features first :id)))))
+  (testing "Apply feature directives when installed"
+    (let [s (compile-directives
+              [[:!declare-class
+                {:id :classy
+                 :features [:hit-dice/d10]}]
+               [:!provide-feature
+                {:id :hit-dice/d10
+                 :! [[:!provide-attr
+                      :5e/hit-dice 10]]}]])]
+      (is (contains? s :classes))
+      (is (contains? (:classes s)
+                     :classy))
+      (is (= 10
+             (-> s :classes :classy :attrs :5e/hit-dice))))))
+
 (deftest options-test
   (testing "Options provided before the feature"
     (let [s (compile-directives

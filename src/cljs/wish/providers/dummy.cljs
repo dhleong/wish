@@ -39,7 +39,11 @@
      :con 15
      :int 10
      :wis 14
-     :cha 8}}
+     :cha 8}
+
+    ; vector of rolled HP at level `i-2` (remember, level 1 is auto-max)
+    :hp-rolled []
+    :hp 8}
 
    ; notes is a sequence of [date note] pairs
    :notes

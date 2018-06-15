@@ -27,6 +27,12 @@
              assoc
              (:id race-map) race-map))
 
+   ; NOTE: this should never be applied top-level,
+   ; but only to specific classes, races, etc.
+   :!provide-attr
+   (fn provide-attr [state id value]
+     (assoc-in state [:attrs id] value))
+
    :!provide-feature
    (fn provide-feature [state & args]
      (let [features (->> args
@@ -54,6 +60,46 @@
                     concat options))))
    })
 
+(defn- install-deferred-options
+  [s]
+  (let [opts (:deferred-options s)]
+    (reduce
+      (fn [state [feature-id options]]
+        (update-in state [:features feature-id :values]
+                   concat options))
+      (dissoc s :deferred-options)
+      opts)))
+
+(defn- process-map
+  [k processor s]
+  (update s k
+          (fn [the-map]
+            (reduce
+              (fn [result [k v]]
+                (assoc result
+                       k
+                       (processor s v)))
+              {}
+              the-map))))
+
+(defn- install-features
+  [s entity]
+  (-> entity
+      (update :features
+              (partial map (fn [f]
+                             (if (not (keyword? f))
+                               f ;; already inflated
+
+                               ; pull it out of the state
+                               (get-in s [:features f])))))
+      ; apply features
+      (as-> e (reduce
+                apply-directive
+                e
+                (mapcat :! (:features e))))))
+
+; ======= public api =======================================
+
 (defn apply-directive [state directive-vector]
   (let [[kind & args] directive-vector]
     (if-let [f (get directives kind)]
@@ -65,18 +111,6 @@
         (println "WARN: unknown directive:" kind)
         state))))
 
-(defn- install-deferred-options
-  [s]
-  (let [opts (:deferred-options s)]
-    (reduce
-      (fn [state [feature-id options]]
-        (update-in state [:features feature-id :values]
-                   concat options))
-      (dissoc s :deferred-options)
-      opts)))
-
-; ======= public api =======================================
-
 (defn compile-directives
   "Given a sequence of directives, return a compiled DataSource state"
   [directives]
@@ -85,10 +119,12 @@
        ; compile directives into a state
        (reduce apply-directive {})
 
-       ; install options
+       ; deferred processing, now that all directives have been applied
+       ; and all features/options should be available
        install-deferred-options
 
-       ; TODO more deferred processing, now that we have all directives
-       ; EG: provide all filtered features to matching classes
+       (process-map :classes install-features)
+       (process-map :races install-features)
+
        ))
 

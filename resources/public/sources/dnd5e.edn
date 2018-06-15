@@ -4,7 +4,9 @@
 
  {:id :hit-dice/d8
   :name "Hit Dice: D8"
-  :! [[:!add-limited-use
+  :! [[:!provide-attr
+       :5e/hit-dice 8]
+      [:!add-limited-use
        {:id :hit-dice/d8#uses
         :name "D8"
         :restore-trigger :long-rest
@@ -16,7 +18,9 @@
 
  {:id :hit-dice/d10
   :name "Hit Dice: D10"
-  :! [[:!add-limited-use
+  :! [[:!provide-attr
+       :5e/hit-dice 10]
+      [:!add-limited-use
        {:id :hit-dice/d10#uses
         :name "D10"
         :restore-trigger :long-rest
@@ -41,10 +45,10 @@
  {:id :cleric
   :name "Cleric"
   :attrs
-  [:5e/spellcaster
+  {:5e/spellcaster
    {:spells [:cleric/spells-list]
     :prepares? true}
-   ]
+   }
   :features
   [:hit-dice/d8
    ]}]
