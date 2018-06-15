@@ -4,6 +4,22 @@
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :refer [find-class find-race]]))
 
+; ability scores are a function of the raw, rolled stats
+; in the sheet, racial modififiers, and any ability score improvements
+; from the class.
+; TODO There are also equippable items, but we don't yet support that.
+(reg-sub
+  ::abilities
+  :<- [:sheet]
+  :<- [:race]
+  :<- [:classes]
+  (fn [[sheet race classes]]
+    (apply merge-with +
+           (:abilities sheet)
+           (-> race :attrs :5e/ability-score-increase)
+           ; TODO how should classes do this?
+           [])))
+
 (reg-sub
   ::max-hp
   :<- [:sheet]
@@ -18,3 +34,4 @@
                 :5e/hit-dice)
            (->> sheet
                 :hp-rolled))))
+

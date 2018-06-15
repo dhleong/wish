@@ -16,20 +16,62 @@
 (defn header
   []
   (let [common (<sub [:sheet-meta])
-        sheet (<sub [:sheet])
         classes (<sub [:classes])]
     [:div.header "D&D"
      [:div.name (:name common)]
-     ; TODO levels
      [:div.classes (->> classes
                         (map (fn [c]
                                (str (-> c :data :name) " " (:level c))))
                         (str/join " / "))]
      [:div.race (:name (<sub [:race]))]
+
      [hp]]))
 
-(defn sheet
+(defn section
+  [title & content]
+  (apply vector
+         :div.section
+         [:h1 title]
+         content))
+
+
+; ======= sections =========================================
+
+(def labeled-abilities
+  [[:str "Strength"]
+   [:dex "Dexterity"]
+   [:con "Constitution"]
+   [:int "Intelligence"]
+   [:wis "Wisdom"]
+   [:cha "Charisma"]])
+
+(defn- ability->mod
+  [score]
+  (Math/floor (/ (- score 10) 2)))
+
+(defn abilities
   []
+  (let [abilities (<sub [::dnd5e/abilities])]
+    [:table.abilities
+     [:tbody
+      (for [[id label] labeled-abilities]
+        (let [score (get abilities id)]
+          ^{:key id}
+          [:tr
+           [:td score]
+           [:td label]
+           [:td "mod"]
+           [:td (ability->mod score)]
+           ; TODO saving throws:
+           [:td "save"]
+           [:td (ability->mod score)]]))]]))
+
+
+; ======= Public interface =================================
+
+(defn sheet []
   [:div
    [header]
+   [section "Abilities"
+    [abilities]]
    ])
