@@ -1,0 +1,11 @@
+.sections {
+  display: -ms-flexbox !important;
+  display: flex;
+  -ms-flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
+  -ms-flex-pack: center !important;
+  justify-content: center;
+}
+.sections .section {
+  width: 400px;
+}

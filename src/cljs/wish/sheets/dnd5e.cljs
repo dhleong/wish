@@ -49,7 +49,7 @@
   [score]
   (Math/floor (/ (- score 10) 2)))
 
-(defn abilities
+(defn abilities-section
   []
   (let [abilities (<sub [::dnd5e/abilities])]
     [:table.abilities
@@ -67,11 +67,21 @@
            [:td (ability->mod score)]]))]]))
 
 
+; ======= Skills ===========================================
+
+(defn skills-section
+  []
+  [:div ])
+
+
 ; ======= Public interface =================================
 
 (defn sheet []
   [:div
    [header]
-   [section "Abilities"
-    [abilities]]
+   [:div.sections
+    [section "Abilities"
+     [abilities-section]]
+    [section "Skills"
+     [skills-section]]]
    ])

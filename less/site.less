@@ -1,3 +1,27 @@
 body {
     
 }
+
+.flex(@wrap: false) {
+    display: -ms-flexbox!important;
+    display: flex;
+
+    & when(@wrap = wrap) {
+        -ms-flex-wrap: wrap !important;
+        flex-wrap: wrap !important;
+    }
+}
+
+.justify-content(@where: center) {
+    -ms-flex-pack: @where !important;
+    justify-content: @where;
+}
+
+.sections {
+    .flex(wrap);
+    .justify-content(center);
+
+    .section {
+        max-width: 400px;
+    }
+}
