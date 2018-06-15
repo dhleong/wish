@@ -94,7 +94,8 @@
 (defn skills-section []
   ; TODO skill proficiency/expertise
   (let [abilities (<sub [::dnd5e/abilities])
-        proficiencies (<sub [::dnd5e/skill-proficiencies])]
+        proficiencies (<sub [::dnd5e/skill-proficiencies])
+        prof-bonus (<sub [::dnd5e/proficiency-bonus])]
     (println proficiencies)
     (vec (cons
            :div.sections
@@ -111,8 +112,8 @@
                      [:p.score
                       (+ (ability->mod (get abilities ability))
                          (when proficient?
-                           ; FIXME proficiency bonus * expertise
-                           2))]
+                           ; TODO * expertise
+                           prof-bonus))]
                      (when proficient?
                        [:p.proficient])]))])
              skills-table)))))

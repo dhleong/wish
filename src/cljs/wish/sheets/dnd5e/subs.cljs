@@ -44,7 +44,23 @@
          (mapcat :attrs)
          (filter (fn [[k v]]
                    (when (= v true)
-                     (println k v)
                      (= "proficiency" (namespace k)))))
          (map (comp keyword name first))
          (into #{}))))
+
+(defn level->proficiency-bonus
+  [level]
+  (condp <= level
+    17 6
+    13 5
+    9 4
+    5 3
+    ; else
+    2))
+
+(reg-sub
+  ::proficiency-bonus
+  :<- [:classes]
+  (fn [classes _]
+    (let [total-level (apply + (map :level classes))]
+      (level->proficiency-bonus total-level))))
