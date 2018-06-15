@@ -19,4 +19,5 @@ The actual spell selection is provided by a feature
 
 * ======= Racial spellcasting ==============================
 
-???
+Every class can support a racial spells list that a Racial Spell
+feature would add to
