@@ -13,8 +13,9 @@
   ;; define routes here
   (defroute "/" []
     (navigate! :home)
-    (>evt [::events/set-re-pressed-example nil])
-    (>evt
+
+    ; TODO if we ever need this...
+    #_(>evt
      [::rp/set-keydown-rules
       {:event-keys [[[::events/set-re-pressed-example "Hello, world!"]
                      [{:which 72} ;; h

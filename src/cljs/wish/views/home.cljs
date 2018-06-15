@@ -6,5 +6,5 @@
 (defn home []
   [:div
    [:div "Hi!"]
-   [link {:href "/sheets/dnd5e/dummy-my-sheet-id"}
+   [link {:href "/sheets/dnd5e/dummy/my-sheet-id"}
     "Open sheet"]])
