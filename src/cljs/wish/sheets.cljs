@@ -11,15 +11,24 @@
 (defn sheet-loader []
   [:div "Loading..."])
 
+(defn sources-loader
+  [sheet]
+  [:div "Loading data for " (:name sheet) "..."])
+
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
 (defn viewer
   [[kind sheet-id]]
-  (if-let [info (get sheets (keyword kind))]
+  (if-let [sheet-info (get sheets (keyword kind))]
     (if-let [sheet (<sub [:provided-sheet sheet-id])]
-      ; sheet is ready; render!
-      [(:fn info)]
+      (if-let [source (<sub [:sheet-source sheet-id])]
+        ; sheet is ready; render!
+        [(:fn sheet-info)]
+
+        (do
+          (>evt [:load-sheet-source! sheet-id (:sources sheet)])
+          [sources-loader sheet]))
 
       (do
         (>evt [:load-sheet! sheet-id])

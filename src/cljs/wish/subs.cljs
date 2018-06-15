@@ -11,6 +11,7 @@
 
 (reg-sub :page :page)
 (reg-sub :sheets :sheets)
+(reg-sub :sheet-sources :sheet-sources)
 
 (reg-sheet-sub :sheet-data :sheet)
 (reg-sheet-sub :classes :classes)
@@ -38,8 +39,17 @@
 
 (reg-sub
   :provided-sheet
-  (fn [db [_ sheet-id]]
-    (get-in db [:sheets sheet-id])))
+  :<- [:sheets]
+  (fn [sheets [_ sheet-id]]
+    (get sheets sheet-id)))
+
+(reg-sub
+  :sheet-source
+  :<- [:sheet-sources]
+  (fn [sources [_ sheet-id]]
+    (let [{:keys [source loaded?]} (get sources sheet-id)]
+      (when loaded?
+        source))))
 
 (reg-sub
  ::re-pressed-example

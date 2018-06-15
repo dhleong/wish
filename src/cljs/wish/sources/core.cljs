@@ -4,14 +4,20 @@
 
 (defprotocol IDataSource
   "Anything that provides features, classes, etc."
+  (id [this])
   (find-class [this id]))
 
 (deftype DataSource [id data]
   IDataSource
   (find-class [this id]
-    nil))
+    nil)
+
+  (id [this]
+    (.-id this)))
 
 (deftype CompositeDataSource [id delegates]
   IDataSource
   (find-class [this id]
-    (some find-class (.-delegates this))))
+    (some find-class (.-delegates this)))
+  (id [this]
+    (.-id this)))
