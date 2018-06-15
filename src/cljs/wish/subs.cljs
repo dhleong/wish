@@ -1,5 +1,6 @@
 (ns wish.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
+            [wish.sources.compiler :refer [apply-options]]
             [wish.sources.core :refer [find-class find-race]]))
 
 (defn reg-sheet-sub
@@ -61,12 +62,16 @@
 (reg-sub
   :classes
   :<- [:sheet-source]
+  :<- [:options]
   :<- [:class-metas]
-  (fn [[source metas] _]
+  (fn [[source options metas] _]
     (when source
-      (map (fn [m]
-             (assoc m :data (find-class source (:id m))))
-           metas))))
+      (->> metas
+           (map (fn [m]
+                  (merge m (find-class source (:id m)))))
+           (map (fn [c]
+                  (apply-options source c options))))
+      )))
 
 (reg-sub
   :races

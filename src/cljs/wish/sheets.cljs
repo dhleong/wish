@@ -4,6 +4,8 @@
   (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.util :refer [<sub >evt]]))
 
+; TODO we could use code splitting here to avoid loading
+; sheet templates that we don't care about
 (def sheets
   {:dnd5e {:name "D&D 5E"
            :fn #'dnd5e/sheet}})

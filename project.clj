@@ -9,7 +9,8 @@
                  [re-pressed "0.2.1"]
 
                  [kibu/pushy "0.3.8"]
-                 [cljs-ajax "0.7.3"]]
+                 [cljs-ajax "0.7.3"]
+                 [org.roman01la/cljss "1.6.2"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-less "1.7.5"]]

@@ -29,9 +29,22 @@
            (->> classes
                 (filter :primary?)
                 first
-                :data
                 :attrs
                 :5e/hit-dice)
            (->> sheet
                 :hp-rolled))))
 
+; returns a set of skill ids
+(reg-sub
+  ::skill-proficiencies
+  :<- [:classes]
+  (fn [classes _]
+    ; TODO do any races provide skill proficiency?
+    (->> classes
+         (mapcat :attrs)
+         (filter (fn [[k v]]
+                   (when (= v true)
+                     (println k v)
+                     (= "proficiency" (namespace k)))))
+         (map (comp keyword name first))
+         (into #{}))))

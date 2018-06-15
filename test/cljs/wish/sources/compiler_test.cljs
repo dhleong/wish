@@ -1,7 +1,8 @@
 (ns wish.sources.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [cljs.nodejs :as node]
-            [wish.sources.compiler :refer [compile-directives]]))
+            [wish.sources.compiler :refer [apply-options compile-directives]]
+            [wish.sources.core :refer [->DataSource]]))
 
 (def character-state
   {:level 42})
@@ -60,3 +61,25 @@
       (is (= [{:id :feature/opt1}
               {:id :feature/opt2}]
              (:values f))))))
+
+(deftest apply-options-test
+  (testing "Apply options to class instance"
+    (let [ds (->DataSource
+               :source
+               (compile-directives
+                 [[:!provide-feature
+                   {:id :proficiency/stealth
+                    :name "Stealth"
+                    :! [[:!provide-attr :proficiency/stealth true]]}]
+                  [:!declare-class
+                   {:id :cleric
+                    :features
+                    [{:id :rogue/skill-proficiencies
+                      :name "Proficiencies"
+                      :max-options 2
+                      :values [:proficiency/stealth]}
+                     ]}]]))
+          opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
+          applied (apply-options ds {} opts-map)]
+      (is (= {:attrs {:proficiency/stealth true}}
+             applied)))))

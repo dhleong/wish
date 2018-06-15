@@ -5,6 +5,8 @@
             [wish.util :refer [<sub]]
             [wish.sheets.dnd5e.subs :as dnd5e]))
 
+; ======= Utils ============================================
+
 (defn hp
   []
   (let [sheet (<sub [:sheet])
@@ -21,7 +23,7 @@
      [:div.name (:name common)]
      [:div.classes (->> classes
                         (map (fn [c]
-                               (str (-> c :data :name) " " (:level c))))
+                               (str (-> c :name) " " (:level c))))
                         (str/join " / "))]
      [:div.race (:name (<sub [:race]))]
 
@@ -69,9 +71,51 @@
 
 ; ======= Skills ===========================================
 
-(defn skills-section
-  []
-  [:div ])
+(def ^:private skills-table
+  [[[:dex :acrobatics "Acrobatics"]
+    [:wis :animal-handling "Animal Handling"]
+    [:int :arcana "Arcana"]
+    [:str :athletics "Athletics"]
+    [:cha :deception "Deception"]
+    [:int :history "History"]
+    [:wis :insight "Insight"]
+    [:cha :intimidation "Intimidation"]
+    [:int :investigation "Investigation"]]
+   [[:wis :medicine "Medicine"]
+    [:int :nature "Nature"]
+    [:wis :perception "Perception"]
+    [:cha :performance "Performance"]
+    [:cha :persuasion "Persuasion"]
+    [:int :religion "Religion"]
+    [:dex :sleight-of-hand "Sleight of Hand"]
+    [:dex :stealth "Stealth"]
+    [:wis :survival "Survival"]]])
+
+(defn skills-section []
+  ; TODO skill proficiency/expertise
+  (let [abilities (<sub [::dnd5e/abilities])
+        proficiencies (<sub [::dnd5e/skill-proficiencies])]
+    (println proficiencies)
+    (vec (cons
+           :div.sections
+           (map
+             (fn [col]
+               [:div.skill-col
+                (for [[ability skill-id label] col]
+                  (let [proficient? (contains? proficiencies skill-id)]
+                    ^{:key skill-id}
+                    [:div.skill
+                     [:div.base-ability
+                      (str "(" (name ability) ")")]
+                     [:div.name label]
+                     [:p.score
+                      (+ (ability->mod (get abilities ability))
+                         (when proficient?
+                           ; FIXME proficiency bonus * expertise
+                           2))]
+                     (when proficient?
+                       [:p.proficient])]))])
+             skills-table)))))
 
 
 ; ======= Public interface =================================

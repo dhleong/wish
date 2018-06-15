@@ -6,6 +6,7 @@
   "Anything that provides features, classes, etc."
   (id [this])
   (find-class [this id])
+  (find-feature [this id])
   (find-race [this id]))
 
 (deftype DataSource [id data]
@@ -13,6 +14,10 @@
   (find-class [this id]
     (get-in (.-data this)
             [:classes id]))
+
+  (find-feature [this id]
+    (get-in (.-data this)
+            [:features id]))
 
   (find-race [this id]
     (get-in (.-data this)
@@ -29,6 +34,8 @@
   IDataSource
   (find-class [this id]
     (first-delegate-by-id this find-class id))
+  (find-feature [this id]
+    (first-delegate-by-id this find-feature id))
   (find-race [this id]
     (first-delegate-by-id this find-race id))
 

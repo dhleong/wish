@@ -2,6 +2,7 @@
       :doc "DataSource compiler"}
   wish.sources.compiler
   (:require [wish.sources.compiler.feature :refer [compile-feature]]
+            [wish.sources.core :refer [find-feature]]
             [wish.templ.fun :refer [->callable]]))
 
 ; ======= options ==========================================
@@ -82,6 +83,7 @@
               {}
               the-map))))
 
+(declare apply-directive) ; part of the public API below
 (defn- install-features
   [s entity]
   (-> entity
@@ -128,3 +130,35 @@
 
        ))
 
+(defn- apply-feature-options
+  [data-source state feature-id options-chosen]
+  (if (empty? options-chosen)
+    state
+
+    (let [option-value (first options-chosen)
+          feature-directives (:! (find-feature data-source option-value))]
+      (recur
+        data-source
+
+        ; new state:
+        (if feature-directives
+          (reduce apply-directive state feature-directives)
+
+          (do
+            (println "TODO apply " option-value " for feature " feature-id)
+            state))
+
+        feature-id
+        (next options-chosen)))))
+
+(defn apply-options
+  [data-source state options-map]
+  (if (empty? options-map)
+    state
+
+    (let [[feature-id options-chosen] (first options-map)]
+      (recur
+        data-source
+
+        (apply-feature-options data-source state feature-id options-chosen)
+        (next options-map)))))

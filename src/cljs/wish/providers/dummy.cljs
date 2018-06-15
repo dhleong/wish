@@ -29,7 +29,8 @@
 
    ; map of feature-id -> options chosen
    :options
-   {:paladin/oath [:paladin/vengeance]}
+   {:paladin/oath [:paladin/vengeance]
+    :cleric/skill-proficiencies [:proficiency/history :proficiency/insight]}
 
    ; opaque, sheet-specific data
    :sheet
