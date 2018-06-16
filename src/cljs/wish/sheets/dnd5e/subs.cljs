@@ -2,7 +2,8 @@
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
-            [wish.sources.core :refer [find-class find-race]]))
+            [wish.sources.core :refer [find-class find-race]]
+            [wish.sheets.dnd5e.util :refer [ability->mod]]))
 
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
@@ -31,14 +32,14 @@
 (reg-sub
   ::max-hp
   :<- [:sheet]
-  :<- [:classes]
-  (fn [[sheet classes]]
+  :<- [::abilities]
+  :<- [::total-level]
+  (fn [[sheet abilities total-level]]
     (apply +
-           (->> classes
-                (filter :primary?)
-                first
-                :attrs
-                :5e/hit-dice)
+           (* total-level
+              (->> abilities
+                   :con
+                   ability->mod))
            (->> sheet
                 :hp-rolled))))
 

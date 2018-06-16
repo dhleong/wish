@@ -4,7 +4,8 @@
   (:require [clojure.string :as str]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as dnd5e]
-            [wish.sheets.dnd5e.events :as events]))
+            [wish.sheets.dnd5e.events :as events]
+            [wish.sheets.dnd5e.util :refer [ability->mod]]))
 
 ; ======= Utils ============================================
 
@@ -51,10 +52,6 @@
    [:int "Intelligence"]
    [:wis "Wisdom"]
    [:cha "Charisma"]])
-
-(defn- ability->mod
-  [score]
-  (Math/floor (/ (- score 10) 2)))
 
 (defn abilities-section
   []
