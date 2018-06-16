@@ -10,6 +10,7 @@
       [:!add-limited-use
        {:id :hit-dice/d8#uses
         :name "D8"
+        :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
                           (min used
@@ -25,6 +26,7 @@
       [:!add-limited-use
        {:id :hit-dice/d10#uses
         :name "D10"
+        :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
                           (min used
@@ -37,9 +39,8 @@
   :implicit? true
   :! [[:!add-limited-use
        {:id :hp#uses
-        :restore-trigger :long-rest
-        :restore-amount (fn [used]
-                          used)}]]}]
+        :implicit? true
+        :restore-trigger :long-rest}]]}]
 
 [:!provide-feature
  {:id :proficiency/acrobatics
@@ -113,12 +114,26 @@
   :name "Cleric"
   :attrs
   {:5e/spellcaster
-   {:spells [:cleric/spells-list]
+   {:cantrips [1 3,
+               4 1,
+               10 1]
+    :ability :wis
+    :spells :cleric/spells-list
+    :extra-spells :cleric/extra-spells
     :prepares? true}
    }
+
   :features
   [:hit-dice/d8
    :hp
+
+   ; TODO this should be at level 2
+   :cleric/channel-divinity
+
+   {:id :cleric/domain
+    :name "Divine Domain"
+    :desc "Choose one domain related to your deity, such as Life. Each domain is detailed at the end of the class description, and each one provides examples of gods associated with it. Your choice grants you domain spells and other features when you choose it at 1st level. It also grants you additional ways to use Channel Divinity when you gain that feature at 2nd level, and additional benefits at 6th, 8th, and 17th levels."
+    :max-options 1}
 
    {:id :cleric/skill-proficiencies
     :name "Proficiencies"
@@ -126,6 +141,43 @@
     :max-options 2
     :values [:proficiency/history :proficiency/insight :proficiency/medicine :proficiency/persuasion :proficiency/religion]
     }]}]
+
+[:!provide-feature
+ {:id :cleric/channel-divinity
+  :name "Channel Divinity"
+  :! [[:!add-limited-use
+       {:id :channel-divinity#uses
+        :name "Channel Divinity"
+        :restore-trigger :short-rest
+        :uses (fn [level]
+                (cond
+                  (>= level 16) 3
+                  (>= level 6) 2
+                  :else 1))
+        }]]}]
+
+[:!provide-options
+ :cleric/domain
+ {:id :cleric/life-domain
+  :name "Life Domain"
+  :desc "The Life domain focuses on the vibrant positive energy—one of the fundamental forces of the universe—that sustains all life. The gods of life promote vitality and health through healing the sick and wounded, caring for those in need, and driving away the forces of death and undeath. Almost any non-evil deity can claim influence over this domain, particularly agricultural deities (such as Chauntea, Arawai, and Demeter), sun gods (such as Lathander, Pelor, and Re-Horakhty), gods of healing or endurance (such as Ilmater, Mishakal, Apollo, and Diancecht), and gods of home and community (such as Hestia, Hathor, and Boldrei)."
+  :! [[:!add-to-list
+       :cleric/extra-spells
+       [:bless :cure-wounds]]
+
+      [:!provide-feature
+       {:id :cleric/disciple-of-life
+        :name "Disciple of Life"
+        :desc "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell’s level."
+
+        ; TODO can we surface this somehow? that would be VERY fancy...
+        }]]
+
+  :&levels {3 {:! [[:!add-to-list
+                    :cleric/extra-spells
+                    [:lesser-restoration :spiritual-weapon]]]}}}]
+
+;; races
 
 [:!declare-race
  {:id :human

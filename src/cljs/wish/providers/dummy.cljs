@@ -18,7 +18,7 @@
    ; but we'll allow it in the file
    :classes
    {:cleric {:id :cleric
-             :level 1
+             :level 2
              :primary? true}}
 
    :races [:human]
@@ -29,8 +29,8 @@
 
    ; map of feature-id -> options chosen
    :options
-   {:paladin/oath [:paladin/vengeance]
-    :cleric/skill-proficiencies [:proficiency/history :proficiency/insight]}
+   {:cleric/skill-proficiencies [:proficiency/history :proficiency/insight]
+    :cleric/domain [:cleric/life-domain]}
 
    ; opaque, sheet-specific data
    :sheet
@@ -45,7 +45,7 @@
     ; vector of rolled HP at level `i-1`
     ; level 1 is normally the max value, but DMs might house rule,
     ; so we'll just let it be whatever you like
-    :hp-rolled [8]}
+    :hp-rolled [8 6]}
 
    ; notes is a sequence of [date note] pairs
    :notes

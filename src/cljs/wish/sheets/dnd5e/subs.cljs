@@ -24,10 +24,10 @@
 (reg-sub
   ::limited-uses
   :<- [:limited-uses]
-  ; TODO also, probably, items?
   (fn [items]
-    ; TODO probably, remove hit-dice since that is tied to short-rest
-    items))
+    (remove
+      :implicit?
+      items)))
 
 (reg-sub
   ::hp
