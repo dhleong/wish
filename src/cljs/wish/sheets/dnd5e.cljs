@@ -2,8 +2,9 @@
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
   (:require [clojure.string :as str]
-            [wish.util :refer [<sub]]
-            [wish.sheets.dnd5e.subs :as dnd5e]))
+            [wish.util :refer [<sub click>evt]]
+            [wish.sheets.dnd5e.subs :as dnd5e]
+            [wish.sheets.dnd5e.events :as events]))
 
 ; ======= Utils ============================================
 
@@ -13,7 +14,11 @@
         max-hp (<sub [::dnd5e/max-hp])]
     [:div.hp "HP"
      [:div.now (:hp sheet)]
-     [:div.max  (str "/" max-hp)]]))
+     [:div.max  (str "/" max-hp)]
+     [:a
+      {:href "#"
+       :on-click (click>evt [::events/update-hp])}
+      "Test"]]))
 
 (defn header
   []

@@ -3,12 +3,27 @@
             [wish.sources.compiler :refer [apply-options]]
             [wish.sources.core :refer [find-class find-race]]))
 
+(defn active-sheet-id
+  [db & [page-vec]]
+  (let [page-vec (or page-vec
+                     (:page db))]
+    (let [[page args] page-vec]
+      (when (= :sheet page)
+        ; NOTE: the first arg is the sheet kind;
+        ; the second is the id
+        (second args)))))
+
 (defn reg-sheet-sub
-  [name getter]
+  [id getter]
+  ; NOTE: instead of depending on a single subscription,
+  ; we go ahead and create a separate subscription for
+  ; each part of the sheet, to avoid a small edit to HP,
+  ; for example, causing all of the spell lists and features
+  ; (which rely on classes, etc.) to be re-calculated
   (reg-sub
-    name
+    id
     :<- [:sheet-meta]
-    (fn [sheet]
+    (fn [sheet _]
       (getter sheet))))
 
 (reg-sub :page :page)
@@ -25,11 +40,7 @@
   :active-sheet-id
   :<- [:page]
   (fn [page-vec _]
-    (let [[page args] page-vec]
-      (when (= :sheet page)
-        ; NOTE: the first arg is the sheet kind;
-        ; the second is the id
-        (second args)))))
+    (active-sheet-id nil page-vec)))
 
 (reg-sub
   :provided-sheet
