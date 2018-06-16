@@ -21,6 +21,24 @@
       (and (boolean js/navigator.platform)
            (re-find #"iPad|iPhone|iPod" js/navigator.platform)))))
 
+(defn invoke-callable
+  "Invoke a callable in the context of the given entity,
+   optionally providing other key-value pairs. Restoring
+   a limited-use, for example might look like:
+
+    (call item :restore-amount
+      :trigger :long-rest
+      :used (get (<sub [:limited-used]) (:id item))
+
+   If the entity has the key :wish/context, that will be
+   used as the context instead of the entity itself
+   "
+  [entity k & extra-kvs]
+  (let [context (or (:wish/context entity)
+                    entity)]
+    ((k entity) (apply assoc context extra-kvs))))
+
+
 (defn navigate!
   [& args]
   (let [evt (vec (cons :navigate! args))]

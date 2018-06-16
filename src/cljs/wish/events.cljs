@@ -1,9 +1,12 @@
 (ns wish.events
   (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
-                                   trim-v]]
+                                   inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+            [vimsical.re-frame.cofx.inject :as inject]
             [wish.db :as db]
-            [wish.providers :as providers]))
+            [wish.providers :as providers]
+            [wish.subs :refer [active-sheet-id]]
+            [wish.util :refer [invoke-callable]]))
 
 (reg-event-fx
   ::initialize-db
@@ -50,3 +53,41 @@
     (assoc-in db [:sheet-sources sheet-id]
               {:loaded? true
                :source source})))
+
+(defn apply-limited-use-trigger
+  [limited-used-map limited-uses trigger]
+  (reduce
+    (fn [m [use-id used]]
+      (if-let [use-obj (get limited-uses use-id)]
+        (let [restore-amount (invoke-callable
+                               use-obj
+                               :restore-amount
+                               :used used
+                               :trigger trigger)
+              new-amount (max 0
+                              (- used
+                                 restore-amount))]
+          (assoc m use-id new-amount))
+
+        ; else:
+        (do
+          (js/console.warn "Have unrelated limited-use " use-id " !!")
+          ; TODO should we just dissoc the use-id?
+          m)))
+    limited-used-map
+    limited-used-map))
+
+(reg-event-fx
+  :trigger-limited-use-restore
+  [trim-v
+   (inject-cofx ::inject/sub [:limited-uses])
+   (inject-cofx ::inject/sub [:active-sheet-id])]
+  (fn-traced [{:keys [db limited-uses active-sheet-id]} [trigger]]
+    {:db (update-in db [:sheets active-sheet-id :limited-uses]
+                    apply-limited-use-trigger
+                      (reduce
+                      (fn [m v]
+                        (assoc m (:id v) v))
+                      {}
+                      limited-uses)
+                    trigger)}))

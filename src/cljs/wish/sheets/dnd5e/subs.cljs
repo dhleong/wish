@@ -21,6 +21,14 @@
            [])))
 
 (reg-sub
+  ::limited-uses
+  :<- [:limited-uses]
+  ; TODO also, probably, items?
+  (fn [items]
+    ; TODO probably, remove hit-dice since that is tied to short-rest
+    items))
+
+(reg-sub
   ::max-hp
   :<- [:sheet]
   :<- [:classes]
@@ -57,6 +65,12 @@
     #{}))
 
 
+(reg-sub
+  ::total-level
+  :<- [:classes]
+  (fn [classes _]
+    (apply + (map :level classes))))
+
 (defn level->proficiency-bonus
   [level]
   (condp <= level
@@ -69,7 +83,6 @@
 
 (reg-sub
   ::proficiency-bonus
-  :<- [:classes]
-  (fn [classes _]
-    (let [total-level (apply + (map :level classes))]
-      (level->proficiency-bonus total-level))))
+  :<- [::total-level]
+  (fn [total-level _]
+    (level->proficiency-bonus total-level)))

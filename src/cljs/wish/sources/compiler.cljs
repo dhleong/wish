@@ -2,6 +2,7 @@
       :doc "DataSource compiler"}
   wish.sources.compiler
   (:require [wish.sources.compiler.feature :refer [compile-feature]]
+            [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.core :refer [find-feature]]
             [wish.templ.fun :refer [->callable]]))
 
@@ -16,7 +17,14 @@
 ; ======= directives =======================================
 
 (def directives
-  {:!declare-class
+  {:!add-limited-use
+   (fn add-limited-use [state limited-use-map]
+     (update state :limited-uses
+             assoc
+             (:id limited-use-map)
+             (compile-limited-use limited-use-map)))
+
+   :!declare-class
    (fn declare-class [state class-map]
      (update state :classes
              assoc

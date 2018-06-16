@@ -33,7 +33,7 @@
 (reg-sheet-sub :sheet :sheet)
 (reg-sheet-sub :class-metas (comp vals :classes))
 (reg-sheet-sub :race-ids :races)
-(reg-sheet-sub :limited-uses :limited-uses)
+(reg-sheet-sub :limited-used :limited-uses)
 (reg-sheet-sub :options :options)
 
 (reg-sub
@@ -99,3 +99,26 @@
   :<- [:races]
   (fn [races _]
     (first races)))
+
+(defn- uses-with-context
+  [kind entity]
+  (->> entity
+       :limited-uses
+       vals
+       (map (fn [item]
+              (assoc item
+                     :wish/context-type kind
+                     :wish/context entity)))))
+
+(reg-sub
+  :limited-uses
+  :<- [:classes]
+  :<- [:races]
+  ; TODO also, probably, items?
+  (fn [[classes races]]
+    (flatten
+      (concat
+        (->> races
+             (map (partial uses-with-context :race)))
+        (->> classes
+             (map (partial uses-with-context :class)))))))

@@ -10,7 +10,12 @@
 
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.7.3"]
-                 [org.roman01la/cljss "1.6.2"]]
+
+                 ; sheet-specific inline css
+                 [org.roman01la/cljss "1.6.2"]
+
+                 ; ::inject/sub cofx (for subscriptions in event handlers)
+                 [re-frame-utils "0.1.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
             [lein-less "1.7.5"]]

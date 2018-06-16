@@ -2,7 +2,7 @@
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
   (:require [clojure.string :as str]
-            [wish.util :refer [<sub click>evt]]
+            [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]))
 
@@ -168,6 +168,45 @@
        ; TODO feats?
        ])))
 
+
+; ======= Limited-use ======================================
+
+(def trigger-labels
+  {:short-rest "Short Rest"
+   :long-rest "Long Rest"})
+
+(defn describe-uses
+  [uses trigger]
+  (if (= 1 uses)
+    (str "Once per " (trigger-labels trigger))
+    (str uses " uses / " (trigger-labels trigger))))
+
+(defn limited-use-section [items]
+  (let [items (<sub [::dnd5e/limited-uses])
+        used (<sub [:limited-used])]
+    [:div
+     [:div.rests
+      [:div.short
+       {:on-click (click>evt [:trigger-limited-use-restore :short-rest])}
+       "Short Rest"]
+      [:div.long
+       "Long Rest"]]
+
+     (for [item items]
+       (let [uses (invoke-callable item :uses)]
+         ^{:key (:id item)}
+         [:div.limited-use
+          [:div.name (:name item)]
+          [:span.recovery
+           (describe-uses uses (:restore-trigger item))]]))
+     ]))
+
+
+; ======= Spells ===========================================
+
+(defn spells-section []
+  [:div "TODO"])
+
 ; ======= Public interface =================================
 
 (defn sheet []
@@ -182,4 +221,9 @@
      [combat-section]]
 
     [section "Features"
-     [features-section]]]])
+     [features-section]]
+    
+    [section "Limited-use"
+     [limited-use-section]]
+    [section "Spells"
+     [spells-section]]]])
