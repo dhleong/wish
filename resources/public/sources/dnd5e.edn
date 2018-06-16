@@ -4,6 +4,7 @@
 
  {:id :hit-dice/d8
   :name "Hit Dice: D8"
+  :implicit? true
   :! [[:!provide-attr
        :5e/hit-dice 8]
       [:!add-limited-use
@@ -18,6 +19,7 @@
 
  {:id :hit-dice/d10
   :name "Hit Dice: D10"
+  :implicit? true
   :! [[:!provide-attr
        :5e/hit-dice 10]
       [:!add-limited-use
@@ -110,6 +112,7 @@
 
    {:id :cleric/skill-proficiencies
     :name "Proficiencies"
+    :implicit? true
     :max-options 2
     :values [:proficiency/history :proficiency/insight :proficiency/medicine :proficiency/persuasion :proficiency/religion]
     }]}]

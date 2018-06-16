@@ -96,7 +96,6 @@
   (let [abilities (<sub [::dnd5e/abilities])
         proficiencies (<sub [::dnd5e/skill-proficiencies])
         prof-bonus (<sub [::dnd5e/proficiency-bonus])]
-    (println proficiencies)
     (vec (cons
            :div.sections
            (map
@@ -119,6 +118,48 @@
              skills-table)))))
 
 
+; ======= Combat ===========================================
+
+(defn combat-section []
+  [:div "TODO"])
+
+
+; ======= Features =========================================
+
+(defn- features-for
+  [sub-vector]
+  (->> (<sub sub-vector)
+       (mapcat :features)
+       (remove :implicit?)
+       seq))
+
+(defn feature
+  [f]
+  [:div.feature
+   [:div.name (:name f)]
+   [:div.desc (:desc f)]])
+
+(defn features-section []
+  (vec
+    (cons
+      :div.features
+      [(when-let [fs (features-for [:classes])]
+         [:div.features-category
+          [:h3 "Class features"]
+          (for [f fs]
+            ^{:key (:id f)}
+            [feature f])])
+       (when-let [fs (features-for [:races])]
+         [:div.features-category
+          [:h3 "Racial Traits"]
+          (for [f fs]
+            ^{:key (:id f)}
+            [feature f])])
+
+       ; TODO proficiencies?
+       ; TODO feats?
+       ])))
+
 ; ======= Public interface =================================
 
 (defn sheet []
@@ -128,5 +169,9 @@
     [section "Abilities"
      [abilities-section]]
     [section "Skills"
-     [skills-section]]]
-   ])
+     [skills-section]]
+    [section "Combat"
+     [combat-section]]
+
+    [section "Features"
+     [features-section]]]])
