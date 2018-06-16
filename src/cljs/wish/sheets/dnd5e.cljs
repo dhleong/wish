@@ -97,8 +97,8 @@
     [:wis :survival "Survival"]]])
 
 (defn skills-section []
-  ; TODO skill proficiency/expertise
   (let [abilities (<sub [::dnd5e/abilities])
+        expertise (<sub [::dnd5e/skill-expertise])
         proficiencies (<sub [::dnd5e/skill-proficiencies])
         prof-bonus (<sub [::dnd5e/proficiency-bonus])]
     (vec (cons
@@ -107,7 +107,8 @@
              (fn [col]
                [:div.skill-col
                 (for [[ability skill-id label] col]
-                  (let [proficient? (contains? proficiencies skill-id)]
+                  (let [expert? (contains? expertise skill-id)
+                        proficient? (contains? proficiencies skill-id)]
                     ^{:key skill-id}
                     [:div.skill
                      [:div.base-ability
@@ -115,11 +116,13 @@
                      [:div.name label]
                      [:p.score
                       (+ (ability->mod (get abilities ability))
-                         (when proficient?
-                           ; TODO * expertise
-                           prof-bonus))]
-                     (when proficient?
-                       [:p.proficient])]))])
+                         (cond
+                           expert? (* 2 prof-bonus)
+                           proficient?  prof-bonus))]
+                     (when (or expert? proficient?)
+                       [:p {:class (if expert?
+                                     "expert"
+                                     "proficient")}])]))])
              skills-table)))))
 
 

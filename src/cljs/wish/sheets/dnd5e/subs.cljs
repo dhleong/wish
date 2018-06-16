@@ -48,6 +48,15 @@
          (map (comp keyword name first))
          (into #{}))))
 
+; returns a set of skill ids
+(reg-sub
+  ::skill-expertise
+  :<- [:classes]
+  (fn [classes _]
+    ; TODO expertise support
+    #{}))
+
+
 (defn level->proficiency-bonus
   [level]
   (condp <= level
