@@ -80,14 +80,10 @@
 (reg-event-fx
   :trigger-limited-use-restore
   [trim-v
-   (inject-cofx ::inject/sub [:limited-uses])
+   (inject-cofx ::inject/sub [:limited-uses-map])
    (inject-cofx ::inject/sub [:active-sheet-id])]
-  (fn-traced [{:keys [db limited-uses active-sheet-id]} [trigger]]
+  (fn-traced [{:keys [db limited-uses-map active-sheet-id]} [trigger]]
     {:db (update-in db [:sheets active-sheet-id :limited-uses]
                     apply-limited-use-trigger
-                      (reduce
-                      (fn [m v]
-                        (assoc m (:id v) v))
-                      {}
-                      limited-uses)
+                    limited-uses-map
                     trigger)}))

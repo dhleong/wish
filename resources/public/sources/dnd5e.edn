@@ -33,6 +33,15 @@
                 level)}]]}]
 
 [:!provide-feature
+ {:id :hp
+  :implicit? true
+  :! [[:!add-limited-use
+       {:id :hp#uses
+        :restore-trigger :long-rest
+        :restore-amount (fn [used]
+                          used)}]]}]
+
+[:!provide-feature
  {:id :proficiency/acrobatics
   :name "Acrobatics"
   :! [[:!provide-attr :proficiency/acrobatics true]]}
@@ -109,6 +118,7 @@
    }
   :features
   [:hit-dice/d8
+   :hp
 
    {:id :cleric/skill-proficiencies
     :name "Proficiencies"

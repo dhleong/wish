@@ -30,18 +30,22 @@
     items))
 
 (reg-sub
-  ::max-hp
+  ::hp
   :<- [:sheet]
   :<- [::abilities]
   :<- [::total-level]
-  (fn [[sheet abilities total-level]]
-    (apply +
-           (* total-level
-              (->> abilities
-                   :con
-                   ability->mod))
-           (->> sheet
-                :hp-rolled))))
+  :<- [:limited-used]
+  (fn [[sheet abilities total-level limited-used-map]]
+    (let [max-hp (apply +
+                        (* total-level
+                           (->> abilities
+                                :con
+                                ability->mod))
+                        (->> sheet
+                             :hp-rolled))
+          used-hp (or (:hp#uses limited-used-map)
+                      0)]
+      [(- max-hp used-hp) max-hp])))
 
 ; returns a set of skill ids
 (reg-sub

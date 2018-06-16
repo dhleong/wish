@@ -11,10 +11,9 @@
 
 (defn hp
   []
-  (let [sheet (<sub [:sheet])
-        max-hp (<sub [::dnd5e/max-hp])]
+  (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
     [:div.hp "HP"
-     [:div.now (:hp sheet)]
+     [:div.now hp]
      [:div.max  (str "/" max-hp)]
      [:a
       {:href "#"
@@ -187,6 +186,7 @@
        {:on-click (click>evt [:trigger-limited-use-restore :short-rest])}
        "Short Rest"]
       [:div.long
+       {:on-click (click>evt [:trigger-limited-use-restore :long-rest])}
        "Long Rest"]]
 
      (for [item items]

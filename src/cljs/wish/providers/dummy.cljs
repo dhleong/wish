@@ -45,8 +45,7 @@
     ; vector of rolled HP at level `i-1`
     ; level 1 is normally the max value, but DMs might house rule,
     ; so we'll just let it be whatever you like
-    :hp-rolled [8]
-    :hp 8}
+    :hp-rolled [8]}
 
    ; notes is a sequence of [date note] pairs
    :notes

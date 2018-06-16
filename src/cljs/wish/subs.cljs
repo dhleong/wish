@@ -122,3 +122,13 @@
              (map (partial uses-with-context :race)))
         (->> classes
              (map (partial uses-with-context :class)))))))
+
+(reg-sub
+  :limited-uses-map
+  :<- [:limited-uses]
+  (fn [limited-uses]
+    (reduce
+      (fn [m v]
+        (assoc m (:id v) v))
+      {}
+      limited-uses)))

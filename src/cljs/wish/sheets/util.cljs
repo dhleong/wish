@@ -27,3 +27,8 @@
   [db f & args]
   (let [sheet-id (active-sheet-id db)]
     (apply update-in db [:sheets sheet-id :sheet] f args)))
+
+(defn update-uses
+  [db use-id f & args]
+  (let [sheet-id (active-sheet-id db)]
+    (apply update-in db [:sheets sheet-id :limited-uses use-id] f args)))
