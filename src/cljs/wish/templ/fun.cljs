@@ -196,13 +196,17 @@
   "Convert a form that could either be a fn or a constant
    value into a callable that accepts some a map"
   [form]
-  (if (seq? form)
-    (let [[_fn args & body] form]
-      (if (and (= "fn" (str _fn))
-               (vector? args))
-        (let [fn-form `(fn [{:keys ~args}]
-                         ~@body)]
-          (eval-form fn-form))
+  (when form
+    (cond
+      ; already callable
+      (fn? form) form
 
-        (->constant-callable form)))
-    (->constant-callable form)))
+      (seq? form) (let [[_fn args & body] form]
+                    (if (and (= "fn" (str _fn))
+                             (vector? args))
+                      (let [fn-form `(fn [{:keys ~args}]
+                                       ~@body)]
+                        (eval-form fn-form))
+
+                      (->constant-callable form)))
+      :else (->constant-callable form))))

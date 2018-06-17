@@ -1,9 +1,10 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
-  (:require [re-frame.core :refer [reg-sub subscribe]]
+  (:require [re-frame.core :refer [reg-sub]]
             [wish.sources.core :refer [expand-list find-class find-race]]
-            [wish.sheets.dnd5e.util :refer [ability->mod]]))
+            [wish.sheets.dnd5e.util :refer [ability->mod]]
+            [wish.util :refer [invoke-callable]]))
 
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
@@ -79,13 +80,6 @@
     ; TODO expertise support
     #{}))
 
-
-(reg-sub
-  ::total-level
-  :<- [:classes]
-  (fn [classes _]
-    (apply + (map :level classes))))
-
 (defn level->proficiency-bonus
   [level]
   (condp <= level
@@ -101,6 +95,47 @@
   :<- [::total-level]
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
+
+(reg-sub
+  ::total-level
+  :<- [:classes]
+  (fn [classes _]
+    (apply + (map :level classes))))
+
+(reg-sub
+  ::unarmed-strike
+  :<- [:classes]
+  :<- [::ability-modifiers]
+  :<- [::proficiency-bonus]
+  (fn [[classes modifiers proficiency-bonus]]
+    ; prefer the first non-implicit result
+    (->> classes
+         (map (fn [c]
+                (assoc
+                  (-> c :features :unarmed-strike)
+                  :wish/context c
+                  :wish/context-type :class)))
+
+         ; sort-by is in ascending order
+         (sort-by #(if (:implicit? %)
+                     1
+                     0))
+
+         ; insert :to-hit calculation
+         (map (fn [s]
+                (assoc s
+                       :to-hit (if (:versatile? s)
+                                   (+ proficiency-bonus
+                                      (max (:str modifiers)
+                                           (:dex modifiers)))
+                                   (+ proficiency-bonus (:str modifiers)))
+                       :dmg (invoke-callable
+                               s :dice
+                               :modifiers modifiers))))
+
+         first)))
+
+; ======= Spells ===========================================
 
 ; TODO filter by selected
 (reg-sub
@@ -124,6 +159,7 @@
                    (map
                      #(assoc % ::source source)
                      (expand-list data-source list-id nil)))))))
+
 
 (reg-sub
   ::race-spells

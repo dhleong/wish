@@ -10,6 +10,9 @@
   [o]
   (when o
     (cond
+      ; already compiled
+      (fn? o) o
+
       (number? o) (fn [{:keys [features]}]
                     (<= (count features) o))
 
@@ -23,6 +26,8 @@
 (defn compile-feature
   "Compile a feature map"
   [fm]
+  ; TODO how can sheets declare keys that should be callable?
   (-> fm
-      (update :max-options compile-max-options)))
+      (update :max-options compile-max-options)
+      (update :dice ->callable)))
 

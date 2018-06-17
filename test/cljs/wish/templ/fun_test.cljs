@@ -17,6 +17,13 @@
       (is (= 42 (f)))
       (is (= 42 (f)))))
 
+  (testing "Idempotent"
+    (let [f (->callable
+              (->callable '(fn []
+                             42)))]
+      (is (= 42 (f)))
+      (is (identical? f (->callable f)))))
+
   (testing "Functions with params"
     (let [f (->callable '(fn [value]
                            (* value 42)))]

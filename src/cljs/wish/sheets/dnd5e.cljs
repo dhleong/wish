@@ -125,7 +125,19 @@
 ; ======= Combat ===========================================
 
 (defn combat-section []
-  [:div "TODO"
+  [:div
+
+   (when-let [s (<sub [::dnd5e/unarmed-strike])]
+     [:div.unarmed-strike
+      [:div.attack
+       [:div.name "Unarmed Strike"]
+       [:div.to-hit
+        (let [{:keys [to-hit]} s]
+          (if (>= to-hit 0)
+            (str "+" to-hit)
+            (str to-hit)))]
+       [:div.dmg
+        (:dmg s)]]])
 
    (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
      (let [spell-attack-bonuses (<sub [::dnd5e/spell-attack-bonuses])]
@@ -133,11 +145,12 @@
         [:h4 "Spell Attacks"]
         (for [s spell-attacks]
           ^{:key (:id s)}
-          [:div.spell-attack
+          [:div.attack.spell-attack
            [:div.name (:name s)]
+           [:div.dice
+            ; TODO
+            ]
            [:div.to-hit
-            ; FIXME we need to include what class/race provided the spell
-            ; to do this
             (str "+" (get spell-attack-bonuses
                           (::dnd5e/source s)))]])]))])
 

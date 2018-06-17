@@ -104,7 +104,8 @@
                 (reduce-kv
                   (fn [m feature-id v]
                     (if (map? v)
-                      m ; already inflated; do nothing
+                      ; ensure it's compiled
+                      (assoc m feature-id (compile-feature v))
 
                       ; pull it out of the state
                       (assoc m feature-id
