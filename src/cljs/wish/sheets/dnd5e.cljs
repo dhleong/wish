@@ -140,19 +140,15 @@
         (:dmg s)]]])
 
    (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
-     (let [spell-attack-bonuses (<sub [::dnd5e/spell-attack-bonuses])]
-       [:div.spell-attacks
-        [:h4 "Spell Attacks"]
-        (for [s spell-attacks]
-          ^{:key (:id s)}
-          [:div.attack.spell-attack
-           [:div.name (:name s)]
-           [:div.dice
-            ; TODO
-            ]
-           [:div.to-hit
-            (str "+" (get spell-attack-bonuses
-                          (::dnd5e/source s)))]])]))])
+     [:div.spell-attacks
+      [:h4 "Spell Attacks"]
+      (for [s spell-attacks]
+        ^{:key (:id s)}
+        [:div.attack.spell-attack
+         [:div.name (:name s)]
+         [:div.dice (:base-dice s) ]
+         [:div.to-hit
+          (str "+" (:to-hit s))]])])])
 
 
 ; ======= Features =========================================

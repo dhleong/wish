@@ -171,12 +171,21 @@
 
 (reg-sub
   ::spell-attacks
+  :<- [::spell-attack-bonuses]
   :<- [::class-spells]
   :<- [::race-spells]
-  (fn [spell-lists]
+  (fn [[bonuses & spell-lists]]
     (->> spell-lists
          flatten
-         (filter :attack))))
+         (filter :attack)
+         (map (fn [s]
+                (assoc s
+                       :to-hit (get bonuses
+                                    (::source s))
+
+                       :base-dice (invoke-callable
+                                    s
+                                    :dice)))))))
 
 ; TODO races also have their own spellcasting ability modifier
 (reg-sub

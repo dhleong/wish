@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Lists"}
   wish.sources.compiler.lists
-  (:require [wish.util :refer [->map]]))
+  (:require [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.util :refer [->map]]))
 
 (defn- find-entity
   "Always returns a collection `id` could point to a feature,
@@ -17,7 +18,7 @@
   "Always returns a collection"
   [s item]
   (cond
-    (map? item) [item]
+    (map? item) [(compile-entity item)]
     (keyword? item) (find-entity s item)
     (coll? item) (mapcat (partial inflate-item s) item)
     :else (throw (js/Error. (str "Unexpected list item: " item)))))

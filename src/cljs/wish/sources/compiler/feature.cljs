@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Feature compiler"}
   wish.sources.compiler.feature
-  (:require [wish.templ.fun :refer [->callable]]))
+  (:require [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.templ.fun :refer [->callable]]))
 
 (defn compile-max-options
   ":max-options compiles to an acceptor function that
@@ -29,5 +30,5 @@
   ; TODO how can sheets declare keys that should be callable?
   (-> fm
       (update :max-options compile-max-options)
-      (update :dice ->callable)))
+      compile-entity))
 
