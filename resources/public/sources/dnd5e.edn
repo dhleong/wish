@@ -35,6 +35,12 @@
                 level)}]]}]
 
 [:!provide-feature
+ {:id :unarmed-strike
+  :implicit? true
+  :dice (fn [modifiers]
+          (+ 1 (:str modifiers)))}]
+
+[:!provide-feature
  {:id :hp
   :implicit? true
   :! [[:!add-limited-use
@@ -115,7 +121,7 @@
 
 *At Higher Levels.* When you cast this spell using a spell slot of 2nd level or higher, the healing increases by 1d8 for each slot level above 1st."
    :dice (fn [spell-level spell-mod]
-             (str spell-level "d8+" spell-mod))}
+           (str spell-level "d8+" spell-mod))}
 
   {:spell-level 1
    :id :guiding-bolt
@@ -131,7 +137,7 @@
 
 *At Higher Levels.* When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st."
    :dice (fn [spell-level]
-             (str (+ 3 spell-level) "d6"))}]]
+           (str (+ 3 spell-level) "d6"))}]]
 
 [:!declare-class
  {:id :cleric
@@ -150,6 +156,7 @@
   :features
   [:hit-dice/d8
    :hp
+   :unarmed-strike
 
    ; TODO this should be at level 2
    :cleric/channel-divinity
@@ -200,6 +207,30 @@
   :&levels {3 {:! [[:!add-to-list
                     :cleric/extra-spells
                     [:lesser-restoration :spiritual-weapon]]]}}}]
+
+[:!declare-class
+ {:id :monk
+  :name "Monk"
+
+  :features
+  [:hit-dice/d8
+   :hp
+
+   {:id :monk/martial-arts
+    :name "Martial Arts"
+    :! [[:!provide-feature
+         {:id :unarmed-strike
+          :name "Unarmed Strike"
+          :dice (fn [level modifiers]
+                  (let [m (max (:str modifiers)
+                               (:dex modifiers))]
+                    (str "1d"
+                         (cond
+                           (<= level 4) "4"
+                           (<= level 10) "6"
+                           (<= level 16) "8"
+                           (<= level 20) "10")
+                         "+" m)))}]]}]}]
 
 ;; races
 

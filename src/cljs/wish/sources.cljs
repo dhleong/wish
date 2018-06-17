@@ -23,9 +23,8 @@
   (loop [reader (string-push-back-reader raw)
          directives []]
     (if-let [d (edn/read reader)]
-      (do
-        (println "READ << " d)
-        (recur reader (conj directives d)))
+      ; keep loading directives
+      (recur reader (conj directives d))
 
       (->DataSource
         id

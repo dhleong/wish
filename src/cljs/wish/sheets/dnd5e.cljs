@@ -144,10 +144,11 @@
 
 ; ======= Features =========================================
 
+; TODO these should probably be subscriptions
 (defn- features-for
   [sub-vector]
   (->> (<sub sub-vector)
-       (mapcat :features)
+       (mapcat (comp vals :features))
        (remove :implicit?)
        seq))
 

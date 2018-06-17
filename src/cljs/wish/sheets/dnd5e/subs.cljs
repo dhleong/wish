@@ -22,6 +22,16 @@
            [])))
 
 (reg-sub
+  ::ability-modifiers
+  :<- [::abilities]
+  (fn [abilities]
+    (reduce-kv
+     (fn [m ability score]
+       (assoc m ability (ability->mod score)))
+     {}
+     abilities)))
+
+(reg-sub
   ::limited-uses
   :<- [:limited-uses]
   (fn [items]

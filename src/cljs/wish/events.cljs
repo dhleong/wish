@@ -56,8 +56,8 @@
 
 (defn apply-limited-use-trigger
   [limited-used-map limited-uses trigger]
-  (reduce
-    (fn [m [use-id used]]
+  (reduce-kv
+    (fn [m use-id used]
       (if-let [use-obj (get limited-uses use-id)]
         (let [restore-amount (invoke-callable
                                use-obj

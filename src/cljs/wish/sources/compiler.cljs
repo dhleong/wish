@@ -1,11 +1,13 @@
 (ns ^{:author "Daniel Leong"
       :doc "DataSource compiler"}
   wish.sources.compiler
-  (:require [wish.sources.compiler.feature :refer [compile-feature]]
+  (:require [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
             [wish.sources.core :refer [find-feature]]
-            [wish.templ.fun :refer [->callable]]))
+            [wish.templ.fun :refer [->callable]]
+            [wish.util :refer [->map]]))
 
 ; ======= options ==========================================
 
@@ -32,13 +34,13 @@
    (fn declare-class [state class-map]
      (update state :classes
              assoc
-             (:id class-map) class-map))
+             (:id class-map) (compile-entity class-map)))
 
    :!declare-race
    (fn declare-race [state race-map]
      (update state :races
              assoc
-             (:id race-map) race-map))
+             (:id race-map) (compile-entity race-map)))
 
    ; NOTE: this should never be applied top-level,
    ; but only to specific classes, races, etc.
@@ -50,16 +52,12 @@
    (fn provide-feature [state & args]
      (let [features (->> args
                          (filter map?)
-                         (map compile-feature))
+                         (map compile-feature)
+                         ->map)
            filters (filter vector? args)]
        ; TODO apply filters?
-       (->> features
-            (reduce
-              (fn [s feature-map]
-                (update s :features
-                        assoc
-                        (:id feature-map) feature-map))
-              state))))
+       (update state :features
+               merge features)))
 
    :!provide-options
    (fn provide-options [state feature-id & option-maps]
@@ -76,8 +74,8 @@
 (defn- install-deferred-options
   [s]
   (let [opts (:deferred-options s)]
-    (reduce
-      (fn [state [feature-id options]]
+    (reduce-kv
+      (fn [state feature-id options]
         (update-in state [:features feature-id :values]
                    concat options))
       (dissoc s :deferred-options)
@@ -89,8 +87,8 @@
   [k processor s]
   (update s k
           (fn [the-map]
-            (reduce
-              (fn [result [k v]]
+            (reduce-kv
+              (fn [result k v]
                 (assoc result
                        k
                        (processor s v)))
@@ -102,12 +100,17 @@
   [s entity]
   (-> entity
       (update :features
-              (partial map (fn [f]
-                             (if (not (keyword? f))
-                               f ;; already inflated
+              (fn [features]
+                (reduce-kv
+                  (fn [m feature-id v]
+                    (if (map? v)
+                      m ; already inflated; do nothing
 
-                               ; pull it out of the state
-                               (get-in s [:features f])))))
+                      ; pull it out of the state
+                      (assoc m feature-id
+                             (get-in s [:features feature-id]))))
+                  features
+                  features)))
       ; apply features
       (as-> e (reduce
                 apply-directive
@@ -117,15 +120,20 @@
 ; ======= public api =======================================
 
 (defn apply-directive [state directive-vector]
-  (let [[kind & args] directive-vector]
-    (if-let [f (get directives kind)]
-      ; valid directive
-      (apply f state args)
+  (try
+    (let [[kind & args] directive-vector]
+      (if-let [f (get directives kind)]
+        ; valid directive
+        (apply f state args)
 
-      ; unknown; ignore
-      (do
-        (println "WARN: unknown directive:" kind)
-        state))))
+        ; unknown; ignore
+        (do
+          (println "WARN: unknown directive:" kind)
+          state)))
+    (catch js/Error e
+      (throw (js/Error.
+               (str "Error processing " directive-vector
+                    "\n\nOriginal error: " e))))))
 
 (defn compile-directives
   "Given a sequence of directives, return a compiled DataSource state"

@@ -28,5 +28,22 @@
       (is (= 3 (f {:value 8}))))
     (let [f (->callable '(fn [value]
                            (floor (/ value 3))))]
-      (is (= 2 (f {:value 8}))))))
+      (is (= 2 (f {:value 8})))))
+
+  (testing "Functions with conditions"
+    ; from Monk's unarmed strike
+    (let [f (->callable '(fn [level modifiers]
+                           (let [m (max (:str modifiers)
+                                        (:dex modifiers))]
+                             (str "1d"
+                                  (cond
+                                    (<= level 4) "4"
+                                    (<= level 10) "6"
+                                    (<= level 16) "8"
+                                    (<= level 20) "10")
+                                  "+" m))))]
+      (is (= "1d4+2" (f {:level 4 :modifiers {:str 1
+                                              :dex 2}})))
+      (is (= "1d6+4" (f {:level 8 :modifiers {:str 4
+                                              :dex 2}}))))))
 
