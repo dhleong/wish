@@ -186,9 +186,8 @@
        {:on-click (click>evt [:trigger-limited-use-restore :short-rest])}
        "Short Rest"]
       [:div.long
-       ; FIXME TODO this should also trigger :short-rest,
-       ; or perhaps they should both trigger a :rest
-       {:on-click (click>evt [:trigger-limited-use-restore :long-rest])}
+       {:on-click (click>evt [:trigger-limited-use-restore
+                              [:short-rest :long-rest]])}
        "Long Rest"]]
 
      (for [item items]
@@ -216,6 +215,7 @@
      (for [s spells]
        ^{:key (:id s)}
        [spell-block s])]))
+
 
 ; ======= Public interface =================================
 

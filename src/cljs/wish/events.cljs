@@ -82,8 +82,14 @@
   [trim-v
    (inject-cofx ::inject/sub ^:ignore-dispose [:limited-uses-map])
    (inject-cofx ::inject/sub [:active-sheet-id])]
-  (fn-traced [{:keys [db limited-uses-map active-sheet-id]} [trigger]]
-    {:db (update-in db [:sheets active-sheet-id :limited-uses]
-                    apply-limited-use-trigger
-                    limited-uses-map
-                    trigger)}))
+  (fn-traced [{:keys [db limited-uses-map active-sheet-id]} [triggers]]
+    {:db (reduce
+           (fn [db trigger]
+             (update-in db [:sheets active-sheet-id :limited-uses]
+                        apply-limited-use-trigger
+                        limited-uses-map
+                        trigger))
+           db
+           (if (coll? triggers)
+             triggers
+             [triggers]))}))
