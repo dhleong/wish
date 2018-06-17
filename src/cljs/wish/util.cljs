@@ -38,6 +38,12 @@
                     entity)]
     ((k entity) (apply assoc context extra-kvs))))
 
+(defn ->map
+  "Given a seq of entities, return a map of :id -> entity"
+  [entities]
+  (zipmap
+    (map :id entities)
+    entities))
 
 (defn navigate!
   [& args]

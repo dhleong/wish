@@ -48,8 +48,10 @@
 
 [:!add-to-list
 
+ ; this can just be the id, or a map if you want to provide
+ ; more info about the contents, such as:
  {:id,
-  :#type} ; sheet-specific type of all items in the list
+  :type} ; sheet-specific type of all items in the list
 
  ; varargs list of:
  :list-id ; a list to copy items from
@@ -153,7 +155,7 @@
 [:!add-to-list
 
  {:id :cleric/spells-list
-  :#type :spells}
+  :type :spells}
 
  [{:id :cure-wounds
    :name "Cure Wounds"}]]

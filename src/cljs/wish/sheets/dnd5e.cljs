@@ -203,8 +203,19 @@
 
 ; ======= Spells ===========================================
 
+(defn spell-block
+  [s]
+  (println "TODO more rendering for " s)
+  [:div.spell
+   (:name s)])
+
 (defn spells-section []
-  [:div "TODO"])
+  (let [spells (<sub [::dnd5e/class-spells])]
+    [:div.spells
+     ; TODO toggle only showing known/prepared
+     (for [s spells]
+       ^{:key (:id s)}
+       [spell-block s])]))
 
 ; ======= Public interface =================================
 

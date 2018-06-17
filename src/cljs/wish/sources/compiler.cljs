@@ -3,6 +3,7 @@
   wish.sources.compiler
   (:require [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
+            [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
             [wish.sources.core :refer [find-feature]]
             [wish.templ.fun :refer [->callable]]))
 
@@ -23,6 +24,9 @@
              assoc
              (:id limited-use-map)
              (compile-limited-use limited-use-map)))
+
+   :!add-to-list
+   add-to-list
 
    :!declare-class
    (fn declare-class [state class-map]
@@ -80,6 +84,8 @@
       opts)))
 
 (defn- process-map
+  "Call (processor s v) for each value in the map
+   with key `k` in the state `s`"
   [k processor s]
   (update s k
           (fn [the-map]
@@ -135,6 +141,7 @@
 
        (process-map :classes install-features)
        (process-map :races install-features)
+       (process-map :lists inflate-items)
 
        ))
 

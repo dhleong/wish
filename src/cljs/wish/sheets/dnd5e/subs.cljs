@@ -2,7 +2,7 @@
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
-            [wish.sources.core :refer [find-class find-race]]
+            [wish.sources.core :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :refer [ability->mod]]))
 
 ; ability scores are a function of the raw, rolled stats
@@ -91,3 +91,19 @@
   :<- [::total-level]
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
+
+; TODO selected class spells?
+(reg-sub
+  ::class-spells
+  :<- [:classes]
+  :<- [:sheet-source]
+  (fn [[classes source]]
+    (->> classes
+         (map (comp :5e/spellcaster :attrs))
+         (filter identity)
+         (mapcat #(list (:spells %)
+                        (:extra-spells %)))
+
+         ; TODO provide options in case the list is
+         ; a feature with options
+         (mapcat #(expand-list source % nil)))))
