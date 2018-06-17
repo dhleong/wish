@@ -125,7 +125,21 @@
 ; ======= Combat ===========================================
 
 (defn combat-section []
-  [:div "TODO"])
+  [:div "TODO"
+
+   (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
+     (let [spell-attack-bonuses (<sub [::dnd5e/spell-attack-bonuses])]
+       [:div.spell-attacks
+        [:h4 "Spell Attacks"]
+        (for [s spell-attacks]
+          ^{:key (:id s)}
+          [:div.spell-attack
+           [:div.name (:name s)]
+           [:div.to-hit
+            ; FIXME we need to include what class/race provided the spell
+            ; to do this
+            (str "+" (get spell-attack-bonuses
+                          (::dnd5e/source s)))]])]))])
 
 
 ; ======= Features =========================================

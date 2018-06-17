@@ -92,18 +92,62 @@
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
 
-; TODO selected class spells?
+; TODO filter by selected
 (reg-sub
   ::class-spells
   :<- [:classes]
   :<- [:sheet-source]
-  (fn [[classes source]]
+  (fn [[classes data-source]]
     (->> classes
-         (map (comp :5e/spellcaster :attrs))
+         (mapcat (fn [c]
+                   (when-let [attrs (-> c :attrs :5e/spellcaster)]
+                     [{:list-id (:spells attrs)
+                       ::source (:id c)}
+                      {:list-id (:extra-spells attrs)
+                       ::source (:id c)}])))
+
          (filter identity)
-         (mapcat #(list (:spells %)
-                        (:extra-spells %)))
 
          ; TODO provide options in case the list is
          ; a feature with options
-         (mapcat #(expand-list source % nil)))))
+         (mapcat (fn [{:keys [list-id] ::keys [source]}]
+                   (map
+                     #(assoc % ::source source)
+                     (expand-list data-source list-id nil)))))))
+
+(reg-sub
+  ::race-spells
+  :<- [:race]
+  :<- [:sheet-source]
+  (fn [[race source]]
+    ; TODO
+    []))
+
+(reg-sub
+  ::spell-attacks
+  :<- [::class-spells]
+  :<- [::race-spells]
+  (fn [spell-lists]
+    (->> spell-lists
+         flatten
+         (filter :attack))))
+
+; TODO races also have their own spellcasting ability modifier
+(reg-sub
+  ::spell-attack-bonuses
+  :<- [::abilities]
+  :<- [:classes]
+  :<- [::proficiency-bonus]
+  (fn [[abilities classes proficiency-bonus]]
+    (->> classes
+         (filter (fn [c]
+                   (-> c :attrs :5e/spellcaster)))
+         (map (fn [c]
+                (let [spellcasting-ability (-> c
+                                               :attrs
+                                               :5e/spellcaster
+                                               :ability)]
+                  [(:id c) (+ proficiency-bonus
+                              (ability->mod
+                                (get abilities spellcasting-ability)))])))
+         (into {}))))
