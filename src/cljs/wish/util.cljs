@@ -10,10 +10,18 @@
 (defn click>evt
   "Returns an on-click handler that dispatches the given event
   and prevents the default on-click events"
-  [event]
+  [event & {:keys [propagate?]
+            :or {propagate? true}}]
   (fn [e]
     (.preventDefault e)
-    (>evt event)))
+    (>evt event)
+
+    ; prevent propagation ourself, since
+    ; relying on a `false` return value doesn't always work?
+    (when-not propagate?
+      (.stopPropagation e))
+
+    propagate?))
 
 (def is-ios?
   (memoize

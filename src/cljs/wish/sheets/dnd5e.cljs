@@ -34,7 +34,8 @@
    [:.slot {:width "24px"
             :height "24px"
             :border "1px solid #333"
-            :margin "4px"}]]
+            :margin "4px"}
+    [:&.used {:cursor 'pointer}]]]
 
   [:.skill-col (merge
                  flex-vertical
@@ -287,12 +288,19 @@
 (defn spell-slot-use-block
   [level total used]
   [:div.spell-slot-use
-   {:class (:spell-slots-container styles)}
+   {:class (:spell-slots-container styles)
+    :on-click (click>evt [::events/use-spell-slot level total])}
    (for [i (range total)]
-     ^{:key (str level "/" i)}
-     [:div.slot
-      (when (< i used)
-        (icon :close))])])
+     (let [used? (< i used)]
+       ^{:key (str level "/" i)}
+       [:div.slot
+        {:class (when used?
+                  "used")
+         :on-click (when used?
+                     (click>evt [::events/restore-spell-slot level total]
+                                :propagate? false))}
+        (when used?
+          (icon :close))]))])
 
 (defn spells-section []
   (let [spells (<sub [::dnd5e/class-spells])
@@ -300,6 +308,7 @@
         slots-used (<sub [::dnd5e/spell-slots-used])]
     [:div
      [:div.spell-slots
+      [:h4 "Spell Slots"]
       (for [[level total] slots]
         ^{:key (str "slots/" )}
         [:div
@@ -310,6 +319,7 @@
           level total (get slots-used level)]])]
 
      [:div.spells
+      [:h4 "Available spells"]
       ; TODO toggle only showing known/prepared
       (for [s spells]
         ^{:key (:id s)}
