@@ -21,14 +21,14 @@
 
 (defstyle styles
   {:vendors ["webkit" "ms"]}
-  [".spell-slot-level" flex-center
-   [".label" {:flex-grow 1}]]
+  [:.spell-slot-level flex-center
+   [:.label {:flex-grow 1}]]
 
-  [".spell-slots-container" flex
-   [".slot" {:width "24px"
-             :height "24px"
-             :border "1px solid #333"
-             :margin "4px"}]])
+  [:.spell-slots-container flex
+   [:.slot {:width "24px"
+            :height "24px"
+            :border "1px solid #333"
+            :margin "4px"}]])
 
 ; ======= Utils ============================================
 
