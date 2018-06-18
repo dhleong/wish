@@ -6,3 +6,8 @@
   [score]
   (Math/floor (/ (- score 10) 2)))
 
+(defn mod->str
+  [modifier]
+  (if (>= modifier 0)
+    (str "+" modifier)
+    (str "−" (Math/abs modifier))))

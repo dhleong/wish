@@ -6,7 +6,7 @@
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.util :refer [ability->mod]]
+            [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
             [wish.views.widgets :refer-macros [icon]]))
 
 
@@ -87,10 +87,12 @@
            [:td score]
            [:td label]
            [:td "mod"]
-           [:td (ability->mod score)]
+           [:td (mod->str
+                  (ability->mod score))]
            ; TODO saving throws:
            [:td "save"]
-           [:td (ability->mod score)]]))]]))
+           [:td (mod->str
+                  (ability->mod score))]]))]]))
 
 
 ; ======= Skills ===========================================
@@ -134,10 +136,11 @@
                       (str "(" (name ability) ")")]
                      [:div.name label]
                      [:p.score
-                      (+ (ability->mod (get abilities ability))
-                         (cond
-                           expert? (* 2 prof-bonus)
-                           proficient?  prof-bonus))]
+                      (mod->str
+                        (+ (ability->mod (get abilities ability))
+                           (cond
+                             expert? (* 2 prof-bonus)
+                             proficient?  prof-bonus)))]
                      (when (or expert? proficient?)
                        [:p {:class (if expert?
                                      "expert"
@@ -156,9 +159,7 @@
        [:div.name "Unarmed Strike"]
        [:div.to-hit
         (let [{:keys [to-hit]} s]
-          (if (>= to-hit 0)
-            (str "+" to-hit)
-            (str to-hit)))]
+          (mod->str to-hit))]
        [:div.dmg
         (:dmg s)]]])
 
@@ -171,7 +172,7 @@
          [:div.name (:name s)]
          [:div.dice (:base-dice s) ]
          [:div.to-hit
-          (str "+" (:to-hit s))]])])])
+          (mod->str (:to-hit s))]])])])
 
 
 ; ======= Features =========================================
