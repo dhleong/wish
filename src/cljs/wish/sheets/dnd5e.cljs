@@ -2,10 +2,33 @@
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
   (:require [clojure.string :as str]
+            [cljs-css-modules.macro :refer-macros [defstyle]]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.util :refer [ability->mod]]))
+            [wish.sheets.dnd5e.util :refer [ability->mod]]
+            [wish.views.widgets :refer-macros [icon]]))
+
+
+; ======= CSS ==============================================
+
+; TODO we should maybe just provide global styles with the
+; right fallbacks
+(def flex {:display 'flex})
+(def flex-center (merge
+                   flex
+                   {:align-items 'center}))
+
+(defstyle styles
+  {:vendors ["webkit" "ms"]}
+  [".spell-slot-level" flex-center
+   [".label" {:flex-grow 1}]]
+
+  [".spell-slots-container" flex
+   [".slot" {:width "24px"
+             :height "24px"
+             :border "1px solid #333"
+             :margin "4px"}]])
 
 ; ======= Utils ============================================
 
@@ -232,13 +255,36 @@
   [:div.spell
    (:name s)])
 
+(defn spell-slot-use-block
+  [level total used]
+  [:div.spell-slot-use
+   {:class (:spell-slots-container styles)}
+   (for [i (range total)]
+     ^{:key (str level "/" i)}
+     [:div.slot
+      (when (< i used)
+        (icon :close))])])
+
 (defn spells-section []
-  (let [spells (<sub [::dnd5e/class-spells])]
-    [:div.spells
-     ; TODO toggle only showing known/prepared
-     (for [s spells]
-       ^{:key (:id s)}
-       [spell-block s])]))
+  (let [spells (<sub [::dnd5e/class-spells])
+        slots (<sub [::dnd5e/spell-slots])
+        slots-used (<sub [::dnd5e/spell-slots-used])]
+    [:div
+     [:div.spell-slots
+      (for [[level total] slots]
+        ^{:key (str "slots/" )}
+        [:div
+         {:class (:spell-slot-level styles)}
+         [:div.label
+          (str "Level " level)]
+         [spell-slot-use-block
+          level total (get slots-used level)]])]
+
+     [:div.spells
+      ; TODO toggle only showing known/prepared
+      (for [s spells]
+        ^{:key (:id s)}
+        [spell-block s])]]))
 
 
 ; ======= Public interface =================================

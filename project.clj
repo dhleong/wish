@@ -12,7 +12,7 @@
                  [cljs-ajax "0.7.3"]
 
                  ; sheet-specific inline css
-                 [org.roman01la/cljss "1.6.2"]
+                 [cljs-css-modules "0.2.1"]
 
                  ; ::inject/sub cofx (for subscriptions in event handlers)
                  [re-frame-utils "0.1.0"]]

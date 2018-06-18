@@ -25,7 +25,8 @@
 
    ; map of limited-use ID -> number used
    :limited-uses
-   {:paladin/lay-on-hands#uses 0}
+   {:paladin/lay-on-hands#uses 0
+    :slots/level-1 1}
 
    ; map of feature-id -> options chosen
    :options

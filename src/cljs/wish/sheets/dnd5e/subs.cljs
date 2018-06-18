@@ -6,6 +6,72 @@
             [wish.sheets.dnd5e.util :refer [ability->mod]]
             [wish.util :refer [invoke-callable]]))
 
+(def spell-slot-schedules
+  {:standard
+   {1 {1 2}
+    2 {1 3}
+    3 {1 4, 2 2}
+    4 {1 4, 2 3}
+    5 {1 4, 2 3, 3 2}
+    6 {1 4, 2 3, 3 3}
+    7 {1 4, 2 3, 3 3, 4 1}
+    8 {1 4, 2 3, 3 3, 4 2}
+    9 {1 4, 2 3, 3 3, 4 3, 5 1}
+    10 {1 4, 2 3, 3 3, 4 3, 5 2}
+    11 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1}
+    12 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1}
+    13 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1}
+    14 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1}
+    15 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1}
+    16 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1}
+    17 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1, 9 1}
+    18 {1 4, 2 3, 3 3, 4 3, 5 3, 6 1, 7 1, 8 1, 9 1}
+    19 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 1, 8 1, 9 1}
+    20 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 2, 8 1, 9 1}}
+
+   :standard/half
+   {2 {1 2}
+    3 {1 3}
+    4 {1 3}
+    5 {1 4, 2 2}
+    6 {1 4, 2 2}
+    7 {1 4, 2 3}
+    8 {1 4, 2 3}
+    9 {1 4, 2 3, 3 2}
+    10 {1 4, 2 3, 3 2}
+    11 {1 4, 2 3, 3 3}
+    12 {1 4, 2 3, 3 3}
+    13 {1 4, 2 3, 3 3, 4 1}
+    14 {1 4, 2 3, 3 3, 4 1}
+    15 {1 4, 2 3, 3 3, 4 2}
+    16 {1 4, 2 3, 3 3, 4 2}
+    17 {1 4, 2 3, 3 3, 4 3, 5 1}
+    18 {1 4, 2 3, 3 3, 4 3, 5 1}
+    19 {1 4, 2 3, 3 3, 4 3, 5 2}
+    20 {1 4, 2 3, 3 3, 4 3, 5 2}}
+
+   :multiclass
+   {1 {1 2}
+    2 {1 3}
+    3 {1 4, 2 2}
+    4 {1 4, 2 3}
+    5 {1 4, 2 3, 3 2}
+    6 {1 4, 2 3, 3 3}
+    7 {1 4, 2 3, 3 3, 4 1}
+    8 {1 4, 2 3, 3 3, 4 2}
+    9 {1 4, 2 3, 3 3, 4 3, 5 1}
+    10 {1 4, 2 3, 3 3, 4 3, 5 2}
+    11 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1}
+    12 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1}
+    13 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1}
+    14 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1}
+    15 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1}
+    16 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1}
+    17 {1 4, 2 3, 3 3, 4 3, 5 2, 6 1, 7 1, 8 1, 9 1}
+    18 {1 4, 2 3, 3 3, 4 3, 5 3, 6 1, 7 1, 8 1, 9 1}
+    19 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 1, 8 1, 9 1}
+    20 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 2, 8 1, 9 1}}})
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
@@ -187,16 +253,22 @@
                                     s
                                     :dice)))))))
 
+(reg-sub
+  ::spellcaster-classes
+  :<- [:classes]
+  (fn [all-classes]
+    (filter (fn [c]
+              (-> c :attrs :5e/spellcaster))
+            all-classes)))
+
 ; TODO races also have their own spellcasting ability modifier
 (reg-sub
   ::spell-attack-bonuses
   :<- [::abilities]
-  :<- [:classes]
+  :<- [::spellcaster-classes]
   :<- [::proficiency-bonus]
   (fn [[abilities classes proficiency-bonus]]
     (->> classes
-         (filter (fn [c]
-                   (-> c :attrs :5e/spellcaster)))
          (map (fn [c]
                 (let [spellcasting-ability (-> c
                                                :attrs
@@ -206,3 +278,47 @@
                               (ability->mod
                                 (get abilities spellcasting-ability)))])))
          (into {}))))
+
+(defn spell-slots
+  [spellcaster-classes]
+  (if (= 1 (count spellcaster-classes))
+    (let [c (first spellcaster-classes)
+          level (:level c)
+          schedule (or (-> c :attrs :5e/spellcaster :slots)
+                       :standard)
+          schedule (if (keyword? schedule)
+                     (schedule spell-slot-schedules)
+                     schedule)]
+      (get schedule level))
+
+    (let [level (apply +
+                       (map (fn [c]
+                              (let [mod (or (-> c :attrs
+                                                :5e/spellcaster
+                                                :multiclass-levels-mod)
+                                            1)]
+                                (int
+                                  (Math/floor
+                                    (/ (:level c)
+                                       mod)))))
+                            spellcaster-classes))]
+      (get-in spell-slot-schedules [:multiclass level]))))
+
+(reg-sub
+  ::spell-slots
+  :<- [::spellcaster-classes]
+  spell-slots)
+
+(reg-sub
+  ::spell-slots-used
+  :<- [:limited-used]
+  (fn [used]
+    (reduce-kv
+      (fn [m id used]
+        (if (not= "slots" (namespace id))
+          m ; ignore
+
+          (let [level (-> id name last int)]
+            (assoc m level used))))
+      {}
+      used)))
