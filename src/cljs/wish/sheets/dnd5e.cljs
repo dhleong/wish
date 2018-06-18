@@ -12,23 +12,46 @@
 
 ; ======= CSS ==============================================
 
+(def color-proficient "#77E731")
+(def color-expert "#E8E154")
+
 ; TODO we should maybe just provide global styles with the
 ; right fallbacks
 (def flex {:display 'flex})
+(def flex-vertical (merge
+                     flex
+                     {:flex-direction 'column}))
 (def flex-center (merge
                    flex
                    {:align-items 'center}))
+(def flex-grow {:flex-grow 1})
 
 (defstyle styles
-  {:vendors ["webkit" "ms"]}
   [:.spell-slot-level flex-center
-   [:.label {:flex-grow 1}]]
+   [:.label flex-grow]]
 
   [:.spell-slots-container flex
    [:.slot {:width "24px"
             :height "24px"
             :border "1px solid #333"
-            :margin "4px"}]])
+            :margin "4px"}]]
+
+  [:.skill-col (merge
+                 flex-vertical
+                 flex-grow)
+   [:.skill flex
+    [:.label flex-grow]
+    [:.score {:padding "0 4px"}]
+    [:.proficiency
+     {:color color-proficient
+      :padding-right "12px"}
+     [:&::before
+      {:content "' '"}]
+     [:&.proficient::before
+      {:content "'●'"}]
+     [:&.expert::before
+      {:color color-expert
+       :content "'●'"}]]]])
 
 ; ======= Utils ============================================
 
@@ -117,6 +140,21 @@
     [:dex :stealth "Stealth"]
     [:wis :survival "Survival"]]])
 
+(defn skill-box
+  [ability label total-modifier expert? proficient?]
+  [:div.skill
+   [:div.base-ability
+    (str "(" (name ability) ")")]
+   [:div.label label]
+   [:div.score
+    (mod->str
+      total-modifier)]
+   [:div.proficiency
+    {:class (str (when proficient?
+                   "proficient ")
+                 (when expert?
+                   "expert"))}]] )
+
 (defn skills-section []
   (let [abilities (<sub [::dnd5e/abilities])
         expertise (<sub [::dnd5e/skill-expertise])
@@ -126,25 +164,16 @@
            :div.sections
            (map
              (fn [col]
-               [:div.skill-col
+               [:div {:class (:skill-col styles)}
                 (for [[ability skill-id label] col]
                   (let [expert? (contains? expertise skill-id)
-                        proficient? (contains? proficiencies skill-id)]
+                        proficient? (contains? proficiencies skill-id)
+                        total-modifier (+ (ability->mod (get abilities ability))
+                                          (cond
+                                            expert? (* 2 prof-bonus)
+                                            proficient?  prof-bonus))]
                     ^{:key skill-id}
-                    [:div.skill
-                     [:div.base-ability
-                      (str "(" (name ability) ")")]
-                     [:div.name label]
-                     [:p.score
-                      (mod->str
-                        (+ (ability->mod (get abilities ability))
-                           (cond
-                             expert? (* 2 prof-bonus)
-                             proficient?  prof-bonus)))]
-                     (when (or expert? proficient?)
-                       [:p {:class (if expert?
-                                     "expert"
-                                     "proficient")}])]))])
+                    [skill-box ability label total-modifier expert? proficient?]))])
              skills-table)))))
 
 
