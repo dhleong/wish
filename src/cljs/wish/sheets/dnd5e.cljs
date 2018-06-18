@@ -46,12 +46,11 @@
      {:color color-proficient
       :padding-right "12px"}
      [:&::before
-      {:content "' '"}]
+      {:content "' '"}]  ; en-space unicode
      [:&.proficient::before
       {:content "'●'"}]
      [:&.expert::before
-      {:color color-expert
-       :content "'●'"}]]]])
+      {:color color-expert}]]]])
 
 ; ======= Utils ============================================
 
@@ -150,7 +149,7 @@
     (mod->str
       total-modifier)]
    [:div.proficiency
-    {:class (str (when proficient?
+    {:class (str (when (or expert? proficient?)
                    "proficient ")
                  (when expert?
                    "expert"))}]] )
