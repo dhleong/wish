@@ -341,7 +341,7 @@
 
     [section "Features"
      [features-section]]
-    
+
     [section "Limited-use"
      [limited-use-section]]
     [section "Spells"

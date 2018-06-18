@@ -116,7 +116,7 @@
       (as-> e (reduce
                 apply-directive
                 e
-                (mapcat :! (:features e))))))
+                (mapcat :! (vals (:features e)))))))
 
 ; ======= public api =======================================
 
@@ -177,6 +177,7 @@
 
 (defn apply-options
   [data-source state options-map]
+  ; TODO apply :levels and :&levels
   (if (empty? options-map)
     state
 

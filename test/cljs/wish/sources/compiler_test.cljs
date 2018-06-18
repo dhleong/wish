@@ -30,7 +30,7 @@
       (is (contains? (:classes s)
                      :classy))
       (is (= :hit-dice/d10
-             (-> s :classes :classy :features first :id)))))
+             (-> s :classes :classy :features :hit-dice/d10 :id)))))
   (testing "Apply feature directives when installed"
     (let [s (compile-directives
               [[:!declare-class
