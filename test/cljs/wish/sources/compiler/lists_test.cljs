@@ -1,6 +1,5 @@
 (ns wish.sources.compiler.lists-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [cljs.nodejs :as node]
             [wish.sources.compiler.lists :refer [inflate-items]]))
 
 (def state {:features {:crazy-ivan {:id :crazy-ivan}}
@@ -9,9 +8,10 @@
 (deftest inflate-items-test
   (testing "Pass through maps"
     (is (= [{:id :mreynolds}]
-           (inflate-items
-             state
-             [{:id :mreynolds}]))))
+           (map #(select-keys % [:id])
+                (inflate-items
+                  state
+                  [{:id :mreynolds}])))))
   (testing "Inflate ids"
     (is (= [{:id :crazy-ivan}
             {:id :bobble-head-geisha}]

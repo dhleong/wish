@@ -1,6 +1,5 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [cljs.nodejs :as node]
             [wish.sheets.dnd5e.subs :refer [level->proficiency-bonus
                                             spell-slots]]))
 

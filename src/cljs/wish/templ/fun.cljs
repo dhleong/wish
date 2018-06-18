@@ -22,6 +22,8 @@
   [args]
   (map ->number args))
 
+; NOTE anything exposed below also needs to get added to the :refer
+
 (defn ^:export ceil
   [v]
   (Math/ceil (->number v)))
@@ -153,17 +155,24 @@
                    (try
                      (js-eval src)
                      (catch :default e
-                       (js/console.warn "FAILED to js/eval:" (:source src))
-                       (throw e)))))
+                       (js/console.warn (str "FAILED to js/eval:\n\n"
+                                             (:source src)
+                                             "\n\nOriginal error: " (.-stack e)))
+                       (throw (js/Error.
+                                (str "FAILED to js/eval:\n\n"
+                                     (:source src)
+                                     "\n\nOriginal error: " (.-stack e))))))))
          :context :expr
          :source-map true
-         :ns 'wish.templ.fun}
+         :ns 'wish.templ.fun-eval}
         (fn [res]
           (if (contains? res :value) ; nil or false are fine
             (:value res)
-            (do
-              (js/console.error (str "Error evaluating: " form))
-              (js/console.error (str res)))))))
+            (when-not (= "Could not require wish.templ.fun"
+                         (ex-message (:error res)))
+              ;; (js/console.error (str "Error evaluating: " form))
+              ;; (js/console.error (str res))
+              (throw (js/Error. (str "Error evaluating: " form "\n" res) )))))))
 
 (defn- eval-form
   [form]
@@ -175,7 +184,8 @@
             ; eval an ns so the imports are recognized
             (eval-in
               new-state
-              '(ns wish.templ.fun))
+              '(ns wish.templ.fun-eval
+                 (:require [wish.templ.fun :refer [ceil floor]])))
             ;
             ; eval a declare so our functions are also recognized
             (reset! cached-eval-state new-state)))]

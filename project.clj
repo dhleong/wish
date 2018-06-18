@@ -18,7 +18,15 @@
                  [re-frame-utils "0.1.0"]]
 
   :plugins [[lein-cljsbuild "1.1.7"]
-            [lein-less "1.7.5"]]
+            [lein-less "1.7.5"]
+            [lein-npm "0.6.2"]]
+
+  ; npm is only needed for installing test dependencies
+  :npm {:devDependencies [[karma "2.0.3"]
+                          [karma-cljs-test "0.1.0"]
+                          [karma-chrome-launcher "2.2.0"]]}
+
+  :doo {:paths {:karma "./node_modules/karma/bin/karma"}}
 
   :min-lein-version "2.5.3"
 
@@ -44,7 +52,8 @@
             "build" ["with-profile" "+prod,-dev" "do"
                           ["clean"]
                           ["cljsbuild" "once" "min"]
-                          ["less" "once"]]}
+                          ["less" "once"]]
+            "test" ["doo" "chrome" "test" "once"]}
 
   :profiles
   {:dev

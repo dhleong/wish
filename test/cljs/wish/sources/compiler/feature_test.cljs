@@ -1,6 +1,5 @@
 (ns wish.sources.compiler.feature-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [cljs.nodejs :as node]
             [wish.sources.compiler.feature :refer [compile-max-options ]]))
 
 (def features-1

@@ -1,6 +1,5 @@
 (ns wish.sources.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [cljs.nodejs :as node]
             [wish.sources.compiler :refer [apply-options compile-directives]]
             [wish.sources.core :refer [->DataSource]]))
 

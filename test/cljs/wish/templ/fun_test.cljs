@@ -1,6 +1,5 @@
 (ns wish.templ.fun-test
   (:require [cljs.test :refer-macros [deftest testing is run-tests]]
-            [cljs.nodejs :as node]
             [wish.templ.fun :refer [->callable]]))
 
 (deftest ->callable-test

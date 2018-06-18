@@ -1,6 +1,5 @@
 (ns wish.sources.compiler.limited-use-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [cljs.nodejs :as node]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]))
 
 (deftest compile-test

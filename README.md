@@ -47,10 +47,11 @@ Wait a bit, then browse to [http://localhost:3449](http://localhost:3449).
 
 ```
 lein clean
-lein doo phantom test once
+lein npm install
+lein test
 ```
 
-The above command assumes that you have [phantomjs](https://www.npmjs.com/package/phantomjs) installed. However, please note that [doo](https://github.com/bensu/doo) can be configured to run cljs.test in many other JS environments (chrome, ie, safari, opera, slimer, node, rhino, or nashorn).
+The above assumes that you have Chrome installed for running the tests. `lein-npm` is used to install the Karma test runners for executing the tests.
 
 ## Production Build
 
