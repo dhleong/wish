@@ -54,22 +54,36 @@
               {:loaded? true
                :source source})))
 
+(defn restore-trigger-matches?
+  [required actual]
+  (cond
+    (keyword? required) (= required actual)
+    (set? required) (contains? required actual)
+    (coll? required) (contains? (set required)
+                                actual)))
+
 (defn apply-limited-use-trigger
   [limited-used-map limited-uses trigger]
   (reduce-kv
     (fn [m use-id used]
       (if-let [use-obj (get limited-uses use-id)]
-        (let [restore-amount (invoke-callable
-                               use-obj
-                               :restore-amount
-                               :used used
-                               :trigger trigger)
-              new-amount (max 0
-                              (- used
-                                 restore-amount))]
-          (assoc m use-id new-amount))
+        (if (restore-trigger-matches?
+              (:restore-trigger use-obj)
+               trigger)
+          (let [restore-amount (invoke-callable
+                                 use-obj
+                                 :restore-amount
+                                 :used used
+                                 :trigger trigger)
+                new-amount (max 0
+                                (- used
+                                   restore-amount))]
+            (assoc m use-id new-amount))
 
-        ; else:
+          ; wrong trigger; ignore
+          m)
+
+        ; else (no use-obj):
         (do
           (js/console.warn "Found unrelated limited-use " use-id " !!")
           ; TODO should we just dissoc the use-id?
