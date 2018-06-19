@@ -1,17 +1,9 @@
 (ns wish.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
+            [wish.subs-util :refer [active-sheet-id]]
+            [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-options]]
             [wish.sources.core :refer [find-class find-race]]))
-
-(defn active-sheet-id
-  [db & [page-vec]]
-  (let [page-vec (or page-vec
-                     (:page db))]
-    (let [[page args] page-vec]
-      (when (= :sheet page)
-        ; NOTE: the first arg is the sheet kind;
-        ; the second is the id
-        (second args)))))
 
 (defn reg-sheet-sub
   [id getter]
@@ -72,26 +64,41 @@
 
 (reg-sub
   :classes
+  :<- [:sheet-meta]
   :<- [:sheet-source]
   :<- [:options]
   :<- [:class-metas]
-  (fn [[source options metas] _]
+  (fn [[sheet-meta source options metas] _]
     (when source
       (->> metas
            (map (fn [m]
                   (merge m (find-class source (:id m)))))
            (map (fn [c]
-                  (apply-options source c options))))
+                  (-> c
+                      (apply-options source options)
+                      (sheets/post-process
+                        (:kind sheet-meta)
+                        source
+                        :class)))))
       )))
 
 (reg-sub
   :races
+  :<- [:sheet-meta]
   :<- [:sheet-source]
+  :<- [:options]
   :<- [:race-ids]
-  (fn [[source ids] _]
+  (fn [[sheet-meta source options ids] _]
     (when source
-      (map (partial find-race source)
-           ids))))
+      (->> ids
+           (map (partial find-race source))
+           (map (fn [r]
+                  (-> r
+                      (apply-options source options)
+                      (sheets/post-process
+                        (:kind sheet-meta)
+                        source
+                        :race))))))))
 
 ; semantic convenience for single-race systems
 (reg-sub

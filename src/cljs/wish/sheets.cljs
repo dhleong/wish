@@ -2,13 +2,29 @@
       :doc "sheets"}
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
+            [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.util :refer [<sub >evt]]))
 
 ; TODO we could use code splitting here to avoid loading
 ; sheet templates that we don't care about
 (def sheets
   {:dnd5e {:name "D&D 5E"
-           :fn #'dnd5e/sheet}})
+           :fn #'dnd5e/sheet
+
+           ; Function for post-processing entities,
+           ;  IE: applying :attr side-effects.
+           ; post-process functions should accept
+           ;  [entity, data-source, entity-kind]
+           :post-process dnd5e-util/post-process
+           }})
+
+(defn post-process
+  [entity sheet-kind data-source entity-kind]
+  (if-let [processor (get-in sheets [sheet-kind :post-process])]
+    (processor entity data-source entity-kind)
+
+    ; no processor for this sheet; pass through
+    entity))
 
 (defn sheet-loader []
   [:div "Loading..."])

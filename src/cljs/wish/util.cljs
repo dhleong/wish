@@ -71,3 +71,17 @@
       ;  relaxed about handling navigation
       (dispatch evt))))
 
+(defn process-map
+  "Call (processor s v) for each value in the map
+   with key `k` in the state `s`"
+  [k processor s]
+  (update s k
+          (fn [the-map]
+            (reduce-kv
+              (fn [result k v]
+                (assoc result
+                       k
+                       (processor s v)))
+              {}
+              the-map))))
+

@@ -79,6 +79,6 @@
                       :values [:proficiency/stealth]}
                      ]}]]))
           opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
-          applied (apply-options ds {} opts-map)]
+          applied (apply-options {} ds opts-map)]
       (is (= {:attrs {:proficiency/stealth true}}
              applied)))))

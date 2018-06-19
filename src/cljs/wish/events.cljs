@@ -6,7 +6,7 @@
             [wish.db :as db]
             [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses]]
-            [wish.subs :refer [active-sheet-id]]
+            [wish.subs-util :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
 (reg-event-fx
@@ -35,7 +35,6 @@
   :put-sheet!
   [trim-v]
   (fn-traced [db [sheet-id sheet]]
-    (println "PUT " sheet-id)
     (assoc-in db [:sheets sheet-id] sheet)))
 
 (reg-event-fx

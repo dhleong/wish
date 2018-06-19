@@ -7,7 +7,7 @@
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
             [wish.sources.core :refer [find-feature]]
             [wish.templ.fun :refer [->callable]]
-            [wish.util :refer [->map]]))
+            [wish.util :refer [->map process-map]]))
 
 ; ======= options ==========================================
 
@@ -80,20 +80,6 @@
                    concat options))
       (dissoc s :deferred-options)
       opts)))
-
-(defn- process-map
-  "Call (processor s v) for each value in the map
-   with key `k` in the state `s`"
-  [k processor s]
-  (update s k
-          (fn [the-map]
-            (reduce-kv
-              (fn [result k v]
-                (assoc result
-                       k
-                       (processor s v)))
-              {}
-              the-map))))
 
 (declare apply-directive) ; part of the public API below
 (defn- install-features
@@ -176,14 +162,14 @@
         (next options-chosen)))))
 
 (defn apply-options
-  [data-source state options-map]
+  [state data-source options-map]
   ; TODO apply :levels and :&levels
   (if (empty? options-map)
     state
 
     (let [[feature-id options-chosen] (first options-map)]
       (recur
-        data-source
-
         (apply-feature-options data-source state feature-id options-chosen)
+
+        data-source
         (next options-map)))))

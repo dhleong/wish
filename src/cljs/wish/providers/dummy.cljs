@@ -7,6 +7,7 @@
   {:v [1 1] ; wish + sheet version numbers
    :updated 1234 ; date
    :id "my-sheet-id"
+   :kind :dnd5e
 
    :name "Mal Reynolds"
 

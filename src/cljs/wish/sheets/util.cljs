@@ -2,7 +2,7 @@
       :doc "Sheet-related utils"}
   wish.sheets.util
   (:require [clojure.string :as str]
-            [wish.subs :refer [active-sheet-id]]))
+            [wish.subs-util :refer [active-sheet-id]]))
 
 (defn unpack-id
   "Unpack a sheet id into its provider and

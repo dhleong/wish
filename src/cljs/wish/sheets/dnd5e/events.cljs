@@ -4,11 +4,9 @@
   (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
-            [wish.sheets.util :refer [update-uses]]))
-
-(defn- level->slot-kw
-  [level]
-  (keyword "slots" (str "level-" level)))
+            [wish.sheets.dnd5e.util :refer [level->slot-kw]]
+            [wish.sheets.util :refer [update-uses]]
+            [wish.util :refer [process-map]]))
 
 (defn with-range
   [old-val f min-val max-val & args]
