@@ -358,7 +358,7 @@
      [:div.spell-slots
       [:h4 "Spell Slots"]
       (for [[level total] slots]
-        ^{:key (str "slots/" )}
+        ^{:key (str "slots/" level)}
         [:div
          {:class (:spell-slot-level styles)}
          [:div.label
