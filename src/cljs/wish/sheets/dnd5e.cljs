@@ -26,7 +26,27 @@
                    {:align-items 'center}))
 (def flex-grow {:flex-grow 1})
 
+(def button {:cursor 'pointer})
+
+(def metadata {:font-size "10pt"})
+
 (defstyle styles
+  [:.limited-use-section
+   [:.rests flex-center
+    [:.button (merge
+                flex-grow
+                button
+                {:text-align 'center})]]
+   [:.limited-use (merge
+                    flex-center
+                    {:padding "4px"})
+    [:.info flex-grow
+     [:.recovery metadata]]
+    [:.usage
+     [:.button (merge
+                 button
+                 {:padding "4px"})]]]]
+
   [:.spell-slot-level flex-center
    [:.label flex-grow]]
 
@@ -244,6 +264,31 @@
 
 ; ======= Limited-use ======================================
 
+(defn usage-box-single
+  "Render a toggle button for whether a single-use item has been used"
+  [item used?]
+  [:div.button
+   {:class (when used?
+             "selected")
+    :on-click (click>evt [:toggle-used (:id item)])}
+   (if used?
+     "Used"
+     "Use")])
+
+(defn usage-box
+  "Render some sort of box for 'using' a limited-use item,
+   appropriate to the number of total possible `uses` and
+   indicating the current `used-count`."
+  [item uses used-count]
+  [:div.usage
+   (cond
+     (= 1 uses) [usage-box-single item (> used-count 0)]
+     :else (do
+             (println "Handle " uses " uses")
+             [:div (str (- uses used-count)
+                        " uses remaining")]))])
+
+
 (def trigger-labels
   {:short-rest "Short Rest"
    :long-rest "Long Rest"})
@@ -257,23 +302,26 @@
 (defn limited-use-section [items]
   (let [items (<sub [::dnd5e/limited-uses])
         used (<sub [:limited-used])]
-    [:div
+    [:div {:class (:limited-use-section styles)}
      [:div.rests
-      [:div.short
+      [:div.button.short
        {:on-click (click>evt [:trigger-limited-use-restore :short-rest])}
        "Short Rest"]
-      [:div.long
+      [:div.button.long
        {:on-click (click>evt [:trigger-limited-use-restore
                               [:short-rest :long-rest]])}
        "Long Rest"]]
 
      (for [item items]
-       (let [uses (invoke-callable item :uses)]
+       (let [uses (invoke-callable item :uses)
+             used-count (get used (:id item))]
          ^{:key (:id item)}
          [:div.limited-use
-          [:div.name (:name item)]
-          [:span.recovery
-           (describe-uses uses (:restore-trigger item))]]))
+          [:div.info
+           [:div.name (:name item)]
+           [:div.recovery
+            (describe-uses uses (:restore-trigger item))]]
+          [usage-box item uses used-count]]))
      ]))
 
 

@@ -5,6 +5,7 @@
             [vimsical.re-frame.cofx.inject :as inject]
             [wish.db :as db]
             [wish.providers :as providers]
+            [wish.sheets.util :refer [update-uses]]
             [wish.subs :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
@@ -71,7 +72,7 @@
 
         ; else:
         (do
-          (js/console.warn "Have unrelated limited-use " use-id " !!")
+          (js/console.warn "Found unrelated limited-use " use-id " !!")
           ; TODO should we just dissoc the use-id?
           m)))
     limited-used-map
@@ -93,3 +94,13 @@
            (if (coll? triggers)
              triggers
              [triggers]))}))
+
+; toggle whether a single-use limited-use item has been used
+(reg-event-db
+  :toggle-used
+  [trim-v]
+  (fn-traced [db [use-id]]
+    (update-uses db use-id (fn [uses]
+                             (if (> uses 0)
+                               0
+                               1)))))
