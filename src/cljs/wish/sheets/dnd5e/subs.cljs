@@ -210,7 +210,8 @@
   ::class-spells
   :<- [:classes]
   :<- [:sheet-source]
-  (fn [[classes data-source]]
+  :<- [::spellcasting-modifiers]
+  (fn [[classes data-source modifiers]]
     (->> classes
          (mapcat (fn [c]
                    (when-let [attrs (-> c :attrs :5e/spellcaster)]
@@ -225,7 +226,8 @@
          ; a feature with options
          (mapcat (fn [{:keys [list-id] ::keys [source]}]
                    (map
-                     #(assoc % ::source source)
+                     #(assoc % ::source source
+                             :spell-mod (get modifiers source))
                      (expand-list data-source list-id nil)))))))
 
 
@@ -265,21 +267,30 @@
 
 ; TODO races also have their own spellcasting ability modifier
 (reg-sub
-  ::spell-attack-bonuses
+  ::spellcasting-modifiers
   :<- [::abilities]
   :<- [::spellcaster-classes]
-  :<- [::proficiency-bonus]
-  (fn [[abilities classes proficiency-bonus]]
+  (fn [[abilities classes]]
     (->> classes
          (map (fn [c]
                 (let [spellcasting-ability (-> c
                                                :attrs
                                                :5e/spellcaster
                                                :ability)]
-                  [(:id c) (+ proficiency-bonus
-                              (ability->mod
-                                (get abilities spellcasting-ability)))])))
+                  [(:id c) (ability->mod
+                             (get abilities spellcasting-ability))])))
          (into {}))))
+
+(reg-sub
+  ::spell-attack-bonuses
+  :<- [::spellcasting-modifiers]
+  :<- [::proficiency-bonus]
+  (fn [[modifiers proficiency-bonus]]
+    (reduce-kv
+      (fn [m class-or-race-id modifier]
+        (assoc m class-or-race-id (+ proficiency-bonus modifier)))
+      {}
+      modifiers)))
 
 (defn- standard-spell-slots?
   [c]

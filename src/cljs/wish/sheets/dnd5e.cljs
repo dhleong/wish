@@ -47,15 +47,20 @@
                  button
                  {:padding "4px"})]]]]
 
-  [:.spell-slot-level flex-center
-   [:.label flex-grow]]
+  [:.spells-section
+   [:.spell-slots-use flex
+    [:.slot {:width "24px"
+             :height "24px"
+             :border "1px solid #333"
+             :margin "4px"}
+     [:&.used {:cursor 'pointer}]]]
 
-  [:.spell-slots-container flex
-   [:.slot {:width "24px"
-            :height "24px"
-            :border "1px solid #333"
-            :margin "4px"}
-    [:&.used {:cursor 'pointer}]]]
+   [:.spell-slot-level flex-center
+    [:.label flex-grow]]
+
+   [:.spell
+    [:.name {:font-weight "bold"}]
+    [:.meta metadata]]]
 
   [:.skill-col (merge
                  flex-vertical
@@ -329,15 +334,27 @@
 
 (defn spell-block
   [s]
-  (println "TODO more rendering for " s)
-  [:div.spell
-   (:name s)])
+  (let [level (:spell-level s)]
+    [:div.spell
+     [:div.name (:name s)]
+
+     ; TODO concentration? ritual?
+     [:div.meta (if (= 0 level)
+                  "Cantrip"
+                  (str "Level " level))]
+
+     [:div.detail
+      (when (:dice s)
+        [:div.dice
+         (invoke-callable s :dice)])
+
+      ; TODO format the desc text w/line breaks, bold, etc.
+      [:div.desc (:desc s)]]]))
 
 (defn spell-slot-use-block
   [kind level total used]
-  [:div.spell-slot-use
-   {:class (:spell-slots-container styles)
-    :on-click (click>evt [::events/use-spell-slot kind level total])}
+  [:div.spell-slots-use
+   {:on-click (click>evt [::events/use-spell-slot kind level total])}
    (for [i (range total)]
      (let [used? (< i used)]
        ^{:key (str level "/" kind i)}
@@ -354,15 +371,14 @@
   (let [spells (<sub [::dnd5e/class-spells])
         slots-sets (<sub [::dnd5e/spell-slots])
         slots-used (<sub [::dnd5e/spell-slots-used])]
-    [:div
+    [:div {:class (:spells-section styles)}
      (for [[id {:keys [label slots]}] slots-sets]
        ^{:key id}
        [:div.spell-slots
         [:h4 label]
         (for [[level total] slots]
           ^{:key (str "slots/" level)}
-          [:div
-           {:class (:spell-slot-level styles)}
+          [:div.spell-slot-level
            [:div.label
             (str "Level " level)]
            [spell-slot-use-block
