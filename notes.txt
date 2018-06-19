@@ -11,6 +11,10 @@ using the :5e/spellcasting attribute, which accepts:
  :multiclass-levels-mod 2  ; number by which to devide class level when
                            ; determining multiclass spellcaster level.
                            ; Default is just 1; rangers/paladins are 2
+ :slots-type :id  ; if non-standard (like Warlock) this should be a
+                  ; namespace-less keyword
+ :slots-label "Label"  ; if :slots-type is provided, this should also
+                       ; be provided
  :restore-trigger :long-rest  ; :long-rest is the default
  :ability :wis  ; base ability for spellcasting modifier
  :prepares? true  ; Whether the class prepares spells or just knows them

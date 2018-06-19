@@ -20,7 +20,9 @@
    :classes
    {:cleric {:id :cleric
              :level 2
-             :primary? true}}
+             :primary? true}
+    :warlock {:id :warlock
+              :level 1}}
 
    :races [:human]
 

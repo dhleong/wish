@@ -334,37 +334,39 @@
    (:name s)])
 
 (defn spell-slot-use-block
-  [level total used]
+  [kind level total used]
   [:div.spell-slot-use
    {:class (:spell-slots-container styles)
-    :on-click (click>evt [::events/use-spell-slot level total])}
+    :on-click (click>evt [::events/use-spell-slot kind level total])}
    (for [i (range total)]
      (let [used? (< i used)]
-       ^{:key (str level "/" i)}
+       ^{:key (str level "/" kind i)}
        [:div.slot
         {:class (when used?
                   "used")
          :on-click (when used?
-                     (click>evt [::events/restore-spell-slot level total]
+                     (click>evt [::events/restore-spell-slot kind level total]
                                 :propagate? false))}
         (when used?
           (icon :close))]))])
 
 (defn spells-section []
   (let [spells (<sub [::dnd5e/class-spells])
-        slots (<sub [::dnd5e/spell-slots])
+        slots-sets (<sub [::dnd5e/spell-slots])
         slots-used (<sub [::dnd5e/spell-slots-used])]
     [:div
-     [:div.spell-slots
-      [:h4 "Spell Slots"]
-      (for [[level total] slots]
-        ^{:key (str "slots/" level)}
-        [:div
-         {:class (:spell-slot-level styles)}
-         [:div.label
-          (str "Level " level)]
-         [spell-slot-use-block
-          level total (get slots-used level)]])]
+     (for [[id {:keys [label slots]}] slots-sets]
+       ^{:key id}
+       [:div.spell-slots
+        [:h4 label]
+        (for [[level total] slots]
+          ^{:key (str "slots/" level)}
+          [:div
+           {:class (:spell-slot-level styles)}
+           [:div.label
+            (str "Level " level)]
+           [spell-slot-use-block
+            id level total (get-in slots-used [id level])]])])
 
      [:div.spells
       [:h4 "Available spells"]

@@ -9,9 +9,14 @@
   [score]
   (Math/floor (/ (- score 10) 2)))
 
-(defn level->slot-kw
-  [level]
-  (keyword "slots" (str "level-" level)))
+(defn ->slot-kw
+  ([level]
+   (->slot-kw :standard level))
+  ([kind level]
+   (keyword (if (= kind :standard)
+              "slots"
+              (name kind))
+            (str "level-" level))))
 
 (defn mod->str
   [modifier]
@@ -22,33 +27,33 @@
 
 ; ======= :attr application ================================
 
-(def spellcasting-uses
+(defn spellcasting-uses
+  [slots-type restore-trigger]
   (reduce
     (fn [m level]
-      (let [id (level->slot-kw level)]
+      (let [id (->slot-kw slots-type level)]
         (assoc m id
                (compile-limited-use
                  {:id id
                   :implicit? true
-                  :restore-trigger :long-rest}))))
+                  :restore-trigger restore-trigger}))))
     {}
     (range 1 10)))
 
 (defn- install-spell-uses
   [entity]
   (let [spellcaster (-> entity :attrs :5e/spellcaster)
-        existing-uses (-> entity :limited-uses :slots/level-1)]
+        slots-type (:slots-type spellcaster :standard)
+        restore-trigger (:restore-trigger spellcaster :long-rest)
+        basic-slot-id (->slot-kw slots-type 1)
+        existing-slot-use (-> entity :limited-uses basic-slot-id)]
     (cond
-      ; spellcaster with normal restore
+      ; some kind of spellcasting
       (and spellcaster
-           (not existing-uses)
-           (= :long-rest (:restore-trigger
-                           spellcaster
-                           :long-rest)))
-      (update entity :limited-uses merge spellcasting-uses)
-
-      ; TODO classes like warlock have a separate set of
-      ; spell slots with a different restore trigger
+           (not existing-slot-use))
+      (update entity :limited-uses merge (spellcasting-uses
+                                           slots-type
+                                           restore-trigger))
 
       ; no spellcasting
       :else entity)))

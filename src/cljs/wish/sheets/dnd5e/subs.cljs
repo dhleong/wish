@@ -72,6 +72,8 @@
     19 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 1, 8 1, 9 1}
     20 {1 4, 2 3, 3 3, 4 3, 5 3, 6 2, 7 2, 8 1, 9 1}}})
 
+(def std-slots-label "Spell Slots")
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
@@ -279,30 +281,55 @@
                                 (get abilities spellcasting-ability)))])))
          (into {}))))
 
+(defn- standard-spell-slots?
+  [c]
+  (= :standard (or (-> c
+                       :attrs
+                       :5e/spellcaster
+                       :slots-type)
+                   :standard)))
+
 (defn spell-slots
   [spellcaster-classes]
   (if (= 1 (count spellcaster-classes))
     (let [c (first spellcaster-classes)
           level (:level c)
-          schedule (or (-> c :attrs :5e/spellcaster :slots)
-                       :standard)
+          spellcaster (-> c :attrs :5e/spellcaster)
+          kind (:slots-type spellcaster :standard)
+          label (:slots-label spellcaster std-slots-label)
+          schedule (:slots spellcaster :standard)
           schedule (if (keyword? schedule)
                      (schedule spell-slot-schedules)
                      schedule)]
-      (get schedule level))
+      {kind {:label label
+             :slots (get schedule level)}})
 
-    (let [level (apply +
-                       (map (fn [c]
-                              (let [mod (or (-> c :attrs
-                                                :5e/spellcaster
-                                                :multiclass-levels-mod)
-                                            1)]
-                                (int
-                                  (Math/floor
-                                    (/ (:level c)
-                                       mod)))))
-                            spellcaster-classes))]
-      (get-in spell-slot-schedules [:multiclass level]))))
+    (let [std-level (apply
+                      +
+                      (->> spellcaster-classes
+                           (filter standard-spell-slots?)
+                           (map
+                             (fn [c]
+                               (let [mod (get-in
+                                           c
+                                           [:attrs
+                                            :5e/spellcaster
+                                            :multiclass-levels-mod]
+                                           1)]
+                                 (when-not (= mod 0)
+                                   (int
+                                     (Math/floor
+                                       (/ (:level c)
+                                          mod)))))))))]
+      (apply
+        merge
+        {:standard
+         {:label std-slots-label
+          :slots (get-in spell-slot-schedules [:multiclass std-level])}}
+        (->> spellcaster-classes
+             (filter (complement standard-spell-slots?))
+             (map (fn [c]
+                    (spell-slots [c]))))))))
 
 (reg-sub
   ::spell-slots
@@ -310,15 +337,34 @@
   spell-slots)
 
 (reg-sub
+  ::spellcaster-slot-types
+  :<- [::spellcaster-classes]
+  (fn [classes]
+    (->> classes
+         (filter (complement standard-spell-slots?))
+         (map #(name
+                 (get-in %
+                         [:attrs
+                          :5e/spellcaster
+                          :slots-type])))
+         set)))
+
+(reg-sub
   ::spell-slots-used
   :<- [:limited-used]
-  (fn [used]
+  :<- [::spellcaster-slot-types]
+  (fn [[used slot-types]]
     (reduce-kv
       (fn [m id used]
-        (if (not= "slots" (namespace id))
-          m ; ignore
+        (let [id-ns (namespace id)
+              level (-> id name last int)]
+          (cond
+            (= "slots" id-ns)
+            (assoc-in m [:standard level] used)
 
-          (let [level (-> id name last int)]
-            (assoc m level used))))
+            (contains? slot-types id-ns)
+            (assoc-in m [(keyword id-ns) level] used)
+
+            :else m)))  ; ignore; unrelated
       {}
       used)))
