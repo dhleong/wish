@@ -23,6 +23,7 @@
 (reg-sub :sheet-sources :sheet-sources)
 
 (reg-sheet-sub :sheet :sheet)
+(reg-sheet-sub :sheet-kind :kind)
 (reg-sheet-sub :class-metas (comp vals :classes))
 (reg-sheet-sub :race-ids :races)
 (reg-sheet-sub :limited-used :limited-uses)
@@ -64,11 +65,11 @@
 
 (reg-sub
   :classes
-  :<- [:sheet-meta]
+  :<- [:sheet-kind]
   :<- [:sheet-source]
   :<- [:options]
   :<- [:class-metas]
-  (fn [[sheet-meta source options metas] _]
+  (fn [[sheet-kind source options metas] _]
     (when source
       (->> metas
            (map (fn [m]
@@ -77,7 +78,7 @@
                   (-> c
                       (apply-options source options)
                       (sheets/post-process
-                        (:kind sheet-meta)
+                        sheet-kind
                         source
                         :class)))))
       )))
