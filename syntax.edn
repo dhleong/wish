@@ -95,7 +95,7 @@
   :levels {}
 
   ; map of level -> feature-map where *all* keys <= the class level
-  ; get applied as per :levels
+  ; get applied as per :levels. These are applied *after* :levels.
   :&levels {}
 
   ; list of directives to apply to the character when the feature

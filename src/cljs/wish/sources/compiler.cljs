@@ -1,7 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "DataSource compiler"}
   wish.sources.compiler
-  (:require [wish.sources.compiler.entity :refer [compile-entity]]
+  (:require [clojure.data :refer [diff]]
+            [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.sources.compiler.entity-mod :refer [apply-entity-mod]]
             [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
@@ -83,26 +85,31 @@
 
 (declare apply-directive) ; part of the public API below
 (defn- install-features
-  [s entity]
-  (-> entity
-      (update :features
-              (fn [features]
-                (reduce-kv
-                  (fn [m feature-id v]
-                    (if (map? v)
-                      ; ensure it's compiled
-                      (assoc m feature-id (compile-feature v))
+  ([s entity]
+   (install-features s entity nil))
+  ([s entity data-source]
+   (-> entity
+       (update :features
+               (fn [features]
+                 (reduce-kv
+                   (fn [m feature-id v]
+                     (if (map? v)
+                       ; ensure it's compiled
+                       (assoc m feature-id (compile-feature v))
 
-                      ; pull it out of the state
-                      (assoc m feature-id
-                             (get-in s [:features feature-id]))))
-                  features
-                  features)))
-      ; apply features
-      (as-> e (reduce
-                apply-directive
-                e
-                (mapcat :! (vals (:features e)))))))
+                       ; pull it out of the state (or data source,
+                       ; if we have one)
+                       (assoc m feature-id
+                              (or (get-in s [:features feature-id])
+                                  (when data-source
+                                    (find-feature data-source feature-id))))))
+                   features
+                   features)))
+       ; apply features
+       (as-> e (reduce
+                 apply-directive
+                 e
+                 (mapcat :! (vals (:features e))))))))
 
 ; ======= public api =======================================
 
@@ -140,6 +147,9 @@
 
        ))
 
+
+; ======= Options ==========================================
+
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
   (if (empty? options-chosen)
@@ -163,7 +173,6 @@
 
 (defn apply-options
   [state data-source options-map]
-  ; TODO apply :levels and :&levels
   (if (empty? options-map)
     state
 
@@ -173,3 +182,102 @@
 
         data-source
         (next options-map)))))
+
+
+; ======= Level-scaling ====================================
+
+(defn- get-scaling
+  [context k path]
+  (when-let [scaling (k context)]
+    [scaling path]))
+
+(defn- find-level-scaling
+  [state k]
+  (-> (get-scaling state k nil)
+      (cons (map
+              (fn [[id feature]]
+                (get-scaling feature k [:features id]))
+              (:features state)))
+      (->> (filter identity))))
+
+(defn- apply-mod-in
+  "Apply mod-map in `path` and install newly-added features"
+  [state data-source mod-map path]
+  (let [after (if path
+                (update-in state path apply-entity-mod mod-map)
+                (apply-entity-mod state mod-map))
+        ; only install features added
+        [_ added _] (diff state after)
+        new-installed (when added
+                        (install-features state added data-source))]
+    (merge-with merge after new-installed)))
+
+(defn- apply-scaling-for-level
+  [state path this-scaling data-source level]
+  (if-let [values (get this-scaling level)]
+    (apply-mod-in
+      state data-source
+      values path)
+
+    ; no scaling; pass through
+    state))
+
+(defn- apply-levels-with
+  [original-state data-source levels-key apply-fn]
+  (loop [state original-state
+         level (:level state)
+         merge-scaling (find-level-scaling state levels-key)]
+    (if-let [[this-scaling path] (first merge-scaling)]
+      (recur
+        (apply-fn
+          state path
+          this-scaling data-source
+          level)
+
+        level
+        (next merge-scaling))
+
+      ; done!
+      state)))
+
+(defn- apply-all-levels
+  "Apply :&levels statements in `original-state`"
+  [original-state data-source]
+  (apply-levels-with
+    original-state
+    data-source
+    :&levels
+    (fn [state path this-scaling data-source level]
+      (reduce
+        (fn [s apply-level]
+          (apply-scaling-for-level
+            s path
+            this-scaling data-source
+            apply-level))
+        state
+        (range 1 (inc level))))))
+
+(defn- apply-current-level
+  "Applies :levels statements in `original-state`"
+  [original-state data-source]
+  (apply-levels-with
+    original-state
+    data-source
+    :levels
+    apply-scaling-for-level))
+
+(defn apply-levels
+  [state data-source]
+  (-> state
+      (apply-current-level data-source)
+      (apply-all-levels data-source)))
+
+
+; ======= Public interface =================================
+
+(defn inflate
+  "Inflate the entity with current `state`."
+  [state data-source options-map]
+  (-> state
+      (apply-levels data-source)
+      (apply-options data-source options-map)))

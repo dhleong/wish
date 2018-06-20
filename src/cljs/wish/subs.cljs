@@ -2,7 +2,7 @@
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
-            [wish.sources.compiler :refer [apply-options]]
+            [wish.sources.compiler :refer [inflate]]
             [wish.sources.core :refer [find-class find-race]]))
 
 (defn reg-sheet-sub
@@ -76,7 +76,7 @@
                   (merge m (find-class source (:id m)))))
            (map (fn [c]
                   (-> c
-                      (apply-options source options)
+                      (inflate source options)
                       (sheets/post-process
                         sheet-kind
                         source
@@ -95,7 +95,7 @@
            (map (partial find-race source))
            (map (fn [r]
                   (-> r
-                      (apply-options source options)
+                      (inflate source options)
                       (sheets/post-process
                         (:kind sheet-meta)
                         source
