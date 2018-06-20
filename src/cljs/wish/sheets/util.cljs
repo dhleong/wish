@@ -23,12 +23,29 @@
              (str provider-id))
            pro-sheet-id))
 
-(defn update-sheet
-  [db f & args]
+
+; ======= Sheet-modification utils =========================
+; These functions act as -fx event handlers, accepting the
+; cofx map, performing the modification described, and scheduling
+; a save of the sheet.
+
+(defn update-sheet-path
+  "Update a path in the current sheet meta"
+  [{:keys [db]} path f & args]
   (let [sheet-id (active-sheet-id db)]
-    (apply update-in db [:sheets sheet-id :sheet] f args)))
+    {:db (apply update-in db
+                (concat [:sheets sheet-id]
+                        path)
+                f
+                args)
+     :schedule-save sheet-id}))
+
+(defn update-sheet
+  "Update the sheet-specific map `:sheet`"
+  [cofx f & args]
+  (apply update-sheet-path cofx [:sheet] f args))
 
 (defn update-uses
-  [db use-id f & args]
-  (let [sheet-id (active-sheet-id db)]
-    (apply update-in db [:sheets sheet-id :limited-uses use-id] f args)))
+  "Update the uses count for the given use-id"
+  [cofx use-id f & args]
+  (apply update-sheet-path cofx [:limited-uses use-id] f args))

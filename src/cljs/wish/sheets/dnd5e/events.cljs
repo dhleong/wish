@@ -15,20 +15,20 @@
       max-val
       (max min-val new-val))))
 
-(reg-event-db
+(reg-event-fx
   ::update-hp
   [trim-v]
-  (fn-traced [db _]
-    (update-uses db :hp#uses inc)))
+  (fn-traced [cofx _]
+    (update-uses cofx :hp#uses inc)))
 
-(reg-event-db
+(reg-event-fx
   ::use-spell-slot
   [trim-v]
-  (fn-traced [db [kind level max-slots]]
-    (update-uses db (->slot-kw kind level) with-range inc 0 max-slots)))
+  (fn-traced [cofx [kind level max-slots]]
+    (update-uses cofx (->slot-kw kind level) with-range inc 0 max-slots)))
 
-(reg-event-db
+(reg-event-fx
   ::restore-spell-slot
   [trim-v]
-  (fn-traced [db [kind level max-slots]]
-    (update-uses db (->slot-kw kind level) with-range dec 0 max-slots)))
+  (fn-traced [cofx [kind level max-slots]]
+    (update-uses cofx (->slot-kw kind level) with-range dec 0 max-slots)))

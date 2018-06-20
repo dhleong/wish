@@ -4,6 +4,7 @@
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
             [wish.db :as db]
+            [wish.fx :as fx]
             [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses]]
             [wish.subs-util :refer [active-sheet-id]]
@@ -53,6 +54,17 @@
     (assoc-in db [:sheet-sources sheet-id]
               {:loaded? true
                :source source})))
+
+; Internal event triggered by the :schedule-save fx
+(reg-event-fx
+  ::fx/save-sheet!
+  [trim-v]
+  (fn-traced [{:keys [db]} [sheet-id]]
+    ; fetch the sheet data and forward it to the ::save-sheet! fx handler
+    {::fx/save-sheet! [sheet-id (get-in db [:sheets sheet-id])]}))
+
+
+; ======= Limited-use handling =============================
 
 (defn restore-trigger-matches?
   [required actual]
@@ -109,11 +121,11 @@
              [triggers]))}))
 
 ; toggle whether a single-use limited-use item has been used
-(reg-event-db
+(reg-event-fx
   :toggle-used
   [trim-v]
-  (fn-traced [db [use-id]]
-    (update-uses db use-id (fn [uses]
-                             (if (> uses 0)
-                               0
-                               1)))))
+  (fn-traced [cofx [use-id]]
+    (update-uses cofx use-id (fn [uses]
+                               (if (> uses 0)
+                                 0
+                                 1)))))
