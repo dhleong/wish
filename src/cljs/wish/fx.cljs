@@ -2,8 +2,9 @@
       :doc "fx"}
   wish.fx
   (:require [re-frame.core :refer [reg-fx]]
+            [wish.db :as db]
             [wish.sources :as sources]
-            [wish.providers :as providers :refer [load-sheet!]]
+            [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.util :refer [>evt]]))
 
 (reg-fx :providers/init! providers/init!)
@@ -28,29 +29,44 @@
 (reg-fx
   ::save-sheet!
   (fn [[sheet-id data]]
+    (>evt [::db/mark-save-processing sheet-id])
     (js/console.log "Save " sheet-id ": " data)
-    ; TODO
-    ))
+
+    (save-sheet!
+      sheet-id data
+      (fn on-saved [err]
+        (when-not err
+          (js/window.removeEventListener
+            "beforeunload"
+            confirm-close-window)
+          (js/console.log "Finished save of " sheet-id))
+
+        (>evt [::db/finish-save sheet-id])))))
 
 (reg-fx
   :schedule-save
   (fn [sheet-id]
-    (when sheet-id
-      (if-let [timer (get @save-sheet-timers sheet-id)]
-        ; existing timer; clear it
-        (js/clearTimeout timer)
-        ; no existing, so this is the first; confirm window closing
-        (js/window.addEventListener
-          "beforeunload"
-          confirm-close-window))
-      (js/console.log "Schedule save of" (str sheet-id))
-      (swap! save-sheet-timers
-             assoc
-             sheet-id
-             (js/setTimeout
-               (fn []
-                 (js/console.log "Perform save of" (str sheet-id))
-                 (swap! save-sheet-timers dissoc sheet-id)
-                 (>evt [::save-sheet! sheet-id]))
-               throttled-save-timeout)))))
+    (when-not sheet-id
+      (throw (js/Error. "Triggered :schedule-save without a sheet-id")))
+
+    (if-let [timer (get @save-sheet-timers sheet-id)]
+      ; existing timer; clear it
+      (js/clearTimeout timer)
+
+      ; no existing, so this is the first; confirm window closing
+      (js/window.addEventListener
+        "beforeunload"
+        confirm-close-window))
+
+    (>evt [::db/put-pending-save sheet-id])
+    (js/console.log "Schedule save of" (str sheet-id))
+    (swap! save-sheet-timers
+           assoc
+           sheet-id
+           (js/setTimeout
+             (fn []
+               (js/console.log "Perform save of" (str sheet-id))
+               (swap! save-sheet-timers dissoc sheet-id)
+               (>evt [::save-sheet! sheet-id]))
+             throttled-save-timeout))))
 

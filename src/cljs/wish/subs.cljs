@@ -1,5 +1,6 @@
 (ns wish.subs
   (:require [re-frame.core :refer [reg-sub subscribe]]
+            [wish.db :as db]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [inflate]]
@@ -140,3 +141,19 @@
         (assoc m (:id v) v))
       {}
       limited-uses)))
+
+
+; ======= Save state =======================================
+
+(reg-sub
+  :save-state
+  (fn [{::db/keys [pending-saves processing-saves]}]
+    (cond
+      ; if there are any processing, show :saving state
+      (not (empty? processing-saves)) :saving
+
+      ; nothing processing, but some pending
+      (not (empty? pending-saves)) :pending
+
+      ; otherwise, idle
+      :else :idle)))

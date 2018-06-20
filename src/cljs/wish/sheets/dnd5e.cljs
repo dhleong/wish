@@ -7,7 +7,7 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
-            [wish.views.widgets :refer-macros [icon]]))
+            [wish.views.widgets :as widgets :refer-macros [icon]]))
 
 
 ; ======= CSS ==============================================
@@ -103,7 +103,9 @@
                         (str/join " / "))]
      [:div.race (:name (<sub [:race]))]
 
-     [hp]]))
+     [hp]
+
+     [widgets/save-state]]))
 
 (defn section
   [title & content]

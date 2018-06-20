@@ -23,3 +23,11 @@
     (when-let [{:keys [inst]} (get providers provider-id)]
       ;; TODO
       (println "LOAD " pro-sheet-id " FROM " inst))))
+
+(defn save-sheet!
+  [sheet-id data on-done]
+  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
+    (when-let [{:keys [inst]} (get providers provider-id)]
+      ;; TODO
+      (println "TODO SAVE " pro-sheet-id " FROM " inst))
+    (on-done nil)))

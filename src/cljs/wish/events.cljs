@@ -129,3 +129,28 @@
                                (if (> uses 0)
                                  0
                                  1)))))
+
+
+; ======= Save-state handling ==============================
+
+(reg-event-db
+  ::db/put-pending-save
+  [trim-v]
+  (fn [db [sheet-id]]
+    (update db ::db/pending-saves conj sheet-id)))
+
+(reg-event-db
+  ::db/mark-save-processing
+  [trim-v]
+  (fn [db [sheet-id]]
+    (-> db
+        (update ::db/pending-saves disj sheet-id)
+        (update ::db/processing-saves conj sheet-id))))
+
+(reg-event-db
+  ::db/finish-save
+  [trim-v]
+  (fn [db [sheet-id]]
+    (-> db
+        (update ::db/pending-saves disj sheet-id)
+        (update ::db/processing-saves disj sheet-id))))

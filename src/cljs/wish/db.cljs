@@ -1,4 +1,6 @@
 (ns wish.db)
 
 (def default-db
-  {:page [:home]})
+  {:page [:home]
+   ::pending-saves #{}
+   ::processing-saves #{}})
