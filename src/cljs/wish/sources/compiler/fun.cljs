@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Template function compilation"}
-  wish.templ.fun
+  wish.sources.compiler.fun
   (:require [clojure.string :as str]
             [cljs.js :refer [empty-state eval js-eval]])
-  (:require-macros [wish.templ.fun :refer [expose-fn export-macro export-sym]]))
+  (:require-macros [wish.sources.compiler.fun :refer [expose-fn export-macro export-sym]]))
 
 ;;
 ;; Clojurescript eval
@@ -164,11 +164,11 @@
                                      "\n\nOriginal error: " (.-stack e))))))))
          :context :expr
          :source-map true
-         :ns 'wish.templ.fun-eval}
+         :ns 'wish.sources.compiler.fun-eval}
         (fn [res]
           (if (contains? res :value) ; nil or false are fine
             (:value res)
-            (when-not (= "Could not require wish.templ.fun"
+            (when-not (= "Could not require wish.sources.compiler.fun"
                          (ex-message (:error res)))
               ;; (js/console.error (str "Error evaluating: " form))
               ;; (js/console.error (str res))
@@ -184,8 +184,8 @@
             ; eval an ns so the imports are recognized
             (eval-in
               new-state
-              '(ns wish.templ.fun-eval
-                 (:require [wish.templ.fun :refer [ceil floor]])))
+              '(ns wish.sources.compiler.fun-eval
+                 (:require [wish.sources.compiler.fun :refer [ceil floor]])))
             ;
             ; eval a declare so our functions are also recognized
             (reset! cached-eval-state new-state)))]

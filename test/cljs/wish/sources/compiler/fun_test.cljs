@@ -1,6 +1,6 @@
-(ns wish.templ.fun-test
+(ns wish.sources.compiler.fun-test
   (:require [cljs.test :refer-macros [deftest testing is run-tests]]
-            [wish.templ.fun :refer [->callable]]))
+            [wish.sources.compiler.fun :refer [->callable]]))
 
 (deftest ->callable-test
   (testing "Constant values"

@@ -1,6 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "Macros for exposing fns to template functions"}
-  wish.templ.fun
+  wish.sources.compiler.fun
   (:require [clojure.string :as str]))
 
 ; NOT exhaustive, but should cover our uses:

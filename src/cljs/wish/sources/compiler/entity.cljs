@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "compiler.entity"}
   wish.sources.compiler.entity
-  (:require [wish.templ.fun :refer [->callable]]))
+  (:require [wish.sources.compiler.fun :refer [->callable]]))
 
 (defn- inflate-features
   [features]

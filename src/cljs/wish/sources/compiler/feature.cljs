@@ -2,7 +2,7 @@
       :doc "Feature compiler"}
   wish.sources.compiler.feature
   (:require [wish.sources.compiler.entity :refer [compile-entity]]
-            [wish.templ.fun :refer [->callable]]))
+            [wish.sources.compiler.fun :refer [->callable]]))
 
 (defn compile-max-options
   ":max-options compiles to an acceptor function that

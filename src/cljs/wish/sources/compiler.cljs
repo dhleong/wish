@@ -5,10 +5,10 @@
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.entity-mod :refer [apply-entity-mod]]
             [wish.sources.compiler.feature :refer [compile-feature]]
+            [wish.sources.compiler.fun :refer [->callable]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
             [wish.sources.core :refer [find-feature]]
-            [wish.templ.fun :refer [->callable]]
             [wish.util :refer [->map process-map]]))
 
 ; ======= options ==========================================
