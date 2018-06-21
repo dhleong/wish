@@ -11,7 +11,7 @@
   (let [k (if (keyword? sheet-id)
             sheet-id
             (keyword sheet-id))]
-    [(namespace k)
+    [(keyword (namespace k))
      (name k)]))
 
 (defn make-id

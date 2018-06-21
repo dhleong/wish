@@ -10,5 +10,9 @@
     <div id="app"></div>
     <script src="js/compiled/app.js"></script>
     <script>wish.core.init();</script>
+    <script async defer src="https://apis.google.com/js/api.js"
+        onload="this.onload=function(){};wish.providers.gdrive.handle_client_load()"
+        onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
   </body>
 </html>

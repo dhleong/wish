@@ -55,6 +55,7 @@
       (case kind
         "wish" (load-builtin! source-id)
 
+        ; TODO delegate to a Provider
         (println "Unknown source kind " kind)))))
 
 (defn- combine-sources!

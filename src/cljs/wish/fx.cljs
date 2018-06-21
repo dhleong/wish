@@ -24,17 +24,20 @@
     confirm-message))
 
 (defonce save-sheet-timers (atom {}))
-(def throttled-save-timeout 7500)
+; STOPSHIP restore:
+;; (def throttled-save-timeout 7500)
+(def throttled-save-timeout 1500)
 
 (reg-fx
   ::save-sheet!
   (fn [[sheet-id data]]
     (>evt [::db/mark-save-processing sheet-id])
-    (js/console.log "Save " sheet-id ": " data)
 
     (save-sheet!
       sheet-id data
       (fn on-saved [err]
+        (println "on-saved " err)
+        ; TODO indicate error; dispatch retry (later)
         (when-not err
           (js/window.removeEventListener
             "beforeunload"

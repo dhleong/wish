@@ -1,7 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Dummy provider"}
   wish.providers.dummy
-  (:require [wish.util :refer [>evt]]))
+  (:require [clojure.core.async :refer [to-chan]]
+            [wish.providers.core :refer [IProvider]]
+            [wish.util :refer [>evt]]))
 
 (def ^:private dummy-sheet
   {:v [1 1] ; wish + sheet version numbers
@@ -55,7 +57,23 @@
    :notes
    [[1234 "Note"]]})
 
-(defn init!
+(deftype DummyProvider []
+  IProvider
+  (id [this] :dummy)
+  (init! [this]
+    (println "INIT :dummy!")
+    (>evt [:put-sheet! :dummy/my-sheet-id dummy-sheet]))
+  (load-raw
+    [this id]
+    (to-chan [[(js/Error. "Not implemented") nil]]))
+  (load-sheet
+    [this id]
+    (to-chan [[(js/Error. "Not implemented") nil]]))
+  (save-sheet
+    [this id data]
+    (println "Dummy save: " id)
+    (to-chan [[nil]])))
+
+(defn create-provider
   []
-  (println "INIT :dummy!")
-  (>evt [:put-sheet! :dummy/my-sheet-id dummy-sheet]))
+  (->DummyProvider))
