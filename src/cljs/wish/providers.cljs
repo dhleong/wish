@@ -25,7 +25,6 @@
 
 (defn config-view
   [provider-id]
-  (println "CONFIG " provider-id)
   (if-let [{:keys [config]} (get providers provider-id)]
     [config]
 
@@ -36,7 +35,6 @@
   (get providers provider-id))
 
 (defn init! []
-  (println "INIT!")
   (doseq [provider (vals providers)]
     (when-let [inst (:inst provider)]
       (provider/init! inst))))
