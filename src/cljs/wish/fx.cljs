@@ -24,9 +24,7 @@
     confirm-message))
 
 (defonce save-sheet-timers (atom {}))
-; STOPSHIP restore:
-;; (def throttled-save-timeout 7500)
-(def throttled-save-timeout 1500)
+(def throttled-save-timeout 7500)
 
 (reg-fx
   ::save-sheet!

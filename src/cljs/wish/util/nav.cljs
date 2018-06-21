@@ -39,3 +39,10 @@
           (secretary/dispatch! (.-token event))))
       (.setEnabled true))))
 
+(defn replace!
+  "Wrapper around js/window.location.replace"
+  [new-location]
+  (let [new-location (if pushy-supported?
+                       new-location
+                       (str "#" new-location))]
+    (js/window.location.replace new-location)))

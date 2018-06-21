@@ -30,8 +30,11 @@
          ]]}])
     )
 
-  (defroute #"/sheets/([a-z0-9-]+)/(.+)" [kind id]
+  (defroute #"/sheets/([a-z0-9-]+)/([^/]+)" [kind id]
     (navigate! :sheet [kind (keyword id)]))
+
+  (defroute #"/sheets/([a-z0-9-]+)/([^/]+)/builder" [kind id]
+    (navigate! :sheet-builder [kind (keyword id)]))
 
   (defroute "/sheets/new" []
     (navigate! :new-sheet))

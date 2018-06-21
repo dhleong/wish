@@ -8,10 +8,14 @@
 
 ; ======= Provider-related =================================
 
+(reg-sub :provider-states :provider-states)
 (reg-sub
   :provider-state
-  (fn [db [_ provider-id]]
-    (get-in db [:provider-states provider-id] :idle)))
+  :<- [:provider-states]
+  (fn [states [_ provider-id]]
+    (when-not provider-id
+      (js/console.warn "[subs] nil provider-id provided to :provider-state"))
+    (get states provider-id :idle)))
 
 
 ; ======= Sheet-related ====================================

@@ -1,10 +1,13 @@
 (ns ^{:author "Daniel Leong"
       :doc "Google-drive powered Provider"}
   wish.providers.gdrive
-  (:require [clojure.core.async :refer [chan put! to-chan]]
+  (:require-macros [cljs.core.async :refer [go]]
+                   [wish.util.async :refer [call-with-cb->chan]])
+  (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
             [wish.providers.core :refer [IProvider]]
+            [wish.sheets.util :refer [make-id]]
             [wish.util :refer [>evt]]))
 
 
@@ -144,8 +147,11 @@
 
 (defn upload-data
   "The GAPI client doesn't provide proper support for
-  file uploads out-of-the-box, so let's roll our own"
-  [upload-type metadata content on-complete]
+   file uploads out-of-the-box, so let's roll our own.
+
+   Returns a channel that emits [err, res], where err
+   is non-nil on error, and res is non-nil on success."
+  [upload-type metadata content]
   {:pre [(contains? #{:create :update} upload-type)
          (string? (:mimeType metadata))
          (not (nil? content))]}
@@ -171,86 +177,69 @@
                        {:Content-Type
                         (str "multipart/related; boundary=\"" boundary "\"")}
                        :body body)]
-    (.execute
-      (js/gapi.client.request
-        (clj->js request))
-      on-complete)))
+    (call-with-cb->chan
+      (.execute
+        (js/gapi.client.request
+          (clj->js request))))))
+
+(defn- refresh-auth []
+  (call-with-cb->chan
+    (js/gapi.auth.authorize
+      #js {:client_id client-id
+           :scope scopes
+           :immediate true})))
 
 (defn upload-data-with-retry
-  [upload-type metadata content on-complete]
-  (upload-data
-    upload-type metadata content
-    (fn [resp]
-      (let [error (.-error resp)]
+  [upload-type metadata content]
+  (go (let [[error resp] (<! (upload-data
+                               upload-type metadata content))]
         (cond
           (and error
                (= 401 (.-code error)))
           ; refresh creds and retry
-          (do
-            (log "Refreshing auth before retrying upload...")
-            (js/gapi.auth.authorize
-              #js {:client_id client-id
-                   :scope scopes
-                   :immediate true}
-              (fn [refresh-resp]
-                (if (.-error refresh-resp)
+          (let [_ (log "Refreshing auth before retrying upload...")
+                [refresh-err refresh-resp] (<! (refresh-auth))]
+            (if refresh-err
+              (do
+                ;; TODO notify?
+                (log+warn "Auth refresh failed:" refresh-resp)
+                [refresh-err nil])
+
+              (let [_ (log "Auth refreshed! Retrying upload...")
+                    [retry-err retry-resp] (<! (upload-data
+                                                 upload-type metadata content))]
+                (if retry-err
                   (do
-                    ;; TODO notify?
-                    (log+warn "Auth refresh failed:" refresh-resp)
-                    (on-complete nil))
-                  (do
-                    (log "Auth refreshed! Retrying upload...")
-                    (upload-data
-                      upload-type metadata content
-                      (fn [resp]
-                        (if (.-error resp)
-                          (do
-                            (js/console.error "Even after auth refresh, upload failed: " resp)
-                            (on-complete nil))
-                          (on-complete resp)))))))))
+                    (log+err "Even after auth refresh, upload failed: " resp)
+                    [retry-err nil])
+
+                  ; upload retry succeeded!
+                  [nil retry-resp]))))
+
           ; unexpected error:
           error (do
-                  (js/console.error "upload-data ERROR:" error)
-                  (on-complete nil))
+                  (log+err "upload-data ERROR:" error)
+                  [error nil])
+
           ; no problem; pass it along
-          :else (on-complete resp))))))
+          :else [nil resp]))))
 
 (deftype GDriveProvider []
   IProvider
-  ;; (create-sheet [this info on-complete]
-  ;;   (upload-data-with-retry
-  ;;     :create
-  ;;     {:name (:name info)
-  ;;      :mimeType "application/json"
-  ;;      :parents ["appDataFolder"]}
-  ;;     (str
-  ;;       (if-let [template (:template info)]
-  ;;         ; normal case; create using the template
-  ;;         (assoc template
-  ;;                :name (:name info))
-  ;;         ; shouldn't happen anymore; create an empty sheet
-  ;;         (do
-  ;;           (js/console.warn "No template data provided...")
-  ;;           {:name (:name info)
-  ;;            :pages
-  ;;            [{:name "Main"
-  ;;              :spec [:div "Coming soon!"]}
-  ;;             {:name "Notes"
-  ;;              :type :notes}]})))
-  ;;     (fn [response]
-  ;;       (if response
-  ;;         (let [id (-> response
-  ;;                      (js->clj :keywordize-keys true)
-  ;;                      :id)]
-  ;;           (when js/goog.DEBUG
-  ;;             (log "CREATED:" response))
-  ;;           (on-complete
-  ;;             (->sheet id
-  ;;                      (:name info))))
-  ;;         (do
-  ;;           ;; TODO: notify user
-  ;;           (js/console.error "Failed to create sheet"))))))
+  (create-sheet [this file-name data]
+    (log "Create sheet " file-name)
+    (go (let [[err resp] (<! (upload-data-with-retry
+                               :create
+                               {:name file-name
+                                :mimeType "application/edn"
+                                :appProperties {:wish-type "wish-sheet"}}
+                               (str data)))]
+          (if err
+            [err nil]
 
+            (let [pro-sheet-id (:id resp)]
+              (log "CREATED" resp)
+              [nil (make-id :gdrive pro-sheet-id)])))))
 
   #_(delete-sheet [this info]
       (log "Delete " (:gapi-id info))
@@ -285,23 +274,13 @@
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
   (save-sheet [this file-id data]
-    (let [ch (chan)]
-      (log "Save " file-id)
-      (log (str data))
-      (upload-data-with-retry
-        :update
-        {:fileId file-id
-         :mimeType "application/json"}
-        (str data)
-        (fn [response]
-          (if response
-            (do (log "SAVED!" response)
-                (put! ch [nil]))
-            (do (log+err "Failed to save sheet")
-                (put! ch [(js/Error. "Failed to save sheet")])))))
-
-      ; return the channel
-      ch)))
+    (log "Save " file-id)
+    (log (str data))
+    (upload-data-with-retry
+      :update
+      {:fileId file-id
+       :mimeType "application/json"}
+      (str data))))
 
 (defn create-provider []
   (->GDriveProvider))

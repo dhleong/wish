@@ -11,6 +11,11 @@
             [wish.sources.core :refer [find-feature]]
             [wish.util :refer [->map process-map]]))
 
+; ======= constants ========================================
+
+; wish compat version number for new character sheets
+(def compiler-version 1)
+
 ; ======= options ==========================================
 
 (defn compile-option

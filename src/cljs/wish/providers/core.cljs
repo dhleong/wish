@@ -10,6 +10,10 @@
     "Perform any necessary init, possibly eager-fetching sheet ids
      from cache or something")
 
+  (create-sheet
+    [this sheet-name data]
+    "Create a new sheet with the given name and data")
+
   (load-raw
     [this id]
     "Load raw data with the given provider-specific `id`. This method

@@ -8,6 +8,7 @@
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.core :as provider]
+            [wish.sheets :refer [stub-sheet]]
             [wish.sheets.util :refer [unpack-id]]
             [wish.util :refer [>evt]]))
 
@@ -30,11 +31,25 @@
 
     [:div.error "No config for this provider"]))
 
+(defn get-info
+  [provider-id]
+  (get providers provider-id))
+
 (defn init! []
   (println "INIT!")
   (doseq [provider (vals providers)]
     (when-let [inst (:inst provider)]
       (provider/init! inst))))
+
+(defn create-sheet!
+  "Returns a channel that emits [err sheet-id] on success"
+  [sheet-name provider-id sheet-kind]
+  (if-let [{:keys [inst]} (get providers provider-id)]
+    (provider/create-sheet inst
+                           sheet-name
+                           (stub-sheet sheet-kind sheet-name))
+
+    (throw (js/Error. (str "No provider instance for " provider-id)))))
 
 (defn load-sheet!
   [sheet-id]

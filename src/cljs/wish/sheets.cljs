@@ -3,6 +3,7 @@
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.util :as dnd5e-util]
+            [wish.sources.compiler :refer [compiler-version]]
             [wish.util :refer [<sub >evt]]))
 
 ; TODO we could use code splitting here to avoid loading
@@ -10,6 +11,8 @@
 (def sheets
   {:dnd5e {:name "D&D 5E"
            :fn #'dnd5e/sheet
+           :v 1
+           :default-sources [:wish/dnd5e-srd]
 
            ; Function for post-processing entities,
            ;  IE: applying :attr side-effects.
@@ -35,6 +38,28 @@
 
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
+
+(defn stub-sheet
+  "Create the initial data for a new sheet"
+  [kind sheet-name]
+  (let [kind-meta (get sheets kind)]
+    {:v [compiler-version (:v kind-meta)]  ; wish + sheet version numbers
+     :updated (.getTime (js/Date.))  ; date
+     :kind kind
+
+     :name sheet-name
+
+     :sources (:default-sources kind-meta)
+
+     :classes []
+     :races []
+
+     }))
+
+(defn builder
+  [[kind sheet-id]]
+   [:div "Sheet builder for " sheet-id
+    [:h3 "TODO"]])
 
 (defn viewer
   [[kind sheet-id]]

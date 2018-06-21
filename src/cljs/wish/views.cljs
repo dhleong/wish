@@ -16,6 +16,7 @@
   {:home #'home
    :new-sheet #'new-sheet-page
    :sheet #'sheets/viewer
+   :sheet-builder #'sheets/builder
    :provider-config #'providers/config-view
    })
 

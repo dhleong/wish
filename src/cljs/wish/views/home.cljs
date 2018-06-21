@@ -6,8 +6,12 @@
 (defn home []
   [:div
    [:div "Hi!"]
-   [link {:href "/sheets/dnd5e/dummy/my-sheet-id"}
-    "Open sheet"]
+   [:div
+    [link {:href "/sheets/dnd5e/dummy/my-sheet-id"}
+     "Open dummy test sheet"]]
+   [:div
+    [link {:href "/sheets/new"}
+     "New sheet"]]
    [:div
     [link {:href "/providers/gdrive/config"}
      "Configure Google Drive"]]])
