@@ -43,6 +43,10 @@
   "Create the initial data for a new sheet"
   [kind sheet-name]
   (let [kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
+
     {:v [compiler-version (:v kind-meta)]  ; wish + sheet version numbers
      :updated (.getTime (js/Date.))  ; date
      :kind kind

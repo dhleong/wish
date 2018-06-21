@@ -41,7 +41,7 @@
   (providers/create-sheet!
     (:name data)
     (:provider data)
-    (:kind data)))
+    (:sheet data)))
 
 (defn on-create-success [sheet-id]
   (println "Created sheet with id " sheet-id " successfully")

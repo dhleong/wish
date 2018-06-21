@@ -44,6 +44,8 @@
 (defn create-sheet!
   "Returns a channel that emits [err sheet-id] on success"
   [sheet-name provider-id sheet-kind]
+  {:pre [(not (nil? provider-id))
+         (not (nil? sheet-kind))]}
   (if-let [{:keys [inst]} (get providers provider-id)]
     (provider/create-sheet inst
                            sheet-name
