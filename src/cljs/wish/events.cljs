@@ -23,6 +23,15 @@
     (assoc db :page page-spec)))
 
 
+; ======= Provider management ==============================
+
+(reg-event-db
+  :put-provider-state!
+  [trim-v]
+  (fn-traced [db [provider-id state]]
+    (assoc-in db [:provider-states provider-id] state)))
+
+
 ; ======= sheet-related ====================================
 
 (reg-event-fx

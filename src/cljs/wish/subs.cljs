@@ -6,6 +6,16 @@
             [wish.sources.compiler :refer [inflate]]
             [wish.sources.core :refer [find-class find-race]]))
 
+; ======= Provider-related =================================
+
+(reg-sub
+  :provider-state
+  (fn [db [_ provider-id]]
+    (get-in db [:provider-states provider-id] :idle)))
+
+
+; ======= Sheet-related ====================================
+
 (defn reg-sheet-sub
   [id getter]
   ; NOTE: instead of depending on a single subscription,

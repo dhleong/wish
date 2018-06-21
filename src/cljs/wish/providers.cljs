@@ -6,6 +6,7 @@
             [clojure.string :as str]
             [wish.providers.dummy :as dummy]
             [wish.providers.gdrive :as gdrive]
+            [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.core :as provider]
             [wish.sheets.util :refer [unpack-id]]
             [wish.util :refer [>evt]]))
@@ -18,7 +19,16 @@
    :gdrive
    {:id :gdrive
     :name "Google Drive"
+    :config #'gdrive-config/view
     :inst (gdrive/create-provider)}})
+
+(defn config-view
+  [provider-id]
+  (println "CONFIG " provider-id)
+  (if-let [{:keys [config]} (get providers provider-id)]
+    [config]
+
+    [:div.error "No config for this provider"]))
 
 (defn init! []
   (println "INIT!")

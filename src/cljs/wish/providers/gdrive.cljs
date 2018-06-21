@@ -4,7 +4,8 @@
   (:require [clojure.core.async :refer [chan put! to-chan]]
             [clojure.string :as str]
             [cljs.reader :as edn]
-            [wish.providers.core :refer [IProvider]]))
+            [wish.providers.core :refer [IProvider]]
+            [wish.util :refer [>evt]]))
 
 
 ;;
@@ -12,7 +13,7 @@
 ;;
 
 ;; Client ID and API key from the Developer Console
-(def client-id "772789905450-0lur5kbi666jno4uplvd1e4g6c52a690.apps.googleusercontent.com")
+(def client-id "661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com")
 
 ;; Array of API discovery doc URLs for APIs used by the quickstart
 (def discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
@@ -29,16 +30,30 @@
 ;; Internal util
 ;;
 
-(defn ->id
+(defn- ->id
   [gapi-id]
   (keyword "gdrive" gapi-id))
 
-(defn ->sheet
+(defn- ->sheet
   [gapi-id sheet-name]
   {:provider :gapi
    :id (->id gapi-id)
    :name sheet-name
    :gapi-id gapi-id})
+
+(defn- log
+  [& args]
+  (apply js/console.log "[gdrive]" args))
+
+(defn- log+warn
+  [& args]
+  (apply js/console.warn "[gdrive]" args))
+
+(defn- log+err
+  [& args]
+  (apply js/console.error "[gdrive]" args))
+
+
 
 ;;
 ;; State management and API interactions
@@ -54,8 +69,10 @@
 (declare on-files-list)
 (defn- update-signin-status!
   [signed-in?]
-  (println "signed-in? <-" signed-in?)
-  ;; (dispatch [:assoc-provider! :gapi :ready? signed-in?])
+  (log "signed-in? <-" signed-in?)
+  (>evt [:put-provider-state! :gdrive (if signed-in?
+                                        :signed-in
+                                        :signed-out)])
   (when signed-in?
     ;; (dispatch [:mark-loading! :gapi true])
     (-> js/gapi.client.drive.files
@@ -65,11 +82,11 @@
                     :fields "nextPageToken, files(id, name)"})
         (.then on-files-list
                (fn [e]
-                 (println "ERROR listing files" e))))))
+                 (log+err "ERROR listing files" e))))))
 
 (defn on-files-list
   [response]
-  (js/console.log "FILES LIST:" response)
+  (log "FILES LIST:" response)
   (let [response (js->clj response :keywordize-keys true)
         files (->> response
                    :result
@@ -78,14 +95,14 @@
                      (fn [raw-file]
                        (->sheet (:id raw-file)
                                 (:name raw-file)))))]
-    (println "Found: " files)
+    (log "Found: " files)
     ;; (dispatch [:add-sheets files])
     ;; (dispatch [:mark-loading! :gapi false])
     ))
 
 (defn- on-client-init
   []
-  (js/console.log "gapi client init!")
+  (log "gapi client init!")
   ; listen for updates
   (-> (auth-instance)
       (.-isSignedIn)
@@ -98,7 +115,6 @@
 
 (defn init-client!
   []
-  (js/console.log "init-client!")
   (-> (js/gapi.client.init
         #js {:discoveryDocs discovery-docs
              :clientId client-id
@@ -109,7 +125,7 @@
 ;; NOTE: Exposed to index.html
 (defn ^:export handle-client-load
   []
-  (js/console.log "handle-client-load")
+  (log "load")
   (js/gapi.load "client:auth2", init-client!))
 
 ;;
@@ -171,7 +187,7 @@
                (= 401 (.-code error)))
           ; refresh creds and retry
           (do
-            (js/console.log "Refreshing auth before retrying upload...")
+            (log "Refreshing auth before retrying upload...")
             (js/gapi.auth.authorize
               #js {:client_id client-id
                    :scope scopes
@@ -180,10 +196,10 @@
                 (if (.-error refresh-resp)
                   (do
                     ;; TODO notify?
-                    (js/console.warn "Auth refresh failed:" refresh-resp)
+                    (log+warn "Auth refresh failed:" refresh-resp)
                     (on-complete nil))
                   (do
-                    (js/console.log "Auth refreshed! Retrying upload...")
+                    (log "Auth refreshed! Retrying upload...")
                     (upload-data
                       upload-type metadata content
                       (fn [resp]
@@ -227,7 +243,7 @@
   ;;                      (js->clj :keywordize-keys true)
   ;;                      :id)]
   ;;           (when js/goog.DEBUG
-  ;;             (println "CREATED:" response))
+  ;;             (log "CREATED:" response))
   ;;           (on-complete
   ;;             (->sheet id
   ;;                      (:name info))))
@@ -237,27 +253,27 @@
 
 
   #_(delete-sheet [this info]
-      (println "Delete " (:gapi-id info))
+      (log "Delete " (:gapi-id info))
       (-> js/gapi.client.drive.files
           (.delete #js {:fileId (:gapi-id info)})
           (.then (fn [resp]
-                   (println "Deleted!" (:gapi-id info)))
+                   (log "Deleted!" (:gapi-id info)))
                  (fn [e]
-                   (js/console.warn "Failed to delete " (:gapi-id info))))))
+                   (log+warn "Failed to delete " (:gapi-id info))))))
 
   #_(refresh-sheet [this info on-complete]
-      (println "Refresh " (:gapi-id info))
+      (log "Refresh " (:gapi-id info))
       (-> js/gapi.client.drive.files
           (.get #js {:fileId (:gapi-id info)
                      :alt "media"})
           (.then (fn [resp]
-                   (js/console.log resp)
+                   (log "REFRESH resp" resp)
                    (when-let [body (.-body resp)]
                      (when-let [data (edn/read-string body)]
                        (on-complete data))))
                  (fn [e]
                    ;; TODO
-                   (println "ERROR listing files" e)))))
+                   (log+err "ERROR listing files" e)))))
 
   (init! [this]) ; nop
 
@@ -270,8 +286,8 @@
 
   (save-sheet [this file-id data]
     (let [ch (chan)]
-      (println "Save " file-id)
-      (println (str data))
+      (log "Save " file-id)
+      (log (str data))
       (upload-data-with-retry
         :update
         {:fileId file-id
@@ -279,9 +295,9 @@
         (str data)
         (fn [response]
           (if response
-            (do (println "SAVED!" response)
+            (do (log "SAVED!" response)
                 (put! ch [nil]))
-            (do (js/console.error "Failed to save sheet")
+            (do (log+err "Failed to save sheet")
                 (put! ch [(js/Error. "Failed to save sheet")])))))
 
       ; return the channel

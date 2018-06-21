@@ -2,17 +2,19 @@
   (:require
    [re-frame.core :as re-frame]
    [re-pressed.core :as rp]
+   [wish.providers :as providers]
+   [wish.sheets :as sheets]
    [wish.subs :as subs]
    [wish.util :refer [<sub]]
    [wish.views.home :refer [home]]
    [wish.views.router :refer [router]]
    [wish.views.widgets :refer [link]]
-   [wish.sheets :as sheets]
    ))
 
 (def pages
   {:home #'home
    :sheet #'sheets/viewer
+   :provider-config #'providers/config-view
    })
 
 (defn main []

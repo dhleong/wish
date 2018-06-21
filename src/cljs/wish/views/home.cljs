@@ -7,4 +7,7 @@
   [:div
    [:div "Hi!"]
    [link {:href "/sheets/dnd5e/dummy/my-sheet-id"}
-    "Open sheet"]])
+    "Open sheet"]
+   [:div
+    [link {:href "/providers/gdrive/config"}
+     "Configure Google Drive"]]])
