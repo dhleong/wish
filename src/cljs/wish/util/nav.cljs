@@ -46,3 +46,13 @@
                        new-location
                        (str "#" new-location))]
     (js/window.location.replace new-location)))
+
+(defn sheet-url
+  "Generate the url to a sheet, optionally with
+   extra path sections after it"
+  [id & extra-sections]
+  (apply str "/sheets/" (namespace id)
+       "/" (name id)
+       (when extra-sections
+         (interleave (repeat "/")
+                     extra-sections))))

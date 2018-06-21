@@ -40,7 +40,10 @@
     (navigate! :sheet (keyword id)))
 
   (defroute #"/sheets/([a-z0-9-]+/[^/]+)/builder" [id]
-    (navigate! :sheet-builder (keyword id)))
+    (navigate! :sheet-builder [(keyword id)]))
+
+  (defroute #"/sheets/([a-z0-9-]+/[^/]+)/builder/(.*)" [id section]
+    (navigate! :sheet-builder [(keyword id) (keyword section)]))
 
   (defroute "/providers/:provider-id/config" [provider-id]
     (navigate! :provider-config (keyword provider-id)))

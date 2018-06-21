@@ -8,7 +8,7 @@
             [wish.providers :as providers]
             [wish.sheets :as sheets]
             [wish.util :refer [<sub]]
-            [wish.util.nav :as nav]
+            [wish.util.nav :as nav :refer [sheet-url]]
             [wish.views.widgets :refer [link]]))
 
 (defn change->
@@ -45,8 +45,7 @@
 
 (defn on-create-success [sheet-id]
   (println "Created sheet with id " sheet-id " successfully")
-  (nav/replace! (str "/sheets/" (namespace sheet-id)
-                     "/" (name sheet-id) "/builder")))
+  (nav/replace! (sheet-url sheet-id "builder")))
 
 (defn new-sheet-page []
   (let [form-data (r/atom {:name "My New Character"})

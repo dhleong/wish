@@ -70,8 +70,8 @@
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
 (defn builder
-  [sheet-id]
-   [:div "Sheet builder for " sheet-id
+  [[sheet-id section]]
+   [:div "Sheet builder for " sheet-id " / " section
     [:h3 "TODO"]])
 
 (defn viewer

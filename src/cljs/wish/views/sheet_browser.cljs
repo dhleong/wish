@@ -2,6 +2,7 @@
       :doc "sheet-browser"}
   wish.views.sheet-browser
   (:require [wish.util :refer [<sub]]
+            [wish.util.nav :refer [sheet-url]]
             [wish.views.widgets :refer [link]]))
 
 (defn page []
@@ -12,7 +13,5 @@
     (for [s (<sub [:known-sheets])]
       ^{:key (:id s)}
       [:li.sheet-link
-       (let [provider (namespace (:id s))
-             sheet-id (name (:id s))]
-         [link {:href (str "/sheets/" provider "/" sheet-id)}
-          (:name s)])])]])
+       [link {:href (sheet-url (:id s))}
+        (:name s)]])]])
