@@ -6,9 +6,7 @@
   [db & [page-vec]]
   (let [page-vec (or page-vec
                      (:page db))]
-    (let [[page args] page-vec]
+    (let [[page sheet-id] page-vec]
       (when (= :sheet page)
-        ; NOTE: the first arg is the sheet kind;
-        ; the second is the id
-        (second args)))))
+        sheet-id))))
 

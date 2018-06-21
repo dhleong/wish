@@ -70,28 +70,29 @@
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
 (defn builder
-  [[kind sheet-id]]
+  [sheet-id]
    [:div "Sheet builder for " sheet-id
     [:h3 "TODO"]])
 
 (defn viewer
-  [[kind sheet-id]]
-  (if-let [sheet-info (get sheets (keyword kind))]
-    (let [sheet (<sub [:provided-sheet sheet-id])]
-      (if (:sources sheet)
-        (if-let [source (<sub [:sheet-source sheet-id])]
-          ; sheet is ready; render!
-          [(:fn sheet-info)]
+  [sheet-id]
+  (let [sheet (<sub [:provided-sheet sheet-id])]
+    (if (:sources sheet)
+      (let [kind (:kind sheet)]
+        (if-let [sheet-info (get sheets (keyword kind))]
+          (if-let [source (<sub [:sheet-source sheet-id])]
+            ; sheet is ready; render!
+            [(:fn sheet-info)]
 
-          (do
-            (>evt [:load-sheet-source! sheet-id (:sources sheet)])
-            [sources-loader sheet]))
+            (do
+              (>evt [:load-sheet-source! sheet-id (:sources sheet)])
+              [sources-loader sheet]))
 
-        ; either we don't have the sheet at all, or it's just
-        ; a stub with no actual data; load it!
-        (do
-          (>evt [:load-sheet! sheet-id])
-          [sheet-loader sheet])))
+          ; unknown sheet kind
+          [sheet-unknown kind]))
 
-    ; unknown sheet kind
-    [sheet-unknown kind]))
+      ; either we don't have the sheet at all, or it's just
+      ; a stub with no actual data; either way, load it!
+      (do
+        (>evt [:load-sheet! sheet-id])
+        [sheet-loader sheet]))) )

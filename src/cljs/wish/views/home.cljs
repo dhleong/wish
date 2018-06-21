@@ -7,7 +7,7 @@
   [:div
    [:div "Hi!"]
    [:div
-    [link {:href "/sheets/dnd5e/dummy/my-sheet-id"}
+    [link {:href "/sheets/dummy/my-sheet-id"}
      "Open dummy test sheet"]]
    [:div
     [link {:href "/sheets/new"}

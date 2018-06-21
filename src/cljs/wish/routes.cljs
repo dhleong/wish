@@ -36,11 +36,11 @@
   (defroute "/sheets/new" []
     (navigate! :new-sheet))
 
-  (defroute #"/sheets/([a-z0-9-]+)/([^/]+)" [kind id]
-    (navigate! :sheet [kind (keyword id)]))
+  (defroute #"/sheets/([a-z0-9-]+/[^/]+)" [id]
+    (navigate! :sheet (keyword id)))
 
-  (defroute #"/sheets/([a-z0-9-]+)/([^/]+)/builder" [kind id]
-    (navigate! :sheet-builder [kind (keyword id)]))
+  (defroute #"/sheets/([a-z0-9-]+/[^/]+)/builder" [id]
+    (navigate! :sheet-builder (keyword id)))
 
   (defroute "/providers/:provider-id/config" [provider-id]
     (navigate! :provider-config (keyword provider-id)))
