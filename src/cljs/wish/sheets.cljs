@@ -29,8 +29,10 @@
     ; no processor for this sheet; pass through
     entity))
 
-(defn sheet-loader []
-  [:div "Loading..."])
+(defn sheet-loader [?sheet]
+  (if-let [{:keys [name]} ?sheet]
+    [:div (str "Loading " name "...")]
+    [:div "Loading..."]))
 
 (defn sources-loader
   [sheet]
@@ -68,18 +70,21 @@
 (defn viewer
   [[kind sheet-id]]
   (if-let [sheet-info (get sheets (keyword kind))]
-    (if-let [sheet (<sub [:provided-sheet sheet-id])]
-      (if-let [source (<sub [:sheet-source sheet-id])]
-        ; sheet is ready; render!
-        [(:fn sheet-info)]
+    (let [sheet (<sub [:provided-sheet sheet-id])]
+      (if (:sources sheet)
+        (if-let [source (<sub [:sheet-source sheet-id])]
+          ; sheet is ready; render!
+          [(:fn sheet-info)]
 
+          (do
+            (>evt [:load-sheet-source! sheet-id (:sources sheet)])
+            [sources-loader sheet]))
+
+        ; either we don't have the sheet at all, or it's just
+        ; a stub with no actual data; load it!
         (do
-          (>evt [:load-sheet-source! sheet-id (:sources sheet)])
-          [sources-loader sheet]))
-
-      (do
-        (>evt [:load-sheet! sheet-id])
-        [sheet-loader]))
+          (>evt [:load-sheet! sheet-id])
+          [sheet-loader sheet])))
 
     ; unknown sheet kind
     [sheet-unknown kind]))
