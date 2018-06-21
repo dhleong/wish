@@ -6,9 +6,10 @@
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
-            [wish.providers.core :refer [IProvider]]
+            [wish.providers.core :refer [IProvider load-raw]]
             [wish.sheets.util :refer [make-id]]
-            [wish.util :refer [>evt]]))
+            [wish.util :refer [>evt]]
+            [wish.util.async :refer [promise->chan]]))
 
 
 ;;
@@ -50,10 +51,25 @@
   (apply js/console.error "[gdrive]" args))
 
 
-
 ;;
 ;; State management and API interactions
 ;;
+
+; gapi availability channel. Once js/gapi is
+; available, this atom is reset! to nil. Due to
+; how the (go) macro works, we can't have a nice
+; convenience function to use this, so callers will
+; have to look like:
+;
+;   (when-let [ch @gapi-available?]
+;     (<! ch))
+;
+(def ^:private gapi-available? (atom (chan)))
+
+(defn- set-gapi-available! []
+  (when-let [gapi-available-ch @gapi-available?]
+    (reset! gapi-available? nil)
+    (put! gapi-available-ch true)))
 
 (defn- auth-instance
   "Convenience to get the gapi auth instance:
@@ -99,6 +115,8 @@
 (defn- on-client-init
   []
   (log "gapi client init!")
+  (set-gapi-available!)
+
   ; listen for updates
   (-> (auth-instance)
       (.-isSignedIn)
@@ -261,10 +279,27 @@
 
   (load-raw
     [this id]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (go (let [_ (when-let [ch @gapi-available?]
+                  (<! ch))
+              [err resp] (<! (promise->chan
+                               (-> js/gapi.client.drive.files
+                                   (.get #js {:fileId id
+                                              :alt "media"}))))]
+          (if err
+            (do
+              (log+err "ERROR loading " id err)
+              [err nil])
+
+            ; success:
+            [nil (.-body resp)]))))
+
   (load-sheet
     [this id]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (go (let [[err body] (<! (load-raw this id))]
+          (if err
+            [err nil]
+
+            [nil (edn/read-string body)]))))
 
   (save-sheet [this file-id data]
     (log "Save " file-id)
