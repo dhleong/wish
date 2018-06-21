@@ -7,7 +7,7 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
-            [wish.views.widgets :as widgets :refer-macros [icon]]))
+            [wish.views.widgets :as widgets :refer-macros [icon] :refer [link]]))
 
 
 ; ======= CSS ==============================================
@@ -105,7 +105,12 @@
 
      [hp]
 
-     [widgets/save-state]]))
+     [widgets/save-state]
+
+     (let [sheet-id (<sub [:active-sheet-id])]
+       [link {:href (str "/sheets/" (namespace sheet-id)
+                         "/" (name sheet-id) "/builder")}
+        (icon :settings)])]))
 
 (defn section
   [title & content]
