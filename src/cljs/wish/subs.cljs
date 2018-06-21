@@ -17,6 +17,11 @@
       (js/console.warn "[subs] nil provider-id provided to :provider-state"))
     (get states provider-id :idle)))
 
+(reg-sub
+  :providers-listing?
+  (fn [db _]
+    (seq (:providers-listing db))))
+
 
 ; ======= Sheet-related ====================================
 
@@ -55,6 +60,16 @@
   :<- [:sheets]
   (fn [sheets [_ sheet-id]]
     (get sheets sheet-id)))
+
+(reg-sub
+  :known-sheets
+  :<- [:sheets]
+  (fn [sheets _]
+    (->> sheets
+         (map (fn [[id v]]
+                (assoc v :id id)))
+         (filter :name)
+         (sort-by :name))))
 
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id

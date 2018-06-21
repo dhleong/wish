@@ -13,5 +13,8 @@
     [link {:href "/sheets/new"}
      "New sheet"]]
    [:div
+    [link {:href "/sheets"}
+     "Open a sheet"]]
+   [:div
     [link {:href "/providers/gdrive/config"}
      "Configure Google Drive"]]])

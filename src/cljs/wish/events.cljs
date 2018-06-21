@@ -31,6 +31,15 @@
   (fn-traced [db [provider-id state]]
     (assoc-in db [:provider-states provider-id] state)))
 
+(reg-event-db
+  :mark-provider-listing!
+  [trim-v]
+  (fn-traced [db [provider-id listing?]]
+    (let [method (if listing?
+                   conj
+                   disj)]
+      (update db :providers-listing method provider-id))))
+
 
 ; ======= sheet-related ====================================
 
@@ -46,6 +55,16 @@
   [trim-v]
   (fn-traced [db [sheet-id sheet]]
     (assoc-in db [:sheets sheet-id] sheet)))
+
+(reg-event-db
+  :add-sheets
+  [trim-v]
+  (fn-traced [db [sheet-id-pairs]]
+    (update db :sheets merge (reduce
+                               (fn [m [id data]]
+                                 (assoc m id data))
+                               {}
+                               sheet-id-pairs))))
 
 (reg-event-fx
   :load-sheet-source!

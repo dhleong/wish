@@ -37,13 +37,6 @@
   [gapi-id]
   (keyword "gdrive" gapi-id))
 
-(defn- ->sheet
-  [gapi-id sheet-name]
-  {:provider :gapi
-   :id (->id gapi-id)
-   :name sheet-name
-   :gapi-id gapi-id})
-
 (defn- log
   [& args]
   (apply js/console.log "[gdrive]" args))
@@ -77,7 +70,7 @@
                                         :signed-in
                                         :signed-out)])
   (when signed-in?
-    ;; (dispatch [:mark-loading! :gapi true])
+    (>evt [:mark-provider-listing! :gdrive true])
     (-> js/gapi.client.drive.files
         (.list #js {:q "appProperties has { key='wish-type' and value='wish-sheet' }"
                     :pageSize 50
@@ -96,12 +89,12 @@
                    :files
                    (map
                      (fn [raw-file]
-                       (->sheet (:id raw-file)
-                                (:name raw-file)))))]
+                       [(make-id :gdrive (:id raw-file))
+                        (select-keys raw-file
+                                     [:name])])))]
     (log "Found: " files)
-    ;; (dispatch [:add-sheets files])
-    ;; (dispatch [:mark-loading! :gapi false])
-    ))
+    (>evt [:add-sheets files])
+    (>evt [:mark-provider-listing! :gdrive false])))
 
 (defn- on-client-init
   []

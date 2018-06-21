@@ -9,6 +9,7 @@
    [wish.views.home :refer [home]]
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
+   [wish.views.sheet-browser :as sheet-browser]
    [wish.views.widgets :refer [link]]
    ))
 
@@ -16,6 +17,7 @@
   {:home #'home
    :new-sheet #'new-sheet-page
    :sheet #'sheets/viewer
+   :sheet-browser #'sheet-browser/page
    :sheet-builder #'sheets/builder
    :provider-config #'providers/config-view
    })
