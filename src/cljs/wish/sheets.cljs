@@ -6,6 +6,8 @@
             [wish.sources.compiler :refer [compiler-version]]
             [wish.util :refer [<sub >evt]]))
 
+; ======= const data =======================================
+
 ; TODO we could use code splitting here to avoid loading
 ; sheet templates that we don't care about
 (def sheets
@@ -21,25 +23,17 @@
            :post-process dnd5e-util/post-process
            }})
 
+
+; ======= Public interface =================================
+
 (defn post-process
+  "Apply sheet-kind-specific post-processing to an entity"
   [entity sheet-kind data-source entity-kind]
   (if-let [processor (get-in sheets [sheet-kind :post-process])]
     (processor entity data-source entity-kind)
 
     ; no processor for this sheet; pass through
     entity))
-
-(defn sheet-loader [?sheet]
-  (if-let [{:keys [name]} ?sheet]
-    [:div (str "Loading " name "...")]
-    [:div "Loading..."]))
-
-(defn sources-loader
-  [sheet]
-  [:div "Loading data for " (:name sheet) "..."])
-
-(defn sheet-unknown [kind]
-  [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
 (defn stub-sheet
   "Create the initial data for a new sheet"
@@ -58,9 +52,22 @@
      :sources (:default-sources kind-meta)
 
      :classes []
-     :races []
+     :races [] }))
 
-     }))
+
+; ======= Views ============================================
+
+(defn sheet-loader [?sheet]
+  (if-let [{:keys [name]} ?sheet]
+    [:div (str "Loading " name "...")]
+    [:div "Loading..."]))
+
+(defn sources-loader
+  [sheet]
+  [:div "Loading data for " (:name sheet) "..."])
+
+(defn sheet-unknown [kind]
+  [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
 (defn builder
   [[kind sheet-id]]
