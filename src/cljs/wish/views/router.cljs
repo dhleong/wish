@@ -10,7 +10,7 @@
    of page-id to page render fn."
   [routes-map]
   (let [[page args] (<sub [:page])]
-    (println page args)
+    (println "[router]" page args)
     [(get routes-map page) args]))
 
 

@@ -33,6 +33,9 @@
   (defroute #"/sheets/([a-z0-9-]+)/(.+)" [kind id]
     (navigate! :sheet [kind (keyword id)]))
 
+  (defroute "/sheets/new" []
+    (navigate! :new-sheet))
+
   (defroute "/providers/:provider-id/config" [provider-id]
     (navigate! :provider-config (keyword provider-id)))
 

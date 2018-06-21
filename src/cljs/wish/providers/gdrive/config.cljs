@@ -2,6 +2,7 @@
       :doc "gdrive.config"}
   wish.providers.gdrive.config
   (:require [wish.providers.gdrive :as gdrive]
+            [wish.views.widgets :refer [link]]
             [wish.util :refer [<sub]]))
 
 (defn signin-prompt []
@@ -11,6 +12,12 @@
 
 (defn connected-view []
   [:div "Connected!"
+   [:div
+    [link {:href "/sheets/new"}
+     "Create a new sheet"]]
+   [:div
+    [link {:href "/sheets"}
+     "Open a sheet"]]
    [:div.button
     {:on-click gdrive/signout!}
     "Disconnect Google Account"]])
