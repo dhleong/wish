@@ -4,7 +4,7 @@
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [inflate]]
-            [wish.sources.core :refer [find-class find-race]]))
+            [wish.sources.core :as src :refer [find-class find-race]]))
 
 ; ======= Provider-related =================================
 
@@ -170,6 +170,16 @@
         (assoc m (:id v) v))
       {}
       limited-uses)))
+
+
+; ======= character builder-related ========================
+
+(reg-sub
+  :available-entities
+  :<- [:sheet-source]
+  (fn [source [_ entity-kind]]
+    (println source src/list-entities)
+    (src/list-entities source entity-kind)))
 
 
 ; ======= Save state =======================================

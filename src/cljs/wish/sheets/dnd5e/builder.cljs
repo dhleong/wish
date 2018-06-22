@@ -13,13 +13,28 @@
       [:input {:field :text
                :id :name}]
 
+      ; TODO pick data sources
+      [:div
+       [:p "Data Sources"
+        "(TODO)"]]
+
       {:get #(get-in (<sub [:sheet-meta]) %)
        :save! (fn [path v]
                 (>evt [:update-meta path (constantly v)]))}]]]])
 
 (defn race-page []
   [:div
-   [:h3 "Race"]])
+   [:h3 "Race"]
+   [bind-fields
+    [:div.feature-options {:field :single-select
+                           :id :races}
+     (for [r (<sub [:available-entities :races])]
+       [:div.feature-option {:key (:id r)}
+        (:name r)])]
+
+    {:get #(first (get-in (<sub [:sheet-meta]) [:races]))
+     :save! (fn [_ v]
+              (>evt [:update-meta [:races] (constantly [v])]))}]])
 
 (def pages
   [[:home {:name "Home"

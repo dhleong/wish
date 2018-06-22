@@ -8,7 +8,8 @@
   (expand-list [this id options])
   (find-class [this id])
   (find-feature [this id])
-  (find-race [this id]))
+  (find-race [this id])
+  (list-entities [this kind]))
 
 (defn- key-by-id
   [^DataSource s, k id]
@@ -31,6 +32,9 @@
   (find-race [this id]
     (key-by-id this :races id))
 
+  (list-entities [this kind]
+    (vals (get (.-data this) kind)))
+
   (id [this]
     (.-id this)))
 
@@ -38,18 +42,28 @@
   [^CompositeDataSource s, method id]
   (some #(method % id) (.-delegates s)))
 
+(defn- cat-all
+  [^CompositeDataSource s, accessor-fn]
+  (mapcat
+    accessor-fn
+    (.-delegates s)) )
+
 (deftype CompositeDataSource [id delegates]
   IDataSource
   (expand-list [this id options]
-    (mapcat
-      #(expand-list % id options)
-      (.-delegates this)))
+    (cat-all this
+             #(expand-list % id options)))
+
   (find-class [this id]
     (first-delegate-by-id this find-class id))
   (find-feature [this id]
     (first-delegate-by-id this find-feature id))
   (find-race [this id]
     (first-delegate-by-id this find-race id))
+
+  (list-entities [this kind]
+    (cat-all this
+             #(list-entities % kind)))
 
   (id [this]
     (.-id this)))
