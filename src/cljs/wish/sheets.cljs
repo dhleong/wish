@@ -2,6 +2,7 @@
       :doc "sheets"}
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
+            [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
             [wish.util :refer [<sub >evt]]))
@@ -13,6 +14,7 @@
 (def sheets
   {:dnd5e {:name "D&D 5E"
            :fn #'dnd5e/sheet
+           :builder #'dnd5e-builder/view
            :v 1
            :default-sources [:wish/dnd5e-srd]
 
@@ -69,20 +71,15 @@
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
-(defn builder
-  [[sheet-id section]]
-   [:div "Sheet builder for " sheet-id " / " section
-    [:h3 "TODO"]])
-
-(defn viewer
-  [sheet-id]
+(defn- ensuring-loaded
+  [sheet-id content-fn]
   (let [sheet (<sub [:provided-sheet sheet-id])]
     (if (:sources sheet)
       (let [kind (:kind sheet)]
         (if-let [sheet-info (get sheets (keyword kind))]
           (if-let [source (<sub [:sheet-source sheet-id])]
             ; sheet is ready; render!
-            [(:fn sheet-info)]
+            (content-fn sheet-info)
 
             (do
               (>evt [:load-sheet-source! sheet-id (:sources sheet)])
@@ -95,4 +92,18 @@
       ; a stub with no actual data; either way, load it!
       (do
         (>evt [:load-sheet! sheet-id])
-        [sheet-loader sheet]))) )
+        [sheet-loader sheet]))))
+
+(defn builder
+  [[sheet-id section]]
+  (ensuring-loaded
+    sheet-id
+    (fn [sheet-info]
+      [(:builder sheet-info) section])))
+
+(defn viewer
+  [sheet-id]
+  (ensuring-loaded
+    sheet-id
+    (fn [sheet-info]
+      [(:fn sheet-info)])))

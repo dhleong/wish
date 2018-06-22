@@ -14,8 +14,13 @@
 }
 
 .justify-content(@where: center) {
-    -ms-flex-pack: @where !important;
+    -ms-flex-pack: @where;
     justify-content: @where;
+}
+
+.align-self(@where) {
+    -ms-grid-row-align: @where;
+    align-self: @where;
 }
 
 .sections {
@@ -25,5 +30,12 @@
     .section {
         width: 400px;
         margin: 8px;
+    }
+}
+
+.builder {
+    .section-arrow {
+        .align-self(center);
+        padding: 16px;
     }
 }

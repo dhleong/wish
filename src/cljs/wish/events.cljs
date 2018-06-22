@@ -6,7 +6,7 @@
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.providers :as providers]
-            [wish.sheets.util :refer [update-uses]]
+            [wish.sheets.util :refer [update-uses update-sheet-path]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
@@ -39,6 +39,16 @@
                    conj
                    disj)]
       (update db :providers-listing method provider-id))))
+
+
+; ======= sheet-meta + builder stuff =======================
+
+; this is probably too general...
+(reg-event-fx
+  :update-meta
+  [trim-v]
+  (fn-traced [cofx [path f & args]]
+    (update-sheet-path cofx path f args)))
 
 
 ; ======= sheet-related ====================================

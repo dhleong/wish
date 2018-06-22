@@ -11,6 +11,9 @@
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.7.3"]
 
+                 ; simpler forms
+                 [reagent-forms "0.5.42"]
+
                  ; sheet-specific inline css
                  [cljs-css-modules "0.2.1"]
 

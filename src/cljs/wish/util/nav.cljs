@@ -55,4 +55,8 @@
        "/" (name id)
        (when extra-sections
          (interleave (repeat "/")
-                     extra-sections))))
+                     (map
+                       #(if (keyword? %)
+                          (name %)
+                          (str %))
+                       extra-sections)))))

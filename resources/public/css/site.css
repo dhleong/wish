@@ -6,10 +6,15 @@
   display: flex;
   -ms-flex-wrap: wrap !important;
   flex-wrap: wrap !important;
-  -ms-flex-pack: center !important;
+  -ms-flex-pack: center;
   justify-content: center;
 }
 .sections .section {
   width: 400px;
   margin: 8px;
+}
+.builder .section-arrow {
+  -ms-grid-row-align: center;
+  align-self: center;
+  padding: 16px;
 }
