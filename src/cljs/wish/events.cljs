@@ -48,7 +48,7 @@
   :update-meta
   [trim-v]
   (fn-traced [cofx [path f & args]]
-    (update-sheet-path cofx path f args)))
+    (apply update-sheet-path cofx path f args)))
 
 
 ; ======= sheet-related ====================================

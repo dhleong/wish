@@ -178,7 +178,6 @@
   :available-entities
   :<- [:sheet-source]
   (fn [source [_ entity-kind]]
-    (println source src/list-entities)
     (src/list-entities source entity-kind)))
 
 

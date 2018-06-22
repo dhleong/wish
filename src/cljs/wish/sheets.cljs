@@ -53,7 +53,7 @@
 
      :sources (:default-sources kind-meta)
 
-     :classes []
+     :classes {}
      :races [] }))
 
 
