@@ -307,7 +307,8 @@
     (upload-data-with-retry
       :update
       {:fileId file-id
-       :mimeType "application/json"}
+       :mimeType "application/json"
+       :name (:name data)}
       (str data))))
 
 (defn create-provider []
