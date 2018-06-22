@@ -91,13 +91,60 @@
                              (.preventDefault e)
                              (swap! show-picker? not))}]])]))))
 
+(defn- input-for
+  [ability]
+  [:input {:field :numeric
+           :id ability
+           :min 1
+           :max 18}])
+
+(defn abilities-page []
+  (let [doc (r/atom {:str nil
+                     :dex nil
+                     :con nil
+                     :int nil
+                     :wis nil
+                     :cha nil})]
+    [:div
+     [:h3 "Abilities"]
+     [bind-fields
+      [:table
+       [:tbody
+        [:tr
+         [:th "STRENGTH"]
+         [:th "DEXTERITY"]
+         [:th "CONSTITUTION"]
+         [:th "INTELLIGENCE"]
+         [:th "WISDOM"]
+         [:th "CHARISMA"]]
+        [:tr
+         [:td (input-for :str)]
+         [:td (input-for :dex)]
+         [:td (input-for :con)]
+         [:td (input-for :int)]
+         [:td (input-for :wis)]
+         [:td (input-for :cha)]]]]
+      {:get (fn [path]
+              (let [a (:abilities (<sub [:sheet]))]
+                (get-in a path)))
+       :save! (fn [path v]
+                (>evt [:update-meta (concat [:sheet :abilities])
+                       assoc-in
+                       path
+                       (min 18
+                            (max 1
+                                 (js/parseInt v)))]))}]
+     ]))
+
 (def pages
   [[:home {:name "Home"
            :fn #'home-page}]
    [:race {:name "Race"
            :fn #'race-page}]
    [:class {:name "Class"
-            :fn #'classes-page}]])
+            :fn #'classes-page}]
+   [:abilities {:name "Abilities"
+                :fn #'abilities-page}]])
 
 (defn view
   [section]
