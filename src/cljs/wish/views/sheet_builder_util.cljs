@@ -48,6 +48,10 @@
         [:div.error "Unknown section " current-section])
 
       [:div.section-arrow.next
-       (when-let [[next-id next-info] next-sec]
+       (if-let [[next-id next-info] next-sec]
          [link {:href (sheet-url sheet-id :builder next-id)}
-          (:name next-info)])]]]))
+          (:name next-info)]
+
+         ; TODO probably, only show if the sheet is "ready" to use
+         [link {:href (sheet-url sheet-id)}
+          "Let's play!"])]]]))
