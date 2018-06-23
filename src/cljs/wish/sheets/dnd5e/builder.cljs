@@ -3,9 +3,30 @@
   wish.sheets.dnd5e.builder
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [cljs-css-modules.macro :refer-macros [defstyle]]
+            [wish.sheets.dnd5e :as dnd5e]
             [wish.util :refer [<sub >evt]]
             [wish.views.sheet-builder-util :refer [router]]
             [wish.views.limited-select]))
+
+; ======= CSS ==============================================
+
+(defstyle styles
+  [:.abilities (merge dnd5e/flex-vertical
+                      dnd5e/flex-center)
+   [:table {:width "100%"
+            :table-layout 'fixed}
+    [:tbody {:text-align 'center}
+     [:th {:font-size "9pt"
+           :width "20%"}]
+     [:td {:padding "4px"}
+      [:input {:width "100%"
+               :font-size "14pt"
+               :text-align 'center}]]]]])
+
+
+; ======= Pages ============================================
+
 
 (defn home-page []
   [:div
@@ -151,7 +172,7 @@
                      :int nil
                      :wis nil
                      :cha nil})]
-    [:div
+    [:div {:class (:abilities styles)}
      [:h3 "Abilities"]
      [bind-fields
       [:table
@@ -163,13 +184,16 @@
          [:th "INTELLIGENCE"]
          [:th "WISDOM"]
          [:th "CHARISMA"]]
+
         [:tr
          [:td (input-for :str)]
          [:td (input-for :dex)]
          [:td (input-for :con)]
          [:td (input-for :int)]
          [:td (input-for :wis)]
-         [:td (input-for :cha)]]]]
+         [:td (input-for :cha)]]
+
+        ]]
       {:get (fn [path]
               (let [a (:abilities (<sub [:sheet]))]
                 (get-in a path)))
