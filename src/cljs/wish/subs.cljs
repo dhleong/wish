@@ -131,6 +131,57 @@
                         source
                         :race))))))))
 
+(defn- get-features
+  [feature-container]
+  (->> feature-container
+       (mapcat :features)))
+
+(defn inflate-option-values
+  [data-source feature-id values]
+  (or (:values
+        (src/find-feature data-source feature-id))
+
+      ; not a feature with :values? Okay inflate now
+      (map
+        (fn [opt-or-id]
+          (if (keyword? opt-or-id)
+            (src/find-feature data-source opt-or-id)
+            opt-or-id))
+        values)))
+
+(defn- inflate-feature-options
+  [[features data-source]]
+  (->> features
+       (filter (comp :max-options second))
+       (map (fn [[id v]]
+              [id (update v :values (partial inflate-option-values
+                                             data-source
+                                             id))]))))
+
+(reg-sub
+  :class-features
+  :<- [:classes]
+  get-features)
+
+(reg-sub
+  :class-features-with-options
+  :<- [:class-features]
+  :<- [:sheet-source]
+  inflate-feature-options)
+
+(reg-sub
+  :race-features
+  :<- [:races]
+  get-features)
+
+(reg-sub
+  :race-features-with-options
+  :<- [:race-features]
+  :<- [:sheet-source]
+  inflate-feature-options)
+
+
+
 ; semantic convenience for single-race systems
 (reg-sub
   :race

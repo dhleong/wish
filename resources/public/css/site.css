@@ -13,6 +13,9 @@
   width: 400px;
   margin: 8px;
 }
+.builder .builder-main {
+  width: 500px;
+}
 .builder .section-arrow {
   -ms-grid-row-align: center;
   align-self: center;

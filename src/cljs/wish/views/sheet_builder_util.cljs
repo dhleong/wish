@@ -43,9 +43,10 @@
          [link {:href (sheet-url sheet-id :builder prev-id)}
           (:name prev-info)])]
 
-      (if section-info
-        [(:fn section-info)]
-        [:div.error "Unknown section " current-section])
+      [:div.builder-main
+       (if section-info
+         [(:fn section-info)]
+         [:div.error "Unknown section " current-section])]
 
       [:div.section-arrow.next
        (if-let [[next-id next-info] next-sec]

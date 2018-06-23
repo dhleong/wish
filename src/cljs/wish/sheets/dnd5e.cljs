@@ -109,7 +109,7 @@
      [widgets/save-state]
 
      (let [sheet-id (<sub [:active-sheet-id])]
-       [link {:href (sheet-url sheet-id "builder")}
+       [link {:href (sheet-url sheet-id :builder :class)}
         (icon :settings)])]))
 
 (defn section

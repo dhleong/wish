@@ -24,9 +24,47 @@
        :save! (fn [path v]
                 (>evt [:update-meta path (constantly v)]))}]]]])
 
+(defn feature-option
+  [option]
+  [:div.content
+   [:b (:name option)]
+   [:p (:desc option)]])
+
+(defn feature-options-selection [sub-id]
+  ; TODO React 16 supports returning multiple elements from a component....
+  [:div.features
+   (for [[feature-id f] (<sub [sub-id])]
+     ^{:key feature-id}
+     [:div.feature
+      [:h3 (:name f)]
+
+      [bind-fields
+       ; FIXME TODO respect max-options
+       [:div.feature-options {:field :single-select
+                              :id feature-id}
+        (for [option (:values f)]
+          [:div.feature-option {:key (:id option)}
+           ; NOTE: this extra widget with ^{:key} is a hack around how
+           ; reagent-forms handles :single-select values. Basically,
+           ; everything after the {:key} above seems to become a sequence,
+           ; so react wants keys on all the children. It's a bit deep to
+           ; put everything inline anyway, so we use this ^{:key} [component]
+           ; pattern
+           ^{:key :1}
+           [feature-option option]])]
+
+       {:get #(get (<sub [:options]) feature-id)
+        :save! (fn [path v]
+                 (>evt [:update-meta [:options]
+                        assoc (first path)
+                        (if (coll? v)
+                          v
+                          [v])]))}]])] )
+
 (defn race-page []
   [:div
    [:h3 "Race"]
+
    [bind-fields
     [:div.feature-options {:field :single-select
                            :id :races}
@@ -36,12 +74,17 @@
 
     {:get #(first (get-in (<sub [:sheet-meta]) [:races]))
      :save! (fn [_ v]
-              (>evt [:update-meta [:races] (constantly [v])]))}]])
+              (>evt [:update-meta [:races] (constantly [v])]))}]
 
+   ; racial features
+   [feature-options-selection :race-features-with-options]
+
+   ])
 
 (defn class-section [class-info]
   [:div
-   [:h4 (:name class-info)]])
+   [:h2 (:name class-info)]
+   [feature-options-selection :class-features-with-options] ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
   [:div
@@ -75,7 +118,6 @@
     (fn []
       (let [existing-classes (<sub [:classes])]
         [:div
-         [:h3 "Class"]
          (for [c existing-classes]
            ^{:key (:id c)}
            [class-section c])

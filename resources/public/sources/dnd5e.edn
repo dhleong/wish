@@ -207,7 +207,7 @@
 
   :&levels {3 {:! [[:!add-to-list
                     :cleric/extra-spells
-                    [:lesser-restoration :spiritual-weapon]]]}}}]
+                    [:lesser-restoration :spiritual-weapon]]]}}} ]
 
 [:!declare-class
  {:id :monk
