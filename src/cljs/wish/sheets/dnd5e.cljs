@@ -50,7 +50,13 @@
 
    [:.space flex-grow]]
 
-  [:.combat]
+  [:.combat
+   [:.attack flex-center
+    [:.name flex-grow]
+    [:.info-group (merge flex-center
+                         flex-vertical-center
+                         {:padding "4px"})
+     [:.label {:font-size "60%"}]]]]
 
   [:.limited-use-section
    [:.rests flex-center
@@ -233,29 +239,36 @@
 
 ; ======= Combat ===========================================
 
+(defn- attack-block [s & [extra-info]]
+  [:div.attack (or extra-info {})
+   [:div.name (:name s)]
+
+   [:div.info-group
+    [:div.label
+     "TO HIT"]
+    [:div.to-hit
+     (mod->str (:to-hit s))]]
+
+   [:div.info-group
+    [:div.label
+     "DMG"]
+    [:div.dmg
+     (or (:base-dice s)
+         (:dmg s))]]] )
+
 (defn combat-section []
   [:<>
 
    (when-let [s (<sub [::dnd5e/unarmed-strike])]
      [:div.unarmed-strike
-      [:div.attack
-       [:div.name "Unarmed Strike"]
-       [:div.to-hit
-        (let [{:keys [to-hit]} s]
-          (mod->str to-hit))]
-       [:div.dmg
-        (:dmg s)]]])
+      [attack-block (assoc s :name "Unarmed Strike")]])
 
    (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
      [:div.spell-attacks
       [:h4 "Spell Attacks"]
       (for [s spell-attacks]
         ^{:key (:id s)}
-        [:div.attack.spell-attack
-         [:div.name (:name s)]
-         [:div.to-hit
-          (mod->str (:to-hit s))]
-         [:div.dmg (:base-dice s) ]])])])
+        [attack-block s {:class :spell-attack}])])])
 
 
 ; ======= Features =========================================
