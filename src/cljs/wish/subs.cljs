@@ -232,6 +232,12 @@
     (src/list-entities source entity-kind)))
 
 
+(reg-sub
+  :options->
+  :<- [:options]
+  (fn [options [_ path]]
+    (get-in options path)))
+
 ; ======= Save state =======================================
 
 (reg-sub

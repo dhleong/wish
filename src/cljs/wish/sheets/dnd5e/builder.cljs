@@ -4,7 +4,8 @@
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [<sub >evt]]
-            [wish.views.sheet-builder-util :refer [router]]))
+            [wish.views.sheet-builder-util :refer [router]]
+            [wish.views.limited-select]))
 
 (defn home-page []
   [:div
@@ -32,15 +33,15 @@
    [:p (:desc option)]])
 
 (defn feature-options-selection [sub-id]
-  [:<>
-   (for [[feature-id f] (<sub [sub-id])]
-     ^{:key feature-id}
-     [:div.feature
-      [:h3 (:name f)]
+  [bind-fields
+   [:<>
+    (for [[feature-id f] (<sub [sub-id])]
+      ^{:key feature-id}
+      [:div.feature
+       [:h3 (:name f)]
 
-      [bind-fields
-       ; FIXME TODO respect max-options
-       [:div.feature-options {:field :single-select
+       [:div.feature-options {:field :limited-select
+                              :accepted? (:max-options f)
                               :id feature-id}
         (for [option (:values f)]
           [:div.feature-option {:key (:id option)}
@@ -50,16 +51,18 @@
            ; so react wants keys on all the children. It's a bit deep to
            ; put everything inline anyway, so we use this ^{:key} [component]
            ; pattern
-           ^{:key :1}
-           [feature-option option]])]
+           ^{:key (:id option)}
+           [feature-option option]])]])]
 
-       {:get #(get (<sub [:options]) feature-id)
-        :save! (fn [path v]
-                 (>evt [:update-meta [:options]
-                        assoc (first path)
-                        (if (coll? v)
-                          v
-                          [v])]))}]])] )
+   {:get #(<sub [:options-> %])
+    :save! (fn [path v]
+             (>evt [:update-meta [:options]
+                    assoc (first path)
+                    (cond
+                      (vector? v) v
+                      (coll? v) (vec v)
+                      :else [v])]))
+    :doc #(<sub [:options])}]  )
 
 (defn race-page []
   [:div
