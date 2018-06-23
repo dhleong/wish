@@ -26,13 +26,13 @@
 
 (defn feature-option
   [option]
-  [:div.content
+  ; Fragment! avoids unnecessary extra parent
+  [:<>
    [:b (:name option)]
    [:p (:desc option)]])
 
 (defn feature-options-selection [sub-id]
-  ; TODO React 16 supports returning multiple elements from a component....
-  [:div.features
+  [:<>
    (for [[feature-id f] (<sub [sub-id])]
      ^{:key feature-id}
      [:div.feature
