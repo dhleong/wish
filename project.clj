@@ -1,12 +1,12 @@
 (defproject wish "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.10.238"]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/clojurescript "1.10.329"]
                  [org.clojure/core.async "0.4.474"]
-                 [org.clojure/tools.reader "1.2.1"]
+                 [org.clojure/tools.reader "1.2.2"]
                  [reagent "0.7.0"]
                  [re-frame "0.10.5"]
                  [secretary "1.2.3"]
-                 [re-pressed "0.2.1"]
+                 [re-pressed "0.2.2"]
 
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.7.3"]
