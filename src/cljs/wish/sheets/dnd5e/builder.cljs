@@ -11,13 +11,14 @@
    [:h3 "Home"
     [:div
      [bind-fields
-      [:input {:field :text
-               :id :name}]
-
-      ; TODO pick data sources
       [:div
-       [:p "Data Sources"
-        "(TODO)"]]
+       [:input {:field :text
+                :id :name}]
+
+       ; TODO pick data sources
+       [:div
+        [:p "Data Sources"
+         "(TODO)"]]]
 
       {:get #(get-in (<sub [:sheet-meta]) %)
        :save! (fn [path v]
