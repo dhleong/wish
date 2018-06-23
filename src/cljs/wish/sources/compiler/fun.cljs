@@ -71,6 +71,7 @@
       (expose-fn get-in)
 
       (expose-fn filter)
+      (expose-fn keep)
       (expose-fn map)
       (expose-fn mapcat)
       (expose-fn remove)
