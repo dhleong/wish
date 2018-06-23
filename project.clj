@@ -3,7 +3,7 @@
                  [org.clojure/clojurescript "1.10.329"]
                  [org.clojure/core.async "0.4.474"]
                  [org.clojure/tools.reader "1.2.2"]
-                 [reagent "0.7.0"]
+                 [reagent "0.8.1"]
                  [re-frame "0.10.5"]
                  [secretary "1.2.3"]
                  [re-pressed "0.2.2"]
