@@ -25,6 +25,9 @@
 (def flex-center (merge
                    flex
                    {:align-items 'center}))
+(def flex-vertical-center (merge
+                            flex-vertical
+                            {:justify-content 'center}))
 (def flex-grow {:flex-grow 1})
 
 (def button {:cursor 'pointer})
@@ -32,6 +35,23 @@
 (def metadata {:font-size "10pt"})
 
 (defstyle styles
+  [:.header (merge flex
+                   {:background "#666666"
+                    :color "#f0f0f0"})
+   [:.side flex
+    [:.col (merge flex-vertical-center
+                  {:padding "4px"})]]
+   [:.label {:font-size "80%"}]
+
+   [:.hp
+    [:.now {:padding "4px"
+            :font-size "120%"
+            :text-align 'center}]]
+
+   [:.space flex-grow]]
+
+  [:.combat]
+
   [:.limited-use-section
    [:.rests flex-center
     [:.button (merge
@@ -79,48 +99,50 @@
      [:&.expert::before
       {:color color-expert}]]]])
 
-; ======= Utils ============================================
 
-(defn hp
-  []
+; ======= Top bar ==========================================
+
+(defn hp []
   (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
-    [:div.hp "HP"
-     [:div.now hp]
-     [:div.max  (str "/" max-hp)]
+    [:div.hp.col
+     [:div.label "Hit Points"]
+     [:div.now (str hp " / " max-hp)]
+
+     ; FIXME: open a nice popup or something to adjust
      [:a
       {:href "#"
        :on-click (click>evt [::events/update-hp])}
       "Test"]]))
 
-(defn header
-  []
+(defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div.header "D&D"
-     [:div.name (:name common)]
-     [:div.classes (->> classes
-                        (map (fn [c]
-                               (str (-> c :name) " " (:level c))))
-                        (str/join " / "))]
-     [:div.race (:name (<sub [:race]))]
+    [:div {:class (:header styles)}
+     [:div.left.side
+      [:div.col
+       [:div.name (:name common)]
+       [:div.race (:name (<sub [:race]))]
+       [:div.classes (->> classes
+                          (map (fn [c]
+                                 (str (-> c :name) " " (:level c))))
+                          (str/join " / "))]]
+      [:div.col
+       [widgets/save-state]
+       ]]
 
-     [hp]
+     [:div.space]
 
-     [widgets/save-state]
+     [:div.right.side
+      [:div.col
+       [hp]]
 
-     (let [sheet-id (<sub [:active-sheet-id])]
-       [link {:href (sheet-url sheet-id :builder :class)}
-        (icon :settings)])]))
-
-(defn section
-  [title & content]
-  (apply vector
-         :div.section
-         [:h1 title]
-         content))
+      [:div.col
+       (let [sheet-id (<sub [:active-sheet-id])]
+         [link {:href (sheet-url sheet-id :builder :class)}
+          (icon :settings)])]]]))
 
 
-; ======= sections =========================================
+; ======= abilities ========================================
 
 (def labeled-abilities
   [[:str "Strength"]
@@ -212,7 +234,7 @@
 ; ======= Combat ===========================================
 
 (defn combat-section []
-  [:div
+  [:<>
 
    (when-let [s (<sub [::dnd5e/unarmed-strike])]
      [:div.unarmed-strike
@@ -231,9 +253,9 @@
         ^{:key (:id s)}
         [:div.attack.spell-attack
          [:div.name (:name s)]
-         [:div.dice (:base-dice s) ]
          [:div.to-hit
-          (mod->str (:to-hit s))]])])])
+          (mod->str (:to-hit s))]
+         [:div.dmg (:base-dice s) ]])])])
 
 
 ; ======= Features =========================================
@@ -253,25 +275,24 @@
    [:div.desc (:desc f)]])
 
 (defn features-section []
-  (vec
-    (cons
-      :div.features
-      [(when-let [fs (features-for [:classes])]
-         [:div.features-category
-          [:h3 "Class features"]
-          (for [f fs]
-            ^{:key (:id f)}
-            [feature f])])
-       (when-let [fs (features-for [:races])]
-         [:div.features-category
-          [:h3 "Racial Traits"]
-          (for [f fs]
-            ^{:key (:id f)}
-            [feature f])])
+  [:<>
+   (when-let [fs (features-for [:classes])]
+      [:div.features-category
+       [:h3 "Class features"]
+       (for [f fs]
+         ^{:key (:id f)}
+         [feature f])])
 
-       ; TODO proficiencies?
-       ; TODO feats?
-       ])))
+    (when-let [fs (features-for [:races])]
+      [:div.features-category
+       [:h3 "Racial Traits"]
+       (for [f fs]
+         ^{:key (:id f)}
+         [feature f])])
+
+    ; TODO proficiencies?
+    ; TODO feats?
+    ])
 
 
 ; ======= Limited-use ======================================
@@ -314,7 +335,7 @@
 (defn limited-use-section [items]
   (let [items (<sub [::dnd5e/limited-uses])
         used (<sub [:limited-used])]
-    [:div {:class (:limited-use-section styles)}
+    [:<>
      [:div.rests
       [:div.button.short
        {:on-click (click>evt [:trigger-limited-use-restore :short-rest])}
@@ -324,16 +345,21 @@
                               [:short-rest :long-rest]])}
        "Long Rest"]]
 
-     (for [item items]
-       (let [uses (invoke-callable item :uses)
-             used-count (get used (:id item))]
-         ^{:key (:id item)}
-         [:div.limited-use
-          [:div.info
-           [:div.name (:name item)]
-           [:div.recovery
-            (describe-uses uses (:restore-trigger item))]]
-          [usage-box item uses used-count]]))
+     (if-not (empty? items)
+       (for [item items]
+         (let [uses (invoke-callable item :uses)
+               used-count (get used (:id item))]
+           ^{:key (:id item)}
+           [:div.limited-use
+            [:div.info
+             [:div.name (:name item)]
+             [:div.recovery
+              (describe-uses uses (:restore-trigger item))]]
+            [usage-box item uses used-count]]))
+
+       [:div.explanation
+        [:p "Features, traits, and abilities that can only be used a limited number of times before requiring a rest will be listed here."]
+        [:p "You will gain limited-use actions as you adventure and level up."]])
      ]))
 
 
@@ -378,7 +404,7 @@
   (let [spells (<sub [::dnd5e/class-spells])
         slots-sets (<sub [::dnd5e/spell-slots])
         slots-used (<sub [::dnd5e/spell-slots-used])]
-    [:div {:class (:spells-section styles)}
+    [:<>
      (for [[id {:keys [label slots]}] slots-sets]
        ^{:key id}
        [:div.spell-slots
@@ -399,7 +425,18 @@
         [spell-block s])]]))
 
 
-; ======= Public interface =================================
+; ======= Main interface ===================================
+
+(defn- section
+  ([title content]
+   (section title nil content))
+  ([title section-style content]
+   (let [opts (if section-style
+                {:class (section-style styles)}
+                {})]
+     [:div.section opts
+      [:h1 title]
+      content])))
 
 (defn sheet []
   [:div
@@ -410,12 +447,15 @@
     [section "Skills"
      [skills-section]]
     [section "Combat"
+     :combat
      [combat-section]]
 
     [section "Features"
      [features-section]]
 
     [section "Limited-use"
+     :limited-use-section
      [limited-use-section]]
     [section "Spells"
+     :spells-section
      [spells-section]]]])
