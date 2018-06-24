@@ -47,27 +47,27 @@
 (reg-fx
   :schedule-save
   (fn [sheet-id]
-    (when-not sheet-id
-      (throw (js/Error. "Triggered :schedule-save without a sheet-id")))
+    (when sheet-id
+      ; NOTE: schedule-save can be conditional
 
-    (if-let [timer (get @save-sheet-timers sheet-id)]
-      ; existing timer; clear it
-      (js/clearTimeout timer)
+      (if-let [timer (get @save-sheet-timers sheet-id)]
+        ; existing timer; clear it
+        (js/clearTimeout timer)
 
-      ; no existing, so this is the first; confirm window closing
-      (js/window.addEventListener
-        "beforeunload"
-        confirm-close-window))
+        ; no existing, so this is the first; confirm window closing
+        (js/window.addEventListener
+          "beforeunload"
+          confirm-close-window))
 
-    (>evt [::db/put-pending-save sheet-id])
-    (js/console.log "Schedule save of" (str sheet-id))
-    (swap! save-sheet-timers
-           assoc
-           sheet-id
-           (js/setTimeout
-             (fn []
-               (js/console.log "Perform save of" (str sheet-id))
-               (swap! save-sheet-timers dissoc sheet-id)
-               (>evt [::save-sheet! sheet-id]))
-             throttled-save-timeout))))
+      (>evt [::db/put-pending-save sheet-id])
+      (js/console.log "Schedule save of" (str sheet-id))
+      (swap! save-sheet-timers
+             assoc
+             sheet-id
+             (js/setTimeout
+               (fn []
+                 (js/console.log "Perform save of" (str sheet-id))
+                 (swap! save-sheet-timers dissoc sheet-id)
+                 (>evt [::save-sheet! sheet-id]))
+               throttled-save-timeout)))))
 

@@ -33,12 +33,20 @@
   "Update a path in the current sheet meta"
   [{:keys [db]} path f & args]
   (let [sheet-id (active-sheet-id db)]
-    {:db (apply update-in db
-                (concat [:sheets sheet-id]
-                        path)
-                f
-                args)
-     :schedule-save sheet-id}))
+    (let [new-db (apply update-in db
+                        (concat [:sheets sheet-id]
+                                path)
+                        f
+                        args)
+
+          ; don't bother scheduling a save if the sheet didn't
+          ; actually change
+          sheet-changed? (not=
+                           (get-in db [:sheets sheet-id])
+                           (get-in new-db [:sheets sheet-id]))]
+      {:db new-db
+       :schedule-save (when sheet-changed?
+                        sheet-id)})))
 
 (defn update-sheet
   "Update the sheet-specific map `:sheet`"

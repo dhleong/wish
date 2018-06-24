@@ -94,6 +94,13 @@
       {}
       classes)))
 
+(reg-sub
+  ::class-level
+  :<- [::class->level]
+  (fn [classes [_ class-id]]
+    (get classes class-id)))
+
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.

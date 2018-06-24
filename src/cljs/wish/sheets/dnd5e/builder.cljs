@@ -137,9 +137,10 @@
           {:key level}
           level])]
 
-      {:get #(get-in (<sub [:sheet-meta])
-                     (concat [:classes] %))
+      {:get #(<sub [::subs/class-level (first %)])  ; % is [:class 'level]
        :save! (fn [path v]
+                ; NOTE this seems to get triggered whenever this section is
+                ; rendered for some reason...
                 (>evt [:update-meta [:classes] assoc-in path v]))}]]
 
     (when (:primary? class-info)
