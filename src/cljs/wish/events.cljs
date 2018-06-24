@@ -26,7 +26,7 @@
 (reg-event-db
   :toggle-overlay
   [trim-v]
-  (fn-traced [db [overlay-fn & args :as overlay-spec]]
+  (fn-traced [db [[overlay-fn & args :as overlay-spec]]]
     (update db
             :showing-overlay
             (fn [old new-spec]
