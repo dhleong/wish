@@ -6,6 +6,8 @@
             [wish.sheets.dnd5e.util :refer [ability->mod]]
             [wish.util :refer [invoke-callable]]))
 
+; ======= Constants ========================================
+
 (def spell-slot-schedules
   {:standard
    {1 {1 2}
@@ -74,6 +76,24 @@
 
 (def std-slots-label "Spell Slots")
 
+; ======= class and level ==================================
+
+(reg-sub
+  ::total-level
+  :<- [:classes]
+  (fn [classes _]
+    (apply + (map :level classes))))
+
+(reg-sub
+  ::class->level
+  :<- [:classes]
+  (fn [classes _]
+    (reduce
+      (fn [m c]
+        (assoc m (:id c) (:level c)))
+      {}
+      classes)))
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
@@ -121,15 +141,26 @@
   :<- [::rolled-hp]
   :<- [::abilities]
   :<- [::total-level]
-  (fn [[rolled-hp abilities total-level]]
+  :<- [::class->level]
+  (fn [[rolled-hp abilities total-level class->level]]
     (apply +
            (* total-level
               (->> abilities
                    :con
                    ability->mod))
-           (->> rolled-hp
-                vals
-                flatten))))
+
+           ; if you set a class to level 3, set HP, then go back
+           ; to level 2, there will be an orphaned entry in the
+           ; rolled-hp vector. We could remove that entry when
+           ; changing the level, but accounting for it here means
+           ; that an accidental level-down doesn't lose your data
+           (reduce-kv
+             (fn [all-entries class-id class-rolled-hp]
+               (concat all-entries
+                       (take (class->level class-id)
+                             class-rolled-hp)))
+             nil
+             rolled-hp))))
 
 (reg-sub
   ::hp
@@ -139,6 +170,10 @@
     (let [used-hp (or (:hp#uses limited-used-map)
                       0)]
       [(- max-hp used-hp) max-hp])))
+
+
+; ======= Proficiency and expertise ========================
+
 
 ; returns a set of skill ids
 (reg-sub
@@ -178,11 +213,8 @@
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
 
-(reg-sub
-  ::total-level
-  :<- [:classes]
-  (fn [classes _]
-    (apply + (map :level classes))))
+
+; ======= combat ===========================================
 
 (reg-sub
   ::unarmed-strike

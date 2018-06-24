@@ -29,6 +29,14 @@
   [:.classes
    [:.meta dnd5e/metadata]
 
+   [:.class-header (merge dnd5e/flex-vertical
+                          {:margin "1.5em 0"})
+    [:.name {:font-size "1.5em"
+             :font-weight "bold"}]
+    [:.row (merge dnd5e/flex
+                  {:align-items 'center})
+     [:select.level {:margin-left "12px"}]]]
+
    [:.hit-point-setting
     [:.dice-level dnd5e/flex
      [:.level {:width "2em"
@@ -117,7 +125,23 @@
 
 (defn class-section [class-info]
   [:div.class-section
-   [:h2 (:name class-info)
+   [:div.class-header
+    [:div.row
+     [:div.name (:name class-info)]
+
+     [bind-fields
+      [:select.level {:field :list
+                      :id [(:id class-info) :level]}
+       (for [level (range 1 21)]
+         [:option
+          {:key level}
+          level])]
+
+      {:get #(get-in (<sub [:sheet-meta])
+                     (concat [:classes] %))
+       :save! (fn [path v]
+                (>evt [:update-meta [:classes] assoc-in path v]))}]]
+
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
    [feature-options-selection :class-features-with-options] ])
@@ -161,36 +185,36 @@
      [:p.meta
       "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
 
-     [bind-fields
-      [:<>
-       (for [c classes]
-         (let [die-size (get hit-die-by-class (:id c))]
-           ^{:key (:id c)}
-           [:div.hit-point-setting
-            [:div.class (:name c)
-             [:span.die (str " (D" die-size ")")]
+     (for [c classes]
+       (let [die-size (get hit-die-by-class (:id c))]
+         ^{:key (:id c)}
+         [:div.hit-point-setting
+          [:div.class (:name c)
+           [:span.die (str " (D" die-size ")")]]
 
-             (for [level (range (:level c))]
-               ^{:key level}
-               [:div.dice-level
-                [:div.level (inc level)]
-                [:div.hp [:input {:field :numeric
-                                  :id [(:id c) level]
-                                  :min 1
-                                  :max die-size}]]])]]))]
+          (for [level (range (:level c))]
+            ^{:key level}
+            [bind-fields
+             [:div.dice-level
+              [:div.level (inc level)]
+              [:div.hp [:input {:field :numeric
+                                :id [(:id c) level]
+                                :min 1
+                                :max die-size}]]]
 
-      {:get #(<sub [::subs/rolled-hp %])
-       :save! (fn [path v]
-                (let [v (min
-                          (get hit-die-by-class (first path))
-                          (max v 1))]
-                  (>evt [::events/set-rolled-hp path v])))}]]))
+             {:get #(<sub [::subs/rolled-hp %])
+              :save! (fn [path v]
+                       (let [v (min
+                                 (get hit-die-by-class (first path))
+                                 (max v 1))]
+                         (>evt [::events/set-rolled-hp path v])))}])])) ]))
 
 (defn classes-page []
   (let [initial-classes (<sub [:classes])
         show-picker? (r/atom (empty? initial-classes))]
     (fn []
       (let [existing-classes (<sub [:classes])]
+
         [:div {:class (:classes styles)}
          [:h1 "Level Up"]
 

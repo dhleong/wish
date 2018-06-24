@@ -48,9 +48,7 @@
   :update-meta
   [trim-v]
   (fn-traced [cofx [path f & args]]
-    ; STOPSHIP
-    (dissoc (apply update-sheet-path cofx path f args)
-            :schedule-save)))
+    (apply update-sheet-path cofx path f args)))
 
 
 ; ======= sheet-related ====================================
