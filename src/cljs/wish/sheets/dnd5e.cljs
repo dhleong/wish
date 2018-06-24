@@ -51,7 +51,10 @@
 
    [:.space flex-grow]]
 
-  [:.hp-overlay {:width "300px"}]
+  [:.hp-overlay {:width "300px"}
+   [:.current-hp {:width "5em"
+                  :font-size "1.2em"
+                  :text-align 'center}]]
 
   [:.combat
    [:.attack flex-center
@@ -111,26 +114,30 @@
 
 ; ======= Top bar ==========================================
 
-(defn hp-overlay [max-hp]
-  [:div {:class (:hp-overlay styles)}
-   [:h5 "Hit Points"]
-   [:div.sections
-    [:a {:href "#"
-         :on-click (click>evt [::events/update-hp -1 max-hp])}
-     (icon :remove-circle)]
+(defn hp-overlay []
+  (let [[hp max-hp] (<sub [::dnd5e/hp])]
+    [:div {:class (:hp-overlay styles)}
+     [:h5 "Hit Points"]
+     [:div.sections
+      [:a {:href "#"
+           :on-click (click>evt [::events/update-hp -1 max-hp])}
+       (icon :remove-circle)]
 
-    ; FIXME
-    [:div {:style {:width "20px"}}]
+      ; TODO support for tmp hp, temporarily modified max hp,
+      ; boxes to input damage/healing, and possibly a "deferred update"
+      ; mechanism somehow.
+      ; TODO track death saving throw successes/failures
+      [:div.current-hp hp]
 
-    [:a {:href "#"
-         :on-click (click>evt [::events/update-hp 1 max-hp])}
-     (icon :add-circle)]]])
+      [:a {:href "#"
+           :on-click (click>evt [::events/update-hp 1 max-hp])}
+       (icon :add-circle)]]]))
 
 (defn hp []
   (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
     [:div.clickable.hp.col
 
-     {:on-click (click>evt [:toggle-overlay [#'hp-overlay max-hp]])}
+     {:on-click (click>evt [:toggle-overlay [#'hp-overlay]])}
 
      [:div.label "Hit Points"]
      [:div.now (str hp " / " max-hp)]]))
