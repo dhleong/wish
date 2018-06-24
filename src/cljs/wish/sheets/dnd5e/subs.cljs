@@ -109,20 +109,34 @@
       items)))
 
 (reg-sub
-  ::hp
+  ::rolled-hp
   :<- [:sheet]
+  (fn [sheet [_ ?path]]
+    (get-in sheet (concat
+                    [:hp-rolled]
+                    ?path))))
+
+(reg-sub
+  ::max-hp
+  :<- [::rolled-hp]
   :<- [::abilities]
   :<- [::total-level]
+  (fn [[rolled-hp abilities total-level]]
+    (apply +
+           (* total-level
+              (->> abilities
+                   :con
+                   ability->mod))
+           (->> rolled-hp
+                vals
+                flatten))))
+
+(reg-sub
+  ::hp
+  :<- [::max-hp]
   :<- [:limited-used]
-  (fn [[sheet abilities total-level limited-used-map]]
-    (let [max-hp (apply +
-                        (* total-level
-                           (->> abilities
-                                :con
-                                ability->mod))
-                        (->> sheet
-                             :hp-rolled))
-          used-hp (or (:hp#uses limited-used-map)
+  (fn [[max-hp limited-used-map]]
+    (let [used-hp (or (:hp#uses limited-used-map)
                       0)]
       [(- max-hp used-hp) max-hp])))
 

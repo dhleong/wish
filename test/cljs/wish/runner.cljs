@@ -1,6 +1,7 @@
 (ns wish.runner
     (:require [doo.runner :refer-macros [doo-tests]]
               [wish.events-test]
+              [wish.sheets.dnd5e.events-test]
               [wish.sheets.dnd5e.subs-test]
               [wish.sheets.dnd5e.util-test]
               [wish.sources.compiler-test]
@@ -12,6 +13,7 @@
               [wish.util-test]))
 
 (doo-tests 'wish.events-test
+           'wish.sheets.dnd5e.events-test
            'wish.sheets.dnd5e.subs-test
            'wish.sheets.dnd5e.util-test
            'wish.sources.compiler-test

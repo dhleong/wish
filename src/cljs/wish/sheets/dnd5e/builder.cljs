@@ -5,6 +5,8 @@
             [reagent-forms.core :refer [bind-fields]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [wish.sheets.dnd5e :as dnd5e]
+            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.events :as events]
             [wish.util :refer [<sub >evt]]
             [wish.views.sheet-builder-util :refer [router]]
             [wish.views.limited-select]))
@@ -148,23 +150,41 @@
 
 (defn hit-point-manager
   [classes]
-  [:<>
-   [:h2 "Hit Point Management"]
-   [:p.meta
-    "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
+  (let [hit-die-by-class (reduce
+                           (fn [m c]
+                             (assoc m (:id c)
+                                    (-> c :attrs :5e/hit-dice)))
+                           {}
+                           classes)]
+    [:<>
+     [:h2 "Hit Point Management"]
+     [:p.meta
+      "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
 
-   (for [c classes]
-     ^{:key (:id c)}
-     [:div.hit-point-setting
-      [:div.class (:name c)
-       [:span.die (str " (D" (-> c :attrs :5e/hit-dice) ")")]
+     [bind-fields
+      [:<>
+       (for [c classes]
+         (let [die-size (get hit-die-by-class (:id c))]
+           ^{:key (:id c)}
+           [:div.hit-point-setting
+            [:div.class (:name c)
+             [:span.die (str " (D" die-size ")")]
 
-       ; TODO bind-forms
-       (for [level (range (:level c))]
-         ^{:key level}
-         [:div.dice-level
-          [:div.level (inc level)]
-          [:div.hp [:input {:type 'text}]]])]])])
+             (for [level (range (:level c))]
+               ^{:key level}
+               [:div.dice-level
+                [:div.level (inc level)]
+                [:div.hp [:input {:field :numeric
+                                  :id [(:id c) level]
+                                  :min 1
+                                  :max die-size}]]])]]))]
+
+      {:get #(<sub [::subs/rolled-hp %])
+       :save! (fn [path v]
+                (let [v (min
+                          (get hit-die-by-class (first path))
+                          (max v 1))]
+                  (>evt [::events/set-rolled-hp path v])))}]]))
 
 (defn classes-page []
   (let [initial-classes (<sub [:classes])

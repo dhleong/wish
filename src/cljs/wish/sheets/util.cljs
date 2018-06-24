@@ -45,6 +45,11 @@
   [cofx f & args]
   (apply update-sheet-path cofx [:sheet] f args))
 
+(defn update-in-sheet
+  "Update a path in the sheet-specific map `:sheet`"
+  [cofx path f & args]
+  (apply update-sheet-path cofx (concat [:sheet] path) f args))
+
 (defn update-uses
   "Update the uses count for the given use-id"
   [cofx use-id f & args]

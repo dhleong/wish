@@ -47,10 +47,12 @@
      :wis 14
      :cha 8}
 
-    ; vector of rolled HP at level `i-1`
+    ; vector of rolled HP at level `i-1` for each class
     ; level 1 is normally the max value, but DMs might house rule,
     ; so we'll just let it be whatever you like
-    :hp-rolled [8 6]}
+    :hp-rolled
+    {:cleric [8]
+     :warlock [6]}}
 
    ; notes is a sequence of [date note] pairs
    :notes
