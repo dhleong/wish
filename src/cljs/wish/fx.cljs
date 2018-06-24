@@ -7,7 +7,14 @@
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.util :refer [>evt]]))
 
+; ======= provider-related =================================
+
+
 (reg-fx :providers/init! providers/init!)
+
+
+; ======= sheet load requests ==============================
+
 (reg-fx :load-sheet! load-sheet!)
 (reg-fx :load-sheet-source!
         (fn [[sheet-id sources]]
@@ -15,6 +22,10 @@
 
 
 ; ======= Sheet persistence ================================
+
+(defn- log-sheet
+  [& args]
+  (apply js/console.log "[save-sheet]" args))
 
 (defn confirm-close-window
   [e]
@@ -34,13 +45,13 @@
     (save-sheet!
       sheet-id data
       (fn on-saved [err]
-        (println "on-saved " err)
+        (log-sheet "on-saved(" sheet-id ") " err)
+
         ; TODO indicate error; dispatch retry (later)
         (when-not err
           (js/window.removeEventListener
             "beforeunload"
-            confirm-close-window)
-          (js/console.log "Finished save of " sheet-id))
+            confirm-close-window))
 
         (>evt [::db/finish-save sheet-id])))))
 
@@ -60,13 +71,13 @@
           confirm-close-window))
 
       (>evt [::db/put-pending-save sheet-id])
-      (js/console.log "Schedule save of" (str sheet-id))
+      (log-sheet "scheduled:" sheet-id)
       (swap! save-sheet-timers
              assoc
              sheet-id
              (js/setTimeout
                (fn []
-                 (js/console.log "Perform save of" (str sheet-id))
+                 (log-sheet "performing:" sheet-id)
                  (swap! save-sheet-timers dissoc sheet-id)
                  (>evt [::save-sheet! sheet-id]))
                throttled-save-timeout)))))

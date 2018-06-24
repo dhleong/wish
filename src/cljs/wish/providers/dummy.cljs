@@ -62,7 +62,6 @@
   IProvider
   (id [this] :dummy)
   (init! [this]
-    (println "INIT :dummy!")
     (>evt [:put-sheet! :dummy/my-sheet-id dummy-sheet]))
   (load-raw
     [this id]

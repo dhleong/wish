@@ -18,6 +18,10 @@
 
 (defonce ^:private loaded-sources (atom {}))
 
+(defn- log
+  [& args]
+  (apply js/console.log "[sources]" args))
+
 (defn- compile-raw-source
   [id raw]
   (loop [reader (string-push-back-reader raw)
@@ -56,7 +60,7 @@
         "wish" (load-builtin! source-id)
 
         ; TODO delegate to a Provider
-        (println "Unknown source kind " kind)))))
+        (log "Unknown source kind " kind)))))
 
 (defn- combine-sources!
   "Combine the given sources into a CompositeDataSource
@@ -77,7 +81,7 @@
 
       (let [source-chs (map load-source! sources)
             total-count (count sources)]
-        (println "LOAD " sources)
+        (log "load " sources)
         (go-loop [resolved []]
           (let [[loaded-src _] (alts! source-chs)
                 new-resolved (conj resolved loaded-src)]
@@ -86,10 +90,10 @@
             (if (= total-count (count new-resolved))
               ; DONE!
               (do
-                (println "LOADED" new-resolved)
+                (log "loaded" new-resolved)
                 (combine-sources! sheet-id new-resolved))
 
               ; still waiting
               (do
-                (println "Loaded " (id loaded-src) "; still waiting...")
+                (log "loaded " (id loaded-src) "; still waiting...")
                 (recur new-resolved)))))))))
