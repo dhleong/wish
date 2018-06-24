@@ -105,9 +105,10 @@
      {:color color-proficient
       :padding-right "12px"}
      [:&::before
-      {:content "' '"}]  ; en-space unicode
+      {:content "'●'"
+       :visibility 'hidden}]
      [:&.proficient::before
-      {:content "'●'"}]
+      {:visibility 'visible}]
      [:&.expert::before
       {:color color-expert}]]]])
 
