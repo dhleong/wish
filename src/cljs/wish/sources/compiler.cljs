@@ -68,12 +68,15 @@
 
    :!provide-options
    (fn provide-options [state feature-id & option-maps]
-     (let [options (map compile-option option-maps)]
+     ; TODO should this accept option ids as well?
+     (let [options (map compile-option option-maps)
+
+           ; install the options as features
+           state (update state :features merge (->map options))]
        (if (get-in state [:features feature-id])
          (update-in state [:features feature-id :values]
                     concat options)
 
-         ;; TODO
          (update-in state [:deferred-options feature-id]
                     concat options))))
    })
@@ -157,7 +160,11 @@
 
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
-  (if (empty? options-chosen)
+  (if (or (empty? options-chosen)
+
+          ; don't apply any options if the feature doesn't apply to this state
+          ; (EX: racial feature options on the class, or vice versa)
+          (not (get-in state [:features feature-id])))
     state
 
     (let [option-value (first options-chosen)
@@ -170,7 +177,8 @@
           (reduce apply-directive state feature-directives)
 
           (do
-            (println "TODO apply " option-value " for feature " feature-id)
+            ; NOTE: at this point, there may just be no directives to apply?
+            (println "WARN failed to apply " option-value " for feature " feature-id)
             state))
 
         feature-id
