@@ -246,10 +246,10 @@
          (map (fn [s]
                 (assoc s
                        :to-hit (if (:versatile? s)
-                                   (+ proficiency-bonus
-                                      (max (:str modifiers)
-                                           (:dex modifiers)))
-                                   (+ proficiency-bonus (:str modifiers)))
+                                 (+ proficiency-bonus
+                                    (max (:str modifiers)
+                                         (:dex modifiers)))
+                                 (+ proficiency-bonus (:str modifiers)))
                        :dmg (invoke-callable
                                s :dice
                                :modifiers modifiers))))
