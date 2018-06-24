@@ -22,7 +22,15 @@
      [:td {:padding "4px"}
       [:input {:width "100%"
                :font-size "14pt"
-               :text-align 'center}]]]]])
+               :text-align 'center}]]]]]
+
+  [:.classes
+   [:.meta dnd5e/metadata]
+
+   [:.hit-point-setting
+    [:.dice-level dnd5e/flex
+     [:.level {:width "2em"
+               :text-align 'center}]]]])
 
 
 ; ======= Pages ============================================
@@ -106,12 +114,14 @@
    ])
 
 (defn class-section [class-info]
-  [:div
-   [:h2 (:name class-info)]
+  [:div.class-section
+   [:h2 (:name class-info)
+    (when (:primary? class-info)
+      [:div.meta "Primary class"])]
    [feature-options-selection :class-features-with-options] ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
-  [:div
+  [:div.class-picker
    [:h4 "Pick a new class"]
    [:div.feature-options
     (for [c (->> (<sub [:available-entities :classes])
@@ -136,16 +146,38 @@
                     (reset! show-picker? false))}
        (:name c)])]])
 
+(defn hit-point-manager
+  [classes]
+  [:<>
+   [:h2 "Hit Point Management"]
+   [:p.meta
+    "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
+
+   (for [c classes]
+     ^{:key (:id c)}
+     [:div.hit-point-setting
+      [:div.class (:name c)
+       [:span.die (str " (D" (-> c :attrs :5e/hit-dice) ")")]
+
+       ; TODO bind-forms
+       (for [level (range (:level c))]
+         ^{:key level}
+         [:div.dice-level
+          [:div.level (inc level)]
+          [:div.hp [:input {:type 'text}]]])]])])
+
 (defn classes-page []
   (let [initial-classes (<sub [:classes])
         show-picker? (r/atom (empty? initial-classes))]
     (fn []
       (let [existing-classes (<sub [:classes])]
-        [:div
-         (for [c existing-classes]
-           ^{:key (:id c)}
-           [class-section c])
+        [:div {:class (:classes styles)}
+         [:h1 "Level Up"]
 
+         ; hit points
+         [hit-point-manager existing-classes]
+
+         ; multiclassing
          (if @show-picker?
            [class-picker
             (->> existing-classes
@@ -154,9 +186,17 @@
             show-picker?]
 
            [:div.pick-new-class
-            [:a {:on-click (fn [e]
+            [:h2 "Multiclassing"]
+            [:a {:href "#"
+                 :on-click (fn [e]
                              (.preventDefault e)
-                             (swap! show-picker? not))}]])]))))
+                             (swap! show-picker? not))}
+             "Add another class"]])
+
+         ; class feature config
+         (for [c existing-classes]
+           ^{:key (:id c)}
+           [class-section c])]))))
 
 (defn- input-for
   [ability]
@@ -211,10 +251,10 @@
            :fn #'home-page}]
    [:race {:name "Race"
            :fn #'race-page}]
-   [:class {:name "Class"
-            :fn #'classes-page}]
    [:abilities {:name "Abilities"
-                :fn #'abilities-page}]])
+                :fn #'abilities-page}]
+   [:class {:name "Level Up"
+            :fn #'classes-page}]])
 
 (defn view
   [section]

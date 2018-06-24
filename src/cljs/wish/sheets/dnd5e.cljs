@@ -32,7 +32,8 @@
 
 (def button {:cursor 'pointer})
 
-(def metadata {:font-size "10pt"})
+(def metadata {:font-size "10pt"
+               :font-weight 'normal})
 
 (defstyle styles
   [:.header (merge flex
