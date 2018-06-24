@@ -5,12 +5,12 @@
    [wish.providers :as providers]
    [wish.sheets :as sheets]
    [wish.subs :as subs]
-   [wish.util :refer [<sub]]
+   [wish.util :refer [<sub click>evt]]
    [wish.views.home :refer [home]]
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
-   [wish.views.widgets :refer [link]]
+   [wish.views.widgets :refer [link] :refer-macros [icon]]
    ))
 
 (def pages
@@ -23,5 +23,27 @@
    })
 
 (defn main []
-  [:div#main
-   [router pages]])
+  [:<>
+   [router pages]
+
+   ; overlay rendering
+   (when-let [overlay-spec (<sub [:showing-overlay])]
+     [:<>
+      [:div#overlay-container
+       {:on-click (click>evt [:toggle-overlay])}
+
+       [:div#overlay
+        {:on-click (fn [e]
+                     ; prevent click propagation by default
+                     ; to avoid the event leaking through and
+                     ; triggering the dismiss click on the bg
+                     (.preventDefault e)
+                     (.stopPropagation e))}
+
+        [:div.close-button
+         {:on-click (click>evt [:toggle-overlay])}
+         (icon :close)]
+
+        ; finally, the overlay itself
+        [:div.wrapper
+         overlay-spec]]]])])

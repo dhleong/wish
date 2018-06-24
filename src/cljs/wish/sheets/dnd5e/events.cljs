@@ -9,7 +9,7 @@
             [wish.util :refer [process-map]]))
 
 (defn with-range
-  [old-val f min-val max-val & args]
+  [old-val [min-val max-val] f & args]
   (let [new-val (apply f old-val args)]
     (min
       max-val
@@ -18,20 +18,23 @@
 (reg-event-fx
   ::update-hp
   [trim-v]
-  (fn-traced [cofx _]
-    (update-uses cofx :hp#uses inc)))
+  (fn-traced [cofx [amount max-hp]]
+    ; NOTE: adjusting HP *uses* here, not *current* HP. So, for
+    ; `[::update-hp 2]`, which should increase *current* hp,
+    ; we need to reduce uses.
+    (update-uses cofx :hp#uses with-range [0 max-hp] - amount)))
 
 (reg-event-fx
   ::use-spell-slot
   [trim-v]
   (fn-traced [cofx [kind level max-slots]]
-    (update-uses cofx (->slot-kw kind level) with-range inc 0 max-slots)))
+    (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] inc)))
 
 (reg-event-fx
   ::restore-spell-slot
   [trim-v]
   (fn-traced [cofx [kind level max-slots]]
-    (update-uses cofx (->slot-kw kind level) with-range dec 0 max-slots)))
+    (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] dec)))
 
 (defn update-hp-rolled
   [hp-rolled-map [class-id level-idx :as path] rolled]

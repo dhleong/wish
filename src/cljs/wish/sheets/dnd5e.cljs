@@ -44,12 +44,14 @@
                   {:padding "4px"})]]
    [:.label {:font-size "80%"}]
 
-   [:.hp
+   [:.hp {:align-items 'center}
     [:.now {:padding "4px"
             :font-size "120%"
             :text-align 'center}]]
 
    [:.space flex-grow]]
+
+  [:.hp-overlay {:width "300px"}]
 
   [:.combat
    [:.attack flex-center
@@ -109,17 +111,29 @@
 
 ; ======= Top bar ==========================================
 
+(defn hp-overlay [max-hp]
+  [:div {:class (:hp-overlay styles)}
+   [:h5 "Hit Points"]
+   [:div.sections
+    [:a {:href "#"
+         :on-click (click>evt [::events/update-hp -1 max-hp])}
+     (icon :remove-circle)]
+
+    ; FIXME
+    [:div {:style {:width "20px"}}]
+
+    [:a {:href "#"
+         :on-click (click>evt [::events/update-hp 1 max-hp])}
+     (icon :add-circle)]]])
+
 (defn hp []
   (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
-    [:div.hp.col
-     [:div.label "Hit Points"]
-     [:div.now (str hp " / " max-hp)]
+    [:div.clickable.hp.col
 
-     ; FIXME: open a nice popup or something to adjust
-     [:a
-      {:href "#"
-       :on-click (click>evt [::events/update-hp])}
-      "Test"]]))
+     {:on-click (click>evt [:toggle-overlay [#'hp-overlay max-hp]])}
+
+     [:div.label "Hit Points"]
+     [:div.now (str hp " / " max-hp)]]))
 
 (defn header []
   (let [common (<sub [:sheet-meta])
@@ -453,7 +467,7 @@
       content])))
 
 (defn sheet []
-  [:div
+  [:<>
    [header]
    [:div.sections
     [section "Abilities"

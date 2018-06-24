@@ -6,6 +6,8 @@
             [wish.sources.compiler :refer [inflate]]
             [wish.sources.core :as src :refer [find-class find-race]]))
 
+(reg-sub :showing-overlay :showing-overlay)
+
 ; ======= Provider-related =================================
 
 (reg-sub :provider-states :provider-states)

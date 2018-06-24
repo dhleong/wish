@@ -22,6 +22,18 @@
   (fn-traced [db page-spec]
     (assoc db :page page-spec)))
 
+; expects a full reagent form, eg: [#'hp-overlay]
+(reg-event-db
+  :toggle-overlay
+  [trim-v]
+  (fn-traced [db [overlay-fn & args :as overlay-spec]]
+    (update db
+            :showing-overlay
+            (fn [old new-spec]
+              (when-not old
+                new-spec))
+            overlay-spec)))
+
 
 ; ======= Provider management ==============================
 

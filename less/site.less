@@ -4,36 +4,64 @@ body {
     font-family: sans-serif;
 }
 
-// // FIXME: just for testing with re-frame-10x visible; remove eventually
+@import "flex.less";
+
+// // just for testing with re-frame-10x visible:
 // #app {
 //     width: 60%;
 // }
 
-.flex(@wrap: false) {
-    display: -ms-flexbox!important;
-    display: flex;
+//
+// Other mixins
+//
 
-    & when(@wrap = wrap) {
-        -ms-flex-wrap: wrap !important;
-        flex-wrap: wrap !important;
+.clickable() {
+    cursor: pointer;
+
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+//
+// Overlays
+//
+
+#overlay-container {
+    .flex();
+    .justify-content(center);
+    .align-items(center);
+
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    background: fade(#333333, 80%);
+}
+
+#overlay {
+    position: relative;
+    background: #f0f0f0;
+    border-radius: 2px;
+    padding: 32px;
+
+    .close-button {
+        .clickable();
+
+        position: absolute;
+        top: 4px;
+        right: 4px;
+    }
+
+    .wrapper {
+        margin-top: 8px;
     }
 }
 
-.justify-content(@where: center) {
-    -ms-flex-pack: @where;
-    justify-content: @where;
-}
-
-.align-items(@where) {
-    -webkit-box-align: @where;
-    -ms-flex-align: @where;
-    align-items: @where;
-}
-
-.align-self(@where) {
-    -ms-grid-row-align: @where;
-    align-self: @where;
-}
+//
+// Main classes
+//
 
 .sections {
     .flex(wrap);
@@ -66,7 +94,7 @@ body {
 
 .feature-options {
     .feature-option {
-        cursor: pointer;
+        .clickable();
 
         &.active {
             cursor: default;
@@ -74,4 +102,8 @@ body {
             border-radius: 2px;
         }
     }
+}
+
+.clickable {
+    .clickable();
 }
