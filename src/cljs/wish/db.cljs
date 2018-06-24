@@ -8,5 +8,7 @@
    ; their lists of available character sheets
    :providers-listing #{}
 
+   :showing-overlay nil
+
    ::pending-saves #{}
    ::processing-saves #{}})
