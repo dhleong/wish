@@ -15,6 +15,14 @@ body {
   width: 400px;
   margin: 8px;
 }
+.builder .header {
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+.builder .header .section-link {
+  padding: 8px;
+}
 .builder .builder-main {
   width: 600px;
 }

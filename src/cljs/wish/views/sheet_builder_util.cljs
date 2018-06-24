@@ -3,7 +3,7 @@
   wish.views.sheet-builder-util
   (:require [wish.util :refer [<sub]]
             [wish.util.nav :refer [sheet-url]]
-            [wish.views.widgets :refer [link save-state]]))
+            [wish.views.widgets :refer [link save-state] :refer-macros [icon]]))
 
 (defn- find-section
   [candidates target-id]
@@ -27,7 +27,7 @@
                    (nth sections (inc index)))]
     (println "[builder-router] " sheet-id " / " current-section)
     [:div.builder
-     [:div.sections
+     [:div.header.sections
       (for [[id info] sections]
         ^{:key id}
         [:div.section-link
@@ -35,7 +35,13 @@
                    "selected")}
          [link {:href (sheet-url sheet-id :builder id)}
           (:name info)]])
-      [save-state]]
+
+      [save-state]
+
+      [link {:href (sheet-url sheet-id)}
+       (icon :description)]
+
+      ]
 
      [:div.sections
       [:div.section-arrow.prev
