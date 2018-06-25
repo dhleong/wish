@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Data Sources"}
   wish.sources
-  (:require-macros [cljs.core.async.macros :refer [go go-loop]])
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
+                   [wish.util.log :as log])
   (:require [clojure.core.async :as async :refer [alts! chan <! >! put!]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
@@ -17,10 +18,6 @@
   {:wish/dnd5e-srd "/dnd5e.edn"})
 
 (defonce ^:private loaded-sources (atom {}))
-
-(defn- log
-  [& args]
-  (apply js/console.log "[sources]" args))
 
 (defn- compile-raw-source
   [id raw]
@@ -60,7 +57,7 @@
         "wish" (load-builtin! source-id)
 
         ; TODO delegate to a Provider
-        (log "Unknown source kind " kind)))))
+        (log/warn "Unknown source kind " kind)))))
 
 (defn- combine-sources!
   "Combine the given sources into a CompositeDataSource
@@ -81,7 +78,7 @@
 
       (let [source-chs (map load-source! sources)
             total-count (count sources)]
-        (log "load " sources)
+        (log/info "load " sources)
         (go-loop [resolved []]
           (let [[loaded-src _] (alts! source-chs)
                 new-resolved (conj resolved loaded-src)]
@@ -90,10 +87,10 @@
             (if (= total-count (count new-resolved))
               ; DONE!
               (do
-                (log "loaded" new-resolved)
+                (log/info "loaded" new-resolved)
                 (combine-sources! sheet-id new-resolved))
 
               ; still waiting
               (do
-                (log "loaded " (id loaded-src) "; still waiting...")
+                (log/info "loaded " (id loaded-src) "; still waiting...")
                 (recur new-resolved)))))))))

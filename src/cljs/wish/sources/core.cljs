@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Core types, etc for DataSource"}
-  wish.sources.core)
+  wish.sources.core
+  (:require-macros [wish.util.log :as log]))
 
 (defprotocol IDataSource
   "Anything that provides features, classes, etc."
@@ -20,7 +21,7 @@
   IDataSource
   (expand-list [this id options]
     (when options
-      (println "TODO: filter list " id " by options: " options))
+      (log/todo "TODO: filter list " id " by options: " options))
     (key-by-id this :lists id))
 
   (find-class [this id]

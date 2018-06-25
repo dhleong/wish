@@ -2,7 +2,8 @@
       :doc "Google-drive powered Provider"}
   wish.providers.gdrive
   (:require-macros [cljs.core.async :refer [go]]
-                   [wish.util.async :refer [call-with-cb->chan]])
+                   [wish.util.async :refer [call-with-cb->chan]]
+                   [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
@@ -38,19 +39,6 @@
   [gapi-id]
   (keyword "gdrive" gapi-id))
 
-(defn- log
-  [& args]
-  (apply js/console.log "[gdrive]" args))
-
-(defn- log+warn
-  [& args]
-  (apply js/console.warn "[gdrive]" args))
-
-(defn- log+err
-  [& args]
-  (apply js/console.error "[gdrive]" args))
-
-
 ;;
 ;; State management and API interactions
 ;;
@@ -81,7 +69,7 @@
 (declare on-files-list)
 (defn- update-signin-status!
   [signed-in?]
-  (log "signed-in? <-" signed-in?)
+  (log/info "signed-in? <-" signed-in?)
   (>evt [:put-provider-state! :gdrive (if signed-in?
                                         :signed-in
                                         :signed-out)])
@@ -94,11 +82,11 @@
                     :fields "nextPageToken, files(id, name)"})
         (.then on-files-list
                (fn [e]
-                 (log+err "ERROR listing files" e))))))
+                 (log/err "ERROR listing files" e))))))
 
 (defn on-files-list
   [response]
-  (log "FILES LIST:" response)
+  (log/info "FILES LIST:" response)
   (let [response (js->clj response :keywordize-keys true)
         files (->> response
                    :result
@@ -108,7 +96,7 @@
                        [(make-id :gdrive (:id raw-file))
                         (select-keys raw-file
                                      [:name])])))]
-    (log "Found: " files)
+    (log/info "Found: " files)
     (>evt [:add-sheets files])
     (>evt [:mark-provider-listing! :gdrive false])))
 
@@ -208,20 +196,20 @@
           (and error
                (= 401 (.-code error)))
           ; refresh creds and retry
-          (let [_ (log "Refreshing auth before retrying upload...")
+          (let [_ (log/info "Refreshing auth before retrying upload...")
                 [refresh-err refresh-resp] (<! (refresh-auth))]
             (if refresh-err
               (do
                 ;; TODO notify?
-                (log+warn "Auth refresh failed:" refresh-resp)
+                (log/warn "Auth refresh failed:" refresh-resp)
                 [refresh-err nil])
 
-              (let [_ (log "Auth refreshed! Retrying upload...")
+              (let [_ (log/info "Auth refreshed! Retrying upload...")
                     [retry-err retry-resp] (<! (upload-data
                                                  upload-type metadata content))]
                 (if retry-err
                   (do
-                    (log+err "Even after auth refresh, upload failed: " resp)
+                    (log/err "Even after auth refresh, upload failed: " resp)
                     [retry-err nil])
 
                   ; upload retry succeeded!
@@ -229,7 +217,7 @@
 
           ; unexpected error:
           error (do
-                  (log+err "upload-data ERROR:" error)
+                  (log/err "upload-data ERROR:" error)
                   [error nil])
 
           ; no problem; pass it along
@@ -238,7 +226,7 @@
 (deftype GDriveProvider []
   IProvider
   (create-sheet [this file-name data]
-    (log "Create sheet " file-name)
+    (log/info "Create sheet " file-name)
     (go (let [[err resp] (<! (upload-data-with-retry
                                :create
                                {:name file-name
@@ -249,31 +237,17 @@
             [err nil]
 
             (let [pro-sheet-id (:id resp)]
-              (log "CREATED" resp)
+              (log/info "CREATED" resp)
               [nil (make-id :gdrive pro-sheet-id)])))))
 
   #_(delete-sheet [this info]
-      (log "Delete " (:gapi-id info))
+      (log/info "Delete " (:gapi-id info))
       (-> js/gapi.client.drive.files
           (.delete #js {:fileId (:gapi-id info)})
           (.then (fn [resp]
-                   (log "Deleted!" (:gapi-id info)))
+                   (log/info "Deleted!" (:gapi-id info)))
                  (fn [e]
-                   (log+warn "Failed to delete " (:gapi-id info))))))
-
-  #_(refresh-sheet [this info on-complete]
-      (log "Refresh " (:gapi-id info))
-      (-> js/gapi.client.drive.files
-          (.get #js {:fileId (:gapi-id info)
-                     :alt "media"})
-          (.then (fn [resp]
-                   (log "REFRESH resp" resp)
-                   (when-let [body (.-body resp)]
-                     (when-let [data (edn/read-string body)]
-                       (on-complete data))))
-                 (fn [e]
-                   ;; TODO
-                   (log+err "ERROR listing files" e)))))
+                   (log/warn "Failed to delete " (:gapi-id info))))))
 
   (init! [this]) ; nop
 
@@ -287,7 +261,7 @@
                                               :alt "media"}))))]
           (if err
             (do
-              (log+err "ERROR loading " id err)
+              (log/err "ERROR loading " id err)
               [err nil])
 
             ; success:
@@ -302,8 +276,7 @@
             [nil (edn/read-string body)]))))
 
   (save-sheet [this file-id data]
-    (log "Save " file-id)
-    (log (str data))
+    (log/info "Save " file-id data)
     (upload-data-with-retry
       :update
       {:fileId file-id

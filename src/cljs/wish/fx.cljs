@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "fx"}
   wish.fx
+  (:require-macros [wish.util.log :as log])
   (:require [re-frame.core :refer [reg-fx]]
             [wish.db :as db]
             [wish.sources :as sources]
@@ -23,9 +24,7 @@
 
 ; ======= Sheet persistence ================================
 
-(defn- log-sheet
-  [& args]
-  (apply js/console.log "[save-sheet]" args))
+(def ^:private log-sheet (log/make-fn "save-sheet"))
 
 (defn confirm-close-window
   [e]

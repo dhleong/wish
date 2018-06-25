@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "DataSource compiler"}
   wish.sources.compiler
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.data :refer [diff]]
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.entity-mod :refer [apply-entity-mod]]
@@ -130,7 +131,7 @@
 
         ; unknown; ignore
         (do
-          (println "WARN: unknown directive:" kind)
+          (log/warn "unknown directive:" kind)
           state)))
     (catch js/Error e
       (throw (js/Error.
@@ -178,7 +179,7 @@
 
           (do
             ; NOTE: at this point, there may just be no directives to apply?
-            (println "WARN failed to apply " option-value " for feature " feature-id)
+            (log/warn "failed to apply " option-value " for feature " feature-id)
             state))
 
         feature-id

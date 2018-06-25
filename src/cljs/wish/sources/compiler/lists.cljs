@@ -1,12 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Lists"}
   wish.sources.compiler.lists
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.util :refer [->map]]))
-
-(defn- warn
-  [& args]
-  (apply js/console.warn "[compiler.lists]" args))
 
 (defn- find-entity
   "Always returns a collection `id` could point to a feature,
@@ -19,7 +16,7 @@
       (get-in s [:lists id])
 
       ; else:
-      (warn "Unable to find entity " id)))
+      (log/warn "Unable to find entity " id)))
 
 (defn- inflate-item
   "Always returns a collection"
