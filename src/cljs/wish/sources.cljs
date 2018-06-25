@@ -7,12 +7,13 @@
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
             [ajax.core :refer [GET]]
+            [wish.config :as config]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :refer [IDataSource ->DataSource id ->CompositeDataSource]]
             [wish.util :refer [>evt]]))
 
-;; TODO this is probably different in prod
-(def ^:private data-root "/sources")
+(def ^:private data-root (str config/server-root
+                              "/sources"))
 
 (def ^:private builtin-sources
   {:wish/dnd5e-srd "/dnd5e.edn"})

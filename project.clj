@@ -78,7 +78,7 @@
   :cljsbuild
   {:builds
    [{:id           "dev"
-     :source-paths ["src/cljs"]
+     :source-paths ["src/cljs" "dev/cljs"]
      :figwheel     {:on-jsload "wish.core/mount-root"}
      :compiler     {:main                 wish.core
                     :output-to            "resources/public/js/compiled/app.js"
@@ -93,7 +93,7 @@
                     }}
 
     {:id           "min"
-     :source-paths ["src/cljs"]
+     :source-paths ["src/cljs" "prod/cljs"]
      :compiler     {:main            wish.core
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
@@ -104,7 +104,7 @@
                               "externs/wish.js"]}}
 
     {:id           "test"
-     :source-paths ["src/cljs" "test/cljs"]
+     :source-paths ["src/cljs" "dev/cljs" "test/cljs"]
      :compiler     {:main          wish.runner
                     :output-to     "resources/public/js/compiled/test.js"
                     :output-dir    "resources/public/js/compiled/test/out"
