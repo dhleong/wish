@@ -4,18 +4,19 @@
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
-            [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.util :refer [<sub >evt]]
+            [wish.style.flex :as flex :refer [flex]]
+            [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [router]]
             [wish.views.limited-select]))
 
 ; ======= CSS ==============================================
 
 (defstyle styles
-  [:.abilities (merge dnd5e/flex-vertical
-                      dnd5e/flex-center)
+  [:.abilities (merge flex/vertical
+                      flex/align-center)
    [:table {:width "100%"
             :table-layout 'fixed}
     [:tbody {:text-align 'center}
@@ -27,18 +28,18 @@
                :text-align 'center}]]]]]
 
   [:.classes
-   [:.meta dnd5e/metadata]
+   [:.meta style/metadata]
 
-   [:.class-header (merge dnd5e/flex-vertical
+   [:.class-header (merge flex/vertical
                           {:margin "1.5em 0"})
     [:.name {:font-size "1.5em"
              :font-weight "bold"}]
-    [:.row (merge dnd5e/flex
-                  {:align-items 'center})
+    [:.row (merge flex
+                  flex/align-center)
      [:select.level {:margin-left "12px"}]]]
 
    [:.hit-point-setting
-    [:.dice-level dnd5e/flex
+    [:.dice-level flex
      [:.level {:width "2em"
                :text-align 'center}]]]])
 

@@ -8,6 +8,8 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
+            [wish.style.flex :as flex :refer [flex]]
+            [wish.style.shared :refer [metadata]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [formatted-text link]]))
@@ -18,25 +20,7 @@
 (def color-proficient "#77E731")
 (def color-expert "#E8E154")
 
-; TODO we should maybe just provide global styles with the
-; right fallbacks
-(def flex {:display 'flex})
-(def flex-wrap {:flex-wrap 'wrap})
-(def flex-vertical (merge
-                     flex
-                     {:flex-direction 'column}))
-(def flex-center (merge
-                   flex
-                   {:align-items 'center}))
-(def flex-vertical-center (merge
-                            flex-vertical
-                            {:justify-content 'center}))
-(def flex-grow {:flex-grow 1})
-
 (def button {:cursor 'pointer})
-
-(def metadata {:font-size "10pt"
-               :font-weight 'normal})
 
 (def proficiency-style
   [:.proficiency
@@ -55,7 +39,7 @@
                    {:background "#666666"
                     :color "#f0f0f0"})
    [:.side flex
-    [:.col (merge flex-vertical-center
+    [:.col (merge flex/vertical-center
                   {:padding "4px"})]]
    [:.label {:font-size "80%"}]
 
@@ -64,7 +48,7 @@
             :font-size "120%"
             :text-align 'center}]]
 
-   [:.space flex-grow]]
+   [:.space flex/grow]]
 
   [:.hp-overlay {:width "300px"}
    [:.current-hp {:width "5em"
@@ -73,12 +57,11 @@
 
   [:.abilities
    [:.ability (merge flex
-                     {:align-items 'center
-                      :height "1.7em"
-                      })
+                     flex/align-center
+                     {:height "1.7em"})
     [:.score {:font-size "1.1em"
               :width "1.9em"}]
-    [:.label flex-grow]
+    [:.label flex/grow]
     [:.info (merge metadata
                    {:padding "0 4px"})]
     [:.mod {:font-size "1.1em"
@@ -87,36 +70,36 @@
 
   [:.skills
    [:.skill-col (merge
-                  flex-vertical
-                  flex-grow)
+                  flex/vertical
+                  flex/grow)
     [:.skill (merge flex
-                    flex-wrap
+                    flex/wrap
                     {:padding "2px 0"})
      [:.base-ability (merge metadata
                             {:width "100%"})]
-     [:.label flex-grow]
+     [:.label flex/grow]
      [:.score {:padding "0 4px"}]
 
      proficiency-style]]]
 
   [:.combat
-   [:.attack flex-center
-    [:.name flex-grow]
-    [:.info-group (merge flex-center
-                         flex-vertical-center
+   [:.attack flex/center
+    [:.name flex/grow]
+    [:.info-group (merge flex/center
+                         flex/vertical-center
                          {:padding "4px"})
      [:.label {:font-size "60%"}]]]]
 
   [:.limited-use-section
-   [:.rests flex-center
+   [:.rests flex/center
     [:.button (merge
-                flex-grow
+                flex/grow
                 button
                 {:text-align 'center})]]
    [:.limited-use (merge
-                    flex-center
+                    flex/center
                     {:padding "4px"})
-    [:.info flex-grow
+    [:.info flex/grow
      [:.recovery metadata]]
     [:.usage
      [:.button (merge
@@ -131,8 +114,8 @@
              :margin "4px"}
      [:&.used {:cursor 'pointer}]]]
 
-   [:.spell-slot-level flex-center
-    [:.label flex-grow]]
+   [:.spell-slot-level flex/center
+    [:.label flex/grow]]
 
    [:.spell
     [:.name {:font-weight "bold"}]
@@ -232,7 +215,11 @@
           [:div.mod save-str]
           [:div.proficiency
            {:class (when proficient?
-                     "proficient")}]]))]))
+                     "proficient")}]]))
+
+     ; TODO This is a good place for things like Elven advantage
+     ; on saving throws against being charmed
+     ]))
 
 
 ; ======= Skills ===========================================
