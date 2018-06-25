@@ -3,21 +3,15 @@
   wish.sources
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [wish.util.log :as log])
-  (:require [clojure.core.async :as async :refer [alts! chan <! >! put!]]
+  (:require [clojure.core.async :as async :refer [alts! <!]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
-            [ajax.core :refer [GET]]
-            [wish.config :as config]
+            [wish.providers :as providers]
             [wish.sources.compiler :refer [compile-directives]]
-            [wish.sources.core :refer [IDataSource ->DataSource id ->CompositeDataSource]]
+            [wish.sources.core :as sources :refer [IDataSource ->DataSource id]]
             [wish.util :refer [>evt]]))
 
-(def ^:private data-root (str config/server-root
-                              "/sources"))
-
-(def ^:private builtin-sources
-  {:wish/dnd5e-srd "/dnd5e.edn"})
-
+; cache of *compiled* sources by id
 (defonce ^:private loaded-sources (atom {}))
 
 (defn- compile-raw-source
@@ -33,32 +27,20 @@
         (compile-directives
           directives)))))
 
-(defn- load-builtin!
-  [source-id]
-  (let [ch (chan)
-        url (str data-root (builtin-sources source-id))]
-    (GET url
-         {:handler
-          (fn [raw]
-            (go (>! ch
-                    (compile-raw-source source-id raw))))})
-
-    ; return the ch
-    ch))
-
 (defn- load-source!
-  "Returns a channel that signals with the source when done"
+  "Returns a channel that signals with [err] or [nil source] when done"
   [source-id]
-  (if-let [existing (get @loaded-sources source-id)]
-    ; already done!
-    existing
+  (go (if-let [existing (get @loaded-sources source-id)]
+        existing
 
-    (let [kind (namespace source-id)]
-      (case kind
-        "wish" (load-builtin! source-id)
+        (let [[err raw] (<! (providers/load-raw source-id))]
+          (if err
+            [err]
+            (let [compiled (compile-raw-source source-id raw)]
+              ; cache the compiled source for for later
+              (swap! loaded-sources assoc source-id compiled)
 
-        ; TODO delegate to a Provider
-        (log/warn "Unknown source kind " kind)))))
+              [nil compiled]))))))
 
 (defn- combine-sources!
   "Combine the given sources into a CompositeDataSource
@@ -66,9 +48,7 @@
   [sheet-id sources]
   (>evt [:put-sheet-source!
          sheet-id
-         (->CompositeDataSource
-           sheet-id
-           sources)]))
+         (sources/composite sheet-id sources)]))
 
 (defn load!
   [sheet-id sources]
@@ -81,10 +61,12 @@
             total-count (count sources)]
         (log/info "load " sources)
         (go-loop [resolved []]
-          (let [[loaded-src _] (alts! source-chs)
+          (let [[[err loaded-src] _] (alts! source-chs)
                 new-resolved (conj resolved loaded-src)]
-            (when loaded-src
-              (swap! loaded-sources assoc (id loaded-src) loaded-src))
+            (when err
+              ; TODO what do we do here?
+              (log/err "ERROR loading a source " err))
+
             (if (= total-count (count new-resolved))
               ; DONE!
               (do

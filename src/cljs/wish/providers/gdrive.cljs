@@ -225,6 +225,8 @@
 
 (deftype GDriveProvider []
   IProvider
+  (id [this] :gdrive)
+
   (create-sheet [this file-name data]
     (log/info "Create sheet " file-name)
     (go (let [[err resp] (<! (upload-data-with-retry

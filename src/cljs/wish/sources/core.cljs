@@ -68,3 +68,11 @@
 
   (id [this]
     (.-id this)))
+
+(defn composite
+  [id sources]
+  (if (not= (count sources) 1)
+    (->CompositeDataSource id sources)
+
+    ; if there's only one source, don't bother wrapping it
+    (first sources)))

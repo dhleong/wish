@@ -7,6 +7,7 @@
             [wish.providers.dummy :as dummy]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
+            [wish.providers.wish :as wish]
             [wish.providers.core :as provider]
             [wish.sheets :refer [stub-sheet]]
             [wish.sheets.util :refer [unpack-id]]
@@ -17,11 +18,17 @@
    {:id :dummy
     :name "Dummy"
     :inst (dummy/create-provider)}
+
    :gdrive
    {:id :gdrive
     :name "Google Drive"
     :config #'gdrive-config/view
-    :inst (gdrive/create-provider)}})
+    :inst (gdrive/create-provider)}
+
+   :wish
+   {:id :wish
+    :name "Wish Builtins"
+    :inst (wish/create-provider)}})
 
 (defn config-view
   [provider-id]
@@ -50,6 +57,17 @@
                            (stub-sheet sheet-kind sheet-name))
 
     (throw (js/Error. (str "No provider instance for " provider-id)))))
+
+(defn load-raw
+  "Load raw data for the given ID, formatted the same as a sheet-id
+   (IE: the provider id is the namespace, and the data id is the name.)"
+  [raw-id]
+  (let [[provider-id pro-raw-id] (unpack-id raw-id)]
+    (if-let [{:keys [inst]} (get providers provider-id)]
+      (provider/load-raw inst pro-raw-id)
+
+      (throw (js/Error. (str "No provider instance for " raw-id
+                             "(" provider-id " / " pro-raw-id ")"))))))
 
 (defn load-sheet!
   [sheet-id]
