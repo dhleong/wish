@@ -4,6 +4,10 @@
   (:require [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.util :refer [->map]]))
 
+(defn- warn
+  [& args]
+  (apply js/console.warn "[compiler.lists]" args))
+
 (defn- find-entity
   "Always returns a collection `id` could point to a feature,
    a list, or an element in a list"
@@ -12,7 +16,10 @@
         [f])
       (when-let [f (get-in s [:list-entities id])]
         [f])
-      (get-in s [:lists id])))
+      (get-in s [:lists id])
+
+      ; else:
+      (warn "Unable to find entity " id)))
 
 (defn- inflate-item
   "Always returns a collection"
