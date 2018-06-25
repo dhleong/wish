@@ -49,6 +49,20 @@
         :restore-trigger :long-rest}]]}]
 
 [:!provide-feature
+ {:id :save-proficiency/str
+  :! [[:!provide-attr :save-proficiency/str true]]}
+ {:id :save-proficiency/dex
+  :! [[:!provide-attr :save-proficiency/dex true]]}
+ {:id :save-proficiency/con
+  :! [[:!provide-attr :save-proficiency/con true]]}
+ {:id :save-proficiency/int
+  :! [[:!provide-attr :save-proficiency/int true]]}
+ {:id :save-proficiency/wis
+  :! [[:!provide-attr :save-proficiency/wis true]]}
+ {:id :save-proficiency/cha
+  :! [[:!provide-attr :save-proficiency/cha true]]}]
+
+[:!provide-feature
  {:id :proficiency/acrobatics
   :name "Acrobatics"
   :! [[:!provide-attr :proficiency/acrobatics true]]}
@@ -158,13 +172,16 @@
    :hp
    :unarmed-strike
 
+   ; save proficiencies
+   :save-proficiency/wis
+   :save-proficiency/cha
+
    {:id :cleric/domain
     :name "Divine Domain"
     :desc "Choose one domain related to your deity, such as Life. Each domain is detailed at the end of the class description, and each one provides examples of gods associated with it. Your choice grants you domain spells and other features when you choose it at 1st level. It also grants you additional ways to use Channel Divinity when you gain that feature at 2nd level, and additional benefits at 6th, 8th, and 17th levels."
     :max-options 1}
 
    {:id :cleric/skill-proficiencies
-    :name "Proficiencies"
     :implicit? true
     :max-options 2
     :values [:proficiency/history :proficiency/insight :proficiency/medicine :proficiency/persuasion :proficiency/religion]
@@ -217,6 +234,9 @@
   [:hit-dice/d8
    :hp
 
+   :save-proficiency/str
+   :save-proficiency/dex
+
    {:id :monk/martial-arts
     :name "Martial Arts"
     :! [[:!provide-feature
@@ -268,6 +288,9 @@
   [:hit-dice/d8
    :hp
    :unarmed-strike
+
+   :save-proficiency/wis
+   :save-proficiency/cha
    ]}]
 
 

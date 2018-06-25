@@ -38,6 +38,18 @@
 (def metadata {:font-size "10pt"
                :font-weight 'normal})
 
+(def proficiency-style
+  [:.proficiency
+   {:color color-proficient
+    :padding-right "12px"}
+   [:&::before
+    {:content "'●'"
+     :visibility 'hidden}]
+   [:&.proficient::before
+    {:visibility 'visible}]
+   [:&.expert::before
+    {:color color-expert}]])
+
 (defstyle styles
   [:.header (merge flex
                    {:background "#666666"
@@ -70,7 +82,8 @@
     [:.info (merge metadata
                    {:padding "0 4px"})]
     [:.mod {:font-size "1.1em"
-            :padding-right "12px"}]]]
+            :padding-right "12px"}]
+    proficiency-style]]
 
   [:.skills
    [:.skill-col (merge
@@ -83,16 +96,8 @@
                             {:width "100%"})]
      [:.label flex-grow]
      [:.score {:padding "0 4px"}]
-     [:.proficiency
-      {:color color-proficient
-       :padding-right "12px"}
-      [:&::before
-       {:content "'●'"
-        :visibility 'hidden}]
-      [:&.proficient::before
-       {:visibility 'visible}]
-      [:&.expert::before
-       {:color color-expert}]]]]]
+
+     proficiency-style]]]
 
   [:.combat
    [:.attack flex-center
@@ -203,21 +208,31 @@
    [:cha "Charisma"]])
 
 (defn abilities-section []
-  (let [abilities (<sub [::dnd5e/abilities])]
+  (let [abilities (<sub [::dnd5e/abilities])
+        prof-bonus (<sub [::dnd5e/proficiency-bonus])
+        save-proficiencies (<sub [::dnd5e/save-proficiencies])]
     [:<>
      (for [[id label] labeled-abilities]
-       (let [score (get abilities id)]
+       (let [score (get abilities id)
+             modifier (ability->mod score)
+             modifier-str (mod->str modifier)
+             proficient? (get save-proficiencies id)
+             save-str (if proficient?
+                        (mod->str
+                          (+ modifier prof-bonus))
+
+                        modifier-str)]
          ^{:key id}
          [:div.ability
           [:div.score score]
           [:div.label label]
           [:div.info "mod"]
-          [:div.mod (mod->str
-                      (ability->mod score))]
-          ; TODO saving throws:
+          [:div.mod modifier-str]
           [:div.info "save"]
-          [:div.mod (mod->str
-                      (ability->mod score))]]))]))
+          [:div.mod save-str]
+          [:div.proficiency
+           {:class (when proficient?
+                     "proficient")}]]))]))
 
 
 ; ======= Skills ===========================================
@@ -255,7 +270,7 @@
     {:class (str (when (or expert? proficient?)
                    "proficient ")
                  (when expert?
-                   "expert"))}]] )
+                   "expert"))}]])
 
 (defn skills-section []
   (let [abilities (<sub [::dnd5e/abilities])

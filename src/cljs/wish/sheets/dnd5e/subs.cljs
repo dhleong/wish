@@ -181,14 +181,28 @@
 
 ; ======= Proficiency and expertise ========================
 
+; returns a set of ability ids
+(reg-sub
+  ::save-proficiencies
+  :<- [:classes]
+  (fn [classes _]
+    (->> classes
+         (mapcat :attrs)
+         (filter (fn [[k v]]
+                   (when (= v true)
+                     (= "save-proficiency" (namespace k)))))
+         (map (comp keyword name first))
+         (into #{}))))
+
 
 ; returns a set of skill ids
 (reg-sub
   ::skill-proficiencies
+  :<- [:races]
   :<- [:classes]
-  (fn [classes _]
-    ; TODO do any races provide skill proficiency?
-    (->> classes
+  (fn [entity-lists _]
+    (->> entity-lists
+         flatten
          (mapcat :attrs)
          (filter (fn [[k v]]
                    (when (= v true)
