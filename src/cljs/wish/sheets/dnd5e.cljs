@@ -21,6 +21,7 @@
 ; TODO we should maybe just provide global styles with the
 ; right fallbacks
 (def flex {:display 'flex})
+(def flex-wrap {:flex-wrap 'wrap})
 (def flex-vertical (merge
                      flex
                      {:flex-direction 'column}))
@@ -57,6 +58,41 @@
    [:.current-hp {:width "5em"
                   :font-size "1.2em"
                   :text-align 'center}]]
+
+  [:.abilities
+   [:.ability (merge flex
+                     {:align-items 'center
+                      :height "1.7em"
+                      })
+    [:.score {:font-size "1.1em"
+              :width "1.9em"}]
+    [:.label flex-grow]
+    [:.info (merge metadata
+                   {:padding "0 4px"})]
+    [:.mod {:font-size "1.1em"
+            :padding-right "12px"}]]]
+
+  [:.skills
+   [:.skill-col (merge
+                  flex-vertical
+                  flex-grow)
+    [:.skill (merge flex
+                    flex-wrap
+                    {:padding "2px 0"})
+     [:.base-ability (merge metadata
+                            {:width "100%"})]
+     [:.label flex-grow]
+     [:.score {:padding "0 4px"}]
+     [:.proficiency
+      {:color color-proficient
+       :padding-right "12px"}
+      [:&::before
+       {:content "'●'"
+        :visibility 'hidden}]
+      [:&.proficient::before
+       {:visibility 'visible}]
+      [:&.expert::before
+       {:color color-expert}]]]]]
 
   [:.combat
    [:.attack flex-center
@@ -95,24 +131,7 @@
 
    [:.spell
     [:.name {:font-weight "bold"}]
-    [:.meta metadata]]]
-
-  [:.skill-col (merge
-                 flex-vertical
-                 flex-grow)
-   [:.skill flex
-    [:.label flex-grow]
-    [:.score {:padding "0 4px"}]
-    [:.proficiency
-     {:color color-proficient
-      :padding-right "12px"}
-     [:&::before
-      {:content "'●'"
-       :visibility 'hidden}]
-     [:&.proficient::before
-      {:visibility 'visible}]
-     [:&.expert::before
-      {:color color-expert}]]]])
+    [:.meta metadata]]])
 
 
 ; ======= Top bar ==========================================
@@ -183,24 +202,22 @@
    [:wis "Wisdom"]
    [:cha "Charisma"]])
 
-(defn abilities-section
-  []
+(defn abilities-section []
   (let [abilities (<sub [::dnd5e/abilities])]
-    [:table.abilities
-     [:tbody
-      (for [[id label] labeled-abilities]
-        (let [score (get abilities id)]
-          ^{:key id}
-          [:tr
-           [:td score]
-           [:td label]
-           [:td "mod"]
-           [:td (mod->str
-                  (ability->mod score))]
-           ; TODO saving throws:
-           [:td "save"]
-           [:td (mod->str
-                  (ability->mod score))]]))]]))
+    [:<>
+     (for [[id label] labeled-abilities]
+       (let [score (get abilities id)]
+         ^{:key id}
+         [:div.ability
+          [:div.score score]
+          [:div.label label]
+          [:div.info "mod"]
+          [:div.mod (mod->str
+                      (ability->mod score))]
+          ; TODO saving throws:
+          [:div.info "save"]
+          [:div.mod (mod->str
+                      (ability->mod score))]]))]))
 
 
 ; ======= Skills ===========================================
@@ -249,7 +266,7 @@
            :div.sections
            (map
              (fn [col]
-               [:div {:class (:skill-col styles)}
+               [:div.skill-col
                 (for [[ability skill-id label] col]
                   (let [expert? (contains? expertise skill-id)
                         proficient? (contains? proficiencies skill-id)
@@ -480,8 +497,10 @@
    [header]
    [:div.sections
     [section "Abilities"
+     :abilities
      [abilities-section]]
     [section "Skills"
+     :skills
      [skills-section]]
     [section "Combat"
      :combat
