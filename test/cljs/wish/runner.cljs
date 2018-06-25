@@ -10,7 +10,8 @@
               [wish.sources.compiler.fun-test]
               [wish.sources.compiler.limited-use-test]
               [wish.sources.compiler.lists-test]
-              [wish.util-test]))
+              [wish.util-test]
+              [wish.util.formatted-test]))
 
 (doo-tests 'wish.events-test
            'wish.sheets.dnd5e.events-test
@@ -22,4 +23,5 @@
            'wish.sources.compiler.fun-test
            'wish.sources.compiler.limited-use-test
            'wish.sources.compiler.lists-test
-           'wish.util-test)
+           'wish.util-test
+           'wish.util.formatted-test)

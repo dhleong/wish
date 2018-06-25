@@ -4,7 +4,18 @@
   (:require-macros [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as string]
             [wish.util :refer [<sub >evt click>evt]]
+            [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :refer [pushy-supported?]]))
+
+(defn formatted-text
+  [container-spec text]
+  (vec
+    (cons
+      container-spec
+      (map
+        (fn [p]
+          [:p p])
+        (->hiccup text)))))
 
 (defn link
   "Drop-in replacement for :a that inserts the # in links if necessary"

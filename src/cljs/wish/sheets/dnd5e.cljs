@@ -8,7 +8,9 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
-            [wish.views.widgets :as widgets :refer-macros [icon] :refer [link]]))
+            [wish.views.widgets :as widgets
+             :refer-macros [icon]
+             :refer [formatted-text link]]))
 
 
 ; ======= CSS ==============================================
@@ -308,7 +310,7 @@
   [f]
   [:div.feature
    [:div.name (:name f)]
-   [:div.desc (:desc f)]])
+   [formatted-text :div.desc (:desc f)]])
 
 (defn features-section []
   [:<>
@@ -417,8 +419,7 @@
         [:div.dice
          (invoke-callable s :dice)])
 
-      ; TODO format the desc text w/line breaks, bold, etc.
-      [:div.desc (:desc s)]]]))
+      [formatted-text :div.desc (:desc s)]]]))
 
 (defn spell-slot-use-block
   [kind level total used]
