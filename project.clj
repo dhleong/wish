@@ -41,6 +41,7 @@
   :figwheel {:css-dirs ["resources/public/css"]
              :nrepl-port 7002
              :server-ip "0.0.0.0"
+             :ring-handler wish.dev-server/http-handler
              :nrepl-middleware
              [cemerick.piggieback/wrap-cljs-repl cider.nrepl/cider-middleware]}
 
@@ -65,7 +66,11 @@
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.16"]
                    ;; [cider/piggieback "0.3.6"]
-                   [com.cemerick/piggieback "0.2.2"]]
+                   [com.cemerick/piggieback "0.2.2"]
+
+                   [ring "1.4.0"]
+                   [ring/ring-defaults "0.2.0"]
+                   [compojure "1.5.0"]]
 
     :source-paths ["src/cljs"]
 

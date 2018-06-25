@@ -8,9 +8,7 @@
             [pushy.core :as pushy])
   (:import goog.History))
 
-;; TODO we need a custom 404 page
-#_(def pushy-supported? (pushy/supported?))
-(def pushy-supported? false)
+(def pushy-supported? (pushy/supported?))
 
 (defn init! []
   (secretary/set-config! :prefix (if pushy-supported?
