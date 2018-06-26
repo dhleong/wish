@@ -37,10 +37,15 @@
 (defstyle styles
   [:.header (merge flex
                    {:background "#666666"
-                    :color "#f0f0f0"})
+                    :color "#f0f0f0"
+                    :padding "4px 12px"})
    [:.side flex
     [:.col (merge flex/vertical-center
-                  {:padding "4px"})]]
+                  {:padding "4px"})
+     [:.meta (merge flex
+                    metadata)
+      [:.race {:margin-right "0.5em"}]]
+     [:.save-state {:margin-right "12px"}]]]
    [:.label {:font-size "80%"}]
 
    [:.hp {:align-items 'center}
@@ -158,15 +163,16 @@
     [:div {:class (:header styles)}
      [:div.left.side
       [:div.col
-       [:div.name (:name common)]
-       [:div.race (:name (<sub [:race]))]
-       [:div.classes (->> classes
-                          (map (fn [c]
-                                 (str (-> c :name) " " (:level c))))
-                          (str/join " / "))]]
+       [widgets/save-state]]
+
       [:div.col
-       [widgets/save-state]
-       ]]
+       [:div.name (:name common)]
+       [:div.meta
+        [:div.race (:name (<sub [:race]))]
+        [:div.classes (->> classes
+                           (map (fn [c]
+                                  (str (-> c :name) " " (:level c))))
+                           (str/join " / "))]]]]
 
      [:div.space]
 
