@@ -38,7 +38,7 @@
                   flex/align-center)
      [:select.level {:margin-left "12px"}]]]
 
-   [:.hit-point-setting
+   [:.hit-point-setting {:margin "8px"}
     [:.dice-level flex
      [:.level {:width "2em"
                :text-align 'center}]]]])
@@ -187,29 +187,30 @@
      [:p.meta
       "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
 
-     (for [c classes]
-       (let [die-size (get hit-die-by-class (:id c))]
-         ^{:key (:id c)}
-         [:div.hit-point-setting
-          [:div.class (:name c)
-           [:span.die (str " (D" die-size ")")]]
+     [:div.sections
+      (for [c classes]
+        (let [die-size (get hit-die-by-class (:id c))]
+          ^{:key (:id c)}
+          [:div.hit-point-setting
+           [:div.class (:name c)
+            [:span.die (str " (D" die-size ")")]]
 
-          (for [level (range (:level c))]
-            ^{:key level}
-            [bind-fields
-             [:div.dice-level
-              [:div.level (inc level)]
-              [:div.hp [:input {:field :numeric
-                                :id [(:id c) level]
-                                :min 1
-                                :max die-size}]]]
+           (for [level (range (:level c))]
+             ^{:key level}
+             [bind-fields
+              [:div.dice-level
+               [:div.level (inc level)]
+               [:div.hp [:input {:field :numeric
+                                 :id [(:id c) level]
+                                 :min 1
+                                 :max die-size}]]]
 
-             {:get #(<sub [::subs/rolled-hp %])
-              :save! (fn [path v]
-                       (let [v (min
-                                 (get hit-die-by-class (first path))
-                                 (max v 1))]
-                         (>evt [::events/set-rolled-hp path v])))}])])) ]))
+              {:get #(<sub [::subs/rolled-hp %])
+               :save! (fn [path v]
+                        (let [v (min
+                                  (get hit-die-by-class (first path))
+                                  (max v 1))]
+                          (>evt [::events/set-rolled-hp path v])))}])]))] ]))
 
 (defn classes-page []
   (let [initial-classes (<sub [:classes])
