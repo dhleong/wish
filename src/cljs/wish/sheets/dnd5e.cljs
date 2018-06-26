@@ -492,9 +492,8 @@
         (when used?
           (icon :close))]))])
 
-(defn spells-section []
-  (let [spells (<sub [::dnd5e/class-spells])
-        slots-sets (<sub [::dnd5e/spell-slots])
+(defn spells-section [spells]
+  (let [slots-sets (<sub [::dnd5e/spell-slots])
         slots-used (<sub [::dnd5e/spell-slots-used])]
     [:<>
      (for [[id {:keys [label slots]}] slots-sets]
@@ -550,6 +549,8 @@
     [section "Limited-use"
      :limited-use-section
      [limited-use-section]]
-    [section "Spells"
-     :spells-section
-     [spells-section]]]])
+
+    (when-let [spells (seq (<sub [::dnd5e/class-spells]))]
+      [section "Spells"
+       :spells-section
+       [spells-section spells]])]])
