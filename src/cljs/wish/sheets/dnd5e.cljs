@@ -174,7 +174,8 @@
        [widgets/save-state]]
 
       [:div.col.left
-       [:div.name (:name common)]
+       [:div.name [link {:href "/sheets"}
+                   (:name common)]]
        [:div.meta
         [:div.race (:name (<sub [:race]))]
         [:div.classes (->> classes
