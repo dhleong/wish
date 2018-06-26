@@ -41,11 +41,19 @@
                     :padding "4px 12px"})
    [:.side flex
     [:.col (merge flex/vertical-center
-                  {:padding "4px"})
+                  {:padding "4px 8px"
+                   :text-align 'center})
+     [:&.left {:text-align 'left}]
+
      [:.meta (merge flex
                     metadata)
       [:.race {:margin-right "0.5em"}]]
-     [:.save-state {:margin-right "12px"}]]]
+
+     [:.save-state {:margin-right "12px"}]
+
+     [:.stat {:font-size "140%"}
+      [:.unit {:font-size "60%"}]]]]
+
    [:.label {:font-size "80%"}]
 
    [:.hp {:align-items 'center}
@@ -165,7 +173,7 @@
       [:div.col
        [widgets/save-state]]
 
-      [:div.col
+      [:div.col.left
        [:div.name (:name common)]
        [:div.meta
         [:div.race (:name (<sub [:race]))]
@@ -177,6 +185,28 @@
      [:div.space]
 
      [:div.right.side
+      [:div.col
+       [:div.stat (mod->str
+                    (<sub [::dnd5e/proficiency-bonus]))]
+       [:div.label "Proficiency"]]
+
+      [:div.col
+       [:div.stat (<sub [::dnd5e/ac])]
+       [:div.label "AC"]]
+
+      [:div.col
+       [:div.stat (<sub [::dnd5e/speed]) [:span.unit " ft"]]
+       [:div.label "Base Speed"]]
+
+      [:div.col
+       [:div.stat (<sub [::dnd5e/passive-perception])]
+       [:div.label "Pass. Perc."]]
+
+      [:div.col
+       [:div.stat (mod->str
+                    (<sub [::dnd5e/initiative]))]
+       [:div.label "Initiative"]]
+
       [:div.col
        [hp]]
 

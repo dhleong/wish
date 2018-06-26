@@ -234,8 +234,43 @@
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
 
+; ======= general stats for header =========================
+
+(reg-sub
+  ::passive-perception
+  :<- [::ability-modifiers]
+  :<- [::proficiency-bonus]
+  :<- [::save-proficiencies]
+  (fn [[abilities prof-bonus save-profs]]
+    (+ 10
+       (:wis abilities)
+       (when (:wis save-profs)
+         prof-bonus))))
+
+(reg-sub
+  ::speed
+  :<- [:race]
+  (fn [race]
+    ; TODO other mods to speed?
+    (-> race :attrs :5e/speed)))
+
 
 ; ======= combat ===========================================
+
+(reg-sub
+  ::ac
+  :<- [::ability-modifiers]
+  (fn [abilities]
+    ; TODO AC from equipped armor, class features (esp monk)
+    (+ 10
+       (:dex abilities))))
+
+(reg-sub
+  ::initiative
+  :<- [::ability-modifiers]
+  (fn [abilities]
+    ; TODO others initiative mods?
+    (:dex abilities)))
 
 (reg-sub
   ::unarmed-strike
