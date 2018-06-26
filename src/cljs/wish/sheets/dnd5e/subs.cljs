@@ -187,6 +187,7 @@
   :<- [:classes]
   (fn [classes _]
     (->> classes
+         (filter :primary?)
          (mapcat :attrs)
          (filter (fn [[k v]]
                    (when (= v true)
