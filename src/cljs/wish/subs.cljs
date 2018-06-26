@@ -85,6 +85,16 @@
       (when loaded?
         source))))
 
+(reg-sub
+  :sheet-error-info
+  :<- [:sheet-sources]
+  :<- [:active-sheet-id]
+  (fn [[sources active-id] [_ sheet-id]]
+    (let [{:keys [err] :as info} (get sources (or sheet-id
+                                                    active-id))]
+      (when err
+        info))))
+
 
 ; ======= Accessors for the active sheet ===================
 

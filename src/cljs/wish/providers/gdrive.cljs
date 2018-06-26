@@ -200,7 +200,6 @@
                 [refresh-err refresh-resp] (<! (refresh-auth))]
             (if refresh-err
               (do
-                ;; TODO notify?
                 (log/warn "Auth refresh failed:" refresh-resp)
                 [refresh-err nil])
 

@@ -79,6 +79,12 @@
     (assoc-in db [:sheets sheet-id] sheet)))
 
 (reg-event-db
+  :put-sheet-error!
+  [trim-v]
+  (fn-traced [db [sheet-id info]]
+    (assoc-in db [:sheet-sources sheet-id] info)))
+
+(reg-event-db
   :add-sheets
   [trim-v]
   (fn-traced [db [sheet-id-pairs]]
@@ -93,9 +99,12 @@
   [trim-v]
   (fn-traced [{:keys [db]} [sheet-id sources]]
     ; no dup loads, pls
-    (when-not (get-in db [:sheet-sources sheet-id])
-      {:db (assoc-in db [:sheet-sources sheet-id] {})
-       :load-sheet-source! [sheet-id sources]})))
+    (let [source (get-in db [:sheet-sources sheet-id])]
+      (println "LOAD " source)
+      (when (or (:err source)
+                (not source))
+        {:db (assoc-in db [:sheet-sources sheet-id] {})
+         :load-sheet-source! [sheet-id sources]}))))
 
 (reg-event-db
   :put-sheet-source!

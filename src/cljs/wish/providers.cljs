@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Data source providers"}
   wish.providers
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [wish.util.log :as log])
   (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
             [wish.providers.dummy :as dummy]
@@ -76,8 +77,10 @@
       (go (let [[err data] (<! (provider/load-sheet
                                  inst pro-sheet-id))]
             (if err
-              ; TODO probably a :put-sheet-error! event, or something
-              (println "Failed to load sheet: " err)
+              (do (log/err "Failed to load sheet: " err)
+                  (>evt [:put-sheet-error! sheet-id
+                         {:err err
+                          :retry-evt [:load-sheet! sheet-id]}]))
 
               (>evt [:put-sheet! sheet-id data]))))
 

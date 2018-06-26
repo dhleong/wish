@@ -5,7 +5,7 @@
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
-            [wish.util :refer [<sub >evt]]))
+            [wish.util :refer [click>evt <sub >evt]]))
 
 ; ======= const data =======================================
 
@@ -59,14 +59,29 @@
 
 ; ======= Views ============================================
 
+(defn sheet-error-widget []
+  (when-let [{:keys [err retry-evt]} (<sub [:sheet-error-info])]
+    [:div.sheet.error
+     [:p "Error loading sheet"]
+     [:div "Info for nerds: "
+      [:p.error-info (.-message err)]]
+     [:div
+      [:a {:href "#"
+           :on-click (click>evt retry-evt)}
+       "Try again"]]]))
+
 (defn sheet-loader [?sheet]
-  (if-let [{:keys [name]} ?sheet]
-    [:div (str "Loading " name "...")]
-    [:div "Loading..."]))
+  [:<>
+   (if-let [{:keys [name]} ?sheet]
+     [:div (str "Loading " name "...")]
+     [:div "Loading..."])
+   [sheet-error-widget]])
 
 (defn sources-loader
   [sheet]
-  [:div "Loading data for " (:name sheet) "..."])
+  [:<>
+   [:div "Loading data for " (:name sheet) "..."]
+   [sheet-error-widget]])
 
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])

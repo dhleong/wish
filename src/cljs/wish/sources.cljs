@@ -2,7 +2,7 @@
       :doc "Data Sources"}
   wish.sources
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
-                   [wish.util.log :as log])
+                   [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :as async :refer [alts! <!]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
@@ -35,12 +35,20 @@
 
         (let [[err raw] (<! (providers/load-raw source-id))]
           (if err
+            ; io error, or provider config error
             [err]
-            (let [compiled (compile-raw-source source-id raw)]
-              ; cache the compiled source for for later
-              (swap! loaded-sources assoc source-id compiled)
 
-              [nil compiled]))))))
+            (try
+              (let [compiled (compile-raw-source source-id raw)]
+                ; cache the compiled source for for later
+                (swap! loaded-sources assoc source-id compiled)
+
+                [nil compiled])
+
+              (catch :default e
+                ; error parsing raw source
+                (log/err "Error parsing source:" source-id raw)
+                [e])))))))
 
 (defn- combine-sources!
   "Combine the given sources into a CompositeDataSource
@@ -63,17 +71,23 @@
         (go-loop [resolved []]
           (let [[[err loaded-src] _] (alts! source-chs)
                 new-resolved (conj resolved loaded-src)]
-            (when err
-              ; TODO what do we do here?
-              (log/err "ERROR loading a source " err))
+            (cond
+              err
+              (do
+                (log/err "ERROR loading a source " err)
+                (>evt [:put-sheet-error!
+                       sheet-id
+                       {:err err
+                        :retry-evt [:load-sheet-source! sheet-id sources]}]))
 
-            (if (= total-count (count new-resolved))
               ; DONE!
+              (= total-count (count new-resolved))
               (do
                 (log/info "loaded" new-resolved)
                 (combine-sources! sheet-id new-resolved))
 
               ; still waiting
+              :else
               (do
                 (log/info "loaded " (id loaded-src) "; still waiting...")
                 (recur new-resolved)))))))))
