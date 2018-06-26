@@ -104,6 +104,25 @@ body {
     }
 }
 
+//
+// shared widgets
+
 .clickable {
     .clickable();
+}
+
+.button {
+    .clickable();
+    border-radius: 2px;
+    background: #999;
+    color: #fff;
+    margin: 0 8px;
+    padding: 8px;
+
+    &:hover {
+        background: #ccc;
+    }
+    &:active {
+        background: #666666;
+    }
 }

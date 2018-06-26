@@ -115,9 +115,9 @@
     [:.info flex/grow
      [:.recovery metadata]]
     [:.usage
-     [:.button (merge
-                 button
-                 {:padding "4px"})]]]]
+     [:.button (merge button)
+      [:&.selected {:background-color "#ddd"}
+       [:&:hover {:background-color "#eee"}]]]]]]
 
   [:.spells-section
    [:.spell-slots-use flex
