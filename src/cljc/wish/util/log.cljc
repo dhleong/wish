@@ -21,7 +21,7 @@
 (defmacro log
   "Simple verbose log macro; should get compiled out in a non-debug build"
   [& args]
-  `(when wish.config/debug?
+  `(when js/goog.DEBUG
      (-log :log ~@args)))
 
 (defmacro info
