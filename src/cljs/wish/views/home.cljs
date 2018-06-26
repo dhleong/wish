@@ -5,10 +5,8 @@
 
 (defn home []
   [:div
-   [:div "Hi!"]
-   [:div
-    [link {:href "/sheets/dummy/my-sheet-id"}
-     "Open dummy test sheet"]]
+   [:h3 "Welcome to Wish!"]
+   [:p "It's not very pretty around here just yet, but feel free to look around."]
    [:div
     [link {:href "/sheets/new"}
      "New sheet"]]

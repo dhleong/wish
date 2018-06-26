@@ -5,7 +5,6 @@
                    [wish.util.log :as log])
   (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
-            [wish.providers.dummy :as dummy]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.wish :as wish]
@@ -15,12 +14,7 @@
             [wish.util :refer [>evt]]))
 
 (def ^:private providers
-  {:dummy
-   {:id :dummy
-    :name "Dummy"
-    :inst (dummy/create-provider)}
-
-   :gdrive
+  {:gdrive
    {:id :gdrive
     :name "Google Drive"
     :config #'gdrive-config/view
@@ -28,7 +22,7 @@
 
    :wish
    {:id :wish
-    :name "Wish Builtins"
+    :name "Wish Built-ins"
     :inst (wish/create-provider)}})
 
 (defn config-view
