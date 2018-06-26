@@ -79,9 +79,13 @@
                       :values [:proficiency/stealth]}
                      ]}]]))
           opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
-          applied (apply-options {} ds opts-map)]
+          applied (apply-options
+                    ; NOTE: they must *have* the feature for the option
+                    ; to get applied
+                    {:features {:rogue/skill-proficiencies true}}
+                    ds opts-map)]
       (is (= {:attrs {:proficiency/stealth true}}
-             applied)))))
+             (select-keys applied [:attrs]))))))
 
 (deftest apply-levels-test
   (let [ds (->DataSource
@@ -93,10 +97,7 @@
                   :! [[:!provide-attr :proficiency/stealth true]]}
                  {:id :proficiency/insight
                   :name "Insight"
-                  :! [[:!provide-attr :proficiency/insight true]]}]
-
-                [:!declare-class class-def]]))
-        opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}]
+                  :! [[:!provide-attr :proficiency/insight true]]}]]))]
 
     (testing "Combine levels"
       (let [class-def {:id :cleric
@@ -108,13 +109,13 @@
             level-2 (assoc entity-base :level 2)
             level-3 (assoc entity-base :level 3) ]
         (is (nil?
-              (:attrs (apply-levels entity-base ds opts-map))))
+              (:attrs (apply-levels entity-base ds))))
 
         (is (= {:proficiency/stealth true}
-               (:attrs (apply-levels level-2 ds opts-map))))
+               (:attrs (apply-levels level-2 ds))))
         (is (= {:proficiency/stealth true
                 :proficiency/insight true}
-               (:attrs (apply-levels level-3 ds opts-map))))))
+               (:attrs (apply-levels level-3 ds))))))
 
     (testing "Replace levels"
       ; This is a contrived example, but...
@@ -127,9 +128,9 @@
             level-2 (assoc entity-base :level 2)
             level-3 (assoc entity-base :level 3) ]
         (is (nil?
-              (:attrs (apply-levels entity-base ds opts-map))))
+              (:attrs (apply-levels entity-base ds))))
 
         (is (= {:proficiency/stealth true}
-               (:attrs (apply-levels level-2 ds opts-map))))
+               (:attrs (apply-levels level-2 ds))))
         (is (= {:proficiency/insight true}
-               (:attrs (apply-levels level-3 ds opts-map))))))))
+               (:attrs (apply-levels level-3 ds))))))))
