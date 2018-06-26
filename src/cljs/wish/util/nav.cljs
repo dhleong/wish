@@ -8,7 +8,10 @@
             [pushy.core :as pushy])
   (:import goog.History))
 
-(def pushy-supported? (pushy/supported?))
+; NOTE: figwheel css live-reload doesn't work so well with
+; the fancy nav
+(def pushy-supported? (and (not js/goog.DEBUG)
+                           (pushy/supported?)))
 
 (defn init! []
   (secretary/set-config! :prefix (if pushy-supported?
