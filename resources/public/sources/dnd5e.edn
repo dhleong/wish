@@ -183,10 +183,11 @@
 
    {:id :cleric/skill-proficiencies
     :implicit? true
+    :primary-only? true
     :max-options 2
     :values [:proficiency/history :proficiency/insight :proficiency/medicine :proficiency/persuasion :proficiency/religion]
     }]
-  
+
   :&levels {2 {:+features
                [:cleric/channel-divinity]
                }}}]
@@ -236,6 +237,12 @@
 
    :save-proficiency/str
    :save-proficiency/dex
+
+   {:id :monk/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/acrobatics :proficiency/athletics :proficiency/history :proficiency/insight :proficiency/religion :proficiency/stealth]}
 
    {:id :monk/martial-arts
     :name "Martial Arts"

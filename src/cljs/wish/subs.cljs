@@ -144,9 +144,16 @@
                         :race))))))))
 
 (defn- get-features
-  [feature-container]
-  (->> feature-container
-       (mapcat :features)))
+  [feature-containers [_ entity-id primary?]]
+  (->> (if entity-id
+         (filter #(= entity-id (:id %)) feature-containers)
+         feature-containers)
+       (mapcat :features)
+
+       ; remove features that only the primary class should have
+       ; if we're not the primary
+       (remove #(when (:primary-only? (second %))
+                  (not primary?)))))
 
 (defn inflate-option-values
   [data-source feature-id values]
@@ -177,8 +184,9 @@
 
 (reg-sub
   :class-features-with-options
-  :<- [:class-features]
-  :<- [:sheet-source]
+  (fn [[_ entity-id primary?]]
+    [(subscribe [:class-features entity-id primary?])
+     (subscribe [:sheet-source])])
   inflate-feature-options)
 
 (reg-sub

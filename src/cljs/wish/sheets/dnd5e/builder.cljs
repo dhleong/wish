@@ -72,37 +72,41 @@
    [:b (:name option)]
    [:p (:desc option)]])
 
-(defn feature-options-selection [sub-id]
-  [bind-fields
-   [:<>
-    (for [[feature-id f] (<sub [sub-id])]
-      ^{:key feature-id}
-      [:div.feature
-       [:h3 (:name f)]
+(defn feature-options-selection [sub-vector]
+  (if-let [features (seq (<sub sub-vector))]
+    [bind-fields
+     [:<>
+      (for [[feature-id f] features]
+        ^{:key feature-id}
+        [:div.feature
+         [:h3 (:name f)]
 
-       [:div.feature-options {:field :limited-select
-                              :accepted? (:max-options f)
-                              :id feature-id}
-        (for [option (:values f)]
-          [:div.feature-option {:key (:id option)}
-           ; NOTE: this extra widget with ^{:key} is a hack around how
-           ; reagent-forms handles :single-select values. Basically,
-           ; everything after the {:key} above seems to become a sequence,
-           ; so react wants keys on all the children. It's a bit deep to
-           ; put everything inline anyway, so we use this ^{:key} [component]
-           ; pattern
-           ^{:key (:id option)}
-           [feature-option option]])]])]
+         [:div.feature-options {:field :limited-select
+                                :accepted? (:max-options f)
+                                :id feature-id}
+          (for [option (:values f)]
+            [:div.feature-option {:key (:id option)}
+             ; NOTE: this extra widget with ^{:key} is a hack around how
+             ; reagent-forms handles :single-select values. Basically,
+             ; everything after the {:key} above seems to become a sequence,
+             ; so react wants keys on all the children. It's a bit deep to
+             ; put everything inline anyway, so we use this ^{:key} [component]
+             ; pattern
+             ^{:key (:id option)}
+             [feature-option option]])]])]
 
-   {:get #(<sub [:options-> %])
-    :save! (fn [path v]
-             (>evt [:update-meta [:options]
-                    assoc (first path)
-                    (cond
-                      (vector? v) v
-                      (coll? v) (vec v)
-                      :else [v])]))
-    :doc #(<sub [:options])}]  )
+     {:get #(<sub [:options-> %])
+      :save! (fn [path v]
+               (>evt [:update-meta [:options]
+                      assoc (first path)
+                      (cond
+                        (vector? v) v
+                        (coll? v) (vec v)
+                        :else [v])]))
+      :doc #(<sub [:options])}]
+
+    ; no features
+    [:p "No features with options available yet."]))
 
 (defn race-page []
   [:div
@@ -120,7 +124,7 @@
               (>evt [:update-meta [:races] (constantly [v])]))}]
 
    ; racial features
-   [feature-options-selection :race-features-with-options]
+   [feature-options-selection [:race-features-with-options]]
 
    ])
 
@@ -146,7 +150,9 @@
 
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
-   [feature-options-selection :class-features-with-options] ])
+   [feature-options-selection [:class-features-with-options
+                               (:id class-info)
+                               (:primary? class-info)]]])
 
 (defn class-picker [unavailable-class-ids show-picker?]
   [:div.class-picker
