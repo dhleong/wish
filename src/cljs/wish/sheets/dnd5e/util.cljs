@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
-  (:require [wish.sources.compiler.limited-use :refer [compile-limited-use]]))
+  (:require [wish.sources.compiler.limited-use :refer [compile-limited-use]]
+            [wish.sources.compiler.fun :refer [->callable]]))
 
 ; ======= Shared utils =====================================
 
@@ -58,7 +59,20 @@
       ; no spellcasting
       :else entity)))
 
+; TODO it'd be better to do this once at the datasource level
+(def compile-ac-source (memoize ->callable))
+(defn- compile-ac-sources
+  [entity]
+  (update-in entity [:attrs :5e/ac]
+             (fn [ac-sources-map]
+               (reduce-kv
+                 (fn [m k v]
+                   (assoc m k (compile-ac-source v)))
+                 {}
+                 ac-sources-map))))
+
 (defn post-process
   [entity data-source entity-kind]
   (-> entity
-      install-spell-uses))
+      install-spell-uses
+      compile-ac-sources))

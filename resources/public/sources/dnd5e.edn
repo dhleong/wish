@@ -251,7 +251,17 @@
                            (<= level 10) "6"
                            (<= level 16) "8"
                            (<= level 20) "10")
-                         "+" m)))}]]}]}]
+                         "+" m)))}]]}
+
+   {:id :monk/unarmored-defense
+    :name "Unarmored Defense"
+    :desc "Beginning at 1st level, while you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom modifier."
+    :! [[:!provide-attr
+         [:5e/ac :monk/unarmored-defense]
+         (fn [modifiers]
+           (+ 10
+              (:dex modifiers)
+              (:wis modifiers)))]]}]}]
 
 [:!declare-class
  {:id :warlock

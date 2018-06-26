@@ -16,6 +16,15 @@
       (is (contains? (:features s)
                      :hit-dice/d10)))))
 
+(deftest provide-attr-test
+  (testing "Provide in path"
+    (let [s (compile-directives
+              [[:!provide-attr
+                [:5e/ac :monk/unarmored-defense]
+                :value]])]
+      (is (= {:attrs {:5e/ac {:monk/unarmored-defense :value}}}
+             (select-keys s [:attrs]))))))
+
 (deftest class-test
   (testing "Inflate features by id"
     (let [s (compile-directives

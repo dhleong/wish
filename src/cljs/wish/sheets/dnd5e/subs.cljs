@@ -259,11 +259,20 @@
 
 (reg-sub
   ::ac
+  :<- [:classes]
   :<- [::ability-modifiers]
-  (fn [abilities]
-    ; TODO AC from equipped armor, class features (esp monk)
-    (+ 10
-       (:dex abilities))))
+  (fn [[classes modifiers]]
+    ; TODO AC from equipped armor
+    (let [ac-sources (mapcat (comp vals :5e/ac :attrs) classes)
+          fn-context {:modifiers modifiers}]
+      (apply max
+
+             ; unarmored AC (not available if we have armor equipped)
+             (+ 10
+                (:dex modifiers))
+
+             (map #(% fn-context) ac-sources)
+             ))))
 
 (reg-sub
   ::initiative

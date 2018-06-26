@@ -54,7 +54,10 @@
    ; but only to specific classes, races, etc.
    :!provide-attr
    (fn provide-attr [state id value]
-     (assoc-in state [:attrs id] value))
+     (let [path (if (keyword? id)
+                  [:attrs id]
+                  (cons :attrs id))]
+       (assoc-in state path value)))
 
    :!provide-feature
    (fn provide-feature [state & args]

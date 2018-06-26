@@ -114,6 +114,18 @@
  ...entities
  ]
 
+[:!provide-attr
+
+ ; this can either be a single keyword, like :5e/spellcaster, or a vector
+ ; path, like [:5e/ac :monk/unarmored-defense], where the latter might be
+ ; used to provide multiple candidates for AC computation, for example.
+ attr-id-or-path
+
+ ; the value is attr- and sheet-dependent, so can be whatever you need it to
+ ; be. The value will be simply stored in the :attrs of the character at
+ ; whatever id or path you provided above
+ value]
+
 ;;
 ;; Experiments:
 ;;
