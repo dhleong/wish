@@ -2,6 +2,8 @@
       :doc "Template function compilation"}
   wish.sources.compiler.fun
   (:require [clojure.string :as str]
+            [clojure.analyzer.api :refer [no-warn]]
+            [clojure.walk :refer [postwalk]]
             [cljs.js :refer [empty-state eval js-eval]])
   (:require-macros [wish.sources.compiler.fun :refer [expose-fn export-macro export-sym]]))
 
@@ -131,6 +133,9 @@
   (export-macro when-not)
   (export-macro when-some)
 
+  ; this is required for (cond)
+  (export-sym cljs.core/truth_)
+
   (export-sym cljs.core/Symbol)
   (export-sym cljs.core/Keyword)
   (export-sym cljs.core/PersistentArrayMap)
@@ -154,6 +159,8 @@
         {:eval (fn [src]
                  (let [src (update src :source process-source)]
                    (try
+                     ;; (println "eval: " form
+                     ;;          "\n->" (:source src))
                      (js-eval src)
                      (catch :default e
                        (js/console.warn (str "FAILED to js/eval:\n\n"
@@ -163,8 +170,13 @@
                                 (str "FAILED to js/eval:\n\n"
                                      (:source src)
                                      "\n\nOriginal error: " (.-stack e))))))))
+
+         ;; :load (fn [opts cb]
+         ;;         (println ":load " opts)
+         ;;         (throw (js/Error. "Could not require wish.sources.compiler.fun")))
+
          :context :expr
-         :source-map true
+         ;; :source-map true
          :ns 'wish.sources.compiler.fun-eval}
         (fn [res]
           (if (contains? res :value) ; nil or false are fine
@@ -175,26 +187,40 @@
               ;; (js/console.error (str res))
               (throw (js/Error. (str "Error evaluating: " form "\n" res) )))))))
 
+(defn- clean-form
+  [form]
+  (postwalk ->fun form))
+
 (defn- eval-form
   [form]
   (let [compiler-state
         (if-let [cached @cached-eval-state]
           cached
           (let [new-state (empty-state)]
-            ;
+
             ; eval an ns so the imports are recognized
             (eval-in
               new-state
               '(ns wish.sources.compiler.fun-eval
-                 (:require [wish.sources.compiler.fun :refer [ceil floor]])))
-            ;
+                 ; NOTE: without this :require, in advanced mode the
+                 ; (eval) complains that goog.provides doesn't exist,
+                 ; or something like that.
+                 (:require [wish.sources.compiler.fun])))
+
             ; eval a declare so our functions are also recognized
-            (reset! cached-eval-state new-state)))]
+            (reset! cached-eval-state new-state)))
+
+        ; replace fn refs with our exported versions
+        cleaned-form (clean-form form)]
+
     (try
-      (eval-in compiler-state
-               form)
+      (no-warn
+        (eval-in compiler-state
+                 cleaned-form))
       (catch :default e
-        (js/console.error "Error compiling:" (str form), e)
+        (js/console.error "Error compiling:" (str form),
+                          "Cleaned: " (str cleaned-form),
+                          e)
         (throw e)))))
 
 
@@ -202,6 +228,31 @@
   [form]
   (let [const-body (eval-form form)]
     (constantly const-body)))
+
+(defn let-args
+  "Given a vector of arg symbols, return an arg suitable for use
+   with let*. Basically we're manually destructuring
+    `[{:keys args} 'wish-fn-input]`,
+   since the plumbing for doing that gets lost with :advanced
+   optimization"
+  [input]
+  (reduce
+    (fn [bindings sym]
+      (conj bindings
+            sym
+            `(~(keyword sym) ~'wish-fn-input)))
+    []
+    input))
+
+(defn fn-ify
+  [form]
+  (let [[_fn args & body] form]
+    ; this is basically `(fn [:keys ~args]), but
+    ; spelled out more explicitly so it will still
+    ; eval under advanced compilation
+    `(fn* [~'wish-fn-input]
+        (let* ~(let-args args)
+            ~@body))))
 
 (defn ->callable
   "Convert a form that could either be a fn or a constant
@@ -215,8 +266,7 @@
       (seq? form) (let [[_fn args & body] form]
                     (if (and (= "fn" (str _fn))
                              (vector? args))
-                      (let [fn-form `(fn [{:keys ~args}]
-                                       ~@body)]
+                      (let [fn-form (fn-ify form)]
                         (eval-form fn-form))
 
                       (->constant-callable form)))

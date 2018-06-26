@@ -13,7 +13,7 @@
     (str n "$")
     (str/replace
       n
-      #"[+-/*?<>]"
+      #"[+-/*?<>=]"
       (fn [ch]
         (case ch
           "+" "_PLUS_"
@@ -22,7 +22,8 @@
           "*" "_STAR_"
           "?" "_QMARK_"
           ">" "_GT_"
-          "<" "_LT_")))))
+          "<" "_LT_"
+          "=" "_EQ_")))))
 
 (defmacro expose-fn
   [m fn-symbol & [run-on-args]]

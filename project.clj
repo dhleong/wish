@@ -101,9 +101,11 @@
      :source-paths ["src/cljs" "prod/cljs"]
      :compiler     {:main            wish.core
                     :output-to       "resources/public/js/compiled/app.js"
-                    :optimizations   :advanced
                     :closure-defines {goog.DEBUG false}
+                    :optimizations   :advanced
                     :pretty-print    false
+                    :optimize-constants true
+                    :static-fns true
 
                     :externs ["externs/gapi.js"
                               "externs/wish.js"]}}

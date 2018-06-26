@@ -1,6 +1,18 @@
 (ns wish.sources.compiler.fun-test
   (:require [cljs.test :refer-macros [deftest testing is run-tests]]
-            [wish.sources.compiler.fun :refer [->callable]]))
+            [wish.sources.compiler.fun :refer [let-args ->callable]]))
+
+(deftest let-args-test
+  (testing "No input"
+    (is (= []
+           (let-args '[]))))
+  (testing "Single input"
+    (is (= '[ship (:ship wish-fn-input)]
+           (let-args '[ship]))))
+  (testing "Multi input"
+    (is (= '[ship (:ship wish-fn-input)
+             cargo (:cargo wish-fn-input)]
+           (let-args '[ship cargo])))))
 
 (deftest ->callable-test
   (testing "Constant values"
