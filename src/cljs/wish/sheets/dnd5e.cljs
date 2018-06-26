@@ -12,7 +12,7 @@
             [wish.style.shared :refer [metadata]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [formatted-text link]]))
+             :refer [expandable formatted-text link]]))
 
 
 ; ======= CSS ==============================================
@@ -130,9 +130,11 @@
    [:.spell-slot-level flex/center
     [:.label flex/grow]]
 
-   [:.spell
-    [:.name {:font-weight "bold"}]
-    [:.meta metadata]]])
+   [:.spell flex/center
+    [:.spell-info flex/grow
+     [:.name {:font-weight "bold"}]
+     [:.meta metadata]]
+    [:.dice {:align-self 'center}]]])
 
 
 ; ======= Top bar ==========================================
@@ -354,18 +356,20 @@
 
 ; ======= Features =========================================
 
-; TODO these should probably be subscriptions
+; TODO these should definitely be subscriptions
 (defn- features-for
   [sub-vector]
   (->> (<sub sub-vector)
        (mapcat (comp vals :features))
+       (filter :name)
        (remove :implicit?)
        seq))
 
 (defn feature
   [f]
-  [:div.feature
-   [:div.name (:name f)]
+  [expandable
+   [:div.feature
+    [:div.name (:name f)]]
    [formatted-text :div.desc (:desc f)]])
 
 (defn features-section []
@@ -462,19 +466,22 @@
 (defn spell-block
   [s]
   (let [level (:spell-level s)]
-    [:div.spell
-     [:div.name (:name s)]
+    [expandable
+     [:div.spell
+      [:div.spell-info
+       [:div.name (:name s)]
 
-     ; TODO concentration? ritual?
-     [:div.meta (if (= 0 level)
-                  "Cantrip"
-                  (str "Level " level))]
+       ; TODO concentration? ritual?
+       [:div.meta (if (= 0 level)
+                    "Cantrip"
+                    (str "Level " level))]]
 
-     [:div.detail
       (when (:dice s)
         [:div.dice
-         (invoke-callable s :dice)])
+         (invoke-callable s :dice)])]
 
+     ; collapsed:
+     [:div.detail
       [formatted-text :div.desc (:desc s)]]]))
 
 (defn spell-slot-use-block
