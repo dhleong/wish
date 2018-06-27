@@ -24,6 +24,7 @@
 
 (defstyle styles
   [:.header (merge flex
+                   flex/wrap
                    {:background "#666666"
                     :color "#f0f0f0"
                     :padding "4px 12px"})
