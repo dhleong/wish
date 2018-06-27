@@ -21,9 +21,15 @@
 (deftype DataSource [id data]
   IDataSource
   (expand-list [this id options]
-    (when options
-      (log/todo "TODO: filter list " id " by options: " options))
-    (key-by-id this :lists id))
+    (let [entries (key-by-id this :lists id)]
+      (if options
+        (let [options-set (set options)]
+          (log/todo "filter list " id " by options: " options entries)
+          (filter (comp options-set :id)
+                  entries))
+
+        ; just return them all
+        entries)))
 
   (find-class [this id]
     (key-by-id this :classes id))

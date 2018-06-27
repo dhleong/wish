@@ -317,30 +317,47 @@
 
 ; ======= Spells ===========================================
 
-; TODO filter by selected
 (reg-sub
-  ::class-spells
-  :<- [:classes]
+  ::prepared-spells-by-class
+  :<- [::spellcaster-classes]
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
-  (fn [[classes data-source modifiers]]
-    (->> classes
-         (mapcat (fn [c]
-                   (when-let [attrs (-> c :attrs :5e/spellcaster)]
-                     [{:list-id (:spells attrs)
-                       ::source (:id c)}
-                      {:list-id (:extra-spells attrs)
-                       ::source (:id c)}])))
+  :<- [:options]
+  (fn [[classes data-source modifiers options]]
+    (when (seq classes)
+      (reduce
+        (fn [m c]
+          (let [attrs (-> c :attrs :5e/spellcaster)
+                spells-list (:spells attrs)
+                extra-spells-list (:extra-spells attrs)]
+            (assoc
+              m (:id c)
+              (->> (concat
+                     ; all spells from the extra-spells list
+                     ; NOTE: because extra spells are provided
+                     ; by features and levels, we can't find them
+                     ; in the data source.
+                     (->> (get-in c [:lists extra-spells-list])
+                          (map #(assoc % :always-prepared? true)))
 
-         (filter identity)
+                     ; only selected spells from the main list
+                     (expand-list data-source spells-list
+                                  (or (get options spells-list)
+                                      [])))
 
-         ; TODO provide options in case the list is
-         ; a feature with options
-         (mapcat (fn [{:keys [list-id] ::keys [source]}]
-                   (map
-                     #(assoc % ::source source
-                             :spell-mod (get modifiers source))
-                     (expand-list data-source list-id nil)))))))
+                   (map #(assoc %
+                                ::source (:id c)
+                                :spell-mod (get modifiers (:id c))))))))
+        {}
+        classes))))
+
+(reg-sub
+  ::prepared-class-spells
+  :<- [::prepared-spells-by-class]
+  (fn [spells-by-class]
+    (->> spells-by-class
+         vals
+         flatten)))
 
 
 (reg-sub
@@ -354,7 +371,7 @@
 (reg-sub
   ::spell-attacks
   :<- [::spell-attack-bonuses]
-  :<- [::class-spells]
+  :<- [::prepared-class-spells]
   :<- [::race-spells]
   (fn [[bonuses & spell-lists]]
     (->> spell-lists

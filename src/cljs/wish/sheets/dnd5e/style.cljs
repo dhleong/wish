@@ -65,6 +65,8 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
+  [:.spell-management-overlay {:max-width "70%"}]
+
   [:.abilities
    [:.ability (merge flex
                      flex/align-center
@@ -126,6 +128,9 @@
 
    [:.spell-slot-level flex/center
     [:.label flex/grow]]
+
+   [:.manage-link {:font-weight 'normal
+                   :font-size "80%"}]
 
    [:.spell flex/center
     [:.spell-info flex/grow

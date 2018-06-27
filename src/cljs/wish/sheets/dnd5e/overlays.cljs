@@ -165,3 +165,13 @@
           "Take a short rest"
           (when (> amount-to-heal 0)
             (str "; heal +" amount-to-heal))]]))))
+
+
+; ======= Spell management =================================
+
+(defn spell-management
+  [the-class]
+  [:div {:class (:spell-management-overlay styles)}
+   [:h5 "Manage " (:name the-class) " Spells"]
+   "TODO "
+   the-class])

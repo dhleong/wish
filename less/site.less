@@ -49,11 +49,12 @@ a {
     left: 0;
     right: 0;
     bottom: 0;
+    height: 100%;
 
     background: fade(#333333, 80%);
 }
 
-#overlay {
+#overlay, #overlay-scrollable {
     position: relative;
     background: #f0f0f0;
     border-radius: 2px;
@@ -69,6 +70,21 @@ a {
 
     .wrapper {
         margin-top: 8px;
+        height: 100%;
+    }
+}
+
+#overlay {
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+#overlay-scrollable {
+    height: 80%;
+
+    .scroll-host {
+        height: 100%;
+        overflow-y: auto;
     }
 }
 

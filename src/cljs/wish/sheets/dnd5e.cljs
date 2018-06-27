@@ -357,9 +357,16 @@
         (when used?
           (icon :close))]))])
 
+(defn spells-list [spells]
+  [:<>
+   (for [s spells]
+     ^{:key (:id s)}
+     [spell-block s])])
+
 (defn spells-section [spells]
   (let [slots-sets (<sub [::dnd5e/spell-slots])
-        slots-used (<sub [::dnd5e/spell-slots-used])]
+        slots-used (<sub [::dnd5e/spell-slots-used])
+        prepared-spells-by-class (<sub [::dnd5e/prepared-spells-by-class])]
     [:<>
      (for [[id {:keys [label slots]}] slots-sets]
        ^{:key id}
@@ -372,6 +379,34 @@
             (str "Level " level)]
            [spell-slot-use-block
             id level total (get-in slots-used [id level])]])])
+
+     (for [c (<sub [::dnd5e/spellcaster-classes])]
+       (let [prepared-spells (get prepared-spells-by-class (:id c))
+             prepares? (-> c :attrs :5e/spellcaster :prepares?)
+             any-prepared? (> (count prepared-spells) 0)
+             prepared-label (if prepares?
+                              "prepared"
+                              "known")]
+         ^{:key (:id c)}
+         [:div.spells
+          [:h4 (:name c)
+           [:div.manage-link
+            [:a {:href "#"
+                 :on-click (click>evt [:toggle-overlay
+                                       [#'overlays/spell-management c]
+                                       :scrollable? true])}
+             (str "Manage " prepared-label " spells")]]]
+
+          [expandable
+           [:b (str (str/capitalize prepared-label) " Spells")
+            [:span.count "(" (count prepared-spells) ")"]]
+
+           (if any-prepared?
+             [spells-list prepared-spells]
+             [:div (str "You don't have any " prepared-label " spells")])
+
+           ; auto-expand to show the "nothing prepared" explanation
+           {:start-expanded? (not any-prepared?)}]]))
 
      [:div.spells
       [:h4 "Available spells"]

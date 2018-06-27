@@ -27,23 +27,24 @@
    [router pages]
 
    ; overlay rendering
-   (when-let [overlay-spec (<sub [:showing-overlay])]
-     [:<>
-      [:div#overlay-container
-       {:on-click (click>evt [:toggle-overlay])}
+   (when-let [[overlay-class overlay-spec] (<sub [:showing-overlay])]
+     [:div#overlay-container
+      {:on-click (click>evt [:toggle-overlay])}
 
-       [:div#overlay
-        {:on-click (fn [e]
-                     ; prevent click propagation by default
-                     ; to avoid the event leaking through and
-                     ; triggering the dismiss click on the bg
-                     (.preventDefault e)
-                     (.stopPropagation e))}
+      [:div
+       {:id overlay-class
+        :on-click (fn [e]
+                    ; prevent click propagation by default
+                    ; to avoid the event leaking through and
+                    ; triggering the dismiss click on the bg
+                    (.preventDefault e)
+                    (.stopPropagation e))}
 
-        [:div.close-button
-         {:on-click (click>evt [:toggle-overlay])}
-         (icon :close)]
+       [:div.close-button
+        {:on-click (click>evt [:toggle-overlay])}
+        (icon :close)]
 
-        ; finally, the overlay itself
+       ; finally, the overlay itself
+       [:div.scroll-host
         [:div.wrapper
          overlay-spec]]]])])

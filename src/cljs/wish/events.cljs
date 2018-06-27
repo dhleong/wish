@@ -26,13 +26,16 @@
 (reg-event-db
   :toggle-overlay
   [trim-v]
-  (fn-traced [db [[overlay-fn & args :as overlay-spec]]]
+  (fn-traced [db [[overlay-fn & args :as overlay-spec] & {:keys [scrollable?] :as opts}]]
     (update db
             :showing-overlay
             (fn [old new-spec]
               (when-not old
                 new-spec))
-            overlay-spec)))
+            [(if scrollable?
+               "overlay-scrollable"
+               "overlay")
+             overlay-spec])))
 
 
 ; ======= Provider management ==============================
