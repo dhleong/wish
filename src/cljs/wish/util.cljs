@@ -7,21 +7,32 @@
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
 
+(defn click>evts
+  "Returns an on-click handler that dispatches the given events
+   and prevents the default on-click events"
+  [& events]
+  (fn [e]
+    (.preventDefault e)
+
+    (doseq [event events]
+      (>evt event))
+
+    ; always prevent propagation
+    (.stopPropagation e)))
+
 (defn click>evt
   "Returns an on-click handler that dispatches the given event
-  and prevents the default on-click events"
+   and prevents the default on-click events"
   [event & {:keys [propagate?]
             :or {propagate? true}}]
   (fn [e]
     (.preventDefault e)
+
     (>evt event)
 
-    ; prevent propagation ourself, since
-    ; relying on a `false` return value doesn't always work?
+    ; prevent propagation, optionally
     (when-not propagate?
-      (.stopPropagation e))
-
-    propagate?))
+      (.stopPropagation e))))
 
 (def is-ios?
   (memoize

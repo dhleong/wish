@@ -491,3 +491,33 @@
             :else m)))  ; ignore; unrelated
       {}
       used)))
+
+
+; ======= etc ==============================================
+
+; returns a list of {:die,:classes,:used,:total}
+; where :classes is a list of class names, sorted by die size.
+(reg-sub
+  ::hit-dice
+  :<- [:classes]
+  :<- [:limited-used]
+  (fn [[classes used]]
+    (->> classes
+         (reduce
+           (fn [m c]
+             (let [die-size (-> c :attrs :5e/hit-dice)]
+               (if (get m die-size)
+                 ; just add our class and inc the total
+                 (-> m
+                     (update-in [die-size :classes] conj (:name c))
+                     (update-in [die-size :total] + (:level c)))
+
+                 ; create the initial spec
+                 (assoc m die-size {:classes [(:name c)]
+                                    :die die-size
+                                    :used (get used (keyword "hit-dice"
+                                                             (str "d" die-size "#uses")))
+                                    :total (:level c)}))))
+           {})
+         vals
+         (sort-by :die #(compare %2 %1)))))
