@@ -189,6 +189,24 @@
                                  0
                                  1)))))
 
+; add some number of uses
+(reg-event-fx
+  :+use
+  [trim-v]
+  (fn-traced [cofx [use-id amount]]
+    (update-uses cofx use-id + amount)))
+
+; accepts a map of use-id -> amount
+(reg-event-fx
+  :+uses
+  [trim-v]
+  (fn-traced [cofx [use-id->amount]]
+    (reduce-kv
+      (fn [new-cofx use-id amount]
+        (update-uses new-cofx use-id + amount))
+      cofx
+      use-id->amount)))
+
 
 ; ======= Save-state handling ==============================
 

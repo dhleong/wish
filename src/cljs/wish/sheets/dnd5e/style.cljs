@@ -57,6 +57,12 @@
                   :text-align 'center}]]
 
   [:.short-rest-overlay {:max-width "400px"}
+   [:.sections {:margin-bottom "1em"
+                :justify-content 'start}
+    [:.hit-dice-pool {:margin-right "2em"}
+     [:.hit-die button]]
+    [:.hit-die-use flex/center
+     [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
   [:.abilities

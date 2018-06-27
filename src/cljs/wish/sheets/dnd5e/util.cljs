@@ -19,6 +19,11 @@
               (name kind))
             (str "level-" level))))
 
+(defn ->die-use-kw
+  [die-size]
+  (keyword "hit-dice"
+           (str "d" die-size "#uses")))
+
 (defn mod->str
   [modifier]
   (if (>= modifier 0)

@@ -3,7 +3,7 @@
   wish.sheets.dnd5e.subs
   (:require [re-frame.core :refer [reg-sub]]
             [wish.sources.core :refer [expand-list find-class find-race]]
-            [wish.sheets.dnd5e.util :refer [ability->mod]]
+            [wish.sheets.dnd5e.util :refer [ability->mod ->die-use-kw]]
             [wish.util :refer [invoke-callable]]))
 
 ; ======= Constants ========================================
@@ -515,8 +515,7 @@
                  ; create the initial spec
                  (assoc m die-size {:classes [(:name c)]
                                     :die die-size
-                                    :used (get used (keyword "hit-dice"
-                                                             (str "d" die-size "#uses")))
+                                    :used (get used (->die-use-kw die-size))
                                     :total (:level c)}))))
            {})
          vals
