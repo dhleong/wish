@@ -2,7 +2,8 @@
       :doc "Lists"}
   wish.sources.compiler.lists
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [wish.sources.compiler.entity :refer [compile-entity]]
+  (:require [wish.sources.core :refer [find-list-entity]]
+            [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.util :refer [->map]]))
 
 (defn- find-entity
@@ -13,7 +14,14 @@
         [f])
       (when-let [f (get-in s [:list-entities id])]
         [f])
+
       (get-in s [:lists id])
+
+      ; if we have a data source (IE when inflating an entity),
+      ; check it out
+      (when-let [ds (:wish/data-source s)]
+        (when-let [f (find-list-entity ds id)]
+          [f]))
 
       ; else:
       (log/warn "Unable to find entity " id)))

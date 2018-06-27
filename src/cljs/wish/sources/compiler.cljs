@@ -296,5 +296,9 @@
   "Inflate the entity with current `state`."
   [state data-source options-map]
   (-> state
+
+      ; include the data source in case we need it
+      (assoc :wish/data-source data-source)
+
       (apply-levels data-source)
       (apply-options data-source options-map)))

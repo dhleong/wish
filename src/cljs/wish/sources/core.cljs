@@ -9,8 +9,9 @@
   (expand-list [this id options])
   (find-class [this id])
   (find-feature [this id])
+  (find-list-entity [this id] "Find an entity that was in a list")
   (find-race [this id])
-  (list-entities [this kind]))
+  (list-entities [this kind] "Return a list of all entities of the given kind"))
 
 (defn- key-by-id
   [^DataSource s, k id]
@@ -29,6 +30,9 @@
 
   (find-feature [this id]
     (key-by-id this :features id))
+
+  (find-list-entity [this id]
+    (key-by-id this :list-entities id))
 
   (find-race [this id]
     (key-by-id this :races id))
@@ -59,6 +63,8 @@
     (first-delegate-by-id this find-class id))
   (find-feature [this id]
     (first-delegate-by-id this find-feature id))
+  (find-list-entity [this id]
+    (first-delegate-by-id this find-list-entity id))
   (find-race [this id]
     (first-delegate-by-id this find-race id))
 

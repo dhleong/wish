@@ -125,7 +125,19 @@
   :type :5e/spell}
 
  [{:spell-level 1
-   :id :cure-wounds
+   :id :cleric-spell/bless
+   :name "Bless"
+   :time "1 Action"
+   :range "30 feet"
+   :comp [:vs "a sprinkling of holy water"]
+   :duration "Concentration, up to 1 minute"
+   :school :evocation
+   :desc "You bless up to three creatures of your choice within range. Whenever a target makes an attack roll or a saving throw before the spell ends, the target can roll a d4 and add the number rolled to the attack roll or saving throw.
+
+**At Higher Levels:** When you cast this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st."}
+
+  {:spell-level 1
+   :id :cleric-spell/cure-wounds
    :name "Cure Wounds"
    :time "1 Action"
    :range "Touch"
@@ -139,7 +151,7 @@
            (str spell-level "d8+" spell-mod))}
 
   {:spell-level 1
-   :id :guiding-bolt
+   :id :cleric-spell/guiding-bolt
    :name "Guiding Bolt"
    :time "1 Action"
    :range "120 ft."
@@ -214,7 +226,7 @@
   :desc "The Life domain focuses on the vibrant positive energy—one of the fundamental forces of the universe—that sustains all life. The gods of life promote vitality and health through healing the sick and wounded, caring for those in need, and driving away the forces of death and undeath. Almost any non-evil deity can claim influence over this domain, particularly agricultural deities (such as Chauntea, Arawai, and Demeter), sun gods (such as Lathander, Pelor, and Re-Horakhty), gods of healing or endurance (such as Ilmater, Mishakal, Apollo, and Diancecht), and gods of home and community (such as Hestia, Hathor, and Boldrei)."
   :! [[:!add-to-list
        :cleric/extra-spells
-       [:bless :cure-wounds]]
+       [:cleric-spell/bless :cleric-spell/cure-wounds]]
 
       [:!provide-feature
        {:id :cleric/disciple-of-life
