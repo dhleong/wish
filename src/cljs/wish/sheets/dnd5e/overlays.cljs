@@ -125,7 +125,9 @@
                              (let [dice-sum (apply + dice-totals)]
                                (when (> dice-sum 0)
                                  (let [con-mod (:con (<sub [::dnd5e/ability-modifiers]))
-                                       dice-used (count dice-totals)]
+                                       dice-used (->> dice-totals
+                                                      (keep identity)
+                                                      count)]
                                    (+ (* dice-used con-mod)
                                       (:extra current-state)
                                       dice-sum)))))]
@@ -147,10 +149,13 @@
           {:on-click (click>evts [:trigger-limited-use-restore :short-rest]
                                  [:+uses (reduce-kv
                                            (fn [m die-size rolls]
+                                             (println "ROLLS" rolls)
                                              (assoc m
                                                     (->die-use-kw
                                                       die-size)
-                                                    (count rolls)))
+                                                    (->> rolls
+                                                         (keep second)
+                                                         count)))
                                            {}
                                            (:values @state))]
                                  [::events/update-hp
