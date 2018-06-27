@@ -13,6 +13,7 @@
         :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
+                          (println trigger used level ceil / min)
                           (min used
                                (ceil (/ level 2))))
         :uses (fn [level]

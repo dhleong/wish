@@ -26,18 +26,10 @@
 
 ; NOTE anything exposed below also needs to get added to the :refer
 
-(defn ^:export ceil
-  [v]
-  (Math/ceil (->number v)))
-
-(defn ^:export floor
-  [v]
-  (Math/floor (->number v)))
-
 (def exposed-fns
-  (-> { ; start with our own public APIs
-       'ceil ceil
-       'floor floor }
+  (-> { ; these alias directly to JS functions
+       'ceil 'js/Math.ceil
+       'floor 'js/Math.floor }
 
       ;;
       ;; Expose!
@@ -53,6 +45,8 @@
       (expose-fn >=)
       (expose-fn =)
       (expose-fn not=)
+      (expose-fn min)
+      (expose-fn max)
 
       (expose-fn keyword)
       (expose-fn name)
