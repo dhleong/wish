@@ -317,7 +317,7 @@
 
 ; ======= Spells ===========================================
 
-(defn known-spell-counts-for
+(defn knowable-spell-counts-for
   [c modifiers]
   (let [{:keys [id level]} c
         {:keys [cantrips slots known]} (-> c :attrs :5e/spellcaster)
@@ -351,19 +351,19 @@
 
 ; returns eg: {:cleric {:spells 4, :cantrips 2}}
 (reg-sub
-  ::known-spell-counts-by-class
+  ::knowable-spell-counts-by-class
   :<- [::spellcaster-classes]
   :<- [::spellcasting-modifiers]
   (fn [[classes modifiers]]
     (reduce
       (fn [m c]
-        (assoc m (:id c) (known-spell-counts-for c modifiers)))
+        (assoc m (:id c) (knowable-spell-counts-for c modifiers)))
       {}
       classes)))
 
 (reg-sub
-  ::known-spell-counts
-  :<- [::known-spell-counts-by-class]
+  ::knowable-spell-counts
+  :<- [::knowable-spell-counts-by-class]
   (fn [counts [_ class-id]]
     (get counts class-id)))
 

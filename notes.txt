@@ -17,6 +17,10 @@ using the :5e/spellcasting attribute, which accepts:
                        ; be provided
  :restore-trigger :long-rest  ; :long-rest is the default
  :ability :wis  ; base ability for spellcasting modifier
+ :acquires? false  ; whether the class acquires spells before preparing them. This is
+                   ; sort of a special case for Wizards. If True, the :spells list
+                   ; is used to select :acquired spells, and, if the class :prepares?
+                   ; then it instead prepares from the :acquired-spells list.
  :prepares? true  ; Whether the class prepares spells or just knows them
  :known [table]  ; Vector that determines how many spells can be known or prepared
                  ; at a given level (where the first index in the table is level 1).
@@ -29,6 +33,8 @@ using the :5e/spellcasting attribute, which accepts:
                           ; provide available spells
  :extra-spells :<class>/extra-spells  ; id of a list of spells that are always
                                       ; available, such as a cleric's domain spells.
+ :acquired-spells :<class>/acquired  ; id of a feature whose selected options provide
+                                     ; acquired spells.
  }
 
 Note that preparing vs knowing is really just a visual treatment.

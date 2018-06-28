@@ -1,6 +1,6 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs :refer [known-spell-counts-for
+            [wish.sheets.dnd5e.subs :refer [knowable-spell-counts-for
                                             level->proficiency-bonus
                                             spell-slots]]))
 
@@ -48,21 +48,21 @@
   {:standard {:label "Spell Slots"
               :slots slots}})
 
-(deftest known-spell-counts-for-test
+(deftest knowable-spell-counts-for-test
   (testing "Table"
     (is (= {:spells 4
             :cantrips 3}
-           (known-spell-counts-for
+           (knowable-spell-counts-for
              (assoc warlock :level 3)
              {})))
     (is (= {:spells 11
             :cantrips 5}
-           (known-spell-counts-for
+           (knowable-spell-counts-for
              (assoc warlock :level 10)
              {})))
     (is (= 0
            (:spells
-             (known-spell-counts-for
+             (knowable-spell-counts-for
                {:level 2
                 :attrs
                 {:5e/spellcaster
@@ -72,7 +72,7 @@
   (testing "Standard (eg: cleric)"
     (is (= {:spells 10
             :cantrips 4}
-           (known-spell-counts-for
+           (knowable-spell-counts-for
              {:level 7
               :id :cleric
               :attrs
@@ -86,7 +86,7 @@
     ; NOTE: :slots is omitted here; :standard is the default!
     (is (= {:spells 10
             :cantrips 4}
-           (known-spell-counts-for
+           (knowable-spell-counts-for
              {:level 7
               :id :cleric
               :attrs

@@ -363,7 +363,7 @@
      ^{:key (:id s)}
      [spell-block s])])
 
-(defn spells-section [spells]
+(defn spells-section [spell-classes]
   (let [slots-sets (<sub [::dnd5e/spell-slots])
         slots-used (<sub [::dnd5e/spell-slots-used])
         prepared-spells-by-class (<sub [::dnd5e/prepared-spells-by-class])]
@@ -380,7 +380,7 @@
            [spell-slot-use-block
             id level total (get-in slots-used [id level])]])])
 
-     (for [c (<sub [::dnd5e/spellcaster-classes])]
+     (for [c spell-classes]
        (let [prepared-spells (get prepared-spells-by-class (:id c))
              prepares? (-> c :attrs :5e/spellcaster :prepares?)
              any-prepared? (> (count prepared-spells) 0)
@@ -408,12 +408,12 @@
            ; auto-expand to show the "nothing prepared" explanation
            {:start-expanded? (not any-prepared?)}]]))
 
-     [:div.spells
-      [:h4 "Available spells"]
-      ; TODO toggle only showing known/prepared
-      (for [s spells]
-        ^{:key (:id s)}
-        [spell-block s])]]))
+     ;; [:div.spells
+     ;;  [:h4 "Available spells"]
+     ;;  (for [s spells]
+     ;;    ^{:key (:id s)}
+     ;;    [spell-block s])]
+     ]))
 
 
 ; ======= Main interface ===================================
@@ -450,7 +450,7 @@
      :limited-use-section
      [limited-use-section]]
 
-    (when-let [spells (seq (<sub [::dnd5e/class-spells]))]
+    (when-let [spell-classes (seq (<sub [::dnd5e/spellcaster-classes]))]
       [section "Spells"
        :spells-section
-       [spells-section spells]])]])
+       [spells-section spell-classes]])]])

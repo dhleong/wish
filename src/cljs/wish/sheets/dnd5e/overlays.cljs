@@ -171,7 +171,7 @@
 
 (defn spell-management
   [the-class]
-  (let [{:keys [spells cantrips]} (<sub [::dnd5e/known-spell-counts (:id the-class)])]
+  (let [{:keys [spells cantrips]} (<sub [::dnd5e/knowable-spell-counts (:id the-class)])]
     [:div {:class (:spell-management-overlay styles)}
      [:h5 "Manage " (:name the-class) " Spells"]
      "Spells knowable: " spells
