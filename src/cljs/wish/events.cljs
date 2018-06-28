@@ -103,7 +103,6 @@
   (fn-traced [{:keys [db]} [sheet-id sources]]
     ; no dup loads, pls
     (let [source (get-in db [:sheet-sources sheet-id])]
-      (println "LOAD " source)
       (when (or (:err source)
                 (not source))
         {:db (assoc-in db [:sheet-sources sheet-id] {})
