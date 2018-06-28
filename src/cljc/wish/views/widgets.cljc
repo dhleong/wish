@@ -7,7 +7,7 @@
   "A material design icon. `spec` is a keyword
   that is usually the name of the icon, but
   can also have .class like normal hiccup"
-  [spec]
+  [spec & [opts]]
   {:pre [(keyword? spec)]}
   (let [spec (name spec)
         class-offset (.indexOf spec ".")
@@ -19,4 +19,4 @@
                       spec)
                     #"-"
                     "_")]
-    `[(keyword (str "i.material-icons" ~classes)) ~icon-name]))
+    `[~(keyword (str "i.material-icons" classes)) ~(or opts {}) ~icon-name]))

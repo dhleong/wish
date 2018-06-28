@@ -98,6 +98,11 @@ a {
     .flex(wrap);
     .justify-content(center);
 
+    &.spread {
+        width: 100%;
+        .justify-content(space-between);
+    }
+
     .section {
         width: 400px;
         margin: 8px;
@@ -155,5 +160,20 @@ a {
     }
     &:active {
         background: #666666;
+    }
+}
+
+.slots-use-block {
+    .flex(wrap);
+
+    .slot {
+        width: 24px;
+        height: 24px;
+        border: 1px solid #333;
+        margin: 4px;
+
+        &.used {
+            .clickable();
+        }
     }
 }

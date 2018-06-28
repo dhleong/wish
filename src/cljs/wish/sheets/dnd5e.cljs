@@ -15,14 +15,37 @@
 
 ; ======= Top bar ==========================================
 
+(defn- hp-normal [hp max-hp]
+  [:<>
+   [:div.label "Hit Points"]
+   [:div.now (str hp " / " max-hp)]])
+
+(defn- save-indicators
+  [prefix icon-class used]
+  [:div.indicators
+   prefix
+
+   (for [i (range 3)]
+     (with-meta
+       (if (< i used)
+         (icon :radio-button-checked.icon {:class icon-class})
+         (icon :radio-button-unchecked.icon {:class icon-class}))
+       {:key i}))])
+
+(defn- hp-death-saving-throws []
+  (let [{:keys [saves fails]} (<sub [::dnd5e/death-saving-throws])]
+    [:<>
+     [save-indicators "😇" :save saves]
+     [save-indicators "☠️" :fail fails]]))
+
 (defn hp []
   (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
     [:div.clickable.hp.col
-
      {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
 
-     [:div.label "Hit Points"]
-     [:div.now (str hp " / " max-hp)]]))
+     (if (> hp 0)
+       [hp-normal hp max-hp]
+       [hp-death-saving-throws])]))
 
 (defn header []
   (let [common (<sub [:sheet-meta])
@@ -343,19 +366,11 @@
 
 (defn spell-slot-use-block
   [kind level total used]
-  [:div.spell-slots-use
-   {:on-click (click>evt [::events/use-spell-slot kind level total])}
-   (for [i (range total)]
-     (let [used? (< i used)]
-       ^{:key (str level "/" kind i)}
-       [:div.slot
-        {:class (when used?
-                  "used")
-         :on-click (when used?
-                     (click>evt [::events/restore-spell-slot kind level total]
-                                :propagate? false))}
-        (when used?
-          (icon :close))]))])
+  [widgets/slot-use-block
+   {:total total
+    :used used
+    :consume-evt [::events/use-spell-slot kind level total]
+    :restore-evt [::events/restore-spell-slot kind level total]}])
 
 (defn spells-list [spells]
   [:<>

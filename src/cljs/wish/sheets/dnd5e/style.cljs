@@ -48,7 +48,11 @@
    [:.hp {:align-items 'center}
     [:.now {:padding "4px"
             :font-size "120%"
-            :text-align 'center}]]
+            :text-align 'center}]
+    [:.indicators
+     [:.icon {:font-size "12px"}
+      [:&.save {:color "#00cc00"}]
+      [:&.fail {:color "#aa0000"}]]]]
 
    [:.space flex/grow]]
 
@@ -142,13 +146,6 @@
        [:&:hover {:background-color "#eee"}]]]]]]
 
   [:.spells-section
-   [:.spell-slots-use flex
-    [:.slot {:width "24px"
-             :height "24px"
-             :border "1px solid #333"
-             :margin "4px"}
-     [:&.used {:cursor 'pointer}]]]
-
    [:.spell-slot-level flex/center
     [:.label flex/grow]]
 

@@ -178,6 +178,12 @@
                       0)]
       [(- max-hp used-hp) max-hp])))
 
+(reg-sub
+  ::death-saving-throws
+  :<- [:sheet]
+  (fn [sheet]
+    (:death-saving-throws sheet)))
+
 
 ; ======= Proficiency and expertise ========================
 

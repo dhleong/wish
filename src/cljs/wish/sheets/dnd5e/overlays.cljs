@@ -28,14 +28,27 @@
                      0  ; you can't go negative in 5e
                      (min max-hp
                           (- (+ hp heal)
-                             damage)))]
+                             damage)))
+            death-saves (<sub [::dnd5e/death-saving-throws])]
         [:div {:class (:hp-overlay styles)}
          (when (= 0 hp)
            [:<>
             [:h4 "Death Saving Throws"]
-            ; TODO track death saving throw successes/failures
-            "TODO"
-            ])
+            [:div.sections.spread.centered
+
+             [:div "Failures"
+              [widgets/slot-use-block
+               {:total 3
+                :used (:fails death-saves)
+                :consume-evt [::events/update-death-saves inc :fails]
+                :restore-evt [::events/update-death-saves dec :fails]}]]
+
+             [:div "Successes"
+              [widgets/slot-use-block
+               {:total 3
+                :used (:saves death-saves)
+                :consume-evt [::events/update-death-saves inc :saves]
+                :restore-evt [::events/update-death-saves dec :saves]}]]]])
 
          [:h4 "Hit Points"]
          [:div.sections

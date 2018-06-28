@@ -62,3 +62,20 @@
             (if (fn? expanded-fn)
               [expanded-fn]
               expanded-fn)])]))))
+
+(defn slot-use-block
+  "A block of boxes that can be checked and unchecked"
+  [{:keys [total used consume-evt restore-evt]}]
+  [:div.slots-use-block
+   {:on-click (click>evt consume-evt)}
+   (for [i (range total)]
+     (let [used? (< i used)]
+       ^{:key i}
+       [:div.slot
+        {:class (when used?
+                  "used")
+         :on-click (when used?
+                     (click>evt restore-evt
+                                :propagate? false))}
+        (when used?
+          (icon :close))]))])

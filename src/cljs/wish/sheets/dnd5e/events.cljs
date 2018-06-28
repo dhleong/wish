@@ -5,7 +5,7 @@
                                    trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [wish.sheets.dnd5e.util :refer [->slot-kw]]
-            [wish.sheets.util :refer [update-in-sheet update-uses]]
+            [wish.sheets.util :refer [update-sheet update-in-sheet update-uses]]
             [wish.util :refer [process-map]]))
 
 (defn with-range
@@ -22,7 +22,13 @@
     ; NOTE: adjusting HP *uses* here, not *current* HP. So, for
     ; `[::update-hp 2]`, which should increase *current* hp,
     ; we need to reduce uses.
-    (update-uses cofx :hp#uses with-range [0 max-hp] - amount)))
+    (let [cofx (update-uses cofx :hp#uses with-range [0 max-hp] - amount)]
+      (if (> amount 0)
+        ; we healed, so go ahead and reset death save use
+        (assoc cofx :dispatch [::reset-death-saves])
+
+        ; nothing to do
+        cofx))))
 
 (reg-event-fx
   ::use-spell-slot
@@ -57,3 +63,18 @@
   [trim-v]
   (fn-traced [cofx [path v]]
     (update-in-sheet cofx [:hp-rolled] update-hp-rolled path v)))
+
+; expects eg [inc :saves] or [dec :fails]
+(reg-event-fx
+  ::update-death-saves
+  [trim-v]
+  (fn-traced [cofx [m kind]]
+    (update-in-sheet cofx [:death-saving-throws kind]
+                     with-range [0 3]
+                     m)))
+
+(reg-event-fx
+  ::reset-death-saves
+  [trim-v]
+  (fn-traced [cofx [kind m]]
+    (update-sheet cofx dissoc :death-saving-throws)))

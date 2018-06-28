@@ -68,6 +68,11 @@ a:hover {
   -ms-flex-pack: center;
   justify-content: center;
 }
+.sections.spread {
+  width: 100%;
+  -ms-flex-pack: space-between;
+  justify-content: space-between;
+}
 .sections .section {
   width: 400px;
   margin: 8px;
@@ -118,4 +123,21 @@ a:hover {
 }
 .button:active {
   background: #666666;
+}
+.slots-use-block {
+  display: -ms-flexbox !important;
+  display: flex;
+  -ms-flex-wrap: wrap !important;
+  flex-wrap: wrap !important;
+}
+.slots-use-block .slot {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #333;
+  margin: 4px;
+}
+.slots-use-block .slot.used {
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
 }
