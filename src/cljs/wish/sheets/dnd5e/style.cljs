@@ -66,7 +66,7 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
-  [:.spell-management-overlay {:max-width "70%"}]
+  [:.spell-management-overlay ]
 
   [:.abilities
    [:.ability (merge flex

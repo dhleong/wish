@@ -317,6 +317,52 @@
 
 ; ======= Spells ===========================================
 
+(defn known-spell-counts-for
+  [c modifiers]
+  (let [{:keys [id level]} c
+        {:keys [cantrips slots known]} (-> c :attrs :5e/spellcaster)
+
+        spells (cond
+                 known (get known (dec level))
+
+                 ; NOTE: :standard is the default if omitted
+                 (or (nil? slots)
+                     (= :standard slots)) (+ level
+                                             (get modifiers id))
+
+                 (= :standard/half slots) (+ (js/Math.ceil (/ level 2))
+                                             (get modifiers id)))
+
+        cantrips (->> cantrips
+                      (partition 2)
+                      (reduce
+                        (fn [cantrips-known [at-level incr]]
+                          (if (>= level at-level)
+                            (+ cantrips-known incr)
+                            (reduced cantrips-known)))
+                        0))]
+
+    {:spells (max spells 1)
+     :cantrips cantrips}))
+
+; returns eg: {:cleric {:spells 4, :cantrips 2}}
+(reg-sub
+  ::known-spell-counts-by-class
+  :<- [::spellcaster-classes]
+  :<- [::spellcasting-modifiers]
+  (fn [[classes modifiers]]
+    (reduce
+      (fn [m c]
+        (assoc m (:id c) (known-spell-counts-for c modifiers)))
+      {}
+      classes)))
+
+(reg-sub
+  ::known-spell-counts
+  :<- [::known-spell-counts-by-class]
+  (fn [counts [_ class-id]]
+    (get counts class-id)))
+
 (reg-sub
   ::prepared-spells-by-class
   :<- [::spellcaster-classes]
@@ -400,15 +446,18 @@
   :<- [::abilities]
   :<- [::spellcaster-classes]
   (fn [[abilities classes]]
-    (->> classes
-         (map (fn [c]
-                (let [spellcasting-ability (-> c
-                                               :attrs
-                                               :5e/spellcaster
-                                               :ability)]
-                  [(:id c) (ability->mod
-                             (get abilities spellcasting-ability))])))
-         (into {}))))
+    (reduce
+      (fn [m c]
+        (let [spellcasting-ability (-> c
+                                       :attrs
+                                       :5e/spellcaster
+                                       :ability)]
+          (assoc m
+                 (:id c)
+                 (ability->mod
+                   (get abilities spellcasting-ability)))))
+      {}
+      classes)))
 
 (reg-sub
   ::spell-attack-bonuses

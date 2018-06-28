@@ -18,6 +18,13 @@ using the :5e/spellcasting attribute, which accepts:
  :restore-trigger :long-rest  ; :long-rest is the default
  :ability :wis  ; base ability for spellcasting modifier
  :prepares? true  ; Whether the class prepares spells or just knows them
+ :known [table]  ; Vector that determines how many spells can be known or prepared
+                 ; at a given level (where the first index in the table is level 1).
+                 ; If not provided, :slots MUST be either :standard or :standard/half.
+                 ; Bard and Ranger in particular use a standard spellslot table, but
+                 ; have a distinct table of known spells. If NO spells are known at a
+                 ; level (such as for the Arcane Trickster) 0 can be used.
+
  :spells :<class>/spells  ; id of a feature whose selected options
                           ; provide available spells
  :extra-spells :<class>/extra-spells  ; id of a list of spells that are always

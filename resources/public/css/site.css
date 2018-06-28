@@ -33,6 +33,7 @@ a:hover {
   background: #f0f0f0;
   border-radius: 2px;
   padding: 32px;
+  max-width: 80%;
 }
 #overlay .close-button,
 #overlay-scrollable .close-button {

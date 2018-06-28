@@ -1,12 +1,13 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs :refer [level->proficiency-bonus
+            [wish.sheets.dnd5e.subs :refer [known-spell-counts-for
+                                            level->proficiency-bonus
                                             spell-slots]]))
 
 (def ^:private warlock
   {:attrs
    {:5e/spellcaster
-    {:cantrips [1 2,
+    {:cantrips [1 3,
                 4 1,
                 10 1]
      :ability :cha
@@ -26,6 +27,7 @@
              15 {5 3}, 16 {5 3}
              17 {5 4}, 18 {5 4}
              19 {5 4}, 20 {5 4}}
+     :known [2 3 4 5 6 7 8 9 10 11 12 12 13 13 14 14 15 15 15 15]
      :multiclass-levels-mod 0
      :restore-trigger :short-rest
      }
@@ -45,6 +47,45 @@
   [slots]
   {:standard {:label "Spell Slots"
               :slots slots}})
+
+(deftest known-spell-counts-for-test
+  (testing "Table"
+    (is (= {:spells 4
+            :cantrips 3}
+           (known-spell-counts-for
+             (assoc warlock :level 3)
+             {})))
+    (is (= {:spells 11
+            :cantrips 5}
+           (known-spell-counts-for
+             (assoc warlock :level 10)
+             {}))))
+  (testing "Standard (eg: cleric)"
+    (is (= {:spells 10
+            :cantrips 4}
+           (known-spell-counts-for
+             {:level 7
+              :id :cleric
+              :attrs
+              {:5e/spellcaster
+               {:slots :standard
+                :cantrips [1 3,
+                           4 1,
+                           10 1]}}}
+             {:cleric 3})))
+
+    ; NOTE: :slots is omitted here; :standard is the default!
+    (is (= {:spells 10
+            :cantrips 4}
+           (known-spell-counts-for
+             {:level 7
+              :id :cleric
+              :attrs
+              {:5e/spellcaster
+               {:cantrips [1 3,
+                           4 1,
+                           10 1]}}}
+             {:cleric 3})))))
 
 (deftest spell-slots-test
   (testing "Single class, standard"
