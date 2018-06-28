@@ -37,9 +37,7 @@
                     ; prevent click propagation by default
                     ; to avoid the event leaking through and
                     ; triggering the dismiss click on the bg
-                    (.preventDefault e)
                     (.stopPropagation e))}
-
        [:div.close-button
         {:on-click (click>evt [:toggle-overlay])}
         (icon :close)]
