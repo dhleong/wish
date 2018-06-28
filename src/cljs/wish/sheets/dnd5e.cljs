@@ -382,7 +382,9 @@
 
      (for [c spell-classes]
        (let [prepared-spells (get prepared-spells-by-class (:id c))
-             prepares? (-> c :attrs :5e/spellcaster :prepares?)
+             attrs (-> c :attrs :5e/spellcaster)
+             prepares? (:prepares? attrs)
+             acquires? (:acquires? attrs)
              any-prepared? (> (count prepared-spells) 0)
              prepared-label (if prepares?
                               "prepared"
@@ -395,7 +397,16 @@
                  :on-click (click>evt [:toggle-overlay
                                        [#'overlays/spell-management c]
                                        :scrollable? true])}
-             (str "Manage " prepared-label " spells")]]]
+             (str "Manage " prepared-label " spells")]]
+           (when acquires?
+             [:div.manage-link
+              [:a {:href "#"
+                   :on-click (click>evt [:toggle-overlay
+                                         [#'overlays/spell-management
+                                          c
+                                          :mode :acquisition]
+                                         :scrollable? true])}
+               (str "Manage " (:acquired-label attrs))]])]
 
           [expandable
            [:b (str (str/capitalize prepared-label) " Spells")

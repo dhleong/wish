@@ -365,7 +365,7 @@
     :ability :int
     :spells :wizard/spells-list
     :extra-spells :wizard/extra-spells
-    :acquired-spells :wizard/spellbook
+    :acquires?-spells :wizard/prepared-spells
     :acquired-label "Spellbook"
     :prepares? true
     :acquires? true

@@ -378,8 +378,13 @@
       (reduce
         (fn [m c]
           (let [attrs (-> c :attrs :5e/spellcaster)
-                spells-list (:spells attrs)
+                {:keys [acquires?]} attrs
+                spells-list (if acquires?
+                              (:acquires?-spells attrs)
+                              (:spells attrs))
                 extra-spells-list (:extra-spells attrs)]
+            ; TODO for :acquires? spellcasters, their
+            ; cantrips are always prepared
             (assoc
               m (:id c)
               (->> (concat
@@ -401,6 +406,20 @@
         {}
         classes))))
 
+; list of all spells on a given spell list, with `:prepared? bool`
+; inserted
+(reg-sub
+  ::preparable-spell-list
+  :<- [:sheet-source]
+  :<- [:options]
+  (fn [[data-source options] [_ list-id]]
+    (let [prepared-set (set (get options list-id))]
+      (->> (expand-list data-source list-id nil)
+           (map #(if (prepared-set (:id %))
+                   (assoc % :prepared? true)
+                   %))))))
+
+; list of all prepared spells across all classes
 (reg-sub
   ::prepared-class-spells
   :<- [::prepared-spells-by-class]

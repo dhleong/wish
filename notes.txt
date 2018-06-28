@@ -20,7 +20,11 @@ using the :5e/spellcasting attribute, which accepts:
  :acquires? false  ; whether the class acquires spells before preparing them. This is
                    ; sort of a special case for Wizards. If True, the :spells list
                    ; is used to select :acquired spells, and, if the class :prepares?
-                   ; then it instead prepares from the :acquired-spells list.
+                   ; then it instead prepares from the :acquired-spells list (it is
+                   ; sort of assumed that if a class acquires they also prepare, but
+                   ; you should set the flag anyway).
+                   ; Futhermore, for an :acquires? spellcaster, cantrips, once known,
+                   ; are always prepared.
  :prepares? true  ; Whether the class prepares spells or just knows them
  :known [table]  ; Vector that determines how many spells can be known or prepared
                  ; at a given level (where the first index in the table is level 1).
@@ -29,13 +33,13 @@ using the :5e/spellcasting attribute, which accepts:
                  ; have a distinct table of known spells. If NO spells are known at a
                  ; level (such as for the Arcane Trickster) 0 can be used.
 
- :spells :<class>/spells  ; id of a feature whose selected options
-                          ; provide available spells
+ :spells :<class>/spells  ; id of a feature whose selected options provide available
+                          ; spells (or known spells for an :acquires? spellcaster)
  :extra-spells :<class>/extra-spells  ; id of a list of spells that are always
                                       ; available, such as a cleric's domain spells.
  :acquired-label "Spellbook"  ; label for the :acquired-spells list
- :acquired-spells :<class>/acquired  ; id of a feature whose selected options provide
-                                     ; acquired spells.
+ :acquires?-spells :<class>/acquires  ; id of a feature whose selected options provide
+                                      ; available spells for an :acquires? spellcaster.
  }
 
 Note that preparing vs knowing is really just a visual treatment.

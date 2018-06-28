@@ -170,10 +170,59 @@
 ; ======= Spell management =================================
 
 (defn spell-management
-  [the-class]
-  (let [{:keys [spells cantrips]} (<sub [::dnd5e/knowable-spell-counts (:id the-class)])]
+  [the-class & {:keys [mode]
+                :or {mode :default}}]
+  (let [attrs (-> the-class :attrs :5e/spellcaster)
+        {:keys [acquires? prepares?]} attrs
+
+        knowable (<sub [::dnd5e/knowable-spell-counts (:id the-class)])
+
+        ; in :acquisition mode (eg: for spellbooks), cantrips have
+        ; the normal limit but spells are unlimited
+        limits (case mode
+                 :default knowable
+                 :acquisition (dissoc knowable :spells))
+
+        title (case mode
+                :default (str "Manage "
+                              (:name the-class)
+                              (if prepares?
+                                "Prepared"
+                                "Known")
+                              " Spells")
+                :acquisition (str "Manage "
+                                  (:name the-class)
+                                  (:acquired-label attrs)))
+
+        spells-limit (:spells limits)
+        cantrips-limit (:cantrips limits)
+
+        available-list (if (and
+                             acquires?
+                             (not= :acquisition mode))
+                         ; for an :acquires? spellcaster in default mode,
+                         ; the source for their prepared spells is their
+                         ; :acquires?-spells list
+                         (:acquires?-spells attrs)
+
+                         ; otherwise, it's the :spells list
+                         (:spells attrs))
+
+        spells (<sub [::dnd5e/preparable-spell-list available-list])
+        ]
+
     [:div {:class (:spell-management-overlay styles)}
-     [:h5 "Manage " (:name the-class) " Spells"]
-     "Spells knowable: " spells
-     "Cantrips knowable: " cantrips
+     [:h5 title]
+     (when spells-limit
+       (str "Spells ? / " spells-limit))
+     "Cantrips ? / " cantrips-limit
+
+     (for [s spells]
+       ^{:key (:id s)}
+       [:div.spell (:name s)
+        [:div.prepare
+         ; TODO
+         (if (:prepared? s)
+           "Prepared"
+           "Prepare")]])
      ]))
