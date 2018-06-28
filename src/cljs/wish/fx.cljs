@@ -46,13 +46,16 @@
       (fn on-saved [err]
         (log-sheet "on-saved(" sheet-id ") " err)
 
-        ; TODO indicate error; dispatch retry (later)
+        (when err
+          ; TODO dispatch retry (later)
+          (log/err "Error saving " sheet-id ": " err))
+
         (when-not err
           (js/window.removeEventListener
             "beforeunload"
             confirm-close-window))
 
-        (>evt [::db/finish-save sheet-id])))))
+        (>evt [::db/finish-save sheet-id err])))))
 
 (reg-fx
   :schedule-save

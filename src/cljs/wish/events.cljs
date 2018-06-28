@@ -242,12 +242,16 @@
   (fn [db [sheet-id]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
+        (update ::db/save-errors disj sheet-id)
         (update ::db/processing-saves conj sheet-id))))
 
 (reg-event-db
   ::db/finish-save
   [trim-v]
-  (fn [db [sheet-id]]
+  (fn [db [sheet-id err]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
-        (update ::db/processing-saves disj sheet-id))))
+        (update ::db/processing-saves disj sheet-id)
+        (update ::db/save-errors (if err
+                                   conj
+                                   disj) sheet-id))))

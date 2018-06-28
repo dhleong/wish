@@ -35,6 +35,7 @@
     [:div.save-state
      (case save-state
        :idle (icon :cloud-done)
+       :error (icon :cloud-off)
        :pending (icon :cloud-queue)
        :saving (icon :cloud-upload))]))
 

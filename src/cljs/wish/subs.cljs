@@ -262,13 +262,16 @@
 
 (reg-sub
   :save-state
-  (fn [{::db/keys [pending-saves processing-saves]}]
+  (fn [{::db/keys [pending-saves processing-saves save-errors]}]
     (cond
       ; if there are any processing, show :saving state
       (not (empty? processing-saves)) :saving
 
       ; nothing processing, but some pending
       (not (empty? pending-saves)) :pending
+
+      ; idle, but something went wrong
+      (not (empty? save-errors)) :error
 
       ; otherwise, idle
       :else :idle)))

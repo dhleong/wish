@@ -10,5 +10,6 @@
 
    :showing-overlay nil
 
+   ::save-errors #{}
    ::pending-saves #{}
    ::processing-saves #{}})
