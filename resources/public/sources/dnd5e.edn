@@ -2,6 +2,22 @@
 
 [:!provide-feature
 
+ {:id :hit-dice/d6
+  :name "Hit Dice: D6"
+  :implicit? true
+  :! [[:!provide-attr
+       :5e/hit-dice 6]
+      [:!add-limited-use
+       {:id :hit-dice/d6#uses
+        :name "D6"
+        :implicit? true
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
+                level)}]]}
+
  {:id :hit-dice/d8
   :name "Hit Dice: D8"
   :implicit? true
@@ -13,7 +29,6 @@
         :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
-                          (println trigger used level ceil / min)
                           (min used
                                (ceil (/ level 2))))
         :uses (fn [level]
@@ -165,6 +180,22 @@
 **At Higher Levels.** When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st."
    :dice (fn [spell-level]
            (str (+ 3 spell-level) "d6"))}]]
+
+[:!add-to-list
+
+ {:id :wizard/spells-list
+  :type :5e/spell}
+
+ [{:spell-level 1
+   :id :spell/feather-fall
+   :name "Feather Fall"
+   :time "1 Reaction"
+   :range "60 Feet"
+   :comp [:vs "a white feather or the heart of a hen"]
+   :duration "1 minute"
+   :school :transmutation
+   :desc "Choose up to five falling creatures within range. A falling creature’s rate of descent slows to 60 feet per round until the spell ends. If the creature lands before the spell ends, it takes no falling damage and can land on its feet, and the spell ends for that creature."}
+  ]]
 
 [:!declare-class
  {:id :cleric
@@ -323,6 +354,50 @@
    :save-proficiency/cha
    ]}]
 
+[:!declare-class
+ {:id :wizard
+  :name "Wizard"
+  :attrs
+  {:5e/spellcaster
+   {:cantrips [1 3,
+               4 1,
+               10 1]
+    :ability :int
+    :spells :wizard/spells-list
+    :extra-spells :wizard/extra-spells
+    :acquired-spells :wizard/spellbook
+    :acquired-label "Spellbook"
+    :prepares? true
+    :acquires? true
+    }}
+
+  :features
+  [:hit-dice/d6
+   :hp
+   :unarmed-strike
+
+   ; save proficiencies
+   :save-proficiency/int
+   :save-proficiency/wis
+
+   {:id :wizard/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/arcana :proficiency/history :proficiency/insight :proficiency/investigation :proficiency/medicine :proficiency/religion]}
+
+   {:id :wizard/arcane-recovery
+    :name "Arcane Recovery"
+    :desc "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your wizard level (rounded up), and none of the slots can be 6th level or higher.
+
+For example, if you’re a 4th-level wizard, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level spell slot or two 1st-level spell slots."
+    :! [[:!add-limited-use
+         {:id :wizard/arcane-recovery
+          :name "Arcane Recovery"
+          :restore-trigger :long-rest
+          :uses 1}]]}]
+
+  }]
 
 ;; races
 

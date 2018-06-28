@@ -24,7 +24,6 @@
     (let [entries (key-by-id this :lists id)]
       (if options
         (let [options-set (set options)]
-          (log/todo "filter list " id " by options: " options entries)
           (filter (comp options-set :id)
                   entries))
 
