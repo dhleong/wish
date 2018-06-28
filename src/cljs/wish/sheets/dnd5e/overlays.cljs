@@ -24,9 +24,11 @@
     (fn []
       (let [[hp max-hp] (<sub [::dnd5e/hp])
             {:keys [heal damage]} @state
-            new-hp (min max-hp
-                        (- (+ hp heal)
-                           damage))]
+            new-hp (max
+                     0  ; you can't go negative in 5e
+                     (min max-hp
+                          (- (+ hp heal)
+                             damage)))]
         [:div {:class (:hp-overlay styles)}
          (when (= 0 hp)
            [:<>

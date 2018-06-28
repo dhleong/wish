@@ -62,14 +62,12 @@
               :text-align 'center
               :width "4em"}
     [:.label {:font-size "80%"}]
-    [:.amount {:font-size "120%"}
+    [:.amount {:font-size "140%"}
      [:&.healing {:color "#00cc00"}]
      [:&.damage {:color "#cc0000"}]]
-    [:input.apply #_(merge
+    [:input.apply (merge
                     button
-                    {:background 'none
-                     :border 'none
-                     :margin-top "1em"})]]
+                    {:margin-top "1em"})]]
    [:.quick-adjust {:text-align 'center
                     :padding "4px"}
     [:.number {:font-size "1.2em"
