@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Overlays"}
   wish.sheets.dnd5e.overlays
+  (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -8,7 +9,7 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
-            [wish.util :refer [<sub click>evt click>evts]]
+            [wish.util :refer [<sub >evt click>evt click>evts]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -18,23 +19,90 @@
 ; ======= hit points =======================================
 
 (defn hp-overlay []
-  (let [[hp max-hp] (<sub [::dnd5e/hp])]
-    [:div {:class (:hp-overlay styles)}
-     [:h5 "Hit Points"]
-     [:div.sections
-      [:a {:href "#"
-           :on-click (click>evt [::events/update-hp -1 max-hp])}
-       (icon :remove-circle)]
+  (let [[starting-hp _] (<sub [::dnd5e/hp])
+        state (r/atom {})]
+    (fn []
+      (let [[hp max-hp] (<sub [::dnd5e/hp])
+            {:keys [heal damage]} @state
+            new-hp (min max-hp
+                        (- (+ hp heal)
+                           damage))]
+        [:div {:class (:hp-overlay styles)}
+         (when (= 0 hp)
+           [:<>
+            [:h4 "Death Saving Throws"]
+            ; TODO track death saving throw successes/failures
+            "TODO"
+            ])
 
-      ; TODO support for tmp hp, temporarily modified max hp,
-      ; boxes to input damage/healing, and possibly a "deferred update"
-      ; mechanism somehow.
-      ; TODO track death saving throw successes/failures
-      [:div.current-hp hp]
+         [:h4 "Hit Points"]
+         [:div.sections
+          [:a {:href "#"
+               :on-click (click>evt [::events/update-hp -1 max-hp])}
+           (icon :remove-circle)]
 
-      [:a {:href "#"
-           :on-click (click>evt [::events/update-hp 1 max-hp])}
-       (icon :add-circle)]]]))
+          ; TODO support for tmp hp, temporarily modified max hp,
+          ; boxes to input damage/healing, and possibly a "deferred update"
+          ; mechanism somehow.
+          [:div.current-hp hp]
+
+          [:a {:href "#"
+               :on-click (click>evt [::events/update-hp 1 max-hp])}
+           (icon :add-circle)]]
+
+         [:h5.centered "Quick Adjust"]
+         [:form#hp-adjust-input
+          {:on-submit (fn [e]
+                        (.preventDefault e)
+                        (let [{:keys [heal damage]} @state]
+                          (log "Update HP: heal +" heal "  -" damage)
+                          (>evt [::events/update-hp (- heal damage) max-hp])
+                          (>evt [:toggle-overlay nil])))}
+          [:div.sections
+
+           [:div.quick-adjust
+
+            ; left col: damage
+            [:div "Damage"]
+            [bind-fields
+             [:input.number {:field :fast-numeric
+                             :id :damage
+                             :min 0}]
+             {:get #(get-in @state %)
+              :save! #(swap! state (fn [s]
+                                     (-> s
+                                         (assoc-in %1 %2)
+                                         (dissoc :heal))))}]]
+
+           ; new HP in the middle
+           [:div.new-hp
+            (when (not= new-hp hp)
+              [:<>
+               [:div.label "New HP"]
+               [:div.amount
+                {:class (if (> new-hp hp)
+                          "healing"
+                          "damage")}
+                new-hp] ])]
+
+           ; right col: heal
+           [:div.quick-adjust
+            [:div "Heal"]
+
+            [bind-fields
+             [:input.number {:field :fast-numeric
+                             :id :heal
+                             :min 0}]
+             {:get #(get-in @state %)
+              :save! #(swap! state (fn [s]
+                                     (-> s
+                                         (assoc-in %1 %2)
+                                         (dissoc :damage))))}]]]
+          (when (not= new-hp hp)
+            [:div.sections
+             [:input.apply {:type 'submit
+                            :value "Apply!"}] ])]
+           ]))))
 
 
 ; ======= short rest =======================================
