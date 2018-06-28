@@ -327,11 +327,15 @@
 
                  ; NOTE: :standard is the default if omitted
                  (or (nil? slots)
-                     (= :standard slots)) (+ level
-                                             (get modifiers id))
+                     (= :standard slots)) (max
+                                            1
+                                            (+ level
+                                               (get modifiers id)))
 
-                 (= :standard/half slots) (+ (js/Math.ceil (/ level 2))
-                                             (get modifiers id)))
+                 (= :standard/half slots) (max
+                                            1
+                                            (+ (js/Math.ceil (/ level 2))
+                                               (get modifiers id))))
 
         cantrips (->> cantrips
                       (partition 2)
@@ -342,7 +346,7 @@
                             (reduced cantrips-known)))
                         0))]
 
-    {:spells (max spells 1)
+    {:spells spells
      :cantrips cantrips}))
 
 ; returns eg: {:cleric {:spells 4, :cantrips 2}}

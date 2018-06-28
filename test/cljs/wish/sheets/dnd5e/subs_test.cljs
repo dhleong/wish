@@ -59,7 +59,16 @@
             :cantrips 5}
            (known-spell-counts-for
              (assoc warlock :level 10)
-             {}))))
+             {})))
+    (is (= 0
+           (:spells
+             (known-spell-counts-for
+               {:level 2
+                :attrs
+                {:5e/spellcaster
+                 {:known [0 0 3]}}}
+               {})))))
+
   (testing "Standard (eg: cleric)"
     (is (= {:spells 10
             :cantrips 4}
