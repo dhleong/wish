@@ -54,7 +54,11 @@
      :sources (:default-sources kind-meta)
 
      :classes {}
-     :races [] }))
+     :races []
+
+     :inventory {}
+     :items {}
+     }))
 
 
 ; ======= Views ============================================

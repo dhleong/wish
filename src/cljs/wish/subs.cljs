@@ -50,6 +50,8 @@
 (reg-sheet-sub :race-ids :races)
 (reg-sheet-sub :limited-used :limited-uses)
 (reg-sheet-sub :options :options)
+(reg-sheet-sub :inventory :inventory)
+(reg-sheet-sub :items :items)
 
 (reg-sub
   :active-sheet-id
@@ -200,8 +202,6 @@
   :<- [:sheet-source]
   inflate-feature-options)
 
-
-
 ; semantic convenience for single-race systems
 (reg-sub
   :race
@@ -241,6 +241,51 @@
         (assoc m (:id v) v))
       {}
       limited-uses)))
+
+(defn inflate-item
+  "Given the character's :items map and datasource,
+   return the inflated item for the given inst-id."
+  [inst-id items data-source]
+  (let [item (get items inst-id)
+        item-id (if-not item
+                  ; no items entry? must be an item-id already
+                  inst-id
+
+                  ; get the :id from the item entry, if any
+                  (get item :id))]
+    (or (when item-id
+          (src/find-item data-source item-id))
+        item)))
+
+; map of :inst-id -> inflated item in the active sheet's inventory,
+; where each inflated item with an amount > 1 (or which :stacks?)
+; includes the special key :wish/amount indicating that amount
+(reg-sub
+  :inventory-map
+  :<- [:inventory]
+  :<- [:items]
+  :<- [:sheet-source]
+  (fn [[raw-inventory items data-source]]
+    (reduce-kv
+      (fn [m inst-id amount]
+        (let [inflated (inflate-item inst-id items data-source)
+              show-amount? (or (> amount 1)
+                               (:stacks? inflated))
+              item (if show-amount?
+                     (assoc inflated :wish/amount amount)
+                     inflated)]
+          (assoc m inst-id item)))
+      {}
+      raw-inventory)))
+
+; sorted list of inflated inventory items
+(reg-sub
+  :inventory-sorted
+  :<- [:inventory-map]
+  (fn [inventory-map]
+    (->> inventory-map
+         vals
+         (sort-by :name))))
 
 
 ; ======= character builder-related ========================

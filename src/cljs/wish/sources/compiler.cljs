@@ -50,6 +50,14 @@
              assoc
              (:id race-map) (compile-entity race-map)))
 
+   :!declare-items
+   (fn declare-items [state base & item-maps]
+     (update state :items
+             merge
+             (->> item-maps
+                  (map #(merge-with merge base %))
+                  ->map)))
+
    ; NOTE: this should never be applied top-level,
    ; but only to specific classes, races, etc.
    :!provide-attr

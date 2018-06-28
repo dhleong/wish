@@ -41,6 +41,7 @@
 :feature
 :option
 :race
+:item
 
 ;;
 ;; Data Source directives
@@ -61,10 +62,42 @@
 [:!declare-class
  {:id,
   :name,
-  :attrs
-  [] ; vector of id, args for sheet-powered attributes
-  :features
-  [] ; list of features to include
+
+  ; map of id, args for sheet-powered attributes
+  :attrs {}
+
+  ; list of features to include
+  :features []
+  }]
+
+[:!declare-items
+
+ ; before any items is a single map that all subsequent items get
+ ; merged into, allowing you to avoid repeat yourself for a set of
+ ; similar items.
+ ; NOTE: this is not a true deep merge, but just a single-level deep
+ ; merge, so that :attrs don't get totally overwritten (but, matching
+ ; keys within :attrs will completely get replaced)
+ {}
+
+ ; varargs list of:
+ {:id,
+  :name,
+  :desc,
+
+  ; as for :!declare-class; this is a good place to indicate
+  ; system-specific item classes that can be used to determine
+  ; whether a character can equip an item, for example
+  :attrs {}
+
+  ; flag indicating if this type of item should stack in
+  ; inventories (true) or if multiple copies should be instanced
+  ; separately (false)
+  :stacks? false
+
+  ; list of directives to apply to the character when the
+  ; item is equipped
+  :! []
   }]
 
 [:!provide-feature

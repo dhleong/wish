@@ -18,9 +18,28 @@
  :options
  {:paladin/oath [:paladin/vengeance]}
 
+ ; map of (inst-id | item-id) -> count. inst-id is the id of a specific
+ ; *instance* of an item, whose details will be stored in :items. For
+ ; an item from a data source, the spec in :items MUST include the :id.
+ ; If the key is not in :items, it is an item-id, which belongs to
+ ; some data source, and the item probably :stacks?.
+ :inventory {}
+
+ ; list of ids that, if present, indicates a manual
+ ; ordering of the inventory
+ :inventory-order []
+
+ ; map of custom inst-id -> spec
+ ; This can be used for instanced items, such as weapons, or for custom
+ ; items that are always instanced. The nice thing about instancing items
+ ; is we can have per-item notes (like if you have a thing that you can
+ ; store spells in, you could actually put a note on that item)
+ :items
+ {:shortsword/inst1 {:id :shortsword}
+  :custom/weird-rock {:name "Weird Rock"}}
+
  ; opaque, sheet-specific data
- :sheet
- {}
+ :sheet {}
 
  ; notes is a sequence of [date note] pairs
  :notes

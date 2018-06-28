@@ -10,6 +10,7 @@
   (expand-list [this id options])
   (find-class [this id])
   (find-feature [this id])
+  (find-item [this id])
   (find-list-entity [this id] "Find an entity that was in a list")
   (find-race [this id])
   (list-entities [this kind] "Return a list of all entities of the given kind"))
@@ -36,6 +37,9 @@
 
   (find-feature [this id]
     (key-by-id this :features id))
+
+  (find-item [this id]
+    (key-by-id this :items id))
 
   (find-list-entity [this id]
     (key-by-id this :list-entities id))
