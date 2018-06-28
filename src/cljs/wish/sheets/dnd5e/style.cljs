@@ -66,7 +66,12 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
-  [:.spell-management-overlay ]
+  [:.spell-management-overlay
+   [:.limit metadata]
+   [:.spell (merge flex
+                   {:min-width "300px"})
+    [:.name flex/grow]
+    [:.prepare button]]]
 
   [:.abilities
    [:.ability (merge flex

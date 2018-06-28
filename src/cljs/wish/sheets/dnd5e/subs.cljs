@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
-  (:require [re-frame.core :refer [reg-sub]]
+  (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :refer [ability->mod ->die-use-kw]]
             [wish.util :refer [invoke-callable]]))
@@ -379,10 +379,23 @@
         (fn [m c]
           (let [attrs (-> c :attrs :5e/spellcaster)
                 {:keys [acquires?]} attrs
-                spells-list (if acquires?
-                              (:acquires?-spells attrs)
-                              (:spells attrs))
-                extra-spells-list (:extra-spells attrs)]
+                spells-list (:spells attrs)
+                extra-spells-list (:extra-spells attrs)
+
+                ; if we acquire spells, the source list is still the same,
+                ; but the we use the :acquires?-spells option-list to
+                ; determine which are actually prepared (the normal :spells
+                ; list just indicates which spells are *acquired*)
+                spells-option (if acquires?
+                                (:acquires?-spells attrs)
+                                spells-list)
+                ; FIXME it should actually be the intersection of acquired
+                ; and prepared, in case they un-learn a spell but forget
+                ; to un-prepare it. This is an edge case, but we should
+                ; be graceful about it. Alternatively, unlearning a spell
+                ; should also eagerly un-prepare it.
+                ]
+
             ; TODO for :acquires? spellcasters, their
             ; cantrips are always prepared
             (assoc
@@ -397,7 +410,7 @@
 
                      ; only selected spells from the main list
                      (expand-list data-source spells-list
-                                  (or (get options spells-list)
+                                  (or (get options spells-option)
                                       [])))
 
                    (map #(assoc %
@@ -406,22 +419,60 @@
         {}
         classes))))
 
-; list of all spells on a given spell list, with `:prepared? bool`
-; inserted
+; just (get [::prepared-spells-by-class] class-id)
+(reg-sub
+  ::prepared-spells
+  :<- [::prepared-spells-by-class]
+  (fn [by-class [_ class-id]]
+    (get by-class class-id)))
+
+; reduces ::prepared-spells into {:cantrips, :spells}
+(reg-sub
+  ::prepared-spells-by-type
+
+  (fn [[_ class-id]]
+    (subscribe [::prepared-spells class-id]))
+
+  (fn [spells]
+    (reduce
+      (fn [m s]
+        (let [spell-type (if (= 0 (:level s))
+                           :cantrips
+                           :spells)]
+          (update m spell-type conj s)))
+      {:cantrips []
+       :spells []}
+      spells)))
+
+; list of all spells on a given spell list for the given class,
+; with `:prepared? bool` inserted as appropriate
 (reg-sub
   ::preparable-spell-list
   :<- [:sheet-source]
   :<- [:options]
-  (fn [[data-source options] [_ list-id]]
-    (let [prepared-set (set (get options list-id))]
-      (->> (expand-list data-source list-id nil)
+  (fn [[data-source options] [_ the-class list-id]]
+    (let [attrs (-> the-class :attrs :5e/spellcaster)
+          is-acquired-list? (= (:acquires?-spells attrs)
+                               list-id)
+          prepared-set (set (get options list-id))
+          source (if is-acquired-list?
+                   ; if we want to look at the :acquired? list, its
+                   ; source is actually the selected from (:spells)
+                   (expand-list data-source
+                                (:spells attrs)
+                                (get options (:spells attrs)))
+
+                   ; normal case:
+                   (expand-list data-source list-id nil)
+                   )]
+      (->> source
            (map #(if (prepared-set (:id %))
                    (assoc % :prepared? true)
                    %))))))
 
 ; list of all prepared spells across all classes
 (reg-sub
-  ::prepared-class-spells
+  ::all-prepared-spells
   :<- [::prepared-spells-by-class]
   (fn [spells-by-class]
     (->> spells-by-class
@@ -440,7 +491,7 @@
 (reg-sub
   ::spell-attacks
   :<- [::spell-attack-bonuses]
-  :<- [::prepared-class-spells]
+  :<- [::all-prepared-spells]
   :<- [::race-spells]
   (fn [[bonuses & spell-lists]]
     (->> spell-lists

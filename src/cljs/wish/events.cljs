@@ -211,6 +211,23 @@
       use-id->amount)))
 
 
+; ======= option-handling ==================================
+
+; Update the presence of an entry in the given option set
+; method must be either conj or disj
+(reg-event-fx
+  :update-option-set
+  [trim-v]
+  (fn [cofx [option-id method entry]]
+    (update-sheet-path cofx [:options option-id]
+                       (fn [old-v m e]
+                         (m
+                           (or old-v #{})
+                           e))
+                       method
+                       entry)))
+
+
 ; ======= Save-state handling ==============================
 
 (reg-event-db

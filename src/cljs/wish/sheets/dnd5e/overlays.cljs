@@ -169,6 +169,21 @@
 
 ; ======= Spell management =================================
 
+(defn- spell-block
+  [s {:keys [source-list
+             verb]}]
+  [:div.spell
+   [:div.name (:name s)]
+   [:div.prepare
+    {:on-click (click>evt [:update-option-set source-list
+                           (if (:prepared? s)
+                             disj
+                             conj)
+                           (:id s)])}
+    (if (:prepared? s)
+      (icon :check-circle)
+      verb)]])
+
 (defn spell-management
   [the-class & {:keys [mode]
                 :or {mode :default}}]
@@ -183,15 +198,22 @@
                  :default knowable
                  :acquisition (dissoc knowable :spells))
 
+        prepare-verb (cond
+                       ; TODO we could add an :acquire-verb...
+                       (= :acquisition mode) "Acquire"
+                       prepares? "Prepare"
+                       :else "Learn")
+
         title (case mode
                 :default (str "Manage "
                               (:name the-class)
                               (if prepares?
-                                "Prepared"
-                                "Known")
+                                " Prepared"
+                                " Known")
                               " Spells")
                 :acquisition (str "Manage "
                                   (:name the-class)
+                                  " "
                                   (:acquired-label attrs)))
 
         spells-limit (:spells limits)
@@ -208,21 +230,24 @@
                          ; otherwise, it's the :spells list
                          (:spells attrs))
 
-        spells (<sub [::dnd5e/preparable-spell-list available-list])
-        ]
+        all-prepared (<sub [::dnd5e/prepared-spells-by-type (:id the-class)])
+        prepared-spells (:spells all-prepared)
+        prepared-cantrips (:cantrips all-prepared)
+
+        spells (<sub [::dnd5e/preparable-spell-list the-class available-list])
+
+        spell-opts (assoc attrs
+                          :verb prepare-verb
+                          :source-list available-list)]
 
     [:div {:class (:spell-management-overlay styles)}
-     [:h5 title]
-     (when spells-limit
-       (str "Spells ? / " spells-limit))
-     "Cantrips ? / " cantrips-limit
+     [:h5 title
+      (when spells-limit
+        [:div.limit
+         "Spells " (count prepared-spells) " / " spells-limit])
+      [:div.limit
+       "Cantrips " (count prepared-cantrips) " / " cantrips-limit]]
 
      (for [s spells]
        ^{:key (:id s)}
-       [:div.spell (:name s)
-        [:div.prepare
-         ; TODO
-         (if (:prepared? s)
-           "Prepared"
-           "Prepare")]])
-     ]))
+       [spell-block s spell-opts]) ]))

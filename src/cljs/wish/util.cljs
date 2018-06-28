@@ -67,6 +67,13 @@
     (map :id entities)
     entities))
 
+(defn ->set
+  "Given a collection, turn it into a set (if it isn't already)"
+  [coll]
+  (if (set? coll)
+    coll
+    (set coll)))
+
 (defn navigate!
   [& args]
   (let [evt (vec (cons :navigate! args))]

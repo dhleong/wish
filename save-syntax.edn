@@ -13,7 +13,8 @@
  :limited-uses
  {:paladin/lay-on-hands#uses 0}
 
- ; map of feature-id -> options chosen
+ ; map of feature-id -> options chosen. The value may be a vector or a set,
+ ; but *should* be a collection.
  :options
  {:paladin/oath [:paladin/vengeance]}
 

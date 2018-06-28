@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Core types, etc for DataSource"}
   wish.sources.core
-  (:require-macros [wish.util.log :as log]))
+  (:require-macros [wish.util.log :as log])
+  (:require [wish.util :refer [->set]]))
 
 (defprotocol IDataSource
   "Anything that provides features, classes, etc."
@@ -23,7 +24,7 @@
   (expand-list [this id options]
     (let [entries (key-by-id this :lists id)]
       (if options
-        (let [options-set (set options)]
+        (let [options-set (->set options)]
           (filter (comp options-set :id)
                   entries))
 
