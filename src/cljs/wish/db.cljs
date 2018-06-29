@@ -4,6 +4,8 @@
   {:page [:home]
    :provider-states {}
 
+   :sheets {}
+
    ; set of provider ids that are in the process of fetching
    ; their lists of available character sheets
    :providers-listing #{}
