@@ -3,7 +3,7 @@
             [wish.events :refer [apply-limited-use-trigger
                                  restore-trigger-matches?
                                  inventory-add
-                                 inventory-remove]]))
+                                 inventory-subtract]]))
 
 (deftest restore-trigger-matches
   (testing "Keyword case is simple"
@@ -86,20 +86,20 @@
                                  :name "Longbow"}}}
                state))))))
 
-(deftest inventory-remove-test
-  (testing "Remove provided :stacks?"
-    (let [state (inventory-remove
+(deftest inventory-subtract-test
+  (testing "Subtract provided :stacks?"
+    (let [state (inventory-subtract
                   {:inventory {:arrows 20}}
                   {:id :arrows})]
       (is (= {:inventory {:arrows 19}} state)))
 
-    (let [state (inventory-remove
+    (let [state (inventory-subtract
                   {:inventory {:arrows 1}}
                   {:id :arrows})]
       (is (= {:inventory {}} (select-keys state [:inventory])))))
 
-  (testing "Remove provided non-:stacks?"
-    (let [state (inventory-remove
+  (testing "Subtract provided non-:stacks?"
+    (let [state (inventory-subtract
                   {:inventory {:longbow-inst-1 1}
                    :items {:longbow-inst-1 {:id :longbow}}}
                   {:id :longbow-inst-1})]
@@ -107,8 +107,8 @@
               :items {}}
              state))))
 
-  (testing "Remove custom :stacks?"
-    (let [state (inventory-remove
+  (testing "Subtract custom :stacks?"
+    (let [state (inventory-subtract
                   {:inventory {:custom/arrows 1}
                    :items {:custom/arrows {:id :custom/arrows
                                            :stacks? true

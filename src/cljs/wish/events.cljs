@@ -286,9 +286,9 @@
     (update-sheet-path cofx [] inventory-add item quantity)))
 
 
-(defn inventory-remove
+(defn inventory-subtract
   ([sheet item]
-   (inventory-remove sheet item nil))
+   (inventory-subtract sheet item nil))
   ([sheet item quantity]
    (let [quantity (or quantity 1)
          inst-id (:id item)
@@ -314,12 +314,33 @@
        ; is not less than 0
        :else (assoc-in sheet [:inventory inst-id] 0)))))
 
+; subtract some amount (default 1) from the quantity of an item
+; instance in inventory. If the quantity goes <= 0, the instance in
+; :items will be removed—unless the item is a :stacks? custom item,
+; in which case it will just go to 0 quantity, so you don't have to
+; re-create a custom ammunition, for example, when you run out.
+; :stacks? custom items can be deleted from inventory if desired
+; using :inventory-delete.
 (reg-event-fx
-  :inventory-remove
+  :inventory-subtract
   [trim-v]
   (fn [cofx [item & [quantity]]]
     ; update the sheet meta directly
-    (update-sheet-path cofx [] inventory-remove item quantity)))
+    (update-sheet-path cofx [] inventory-subtract item quantity)))
+
+
+; delete an item in the inventory regardless of its current quantity
+; and custom-ness. Always removes the instance from :items
+(reg-event-fx
+  :inventory-delete
+  [trim-v]
+  (fn [cofx [item]]
+    (update-sheet-path cofx []
+                       (fn [sheet inst-id]
+                         (-> sheet
+                             (update :items dissoc inst-id)
+                             (update :inventory dissoc inst-id)))
+                       (:id item))))
 
 
 ; ======= Save-state handling ==============================
