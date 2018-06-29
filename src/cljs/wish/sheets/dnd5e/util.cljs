@@ -27,8 +27,18 @@
 (defn mod->str
   [modifier]
   (if (>= modifier 0)
-    (str "+" modifier)
+    (str "+" (or modifier 0))
     (str "−" (Math/abs modifier))))
+
+
+; ======= item-related =====================================
+
+(def ^:private equippable-types
+  #{:weapon :armor})
+
+(defn equippable?
+  [item]
+  (-> item :attrs :type equippable-types))
 
 
 ; ======= :attr application ================================

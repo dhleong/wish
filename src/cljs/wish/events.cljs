@@ -342,6 +342,17 @@
                              (update :inventory dissoc inst-id)))
                        (:id item))))
 
+(reg-event-fx
+  :toggle-equipped
+  [trim-v]
+  (fn [cofx [item]]
+    (update-sheet-path cofx [:equipped]
+                       (fn [equipped inst-id]
+                         (if (get equipped inst-id)
+                           (disj equipped inst-id)
+                           (conj equipped inst-id)))
+                       (:id item))))
+
 
 ; ======= Save-state handling ==============================
 

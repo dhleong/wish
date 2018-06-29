@@ -8,7 +8,7 @@
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.util :refer [ability->mod mod->str]]
+            [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]))
@@ -217,7 +217,7 @@
      "DMG"]
     [:div.dmg
      (or (:base-dice s)
-         (:dmg s))]]] )
+         (:dmg s))]]])
 
 (defn combat-section []
   [:<>
@@ -225,6 +225,13 @@
    (when-let [s (<sub [::dnd5e/unarmed-strike])]
      [:div.unarmed-strike
       [attack-block (assoc s :name "Unarmed Strike")]])
+
+   (when-let [weapons (seq (<sub [::dnd5e/equipped-weapons]))]
+     [:div.weapons
+      [:h4 "Weapons"]
+       (for [w weapons]
+         ^{:key (:id w)}
+         [attack-block w])])
 
    (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
      [:div.spell-attacks
@@ -459,7 +466,16 @@
         [:div.consume.button
          {:on-click (click>evt [:inventory-subtract item]
                                :propagate? false)}
-         "Consume 1"])]
+         "Consume 1"])
+
+      (when (equippable? item)
+        [:div.equip.button
+         {:on-click (click>evt [:toggle-equipped item]
+                               :propagate? false)}
+         (if (:wish/equipped? item)
+           "Unequip"
+           "Equip")])
+      ]
 
      [:div.item-info
       [:div.desc (:desc item)]

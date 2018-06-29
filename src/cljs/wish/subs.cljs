@@ -52,6 +52,7 @@
 (reg-sheet-sub :options :options)
 (reg-sheet-sub :inventory :inventory)
 (reg-sheet-sub :items :items)
+(reg-sheet-sub :equipped :equipped)
 
 (reg-sub
   :active-sheet-id
@@ -261,21 +262,28 @@
 ; where each inflated item with an amount > 1 (or which :stacks?)
 ; includes the special key :wish/amount indicating that amount. The
 ; :id of each item will always be the instance id, and the :item-id
-; will always be the (surprise) item-id
+; will always be the (surprise) item-id.
+; In addition, every item in :equipped will have the :wish/equipped?
+; set to true
 (reg-sub
   :inventory-map
   :<- [:inventory]
   :<- [:items]
+  :<- [:equipped]
   :<- [:sheet-source]
-  (fn [[raw-inventory items data-source]]
+  (fn [[raw-inventory items equipped data-source]]
     (reduce-kv
       (fn [m inst-id amount]
-        (let [inflated (inflate-item inst-id items data-source)
+        (let [equipped? (get equipped inst-id)
+              inflated (inflate-item inst-id items data-source)
               show-amount? (or (> amount 1)
                                (:stacks? inflated))
               item (if show-amount?
                      (assoc inflated :wish/amount amount)
-                     inflated)]
+                     inflated)
+              item (if equipped?
+                     (assoc item :wish/equipped? true)
+                     item)]
           (assoc m inst-id
                  (assoc item
                         :id inst-id
@@ -291,6 +299,15 @@
     (->> inventory-map
          vals
          (sort-by :name))))
+
+; sorted list of inflated + equipped inventory items
+(reg-sub
+  :equipped-sorted
+  :<- [:inventory-sorted]
+  (fn [inventory-sorted]
+    (->> inventory-sorted
+         (filter :wish/equipped?))))
+
 
 ; list of all known items for the current sheet
 (reg-sub

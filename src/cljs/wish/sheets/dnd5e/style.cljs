@@ -161,7 +161,7 @@
   [:.inventory-section
    [:.item flex/center
     [:.name flex/grow]
-    [:.consume {:font-size "60%"}
+    [:.button {:font-size "60%"}
      [:&:hover {:background-color "#f0f0f0"
                 :color "#333"}]]]
    [:.item-info

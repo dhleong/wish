@@ -321,6 +321,21 @@
 
          first)))
 
+
+; ======= items and equipment ==============================
+
+(reg-sub
+  ::equipped-weapons
+  :<- [:equipped-sorted]
+  (fn [all-equipped]
+    (->> all-equipped
+         (filter #(= :weapon (-> % :attrs :type)))
+         (map (fn [w]
+                ; NOTE I don't *think* weapon damage scales?
+                ; TODO add :to-hit based on weapon type and stats
+                (assoc w :base-dice (:dice w)))))))
+
+
 ; ======= Spells ===========================================
 
 (defn knowable-spell-counts-for
