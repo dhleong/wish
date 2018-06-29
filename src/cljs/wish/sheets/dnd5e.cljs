@@ -444,13 +444,39 @@
 
 ; ======= inventory ========================================
 
+(defn- inventory-entry
+  [item]
+  (let [{:keys [attrs stacks?]} item]
+    [expandable
+     [:div.item
+      [:div.name (:name item)]
+
+      (when stacks?
+        [:div.quantity
+         (:wish/amount item)])
+
+      (when (:ammunition? attrs)
+        [:div.consume.button
+         {:on-click (click>evt [:inventory-subtract item]
+                               :propagate? false)}
+         "Consume 1"])]
+
+     [:div.item-info
+      [:div.desc (:desc item)]
+
+      ; TODO manage quantity
+
+      [:a.delete {:href "#"
+           :on-click (click>evt [:inventory-delete item])}
+       (icon :delete-forever)
+       " Delete" (when stacks? " all") " from inventory"]]]) )
+
 (defn inventory-section []
   [:<>
    (if-let [inventory (seq (<sub [:inventory-sorted]))]
      (for [item inventory]
-       ^{:key (or (:id item)
-                  (:name item))}
-       [:div (:name item)]))
+       ^{:key (:id item)}
+       [inventory-entry item]))
 
    [:h4 "Add Items"]
    (for [item (<sub [:all-items])]

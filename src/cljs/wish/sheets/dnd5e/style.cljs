@@ -159,7 +159,14 @@
     [:.dice {:align-self 'center}]]]
 
   [:.inventory-section
-   [:.item flex
-    [:.name flex/grow]]]
+   [:.item flex/center
+    [:.name flex/grow]
+    [:.consume {:font-size "60%"}
+     [:&:hover {:background-color "#f0f0f0"
+                :color "#333"}]]]
+   [:.item-info
+    [:.delete (merge flex/center
+                     flex/justify-center
+                     {:align-self 'center})]]]
 )
 

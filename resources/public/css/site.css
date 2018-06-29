@@ -9,7 +9,6 @@ a {
 }
 a:hover {
   color: #fdde91;
-  text-decoration: underline;
 }
 #overlay-container {
   display: -ms-flexbox !important;
