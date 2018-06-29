@@ -259,7 +259,9 @@
 
 ; map of :inst-id -> inflated item in the active sheet's inventory,
 ; where each inflated item with an amount > 1 (or which :stacks?)
-; includes the special key :wish/amount indicating that amount
+; includes the special key :wish/amount indicating that amount. The
+; :id of each item will always be the instance id, and the :item-id
+; will always be the (surprise) item-id
 (reg-sub
   :inventory-map
   :<- [:inventory]
@@ -274,7 +276,10 @@
               item (if show-amount?
                      (assoc inflated :wish/amount amount)
                      inflated)]
-          (assoc m inst-id item)))
+          (assoc m inst-id
+                 (assoc item
+                        :id inst-id
+                        :item-id (:id item)))))
       {}
       raw-inventory)))
 

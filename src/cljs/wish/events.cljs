@@ -286,6 +286,42 @@
     (update-sheet-path cofx [] inventory-add item quantity)))
 
 
+(defn inventory-remove
+  ([sheet item]
+   (inventory-remove sheet item nil))
+  ([sheet item quantity]
+   (let [quantity (or quantity 1)
+         inst-id (:id item)
+
+         ; base, initial update
+         sheet (update-in sheet [:inventory inst-id] - quantity)
+         new-amount (get-in sheet [:inventory inst-id])]
+
+     (cond
+       ; easy case; still > 0
+       (> new-amount 0) sheet
+
+       ; if the item is *not* a :stacks? custom item, remove it from
+       ; :items if its quantity became <= 0
+       (or (not (:stacks? item))
+           ; it's custom if :id in :items = inst-id
+           (not= inst-id (get-in sheet [:items inst-id :id])))
+       (-> sheet
+           (update :items dissoc inst-id)
+           (update :inventory dissoc inst-id))
+
+       ; otherwise, it's a :stacks? custom item; just ensure the quantity
+       ; is not less than 0
+       :else (assoc-in sheet [:inventory inst-id] 0)))))
+
+(reg-event-fx
+  :inventory-remove
+  [trim-v]
+  (fn [cofx [item & [quantity]]]
+    ; update the sheet meta directly
+    (update-sheet-path cofx [] inventory-remove item quantity)))
+
+
 ; ======= Save-state handling ==============================
 
 (reg-event-db

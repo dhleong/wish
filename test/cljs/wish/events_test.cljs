@@ -2,7 +2,8 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.events :refer [apply-limited-use-trigger
                                  restore-trigger-matches?
-                                 inventory-add]]))
+                                 inventory-add
+                                 inventory-remove]]))
 
 (deftest restore-trigger-matches
   (testing "Keyword case is simple"
@@ -84,3 +85,38 @@
                 :items {inst-id {:id inst-id
                                  :name "Longbow"}}}
                state))))))
+
+(deftest inventory-remove-test
+  (testing "Remove provided :stacks?"
+    (let [state (inventory-remove
+                  {:inventory {:arrows 20}}
+                  {:id :arrows})]
+      (is (= {:inventory {:arrows 19}} state)))
+
+    (let [state (inventory-remove
+                  {:inventory {:arrows 1}}
+                  {:id :arrows})]
+      (is (= {:inventory {}} (select-keys state [:inventory])))))
+
+  (testing "Remove provided non-:stacks?"
+    (let [state (inventory-remove
+                  {:inventory {:longbow-inst-1 1}
+                   :items {:longbow-inst-1 {:id :longbow}}}
+                  {:id :longbow-inst-1})]
+      (is (= {:inventory {}
+              :items {}}
+             state))))
+
+  (testing "Remove custom :stacks?"
+    (let [state (inventory-remove
+                  {:inventory {:custom/arrows 1}
+                   :items {:custom/arrows {:id :custom/arrows
+                                           :stacks? true
+                                           :name "Custom Arrows"}}}
+                  {:id :custom/arrows
+                   :stacks? true})]
+      (is (= {:inventory {:custom/arrows 0}
+              :items {:custom/arrows {:id :custom/arrows
+                                      :stacks? true
+                                      :name "Custom Arrows"}}}
+             state)))))
