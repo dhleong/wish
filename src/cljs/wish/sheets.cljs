@@ -58,6 +58,7 @@
 
      :inventory {}
      :items {}
+     :equipped #{}
      }))
 
 

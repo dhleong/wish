@@ -1,7 +1,8 @@
 (ns wish.events-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.events :refer [apply-limited-use-trigger
-                                 restore-trigger-matches?]]))
+                                 restore-trigger-matches?
+                                 inventory-add]]))
 
 (deftest restore-trigger-matches
   (testing "Keyword case is simple"
@@ -35,3 +36,22 @@
                          :restore-trigger :completed-job}}
              :picked-up-cargo)))))
 
+(deftest inventory-add-test
+  (testing "Add stacked item"
+    (let [state (inventory-add
+                  {}
+                  {:id :arrows
+                   :attrs {:default-quantity 20}})]
+      (is (= {:inventory {:arrows 20}}))))
+
+  (testing "Add non-stacked item instance"
+    (let [state (inventory-add
+                  {}
+                  {:id :longbow})]
+      (is (= 1 (count (:items state))))
+      (let [inst-id (-> state :items keys first)]
+        (is (not (nil? inst-id)))
+        (is (not= inst-id :longbow))
+        (is (= {:inventory {inst-id 1}
+                :items {inst-id {:id :longbow}}}
+               state))))))

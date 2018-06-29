@@ -38,6 +38,9 @@
  {:shortsword/inst1 {:id :shortsword}
   :custom/weird-rock {:name "Weird Rock"}}
 
+ ; set of inst-ids that are currently equipped
+ :equipped #{}
+
  ; opaque, sheet-specific data
  :sheet {}
 

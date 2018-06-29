@@ -6,7 +6,7 @@
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.providers :as providers]
-            [wish.sheets.util :refer [update-uses update-sheet-path]]
+            [wish.sheets.util :refer [update-uses update-sheet update-sheet-path]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
@@ -225,6 +225,40 @@
                            e))
                        method
                        entry)))
+
+
+; ======= inventory management =============================
+
+(defn inventory-add
+  ([sheet item]
+   (inventory-add sheet item (or (-> item :attrs :default-quantity)
+                                 1)))
+  ([sheet item quantity]
+   ; TODO handle custom items
+   (let [item-id (:id item)
+         inst-id (when (not (:stacks? item))
+                   ; generate an instance id
+                   (keyword (namespace item-id)
+                            (str (name item-id)
+                                 "-inst-"
+                                 (js/Date.now))))
+         sheet (if inst-id
+                 ; we instantiated
+                 (assoc-in sheet [:items inst-id]
+                           {:id (:id item)})
+
+                 ; nothing to do
+                 sheet)
+         inst-id (or inst-id
+                     (:id item))]
+     (update-in sheet [:inventory inst-id] + quantity))))
+
+(reg-event-fx
+  :inventory-add
+  [trim-v]
+  (fn [cofx [item]]
+    ; update the sheet meta directly
+    (update-sheet-path cofx [] inventory-add item)))
 
 
 ; ======= Save-state handling ==============================

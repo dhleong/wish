@@ -287,6 +287,13 @@
          vals
          (sort-by :name))))
 
+; list of all known items for the current sheet
+(reg-sub
+  :all-items
+  :<- [:sheet-source]
+  (fn [source]
+    (src/list-entities source :items)))
+
 
 ; ======= character builder-related ========================
 

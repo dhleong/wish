@@ -156,5 +156,10 @@
     [:.spell-info flex/grow
      [:.name {:font-weight "bold"}]
      [:.meta metadata]]
-    [:.dice {:align-self 'center}]]])
+    [:.dice {:align-self 'center}]]]
+
+  [:.inventory-section
+   [:.item flex
+    [:.name flex/grow]]]
+)
 

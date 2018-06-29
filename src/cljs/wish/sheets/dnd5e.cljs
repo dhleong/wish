@@ -442,6 +442,26 @@
      ]))
 
 
+; ======= inventory ========================================
+
+(defn inventory-section []
+  [:<>
+   (if-let [inventory (seq (<sub [:inventory-sorted]))]
+     (for [item inventory]
+       ^{:key (or (:id item)
+                  (:name item))}
+       [:div (:name item)]))
+
+   [:h4 "Add Items"]
+   (for [item (<sub [:all-items])]
+     ^{:key (:id item)}
+     [:div.item
+      [:div.name (:name item)]
+      [:div.add.button
+       {:on-click (click>evt [:inventory-add item])}
+       "Add"]]) ])
+
+
 ; ======= Main interface ===================================
 
 (defn- section
@@ -479,4 +499,8 @@
     (when-let [spell-classes (seq (<sub [::dnd5e/spellcaster-classes]))]
       [section "Spells"
        :spells-section
-       [spells-section spell-classes]])]])
+       [spells-section spell-classes]])
+
+    [section "Inventory"
+     :inventory-section
+     [inventory-section]]]])
