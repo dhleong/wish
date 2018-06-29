@@ -2,7 +2,7 @@
 "exec" "plk" "-Sdeps" "{:deps {org.clojure/tools.cli {:mvn/version \"0.3.5\"}}}" "-Ksf" "$0" "$@" "dnd5e"
 (ns wish.builtin-source-compiler
   (:require [clojure.tools.cli :refer [parse-opts]]
-            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
+            [clojure.tools.reader.reader-types :refer [source-logging-push-back-reader]]
             [clojure.string :as str]
             [cljs.reader :as edn]
             [planck.core :refer [exit file-seq *err* slurp with-open]]
@@ -27,7 +27,7 @@
 
 (defn process-text
   [text]
-  (loop [reader (string-push-back-reader text)]
+  (loop [reader (source-logging-push-back-reader text)]
     (when-let [d (edn/read reader)]
       (validate-directive d)
 

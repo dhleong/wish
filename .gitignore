@@ -2,6 +2,7 @@
 /target
 /*-init.clj
 /resources/public/js/compiled
+/resources/public/sources/
 out
 .rebel_readline_history
 .lein-repl-history

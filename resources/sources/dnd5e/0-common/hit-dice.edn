@@ -46,4 +46,20 @@
                           (min used
                                (ceil (/ level 2))))
         :uses (fn [level]
+                level)}]]}
+
+ {:id :hit-dice/d12
+  :name "Hit Dice: D12"
+  :implicit? true
+  :! [[:!provide-attr
+       :5e/hit-dice 12]
+      [:!add-limited-use
+       {:id :hit-dice/d12#uses
+        :name "D12"
+        :implicit? true
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
                 level)}]]}]
