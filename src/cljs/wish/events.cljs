@@ -92,11 +92,18 @@
   :add-sheets
   [trim-v]
   (fn-traced [db [sheet-id-pairs]]
-    (update db :sheets merge (reduce
-                               (fn [m [id data]]
-                                 (assoc m id data))
-                               {}
-                               sheet-id-pairs))))
+    (update db :sheets
+            (fn [sheets sheet-id-pairs]
+              (reduce
+                (fn [m [id data]]
+                  (if-not (get m id)
+                    (assoc m id data)
+
+                    ; we've already loaded this sheet; don't delete it
+                    m))
+                sheets
+                sheet-id-pairs))
+            sheet-id-pairs)))
 
 (reg-event-fx
   :load-sheet-source!
