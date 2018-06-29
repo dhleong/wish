@@ -1,5 +1,6 @@
 (ns wish.events
-  (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
+  (:require [clojure.string :as str]
+            [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
@@ -230,22 +231,46 @@
 ; ======= inventory management =============================
 
 (defn inventory-add
+  "Add an item to a sheet's :inventory, creating an :items entry
+   if necessary (EG: for non-stacked or custom items). A custom
+   item is one without an :id (one will be generated)."
   ([sheet item]
-   (inventory-add sheet item (or (-> item :attrs :default-quantity)
-                                 1)))
+   (inventory-add sheet item nil))
   ([sheet item quantity]
-   ; TODO handle custom items
-   (let [item-id (:id item)
-         inst-id (when (not (:stacks? item))
+   (let [quantity (or quantity
+                      (-> item :attrs :default-quantity)
+                      1)
+         item-id (:id item)
+         custom? (nil? item-id)
+
+         item-id (if custom?
+                   (keyword "custom"
+                            (str
+                              (str/replace
+                                (:name item)
+                                #"[^a-zA-Z0-9]" "")
+                              "-" (js/Date.now)))
+
+                   ; had an id already
+                   item-id)
+
+         inst-id (cond
+                   ; custom items use their generated id
+                   custom? item-id
+
                    ; generate an instance id
+                   (not (:stacks? item))
                    (keyword (namespace item-id)
                             (str (name item-id)
                                  "-inst-"
                                  (js/Date.now))))
+
          sheet (if inst-id
                  ; we instantiated
                  (assoc-in sheet [:items inst-id]
-                           {:id (:id item)})
+                           (if custom?
+                             (assoc item :id item-id)
+                             {:id item-id}))
 
                  ; nothing to do
                  sheet)
@@ -256,9 +281,9 @@
 (reg-event-fx
   :inventory-add
   [trim-v]
-  (fn [cofx [item]]
+  (fn [cofx [item & [quantity]]]
     ; update the sheet meta directly
-    (update-sheet-path cofx [] inventory-add item)))
+    (update-sheet-path cofx [] inventory-add item quantity)))
 
 
 ; ======= Save-state handling ==============================

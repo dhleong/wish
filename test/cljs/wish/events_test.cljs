@@ -41,8 +41,24 @@
     (let [state (inventory-add
                   {}
                   {:id :arrows
+                   :stacked? true
                    :attrs {:default-quantity 20}})]
       (is (= {:inventory {:arrows 20}}))))
+
+  (testing "Add custom stacked item"
+    (let [state (inventory-add
+                  {}
+                  {:name "Fancy Arrows"
+                   :stacked? true
+                   :attrs {:default-quantity 20}})]
+      (is (= 1 (count (:items state))))
+      (let [inst-id (-> state :items keys first)]
+        (is (= {:inventory {inst-id 20}
+                :items {inst-id {:id inst-id
+                                 :name "Fancy Arrows"
+                                 :stacked? true
+                                 :attrs {:default-quantity 20}}}}
+               state)))))
 
   (testing "Add non-stacked item instance"
     (let [state (inventory-add
@@ -54,4 +70,17 @@
         (is (not= inst-id :longbow))
         (is (= {:inventory {inst-id 1}
                 :items {inst-id {:id :longbow}}}
+               state)))))
+
+  (testing "Add custom non-stacked item"
+    (let [state (inventory-add
+                  {}
+                  {:name "Longbow"})]
+      (is (= 1 (count (:items state))))
+      (let [inst-id (-> state :items keys first)]
+        (is (not (nil? inst-id)))
+        (is (not= inst-id :longbow))
+        (is (= {:inventory {inst-id 1}
+                :items {inst-id {:id inst-id
+                                 :name "Longbow"}}}
                state))))))
