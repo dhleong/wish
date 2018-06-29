@@ -1,0 +1,12 @@
+[:!declare-race
+ {:id :human
+  :name "Human"
+  :attrs
+  {:5e/ability-score-increase
+   {:str 1
+    :dex 1
+    :con 1
+    :int 1
+    :wis 1
+    :cha 1}
+   :5e/speed 30}}]

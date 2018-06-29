@@ -8,3 +8,4 @@ out
 .cljs_nashorn_repl
 .repl
 nashorn_code_cache
+.planck_cache

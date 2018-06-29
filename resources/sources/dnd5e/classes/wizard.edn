@@ -1,0 +1,44 @@
+[:!declare-class
+ {:id :wizard
+  :name "Wizard"
+  :attrs
+  {:5e/spellcaster
+   {:cantrips [1 3,
+               4 1,
+               10 1]
+    :ability :int
+    :spells :wizard/spells-list
+    :extra-spells :wizard/extra-spells
+    :acquires?-spells :wizard/prepared-spells
+    :acquired-label "Spellbook"
+    :prepares? true
+    :acquires? true
+    }}
+
+  :features
+  [:hit-dice/d6
+   :hp
+   :unarmed-strike
+
+   ; save proficiencies
+   :save-proficiency/int
+   :save-proficiency/wis
+
+   {:id :wizard/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/arcana :proficiency/history :proficiency/insight :proficiency/investigation :proficiency/medicine :proficiency/religion]}
+
+   {:id :wizard/arcane-recovery
+    :name "Arcane Recovery"
+    :desc "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your wizard level (rounded up), and none of the slots can be 6th level or higher.
+
+For example, if you’re a 4th-level wizard, you can recover up to two levels worth of spell slots. You can recover either a 2nd-level spell slot or two 1st-level spell slots."
+    :! [[:!add-limited-use
+         {:id :wizard/arcane-recovery
+          :name "Arcane Recovery"
+          :restore-trigger :long-rest
+          :uses 1}]]}]
+
+  }]

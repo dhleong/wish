@@ -1,0 +1,15 @@
+[:!add-to-list
+
+ {:id :wizard/spells-list
+  :type :5e/spell}
+
+ [{:spell-level 1
+   :id :spell/feather-fall
+   :name "Feather Fall"
+   :time "1 Reaction"
+   :range "60 Feet"
+   :comp [:vs "a white feather or the heart of a hen"]
+   :duration "1 minute"
+   :school :transmutation
+   :desc "Choose up to five falling creatures within range. A falling creature’s rate of descent slows to 60 feet per round until the spell ends. If the creature lands before the spell ends, it takes no falling damage and can land on its feet, and the spell ends for that creature."}
+  ]]

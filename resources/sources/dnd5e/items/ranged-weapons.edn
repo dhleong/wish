@@ -1,0 +1,15 @@
+[:!declare-items
+
+ {:attrs {:type :weapon
+          :ranged? true
+          :uses-ammunition? true}}
+
+ {:id :longbow
+  :name "Longbow"
+  :attrs {:martial? true
+          :heavy? true
+          :two-handed? true
+          :range [150 600]}
+  :cost [50 :g]
+  :damage :piercing
+  :dice "1d8"}]

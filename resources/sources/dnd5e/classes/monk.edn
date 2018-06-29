@@ -1,0 +1,42 @@
+[:!declare-class
+ {:id :monk
+  :name "Monk"
+
+  :features
+  [:hit-dice/d8
+   :hp
+
+   :save-proficiency/str
+   :save-proficiency/dex
+
+   {:id :monk/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/acrobatics :proficiency/athletics :proficiency/history :proficiency/insight :proficiency/religion :proficiency/stealth]}
+
+   {:id :monk/martial-arts
+    :name "Martial Arts"
+    :! [[:!provide-feature
+         {:id :unarmed-strike
+          :versatile? true
+          :dice (fn [level modifiers]
+                  (let [m (max (:str modifiers)
+                               (:dex modifiers))]
+                    (str "1d"
+                         (cond
+                           (<= level 4) "4"
+                           (<= level 10) "6"
+                           (<= level 16) "8"
+                           (<= level 20) "10")
+                         "+" m)))}]]}
+
+   {:id :monk/unarmored-defense
+    :name "Unarmored Defense"
+    :desc "Beginning at 1st level, while you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom modifier."
+    :! [[:!provide-attr
+         [:5e/ac :monk/unarmored-defense]
+         (fn [modifiers]
+           (+ 10
+              (:dex modifiers)
+              (:wis modifiers)))]]}]}]

@@ -1,10 +1,30 @@
 [:!provide-feature
 
+ {:id :hit-dice/d6
+  :name "Hit Dice: D6"
+  :implicit? true
+  :! [[:!provide-attr
+       :5e/hit-dice 6]
+      [:!add-limited-use
+       {:id :hit-dice/d6#uses
+        :name "D6"
+        :implicit? true
+        :restore-trigger :long-rest
+        :restore-amount (fn [trigger used level]
+                          (min used
+                               (ceil (/ level 2))))
+        :uses (fn [level]
+                level)}]]}
+
  {:id :hit-dice/d8
   :name "Hit Dice: D8"
-  :! [[:!add-limited-use
+  :implicit? true
+  :! [[:!provide-attr
+       :5e/hit-dice 8]
+      [:!add-limited-use
        {:id :hit-dice/d8#uses
         :name "D8"
+        :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
                           (min used
@@ -14,9 +34,13 @@
 
  {:id :hit-dice/d10
   :name "Hit Dice: D10"
-  :! [[:!add-limited-use
+  :implicit? true
+  :! [[:!provide-attr
+       :5e/hit-dice 10]
+      [:!add-limited-use
        {:id :hit-dice/d10#uses
         :name "D10"
+        :implicit? true
         :restore-trigger :long-rest
         :restore-amount (fn [trigger used level]
                           (min used

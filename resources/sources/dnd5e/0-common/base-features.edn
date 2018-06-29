@@ -1,0 +1,15 @@
+
+[:!provide-feature
+ {:id :unarmed-strike
+  :implicit? true
+  :dice (fn [modifiers]
+          (+ 1 (:str modifiers)))}]
+
+[:!provide-feature
+ {:id :hp
+  :implicit? true
+  :! [[:!add-limited-use
+       {:id :hp#uses
+        :implicit? true
+        :restore-trigger :long-rest}]]}]
+
