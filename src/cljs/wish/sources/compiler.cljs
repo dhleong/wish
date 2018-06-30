@@ -147,7 +147,7 @@
     (catch js/Error e
       (throw (js/Error.
                (str "Error processing " directive-vector
-                    "\n\nOriginal error: " e))))))
+                    "\n\nOriginal error: " (.-stack e) "\nThrown at:"))))))
 
 (defn compile-directives
   "Given a sequence of directives, return a compiled DataSource state"

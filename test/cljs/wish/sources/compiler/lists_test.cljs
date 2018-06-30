@@ -11,17 +11,20 @@
            (map #(select-keys % [:id])
                 (inflate-items
                   state
+                  nil
                   [{:id :mreynolds}])))))
   (testing "Inflate ids"
     (is (= [{:id :crazy-ivan}
             {:id :bobble-head-geisha}]
            (inflate-items
              state
+             nil
              [:crazy-ivan :bobble-head-geisha]))))
   (testing "Inflate a list of ids"
     (is (= [{:id :crazy-ivan}
             {:id :bobble-head-geisha}]
            (inflate-items
              state
+             nil
              [[:crazy-ivan :bobble-head-geisha]])))))
 

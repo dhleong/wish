@@ -13,7 +13,67 @@
  {:id :save-proficiency/cha
   :! [[:!provide-attr :save-proficiency/cha true]]}]
 
-[:!provide-feature
+;; [:!provide-feature
+;;  {:id :proficiency/acrobatics
+;;   :name "Acrobatics"
+;;   :! [[:!provide-attr :proficiency/acrobatics true]]}
+;;  {:id :proficiency/animal-handling
+;;   :name "Animal Handling"
+;;   :! [[:!provide-attr :proficiency/animal-handling true]]}
+;;  {:id :proficiency/arcana
+;;   :name "Arcana"
+;;   :! [[:!provide-attr :proficiency/arcana true]]}
+;;  {:id :proficiency/athletics
+;;   :name "Athletics"
+;;   :! [[:!provide-attr :proficiency/athletics true]]}
+;;  {:id :proficiency/deception
+;;   :name "Deception"
+;;   :! [[:!provide-attr :proficiency/deception true]]}
+;;  {:id :proficiency/history
+;;   :name "History"
+;;   :! [[:!provide-attr :proficiency/history true]]}
+;;  {:id :proficiency/insight
+;;   :name "Insight"
+;;   :! [[:!provide-attr :proficiency/insight true]]}
+;;  {:id :proficiency/intimidation
+;;   :name "Intimidation"
+;;   :! [[:!provide-attr :proficiency/intimidation true]]}
+;;  {:id :proficiency/investigation
+;;   :name "Investigation"
+;;   :! [[:!provide-attr :proficiency/investigation true]]}
+;;  {:id :proficiency/medicine
+;;   :name "Medicine"
+;;   :! [[:!provide-attr :proficiency/medicine true]]}
+;;  {:id :proficiency/nature
+;;   :name "Nature"
+;;   :! [[:!provide-attr :proficiency/nature true]]}
+;;  {:id :proficiency/perception
+;;   :name "Perception"
+;;   :! [[:!provide-attr :proficiency/perception true]]}
+;;  {:id :proficiency/performance
+;;   :name "Performance"
+;;   :! [[:!provide-attr :proficiency/performance true]]}
+;;  {:id :proficiency/persuasion
+;;   :name "Persuasion"
+;;   :! [[:!provide-attr :proficiency/persuasion true]]}
+;;  {:id :proficiency/religion
+;;   :name "Religion"
+;;   :! [[:!provide-attr :proficiency/religion true]]}
+;;  [:id :proficiency/sleight-of-hand
+;;   :name "Sleight of Hand"
+;;   :! [[:!provide-attr :proficiency/sleight-of-hand true]]]
+;;  {:id :proficiency/stealth
+;;   :name "Stealth"
+;;   :! [[:!provide-attr :proficiency/stealth true]]}
+;;  {:id :proficiency/survival
+;;   :name "Survival"
+;;   :! [[:!provide-attr :proficiency/survival true]]}]
+
+[:!add-to-list
+
+ {:id :all-skill-proficiencies
+  :type :feature}
+
  {:id :proficiency/acrobatics
   :name "Acrobatics"
   :! [[:!provide-attr :proficiency/acrobatics true]]}
@@ -59,9 +119,9 @@
  {:id :proficiency/religion
   :name "Religion"
   :! [[:!provide-attr :proficiency/religion true]]}
- [:id :proficiency/sleight-of-hand
+ {:id :proficiency/sleight-of-hand
   :name "Sleight of Hand"
-  :! [[:!provide-attr :proficiency/sleight-of-hand true]]]
+  :! [[:!provide-attr :proficiency/sleight-of-hand true]]}
  {:id :proficiency/stealth
   :name "Stealth"
   :! [[:!provide-attr :proficiency/stealth true]]}

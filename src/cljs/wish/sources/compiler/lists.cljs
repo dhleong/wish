@@ -4,6 +4,7 @@
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [wish.sources.core :refer [find-list-entity]]
             [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.util :refer [->map]]))
 
 (defn- find-entity
@@ -28,20 +29,29 @@
 
 (defn- inflate-item
   "Always returns a collection"
-  [s item]
-  (cond
-    (map? item) [(compile-entity item)]
-    (keyword? item) (find-entity s item)
-    (coll? item) (mapcat (partial inflate-item s) item)
-    :else (throw (js/Error. (str "Unexpected list item: " item)))))
+  [s spec item]
+  (try
+    (cond
+      (map? item) (if (= :feature (:type spec))
+                    [(compile-feature item)]
+                    [(compile-entity item)])
+      (keyword? item) (find-entity s item)
+      (coll? item) (mapcat (partial inflate-item s spec) item)
+      :else (throw (js/Error. (str "Unexpected list item: " (type item) item ))))
+    (catch :default e
+      (throw (js/Error.
+               (str "Error inflating " item " of " spec
+                    "\n\nOriginal error: " (.-stack e)))))))
 
 (defn inflate-items
-  [s items]
-  (with-meta
-    (mapcat
-      (partial inflate-item s)
-      items)
-    (meta items)))
+  ([s items]
+   (inflate-items s (meta items) items))
+  ([s spec items]
+   (with-meta
+     (mapcat
+       (partial inflate-item s spec)
+       items)
+     (meta items))))
 
 (defn add-to-list
   [s id-or-spec & items]
@@ -50,11 +60,16 @@
              (:id id-or-spec))
         spec (when (map? id-or-spec)
                (dissoc id-or-spec :id))
-        inflated-items (inflate-items s items)]
+        inflated-items (inflate-items s spec items)
+        dest-key (if (= :feature (:type spec))
+                   :features
+                   :list-entities)
+        inflated-map (->> inflated-items
+                          (filter :id)
+                          ->map)]
     (-> s
-        (update :list-entities merge (->> inflated-items
-                                          (filter :id)
-                                          ->map))
+        (update dest-key merge inflated-map)
+
         (update-in [:lists id]
                    (fn [existing]
                      (let [m (or spec

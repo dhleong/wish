@@ -49,3 +49,16 @@ The actual spell selection is provided by a feature
 
 Every class can support a racial spells list that a Racial Spell
 feature would add to
+
+* ======= Backgrounds ======================================
+
+Custom backgrounds get:
+
+- 2 skill proficiencies
+- A choice of:
+    - 2 tools
+    - 2 languages
+    - 1 tool and 1 language
+- 1 background feature
+- 1 set of background characteristics (for choosing things like
+    Personality Traits, Ideals, Bonds, Flaws)
