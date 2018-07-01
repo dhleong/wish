@@ -1,11 +1,11 @@
 (ns ^{:author "Daniel Leong"
       :doc "DataSource compiler"}
   wish.sources.compiler
-  (:require-macros [wish.util.log :as log])
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.data :refer [diff]]
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.entity-mod :refer [apply-entity-mod]]
-            [wish.sources.compiler.feature :refer [compile-feature]]
+            [wish.sources.compiler.feature :refer [compile-feature inflate-features]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
@@ -27,6 +27,7 @@
 
 ; ======= directives =======================================
 
+(declare apply-feature-directives)
 (def directives
   {:!add-limited-use
    (fn add-limited-use [state limited-use-map]
@@ -69,14 +70,32 @@
 
    :!provide-feature
    (fn provide-feature [state & args]
-     (let [features (->> args
-                         (filter map?)
-                         (map compile-feature)
-                         ->map)
-           filters (filter vector? args)]
-       ; TODO apply filters?
-       (update state :features
-               merge features)))
+     (loop [state state
+            args args]
+       (let [features (inflate-features state args)
+             features-map (->map features)
+             features-with-directives (->> features
+                                           (filter :!)
+                                           seq)
+
+             ; TODO apply filters?
+             filters (filter vector? args)
+
+             ; install new features always
+             state (update state :features
+                           merge features-map)]
+
+         (if features-with-directives
+           ; apply directives for newly added features...
+           (let [new-state (reduce apply-feature-directives state features-with-directives)
+                 [_ new-features _] (diff (:features state)
+                                          (:features new-state))]
+             ; ... then recursively apply features added by the application
+             ; of features-with-directives
+             (recur new-state new-features))
+
+           ; done!
+           state))))
 
    :!provide-options
    (fn provide-options [state feature-id & option-maps]
@@ -170,6 +189,25 @@
 
 ; ======= Options ==========================================
 
+(defn- apply-feature-directives
+  [state the-feature & {:keys [option-value feature-id]}]
+  ; only try to apply the feature if state's primary?-ness
+  ; matches the feature's requirements
+  (let [feature-directives (when-not (and (:primary-only? the-feature)
+                                          (not (:primary? state)))
+                             (:! the-feature))]
+    (if feature-directives
+      (reduce apply-directive state feature-directives)
+
+      (do
+        (when-not the-feature
+          ; NOTE: at this point, there may just be no directives to apply?
+          (log/warn "failed to apply " (:id the-feature)
+                    (when option-value
+                      (str " from " option-value
+                           " for feature " feature-id))))
+        state))))
+
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
   (if (or (empty? options-chosen)
@@ -180,18 +218,14 @@
     state
 
     (let [option-value (first options-chosen)
-          feature-directives (:! (find-feature data-source option-value))]
+          the-feature (find-feature data-source option-value)]
       (recur
         data-source
 
         ; new state:
-        (if feature-directives
-          (reduce apply-directive state feature-directives)
-
-          (do
-            ; NOTE: at this point, there may just be no directives to apply?
-            (log/warn "failed to apply " option-value " for feature " feature-id)
-            state))
+        (apply-feature-directives state the-feature
+                                  :option-value option-value
+                                  :feature-id feature-id)
 
         feature-id
         (next options-chosen)))))

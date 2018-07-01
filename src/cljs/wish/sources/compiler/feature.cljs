@@ -1,8 +1,11 @@
 (ns ^{:author "Daniel Leong"
       :doc "Feature compiler"}
   wish.sources.compiler.feature
-  (:require [wish.sources.compiler.entity :refer [compile-entity]]
-            [wish.sources.compiler.fun :refer [->callable]]))
+  (:require-macros [wish.util.log :as log])
+  (:require [wish.sources.core :as src]
+            [wish.sources.compiler.entity :refer [compile-entity]]
+            [wish.sources.compiler.fun :refer [->callable]]
+            [wish.util :refer [->map]]))
 
 (defn compile-max-options
   ":max-options compiles to an acceptor function that
@@ -32,3 +35,19 @@
       (update :max-options compile-max-options)
       compile-entity))
 
+(defn- ->feature [state f]
+  (cond
+    (map? f) (compile-feature f)
+    (keyword? f) (let [data-source (:wish/data-source state)]
+                   (or (get-in state [:features f])
+                       (src/find-feature data-source f)
+                       (log/warn "Could not find feature " f)))
+    :else (log/warn "Unexpected feature def " f)))
+
+(defn inflate-features
+  "Given a state and a collection of either feature ids or
+   feature-maps, inflate them as appropriate and return the
+   resulting collection"
+  [state items]
+  (->> items
+       (map (partial ->feature state))))

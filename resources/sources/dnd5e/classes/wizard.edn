@@ -17,6 +17,7 @@
 
   :features
   [:hit-dice/d6
+   :background
    :hp
    :unarmed-strike
 

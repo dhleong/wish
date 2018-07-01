@@ -76,55 +76,73 @@
 
  {:id :proficiency/acrobatics
   :name "Acrobatics"
+  :implicit? true
   :! [[:!provide-attr :proficiency/acrobatics true]]}
  {:id :proficiency/animal-handling
   :name "Animal Handling"
+  :implicit? true
   :! [[:!provide-attr :proficiency/animal-handling true]]}
  {:id :proficiency/arcana
   :name "Arcana"
+  :implicit? true
   :! [[:!provide-attr :proficiency/arcana true]]}
  {:id :proficiency/athletics
   :name "Athletics"
+  :implicit? true
   :! [[:!provide-attr :proficiency/athletics true]]}
  {:id :proficiency/deception
   :name "Deception"
+  :implicit? true
   :! [[:!provide-attr :proficiency/deception true]]}
  {:id :proficiency/history
   :name "History"
+  :implicit? true
   :! [[:!provide-attr :proficiency/history true]]}
  {:id :proficiency/insight
   :name "Insight"
+  :implicit? true
   :! [[:!provide-attr :proficiency/insight true]]}
  {:id :proficiency/intimidation
   :name "Intimidation"
+  :implicit? true
   :! [[:!provide-attr :proficiency/intimidation true]]}
  {:id :proficiency/investigation
   :name "Investigation"
+  :implicit? true
   :! [[:!provide-attr :proficiency/investigation true]]}
  {:id :proficiency/medicine
   :name "Medicine"
+  :implicit? true
   :! [[:!provide-attr :proficiency/medicine true]]}
  {:id :proficiency/nature
   :name "Nature"
+  :implicit? true
   :! [[:!provide-attr :proficiency/nature true]]}
  {:id :proficiency/perception
   :name "Perception"
+  :implicit? true
   :! [[:!provide-attr :proficiency/perception true]]}
  {:id :proficiency/performance
   :name "Performance"
+  :implicit? true
   :! [[:!provide-attr :proficiency/performance true]]}
  {:id :proficiency/persuasion
   :name "Persuasion"
+  :implicit? true
   :! [[:!provide-attr :proficiency/persuasion true]]}
  {:id :proficiency/religion
   :name "Religion"
+  :implicit? true
   :! [[:!provide-attr :proficiency/religion true]]}
  {:id :proficiency/sleight-of-hand
   :name "Sleight of Hand"
+  :implicit? true
   :! [[:!provide-attr :proficiency/sleight-of-hand true]]}
  {:id :proficiency/stealth
   :name "Stealth"
+  :implicit? true
   :! [[:!provide-attr :proficiency/stealth true]]}
  {:id :proficiency/survival
   :name "Survival"
+  :implicit? true
   :! [[:!provide-attr :proficiency/survival true]]}]

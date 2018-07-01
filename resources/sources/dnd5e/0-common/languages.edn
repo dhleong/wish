@@ -1,0 +1,15 @@
+[:!provide-feature
+ {:id :language
+  :name "Language"
+  :values :all-languages}]
+
+[:!add-to-list
+
+ {:id :all-languages
+  :type :language}
+
+ {:id :lang/common
+  :name "Common"}
+ {:id :lang/elvish
+  :name "Elvish"}
+ ]

@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
+  (:require-macros [wish.util.log :refer [log]])
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :refer [ability->mod ->die-use-kw]]
@@ -654,7 +655,48 @@
       used)))
 
 
+; ======= builder-specific =================================
+
+(reg-sub
+  ::primary-class
+  :<- [:classes]
+  (fn [classes]
+    (->> classes
+         (filter :primary?)
+         first)))
+
+(reg-sub
+  ::background
+  (fn [[_ primary-class-id]]
+    (subscribe [:class-features-with-options primary-class-id true]))
+  (fn [features]
+    (->> features
+         (filter #(= :background (first %))))))
+
+
+; like the default one, but removing :background
+(reg-sub
+  ::class-features-with-options
+  (fn [[_ entity-id primary?]]
+    (subscribe [:class-features-with-options entity-id primary?]))
+  (fn [features]
+    (->> features
+         (remove #(= :background (first %))))))
+
+
 ; ======= etc ==============================================
+
+; hacks?
+(reg-sub
+  ::features-for
+  (fn [[_ sub-vec]]
+    (subscribe sub-vec))
+  (fn [sources]
+    (->> sources
+         (mapcat (comp vals :features))
+         (filter :name)
+         (remove :implicit?)
+         seq)))
 
 ; returns a list of {:die,:classes,:used,:total}
 ; where :classes is a list of class names, sorted by die size.

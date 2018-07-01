@@ -128,6 +128,9 @@
 
    ])
 
+
+; ======= class management/level-up ========================
+
 (defn class-section [class-info]
   [:div.class-section
    [:div.class-header
@@ -150,7 +153,7 @@
 
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
-   [feature-options-selection [:class-features-with-options
+   [feature-options-selection [::subs/class-features-with-options
                                (:id class-info)
                                (:primary? class-info)]]])
 
@@ -251,6 +254,9 @@
            ^{:key (:id c)}
            [class-section c])]))))
 
+
+; ======= ability scores ===================================
+
 (defn- input-for
   [ability]
   [:input {:field :numeric
@@ -299,6 +305,18 @@
                                  (js/parseInt v)))]))}]
      ]))
 
+
+; ======= backgrounds ======================================
+
+(defn background-page []
+  (let [primary-class (<sub [::subs/primary-class])] [:div {:class (:background styles)}
+    [:h1 "Background"]
+    [feature-options-selection [::subs/background (:id primary-class)]]
+    ]))
+
+
+; ======= router ===========================================
+
 (def pages
   [[:home {:name "Home"
            :fn #'home-page}]
@@ -306,6 +324,8 @@
            :fn #'race-page}]
    [:abilities {:name "Abilities"
                 :fn #'abilities-page}]
+   [:background {:name "Background"
+                 :fn #'background-page}]
    [:class {:name "Level Up"
             :fn #'classes-page}]])
 

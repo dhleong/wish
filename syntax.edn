@@ -106,7 +106,8 @@
  ; used for homebrew features that amend built-in classes
  optional-conditions-vector
 
- ; feature-map
+ ; varargs list of feature-maps (if used in a :! vector, feature-ids
+ ; are also acceptable)
  {:id,
   :name,
   :desc,

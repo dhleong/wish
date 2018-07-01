@@ -1,7 +1,7 @@
 (ns wish.sources.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sources.compiler :refer [apply-levels apply-options compile-directives]]
-            [wish.sources.core :refer [->DataSource]]))
+            [wish.sources.compiler :refer [apply-levels apply-options compile-directives inflate]]
+            [wish.sources.core :as src :refer [->DataSource]]))
 
 (def character-state
   {:level 42})
@@ -14,7 +14,46 @@
                  :name "Hit Dice: D10"}]])]
       (is (contains? s :features))
       (is (contains? (:features s)
-                     :hit-dice/d10)))))
+                     :hit-dice/d10))))
+
+  (testing "Apply directives of provided feature"
+    ; for example, when the options are applied for
+    ; a :background feature, that option's features get installed,
+    ; but if they provide a feature (for example, proficiency with
+    ; a skill) that feature's directives need to be applied (in this
+    ; case, providing an attr.)
+    (let [s (compile-directives
+              [[:!provide-feature
+                {:id :proficiency/stealth
+                 :name "Stealth"
+                 :! [[:!provide-attr :proficiency/stealth true]]}]
+
+               [:!provide-feature
+                {:id :background
+                 :max-options 1}]
+
+               [:!provide-options
+                :background
+
+                {:id :background/rogue
+                 :primary-only? true
+                 :name "Fake Rogue background"
+
+                 :! [[:!provide-feature
+                      :proficiency/stealth]]}]
+
+               [:!declare-class
+                {:id :fake-rogue
+                 :features [:background]}]])
+          ds (->DataSource :ds s)
+          class-inst (src/find-class ds :fake-rogue)
+          ch (inflate (assoc class-inst :primary? true)
+                      ds
+                      {:background [:background/rogue]})
+          attrs (:attrs ch)
+          ]
+      (is (identity class-inst))
+      (is (= {:proficiency/stealth true} attrs)))))
 
 (deftest provide-attr-test
   (testing "Provide in path"
@@ -94,6 +133,31 @@
                     {:features {:rogue/skill-proficiencies true}}
                     ds opts-map)]
       (is (= {:attrs {:proficiency/stealth true}}
+             (select-keys applied [:attrs])))))
+  (testing "Only apply :primary-only? options to :primary? class instance"
+    (let [ds (->DataSource
+               :source
+               (compile-directives
+                 [[:!provide-feature
+                   {:id :proficiency/stealth
+                    :name "Stealth"
+                    :primary-only? true
+                    :! [[:!provide-attr :proficiency/stealth true]]}]
+                  [:!declare-class
+                   {:id :cleric
+                    :features
+                    [{:id :rogue/skill-proficiencies
+                      :name "Proficiencies"
+                      :max-options 2
+                      :values [:proficiency/stealth]}
+                     ]}]]))
+          opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
+          applied (apply-options
+                    ; NOTE: they must *have* the feature for the option
+                    ; to get applied
+                    {:features {:rogue/skill-proficiencies true}}
+                    ds opts-map)]
+      (is (= {}
              (select-keys applied [:attrs]))))))
 
 (deftest apply-levels-test

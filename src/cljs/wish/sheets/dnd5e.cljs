@@ -243,15 +243,6 @@
 
 ; ======= Features =========================================
 
-; TODO these should definitely be subscriptions
-(defn- features-for
-  [sub-vector]
-  (->> (<sub sub-vector)
-       (mapcat (comp vals :features))
-       (filter :name)
-       (remove :implicit?)
-       seq))
-
 (defn feature
   [f]
   [expandable
@@ -261,14 +252,14 @@
 
 (defn features-section []
   [:<>
-   (when-let [fs (features-for [:classes])]
+   (when-let [fs (<sub [::dnd5e/features-for [:classes]])]
       [:div.features-category
        [:h3 "Class features"]
        (for [f fs]
          ^{:key (:id f)}
          [feature f])])
 
-    (when-let [fs (features-for [:races])]
+    (when-let [fs (<sub [::dnd5e/features-for [:races]])]
       [:div.features-category
        [:h3 "Racial Traits"]
        (for [f fs]
