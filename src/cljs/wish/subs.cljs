@@ -1,4 +1,5 @@
 (ns wish.subs
+  (:require-macros [wish.util.log :as log])
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.db :as db]
             [wish.subs-util :refer [active-sheet-id]]
@@ -164,10 +165,14 @@
         (src/find-feature data-source feature-id))
 
       ; not a feature with :values? Okay inflate now
-      (map
+      (mapcat
         (fn [opt-or-id]
           (if (keyword? opt-or-id)
-            (src/find-feature data-source opt-or-id)
+            (or (when-let [f (src/find-feature data-source opt-or-id)]
+                  [f])
+                (src/expand-list data-source opt-or-id nil)
+
+                (log/warn "Unable to inflate  " opt-or-id))
             opt-or-id))
         values)))
 
