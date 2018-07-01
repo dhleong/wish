@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-"exec" "plk" "-Sdeps" "{:deps {org.clojure/tools.cli {:mvn/version \"0.3.5\"}}}" "-Ksf" "$0" "$@" "dnd5e"
+"exec" "plk" "-Sdeps" "{:deps {org.clojure/tools.cli {:mvn/version \"0.3.5\"}}}" "-sf" "$0" "$@" "dnd5e"
 (ns wish.builtin-source-compiler
   (:require [clojure.tools.cli :refer [parse-opts]]
             [clojure.tools.reader.reader-types :refer [source-logging-push-back-reader]]
