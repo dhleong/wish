@@ -309,10 +309,18 @@
 ; ======= backgrounds ======================================
 
 (defn background-page []
-  (let [primary-class (<sub [::subs/primary-class])] [:div {:class (:background styles)}
-    [:h1 "Background"]
-    [feature-options-selection [::subs/background (:id primary-class)]]
-    ]))
+  (let [primary-class (<sub [::subs/primary-class])
+        chosen-background (<sub [:options-> [:background]])]
+    [:div {:class (:background styles)}
+     [:h1 "Background"]
+     [feature-options-selection [::subs/background (:id primary-class)]]
+
+     (when (= [:background/custom] chosen-background)
+       [:<>
+        [:h2 "Custom background"]
+        [feature-options-selection
+         [::subs/custom-background (:id primary-class)]]])
+     ]))
 
 
 ; ======= router ===========================================

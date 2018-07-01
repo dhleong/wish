@@ -36,15 +36,19 @@ You might also have ties to a specific temple dedicated to your chosen deity or 
   :! [[:!provide-feature
 
        {:id :custom-bg/skill-proficiencies
+        :name "Skill proficiencies (Pick any 2)"
         :implicit? true
         :max-options 2
         :values [:all-skill-proficiencies]}
+
        {:id :custom-bg/feature
+        :name "Background Feature (Pick any 1)"
         :implicit? true
         :max-options 1
         :values [:background-features]}
+
        {:id :custom-bg/tools-or-languages
-        :desc "Choose either 2 tools, 2 languages, or one of each."
+        :name "Proficiencies (Choose either 2 tools, 2 languages, or one of each.)"
         :implicit? true
         :max-options 2
         :values [:all-languages]}]]}] ; TODO tool proficiencies list

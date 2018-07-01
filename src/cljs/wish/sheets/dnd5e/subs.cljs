@@ -673,6 +673,18 @@
     (->> features
          (filter #(= :background (first %))))))
 
+(def ^:private custom-background-feature-ids
+  #{:custom-bg/skill-proficiencies
+    :custom-bg/feature
+    :custom-bg/tools-or-languages})
+(reg-sub
+  ::custom-background
+  (fn [[_ primary-class-id]]
+    (subscribe [:class-features-with-options primary-class-id true]))
+  (fn [features]
+    (->> features
+         (filter #(custom-background-feature-ids (first %))))))
+
 
 ; like the default one, but removing :background
 (reg-sub
@@ -681,7 +693,8 @@
     (subscribe [:class-features-with-options entity-id primary?]))
   (fn [features]
     (->> features
-         (remove #(= :background (first %))))))
+         (remove #(= :background (first %)))
+         (remove #(custom-background-feature-ids (first %))))))
 
 
 ; ======= etc ==============================================
