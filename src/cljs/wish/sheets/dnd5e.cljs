@@ -112,7 +112,8 @@
 (defn abilities-section []
   (let [abilities (<sub [::dnd5e/abilities])
         prof-bonus (<sub [::dnd5e/proficiency-bonus])
-        save-proficiencies (<sub [::dnd5e/save-proficiencies])]
+        save-proficiencies (<sub [::dnd5e/save-proficiencies])
+        save-extras (<sub [::dnd5e/save-extras])]
     [:<>
      (for [[id label] labeled-abilities]
        (let [score (get abilities id)
@@ -136,9 +137,13 @@
            {:class (when proficient?
                      "proficient")}]]))
 
-     ; TODO This is a good place for things like Elven advantage
+     ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
-     ]))
+     (when save-extras
+       [:ul
+        (for [item save-extras]
+          ^{:key (:id item)}
+          [:li (:desc item)])])]))
 
 
 ; ======= Skills ===========================================

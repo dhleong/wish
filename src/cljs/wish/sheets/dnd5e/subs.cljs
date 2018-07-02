@@ -202,6 +202,22 @@
          (map (comp keyword name first))
          (into #{}))))
 
+; returns a collection of features
+(reg-sub
+  ::save-extras
+  :<- [:races]
+  :<- [:classes]
+  (fn [entity-lists _]
+    (->> entity-lists
+         flatten
+         (mapcat (comp :saves :attrs))
+         (map (fn [[id extra]]
+                (if (:id extra)
+                  extra
+
+                  ; shorthand:
+                  (assoc extra :id id)))))))
+
 
 ; returns a set of skill ids
 (reg-sub
