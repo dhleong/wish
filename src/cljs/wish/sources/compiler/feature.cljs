@@ -43,7 +43,7 @@
                        (when data-source
                          (src/find-feature data-source f))
                        (log/warn "Could not find feature " f)))
-    :else (log/warn "Unexpected feature def " f)))
+    :else (log/warn "Unexpected feature def " (type f) f)))
 
 (defn inflate-features
   "Given a state and a collection of either feature ids or

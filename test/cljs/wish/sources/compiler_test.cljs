@@ -50,8 +50,50 @@
           ch (inflate (assoc class-inst :primary? true)
                       ds
                       {:background [:background/rogue]})
-          attrs (:attrs ch)
-          ]
+          attrs (:attrs ch)]
+      (is (identity class-inst))
+      (is (= {:proficiency/stealth true} attrs))))
+
+  (testing "Apply directives of provided feature option"
+    ; for example, the options of the custom background feature
+    (let [s (compile-directives
+              [[:!add-to-list
+                {:id :all-skill-proficiencies
+                 :type :feature}
+
+                {:id :proficiency/stealth
+                 :name "Stealth"
+                 :! [[:!provide-attr :proficiency/stealth true]]}]
+
+               [:!provide-feature
+                {:id :background
+                 :max-options 1}]
+
+               [:!provide-options
+                :background
+
+                {:id :background/custom
+                 :primary-only? true
+                 :name "Custom Background"
+                 :! [[:!provide-feature
+
+                      {:id :custom-bg/skill-proficiencies
+                       :name "Skill proficiencies (Pick any 2)"
+                       :implicit? true
+                       :max-options 2
+                       :values [:all-skill-proficiencies]}
+                      ]]}]
+
+               [:!declare-class
+                {:id :fake-rogue
+                 :features [:background]}]])
+          ds (->DataSource :ds s)
+          class-inst (src/find-class ds :fake-rogue)
+          ch (inflate (assoc class-inst :primary? true)
+                      ds
+                      {:custom-bg/skill-proficiencies [:proficiency/stealth]
+                       :background [:background/custom]})
+          attrs (:attrs ch)]
       (is (identity class-inst))
       (is (= {:proficiency/stealth true} attrs)))))
 
@@ -134,6 +176,7 @@
                     ds opts-map)]
       (is (= {:attrs {:proficiency/stealth true}}
              (select-keys applied [:attrs])))))
+
   (testing "Only apply :primary-only? options to :primary? class instance"
     (let [ds (->DataSource
                :source

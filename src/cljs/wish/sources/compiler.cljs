@@ -86,16 +86,22 @@
 
              ; install new features always
              state (update state :features
-                           merge features-map)]
+                           (partial merge-with (fn [a b]
+                                                 (if a
+                                                   a b)))
+                           features-map)]
 
          (if features-with-directives
            ; apply directives for newly added features...
-           (let [new-state (reduce apply-feature-directives state features-with-directives)
+           (let [new-state (reduce
+                             apply-feature-directives
+                             state
+                             features-with-directives)
                  [_ new-features _] (diff (:features state)
                                           (:features new-state))]
              ; ... then recursively apply features added by the application
              ; of features-with-directives
-             (recur new-state new-features))
+             (recur new-state (vals new-features)))
 
            ; done!
            state))))
@@ -237,14 +243,39 @@
 (defn apply-options
   [state data-source options-map]
   (if (empty? options-map)
+    ; done!
     state
 
-    (let [[feature-id options-chosen] (first options-map)]
-      (recur
-        (apply-feature-options data-source state feature-id options-chosen)
+    ; FIXME we have to basically use options-map like a work queue, where if the
+    ; feature-id doesn't exist *yet*, we continue applying other options in case
+    ; they trigger more features to be provided that the option can later apply to
+    (let [[applyable not-applyable] (reduce
+                                      (fn [[a b] [feature-id _ :as option]]
+                                        (if (get-in state [:features feature-id])
+                                          [(conj a option) b]
+                                          [a (conj b option)]))
+                                      [[] []]
+                                      options-map)]
+      (if (empty? applyable)
+        ; nothing else to be done
+        (do
+          ; NOTE it's okay if some options aren't applied, like spellcaster lists, or if
+          ; the feature is for a different class/race, so we don't warn by default. But
+          ; this could be useful to uncomment for debugging issues
+          ;; (when (seq not-applyable)
+          ;;   (log/warn "Unable to apply " (map first not-applyable) " to " (:id state)))
+          state)
 
-        data-source
-        (next options-map)))))
+        (recur
+          ; NOTE apply all currently applyable at once to avoid extra (reduce) steps above
+          (reduce
+            (fn [state [feature-id options-chosen]]
+              (apply-feature-options data-source state feature-id options-chosen))
+            state
+            applyable)
+
+          data-source
+          not-applyable)))))
 
 
 ; ======= Level-scaling ====================================
