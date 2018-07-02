@@ -7,7 +7,9 @@ using the :5e/spellcasting attribute, which accepts:
 {:cantrips []  ; sequence of level, cantrips gained at that level
  :slots  ; spellslots table, either a map of class level -> {spell level -> slots}
          ; or one of the keywords:  :standard, :standard/half
-         ; where the latter is for rangers and paladins
+         ; where the latter is for rangers and paladins. For racial
+         ; spellcasting that only supports cantrips, for example, you
+         ; can provide :none if no slots are allowed
  :multiclass-levels-mod 2  ; number by which to devide class level when
                            ; determining multiclass spellcaster level.
                            ; Default is just 1; rangers/paladins are 2

@@ -7,6 +7,8 @@
    (let [n (name k)]
      (keyword (namespace k) (subs n skip-chars)))))
 
+(declare apply-entity-mod)
+
 ; NOTE public for testing
 (defn extract-mod-and-key
   "Given an entity-mod keyword, pick the function used
@@ -36,7 +38,7 @@
       \> (if (not= \> (second n))
            (throw (js/Error. (str "Invalid mod prefix on key " k)))
            [str (mod-key k 2)])
-      \& [merge (mod-key k 1)]
+      \& [apply-entity-mod (mod-key k 1)]
 
       ; otherwise, just replace:
       [(fn [a b] b) k])))
@@ -63,5 +65,5 @@
       (let [[modify-with actual-k] (extract-mod-and-key k)]
         (update entity actual-k
                 modify-with v)))
-    entity
+    (or entity {})
     mod-map))

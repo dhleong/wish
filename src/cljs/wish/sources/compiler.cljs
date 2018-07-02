@@ -51,6 +51,20 @@
              assoc
              (:id race-map) (compile-entity race-map)))
 
+   :!declare-subrace
+   (fn declare-subrace [state parent-race-id subrace-map]
+     (let [parent (get-in state [:races parent-race-id])]
+       (if parent
+         (update state :races
+                 assoc
+                 (:id subrace-map)
+                 (assoc (apply-entity-mod parent subrace-map)
+                        :subrace-of parent-race-id))
+
+         (do
+           (log/err "Parent race " parent-race-id " for " (:id subrace-map) " not found")
+           state))))
+
    :!declare-items
    (fn declare-items [state base & item-maps]
      (update state :items

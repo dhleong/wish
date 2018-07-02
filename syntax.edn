@@ -70,6 +70,25 @@
   :features []
   }]
 
+; the syntax for :!declare-race is identical to :!declare-class
+[:!declare-race
+ {:id,
+  :name
+  :attrs,
+  :features}]
+
+[:!declare-subrace
+
+ ; id of the parent race it inherits from.
+ :parent-race-id
+
+ ; the values here are merged into those from the parent race
+ ; following the "modifying properties" rules above
+ {:id,
+  :name
+  :attrs,
+  :features}]
+
 [:!declare-items
 
  ; before any items is a single map that all subsequent items get

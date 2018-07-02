@@ -22,3 +22,31 @@
     :name "Trance"
     :desc "Elves don’t need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day. (The Common word for such meditation is “trance.”) While meditating, you can dream after a fashion; such dreams are actually mental exercises that have become reflexive through years of practice. After resting in this way, you gain the same benefit that a human does from 8 hours of sleep."}]}]
 
+[:!declare-subrace
+
+ :elf
+
+ {:id :elf/high-elf
+  :name "High Elf"
+  :&attrs
+  {:5e/&ability-score-increase
+   {:int 1}
+   :5e/spellcaster
+   {:cantrips [1 1]
+    :slots :none
+    :ability :int
+    :spells [:wizard/spells-list]}}
+
+  :+features
+  [
+   ; TODO Elf Weapon Training. You have proficiency with the longsword, shortsword, shortbow, and longbow.
+
+   {:id :high-elf/cantrip
+    :name "Cantrip"
+    :desc "You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it."}
+
+   {:id :high-elf/extra-language
+    :name "Extra Language"
+    :max-options 1
+    :values [:all-languages]}
+   ]}]
