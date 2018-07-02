@@ -6,7 +6,7 @@
 [:!add-to-list
 
  {:id :all-languages
-  :type :language}
+  :type :feature}
 
  {:id :lang/common
   :name "Common"}

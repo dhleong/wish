@@ -9,6 +9,7 @@
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
+            [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
             [wish.sources.core :refer [find-feature]]
             [wish.util :refer [->map process-map]]))
 
@@ -28,6 +29,7 @@
 ; ======= directives =======================================
 
 (declare apply-feature-directives)
+
 (def directives
   {:!add-limited-use
    (fn add-limited-use [state limited-use-map]
@@ -46,24 +48,10 @@
              (:id class-map) (compile-entity class-map)))
 
    :!declare-race
-   (fn declare-race [state race-map]
-     (update state :races
-             assoc
-             (:id race-map) (compile-entity race-map)))
+   declare-race
 
    :!declare-subrace
-   (fn declare-subrace [state parent-race-id subrace-map]
-     (let [parent (get-in state [:races parent-race-id])]
-       (if parent
-         (update state :races
-                 assoc
-                 (:id subrace-map)
-                 (assoc (apply-entity-mod parent subrace-map)
-                        :subrace-of parent-race-id))
-
-         (do
-           (log/err "Parent race " parent-race-id " for " (:id subrace-map) " not found")
-           state))))
+   declare-subrace
 
    :!declare-items
    (fn declare-items [state base & item-maps]
@@ -194,6 +182,7 @@
        ; deferred processing, now that all directives have been applied
        ; and all features/options should be available
        install-deferred-options
+       install-deferred-subraces
 
        (process-map :classes install-features)
        (process-map :races install-features)
@@ -215,8 +204,8 @@
       (reduce apply-directive state feature-directives)
 
       (do
+        ; NOTE: at this point, there may just be no directives to apply?
         (when-not the-feature
-          ; NOTE: at this point, there may just be no directives to apply?
           (log/warn "failed to apply " (:id the-feature)
                     (when option-value
                       (str " from " option-value
