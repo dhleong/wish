@@ -9,4 +9,8 @@
     :int 1
     :wis 1
     :cha 1}
-   :5e/speed 30}}]
+   :5e/size :medium
+   :5e/speed 30}
+
+  :features
+  [:lang/common]}]
