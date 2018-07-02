@@ -13,62 +13,6 @@
  {:id :save-proficiency/cha
   :! [[:!provide-attr :save-proficiency/cha true]]}]
 
-;; [:!provide-feature
-;;  {:id :proficiency/acrobatics
-;;   :name "Acrobatics"
-;;   :! [[:!provide-attr :proficiency/acrobatics true]]}
-;;  {:id :proficiency/animal-handling
-;;   :name "Animal Handling"
-;;   :! [[:!provide-attr :proficiency/animal-handling true]]}
-;;  {:id :proficiency/arcana
-;;   :name "Arcana"
-;;   :! [[:!provide-attr :proficiency/arcana true]]}
-;;  {:id :proficiency/athletics
-;;   :name "Athletics"
-;;   :! [[:!provide-attr :proficiency/athletics true]]}
-;;  {:id :proficiency/deception
-;;   :name "Deception"
-;;   :! [[:!provide-attr :proficiency/deception true]]}
-;;  {:id :proficiency/history
-;;   :name "History"
-;;   :! [[:!provide-attr :proficiency/history true]]}
-;;  {:id :proficiency/insight
-;;   :name "Insight"
-;;   :! [[:!provide-attr :proficiency/insight true]]}
-;;  {:id :proficiency/intimidation
-;;   :name "Intimidation"
-;;   :! [[:!provide-attr :proficiency/intimidation true]]}
-;;  {:id :proficiency/investigation
-;;   :name "Investigation"
-;;   :! [[:!provide-attr :proficiency/investigation true]]}
-;;  {:id :proficiency/medicine
-;;   :name "Medicine"
-;;   :! [[:!provide-attr :proficiency/medicine true]]}
-;;  {:id :proficiency/nature
-;;   :name "Nature"
-;;   :! [[:!provide-attr :proficiency/nature true]]}
-;;  {:id :proficiency/perception
-;;   :name "Perception"
-;;   :! [[:!provide-attr :proficiency/perception true]]}
-;;  {:id :proficiency/performance
-;;   :name "Performance"
-;;   :! [[:!provide-attr :proficiency/performance true]]}
-;;  {:id :proficiency/persuasion
-;;   :name "Persuasion"
-;;   :! [[:!provide-attr :proficiency/persuasion true]]}
-;;  {:id :proficiency/religion
-;;   :name "Religion"
-;;   :! [[:!provide-attr :proficiency/religion true]]}
-;;  [:id :proficiency/sleight-of-hand
-;;   :name "Sleight of Hand"
-;;   :! [[:!provide-attr :proficiency/sleight-of-hand true]]]
-;;  {:id :proficiency/stealth
-;;   :name "Stealth"
-;;   :! [[:!provide-attr :proficiency/stealth true]]}
-;;  {:id :proficiency/survival
-;;   :name "Survival"
-;;   :! [[:!provide-attr :proficiency/survival true]]}]
-
 [:!add-to-list
 
  {:id :all-skill-proficiencies
@@ -146,3 +90,165 @@
   :name "Survival"
   :implicit? true
   :! [[:!provide-attr :proficiency/survival true]]}]
+
+[:!add-to-list
+
+ {:id :all-tool-proficiencies
+  :type :feature}
+
+ {:id :proficiency/alchemists-supplies
+  :name "Alchemist's Supplies"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/alchemists-supplies true]]}
+ {:id :proficiency/bagpipes
+  :name "Bagpipes"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/bagpipes true]]}
+ {:id :proficiency/brewers-supplies
+  :name "Brewer's Supplies"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/brewers-supplies true]]}
+ {:id :proficiency/calligraphers-supplies
+  :name "Calligrapher's Supplies"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/calligraphers-supplies true]]}
+ {:id :proficiency/carpenters-tools
+  :name "Carpenter's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/carpenters-tools true]]}
+ {:id :proficiency/cartographers-tools
+  :name "Cartographer's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/cartographers-tools true]]}
+ {:id :proficiency/cobblers-tools
+  :name "Cobbler's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/cobblers-tools true]]}
+ {:id :proficiency/cooks-utensils
+  :name "Cook's Utensils"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/cooks-utensils true]]}
+ {:id :proficiency/dice-set
+  :name "Dice Set"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/dice-set true]]}
+ {:id :proficiency/disguise-kit
+  :name "Disguise Kit"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/disguise-kit true]]}
+ {:id :proficiency/dragonchess-set
+  :name "Dragonchess Set"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/dragonchess-set true]]}
+ {:id :proficiency/drum
+  :name "Drum"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/drum true]]}
+ {:id :proficiency/dulcimer
+  :name "Dulcimer"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/dulcimer true]]}
+ {:id :proficiency/flute
+  :name "Flute"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/flute true]]}
+ {:id :proficiency/forgery-kit
+  :name "Forgery Kit"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/forgery-kit true]]}
+ {:id :proficiency/glassblowers-tools
+  :name "Glassblower's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/glassblowers-tools true]]}
+ {:id :proficiency/herbalism-kit
+  :name "Herbalism Kit"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/herbalism-kit true]]}
+ {:id :proficiency/horn
+  :name "Horn"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/horn true]]}
+ {:id :proficiency/jewelers-tools
+  :name "Jeweler's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/jewelers-tools true]]}
+ {:id :proficiency/leatherworkers-tools
+  :name "Leatherworker's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/leatherworkers-tools true]]}
+ {:id :proficiency/lute
+  :name "Lute"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/lute true]]}
+ {:id :proficiency/lyre
+  :name "Lyre"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/lyre true]]}
+ {:id :proficiency/masons-tools
+  :name "Mason's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/masons-tools true]]}
+ {:id :proficiency/navigators-tools
+  :name "Navigator's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/navigators-tools true]]}
+ {:id :proficiency/painters-supplies
+  :name "Painter's Supplies"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/painters-supplies true]]}
+ {:id :proficiency/pan-flute
+  :name "Pan Flute"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/pan-flute true]]}
+ {:id :proficiency/playing-card-set
+  :name "Playing Card Set"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/playing-card-set true]]}
+ {:id :proficiency/poisoners-kit
+  :name "Poisoner's Kit"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/poisoners-kit true]]}
+ {:id :proficiency/potters-tools
+  :name "Potter's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/potters-tools true]]}
+ {:id :proficiency/shawm
+  :name "Shawm"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/shawm true]]}
+ {:id :proficiency/smiths-tools
+  :name "Smith's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/smiths-tools true]]}
+ {:id :proficiency/thieves-tools
+  :name "Thieves' Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/thieves-tools true]]}
+ {:id :proficiency/three-dragon-ante-set
+  :name "Three-Dragon Ante Set"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/three-dragon-ante-set true]]}
+ {:id :proficiency/tinkers-tools
+  :name "Tinker's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/tinkers-tools true]]}
+ {:id :proficiency/vehicles-land
+  :name "Vehicles (Land)"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/vehicles-land true]]}
+ {:id :proficiency/vehicles-water
+  :name "Vehicles (Water)"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/vehicles-water true]]}
+ {:id :proficiency/viol
+  :name "Viol"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/viol true]]}
+ {:id :proficiency/weavers-tools
+  :name "Weaver's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/weavers-tools true]]}
+ {:id :proficiency/woodcarvers-tools
+  :name "Woodcarver's Tools"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/woodcarvers-tools true]]}]

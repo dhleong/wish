@@ -51,4 +51,4 @@ You might also have ties to a specific temple dedicated to your chosen deity or 
         :name "Proficiencies (Choose either 2 tools, 2 languages, or one of each.)"
         :implicit? true
         :max-options 2
-        :values [:all-languages]}]]}] ; TODO tool proficiencies list
+        :values [:all-languages :all-tool-proficiencies]}]]}]
