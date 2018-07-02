@@ -40,7 +40,8 @@
     (map? f) (compile-feature f)
     (keyword? f) (let [data-source (:wish/data-source state)]
                    (or (get-in state [:features f])
-                       (src/find-feature data-source f)
+                       (when data-source
+                         (src/find-feature data-source f))
                        (log/warn "Could not find feature " f)))
     :else (log/warn "Unexpected feature def " f)))
 

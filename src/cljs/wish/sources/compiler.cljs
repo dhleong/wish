@@ -74,9 +74,10 @@
             args args]
        (let [features (inflate-features state args)
              features-map (->map features)
-             features-with-directives (->> features
-                                           (filter :!)
-                                           seq)
+             features-with-directives (when (:wish/data-source state)
+                                        (->> features
+                                             (filter :!)
+                                             seq))
 
              ; TODO apply filters?
              filters (filter vector? args)
