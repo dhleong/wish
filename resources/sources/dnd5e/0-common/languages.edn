@@ -10,6 +10,40 @@
 
  {:id :lang/common
   :name "Common"}
+
+ {:id :lang/aarakocra
+  :name "Aarakocra"}
+ {:id :lang/abyssal
+  :name "Abyssal"}
+ {:id :lang/aquan
+  :name "Aquan"}
+ {:id :lang/auran
+  :name "Auran"}
+ {:id :lang/celestial
+  :name "Celestial"}
+ {:id :lang/deep-speech
+  :name "Deep Speech"}
+ {:id :lang/draconic
+  :name "Draconic"}
+ {:id :lang/dwarvish
+  :name "Dwarvish"}
  {:id :lang/elvish
   :name "Elvish"}
- ]
+ {:id :lang/giant
+  :name "Giant"}
+ {:id :lang/gnomish
+  :name "Gnomish"}
+ {:id :lang/goblin
+  :name "Goblin"}
+ {:id :lang/halfling
+  :name "Halfling"}
+ {:id :lang/infernal
+  :name "Infernal"}
+ {:id :lang/orc
+  :name "Orc"}
+ {:id :lang/primordial
+  :name "Primordial"}
+ {:id :lang/sylvan
+  :name "Sylvan"}
+ {:id :lang/undercommon
+  :name "Undercommon"}]
