@@ -503,8 +503,10 @@
                                 (get options (:spells attrs)))
 
                    ; normal case:
-                   (expand-list data-source list-id nil)
-                   )]
+                   (expand-list data-source list-id nil))]
+
+      ; TODO limit visible spells by those actually available
+      ; (IE it must be of a level we can prepare)
       (->> source
            (map #(if (prepared-set (:id %))
                    (assoc % :prepared? true)
@@ -519,20 +521,10 @@
          vals
          flatten)))
 
-
-(reg-sub
-  ::race-spells
-  :<- [:race]
-  :<- [:sheet-source]
-  (fn [[race source]]
-    ; TODO
-    []))
-
 (reg-sub
   ::spell-attacks
   :<- [::spell-attack-bonuses]
   :<- [::all-prepared-spells]
-  :<- [::race-spells]
   (fn [[bonuses & spell-lists]]
     (->> spell-lists
          flatten
@@ -549,12 +541,13 @@
 (reg-sub
   ::spellcaster-classes
   :<- [:classes]
-  (fn [all-classes]
-    (filter (fn [c]
-              (-> c :attrs :5e/spellcaster))
-            all-classes)))
+  :<- [:races]
+  (fn [spellcaster-collections]
+    (->> spellcaster-collections
+         flatten
+         (filter (fn [c]
+                   (-> c :attrs :5e/spellcaster))))))
 
-; TODO races also have their own spellcasting ability modifier
 (reg-sub
   ::spellcasting-modifiers
   :<- [::abilities]
