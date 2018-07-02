@@ -327,7 +327,7 @@
          ; insert :to-hit calculation
          (map (fn [s]
                 (assoc s
-                       :to-hit (if (:versatile? s)
+                       :to-hit (if (:finesse? s)
                                  (+ proficiency-bonus
                                     (max (:str modifiers)
                                          (:dex modifiers)))
@@ -372,7 +372,7 @@
            (map
              (fn [w]
                (let [{{weap-bonus :+
-                       :keys [kind category ranged? versatile?]} :attrs} w
+                       :keys [kind category ranged? finesse?]} :attrs} w
 
                      ; we can be proficient in either the weapon's specific kind
                      ; (eg :longbow) or its category (eg :martial)
@@ -380,8 +380,8 @@
                                      (proficient-cats category))
 
                      ; we can use dex bonus if it's a ranged weapon OR if it's
-                     ; versatile
-                     dex-bonus (when (or ranged? versatile?)
+                     ; finesse?
+                     dex-bonus (when (or ranged? finesse?)
                                  (:dex modifiers))
 
                      ; we can use str bonus only for melee weapons
@@ -394,6 +394,8 @@
                      prof-bonus (when proficient?
                                   proficiency-bonus)
 
+                     ; TODO versatile? weapons have a different dam roll when
+                     ; used with two hands vs one hand
                      dam-bonus (let [b (+ weap-bonus chosen-bonus)]
                                  (when (not= b 0)
                                    b))]

@@ -20,7 +20,7 @@
     :name "Martial Arts"
     :! [[:!provide-feature
          {:id :unarmed-strike
-          :versatile? true
+          :finesse? true
           :dice (fn [level modifiers]
                   (let [m (max (:str modifiers)
                                (:dex modifiers))]
