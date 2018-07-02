@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
-  (:require-macros [wish.util.log :refer [log]])
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :refer [ability->mod ->die-use-kw]]
@@ -350,6 +350,8 @@
          (map (fn [w]
                 ; NOTE I don't *think* weapon damage scales?
                 ; TODO add :to-hit based on weapon type and stats
+                ; TODO add the appropriate damage bonus
+                (log/todo "to-hit and dmg bonus for weapons")
                 (assoc w :base-dice (:dice w)))))))
 
 
