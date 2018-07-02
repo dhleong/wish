@@ -38,10 +38,7 @@
     :spells :wizard/spells-list}}
 
   :+features
-  [
-   ; TODO Elf Weapon Training. You have proficiency with the longsword, shortsword, shortbow, and longbow.
-
-   {:id :high-elf/cantrip
+  [{:id :high-elf/cantrip
     :name "Cantrip"
     :desc "You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it."}
 
@@ -49,4 +46,11 @@
     :name "Extra Language"
     :max-options 1
     :values [:all-languages]}
-   ]}]
+
+   {:id :high-elf/elf-weapon-training
+    :name "Elf Weapon Training"
+    :desc "You have proficiency with the longsword, shortsword, shortbow, and longbow."
+    :! [[:!provide-attr [:weapon-kinds :longsword] true]
+        [:!provide-attr [:weapon-kinds :longbow] true]
+        [:!provide-attr [:weapon-kinds :shortsword] true]
+        [:!provide-attr [:weapon-kinds :shortbow] true]]}]}]

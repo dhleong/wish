@@ -286,7 +286,7 @@
   :<- [:classes]
   :<- [::ability-modifiers]
   (fn [[classes modifiers]]
-    ; TODO AC from equipped armor
+    ; TODO AC bonuses, AC from equipped armor
     (let [ac-sources (mapcat (comp vals :5e/ac :attrs) classes)
           fn-context {:modifiers modifiers}]
       (apply max
@@ -341,18 +341,69 @@
 
 ; ======= items and equipment ==============================
 
+; returns a map of :kinds and :categories
+(reg-sub
+  ::eq-proficiencies
+  :<- [:classes]
+  :<- [:races]
+  (fn [entity-lists]
+    (->> entity-lists
+         flatten
+         (map :attrs)
+         (reduce
+           (fn [m attrs]
+             (-> m
+                 (update :kinds conj (:weapon-kinds attrs))
+                 (update :categories conj (:weapon-categories attrs))))
+           {:kinds {}
+            :categories {}}))))
+
 (reg-sub
   ::equipped-weapons
   :<- [:equipped-sorted]
-  (fn [all-equipped]
-    (->> all-equipped
-         (filter #(= :weapon (-> % :attrs :type)))
-         (map (fn [w]
-                ; NOTE I don't *think* weapon damage scales?
-                ; TODO add :to-hit based on weapon type and stats
-                ; TODO add the appropriate damage bonus
-                (log/todo "to-hit and dmg bonus for weapons")
-                (assoc w :base-dice (:dice w)))))))
+  :<- [::eq-proficiencies]
+  :<- [::ability-modifiers]
+  :<- [::proficiency-bonus]
+  (fn [[all-equipped proficiencies modifiers proficiency-bonus]]
+    (let [{proficient-kinds :kinds
+           proficient-cats :categories} proficiencies]
+      (->> all-equipped
+           (filter #(= :weapon (-> % :attrs :type)))
+           (map
+             (fn [w]
+               (let [{{weap-bonus :+
+                       :keys [kind category ranged? versatile?]} :attrs} w
+
+                     ; we can be proficient in either the weapon's specific kind
+                     ; (eg :longbow) or its category (eg :martial)
+                     proficient? (or (proficient-kinds kind)
+                                     (proficient-cats category))
+
+                     ; we can use dex bonus if it's a ranged weapon OR if it's
+                     ; versatile
+                     dex-bonus (when (or ranged? versatile?)
+                                 (:dex modifiers))
+
+                     ; we can use str bonus only for melee weapons
+                     str-bonus (when (not ranged?)
+                                 (:str modifiers))
+
+                     ; this is also added to the atk roll
+                     chosen-bonus (max dex-bonus str-bonus)
+
+                     prof-bonus (when proficient?
+                                  proficiency-bonus)
+
+                     dam-bonus (let [b (+ weap-bonus chosen-bonus)]
+                                 (when (not= b 0)
+                                   b))]
+
+                 ; NOTE I don't *think* weapon damage ever scales?
+                 (assoc w
+                        :base-dice (if dam-bonus
+                                     (str (:dice w) "+" dam-bonus)
+                                     (:dice w))
+                        :to-hit (+ dam-bonus prof-bonus)))))))))
 
 
 ; ======= Spells ===========================================

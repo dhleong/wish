@@ -6,9 +6,23 @@
 
  {:id :longbow
   :name "Longbow"
-  :attrs {:martial? true
+  :attrs {:category :martial
+          :kind :longbow
           :heavy? true
           :two-handed? true
+          :range [150 600]}
+  :cost [50 :g]
+  :damage :piercing
+  :dice "1d8"}
+
+ ; TODO sub-items to avoid repeating ourselves here?
+ {:id :longbow+1
+  :name "Longbow + 1"
+  :attrs {:category :martial
+          :kind :longbow
+          :heavy? true
+          :two-handed? true
+          :+ 1
           :range [150 600]}
   :cost [50 :g]
   :damage :piercing
