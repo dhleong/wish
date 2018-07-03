@@ -1,12 +1,27 @@
 
 [:!provide-feature
+
+ ;; Racial features
+
  {:id :darkvision
   :name "Darkvision"
-  :desc "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can’t discern color in darkness, only shades of gray."}]
+  :desc "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can’t discern color in darkness, only shades of gray."}
 
-[:!provide-feature
  {:id :fey-ancestry
   :name "Fey Ancestry"
   :desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."
   :! [[:!provide-attr [:saves :fey-ancestry]
-       {:desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."}]]}]
+       {:desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."}]]}
+
+ ;; Common level-up features
+ {:id :ability-improvement#1
+  :name "Ability Score Improvement #1"
+  :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature."
+  ; TODO
+  }
+
+ {:id :extra-attack
+  :name "Extra Attack"
+  :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn."}
+
+ ]

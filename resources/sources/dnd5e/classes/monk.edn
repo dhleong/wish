@@ -40,4 +40,84 @@
          (fn [modifiers]
            (+ 10
               (:dex modifiers)
-              (:wis modifiers)))]]}]}]
+              (:wis modifiers)))]]}]
+
+  :&levels {2 {:+features
+               [{:id :monk/ki
+                 :name "Ki"
+                 :desc "Starting at 2nd level, your training allows you to harness the mystic energy of ki. Your access to this energy is represented by a number of ki points. Your monk level determines the number of points you have, as shown in the Ki Points column of the Monk table.
+                        You can spend these points to fuel various ki features. You start knowing three such features: Flurry of Blows, Patient Defense, and Step of the Wind. You learn more ki features as you gain levels in this class.
+
+                        When you spend a ki point, it is unavailable until you finish a short or long rest, at the end of which you draw all of your expended ki back into yourself. You must spend at least 30 minutes of the rest meditating to regain your ki points.
+
+                        Some of your ki features require your target to make a saving throw to resist the feature’s effects. The saving throw DC is calculated as follows:
+
+                        8 + your proficiency bonus + your Wisdom modifier"
+                 :! [[:!add-limited-use
+                      {:id :monk/ki#uses
+                       :name "Ki Points"
+                       :restore-trigger :short-rest
+                       :uses (fn [level] level)}]]}
+
+                {:id :monk/flurry-of-blows
+                 :name "Flurry of Blows"
+                 :desc "Immediately after you take the Attack action on your turn, you can spend 1 ki point to make two unarmed strikes as a bonus action."
+                 :consumes :monk/ki#uses
+                 :! [[:!provide-attr
+                      [:bonus :monk/flurry-of-blows]
+                      true]]}
+
+                {:id :monk/patient-defense
+                 :name "Patient Defense"
+                 :desc "You can spend 1 ki point to take the Dodge action as a bonus action on your turn."
+                 :consumes :monk/ki#uses
+                 :! [[:!provide-attr
+                      [:bonus :monk/patient-defense]
+                      true]]}
+
+                {:id :monk/step-of-wind
+                 :name "Step of the Wind"
+                 :desc "You can spend 1 ki point to take the Disengage or Dash action as a bonus action on your turn, and your jump distance is doubled for the turn."
+                 :consumes :monk/ki#uses
+                 :! [[:!provide-attr
+                      [:bonus :monk/step-of-wind]
+                      true]]}]}
+
+            3 {:+features
+               [{:id :monk/monastic
+                 :name "Monastic Tradition"
+                 :desc "When you reach 3rd level, you commit yourself to a monastic tradition."
+                 :max-options 1}
+
+                {:id :monk/deflect-missiles
+                 :name "Deflect Missiles"
+                 :desc "Starting at 3rd level, you can use your reaction to deflect or catch the missile when you are hit by a ranged weapon attack. When you do so, the damage you take from the attack is reduced by 1d10 + your Dexterity modifier + your monk level.
+                        If you reduce the damage to 0, you can catch the missile if it is small enough for you to hold in one hand and you have at least one hand free. If you catch a missile in this way, you can spend 1 ki point to make a ranged attack with the weapon or piece of ammunition you just caught, as part of the same reaction. You make this attack with proficiency, regardless of your weapon proficiencies, and the missile counts as a monk weapon for the attack, which has a normal range of 20 feet and a long range of 60 feet."
+                 :consumes :monk/ki#uses
+                 :! [[:!provide-attr
+                      [:reaction :monk/deflect-missiles]
+                      true]]}]}
+
+            4 {:+features
+               [:ability-improvement#1
+
+                {:id :monk/slow-fall
+                 :name "Slow Fall"
+                 :desc "Beginning at 4th level, you can use your reaction when you fall to reduce any falling damage you take by an amount equal to five times your monk level."
+                 :! [[:!provide-attr
+                      [:reaction :monk/slow-fall]
+                      true]]}]}
+
+            5 {:+features
+               [:extra-attack
+
+                {:id :monk/stunning-strike
+                 :name "Stunning Strike"
+                 :desc "Starting at 5th level, you can interfere with the flow of ki in an opponent’s body. When you hit another creature with a melee weapon attack, you can spend 1 ki point to attempt a stunning strike. The target must succeed on a Constitution saving throw or be stunned until the end of your next turn."
+                 :consumes :monk/ki#uses}]}
+
+            6 {:+features
+               [{:id :monk/ki-empowered-strikes
+                 :name "Ki-Empowered Strikes"
+                 :desc "Starting at 6th level, your unarmed strikes count as magical for the purpose of overcoming resistance and immunity to nonmagical attacks and damage."}]}
+            }}]
