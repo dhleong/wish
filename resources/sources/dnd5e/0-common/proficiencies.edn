@@ -252,3 +252,25 @@
   :name "Woodcarver's Tools"
   :implicit? true
   :! [[:!provide-attr :proficiency/woodcarvers-tools true]]}]
+
+[:!add-to-list
+ {:id :weapon-kind-proficiencies
+  :type :feature}
+
+ {:id :proficiency/longbow
+  :name "Longbow"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :longbow] true]]}
+ {:id :proficiency/longsword
+  :name "Longsword"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :longsword] true]]}
+
+ {:id :proficiency/shortbow
+  :name "Shortbow"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :shortbow] true]]}
+ {:id :proficiency/shortsword
+  :name "Shortsword"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :shortsword] true]]}]
