@@ -6,7 +6,6 @@
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [clojure.string :as str]
-            [cljs.reader :as edn]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.sheets.util :refer [make-id]]
             [wish.util :refer [>evt]]
@@ -267,14 +266,6 @@
 
             ; success:
             [nil (.-body resp)]))))
-
-  (load-sheet
-    [this id]
-    (go (let [[err body] (<! (load-raw this id))]
-          (if err
-            [err nil]
-
-            [nil (edn/read-string body)]))))
 
   (save-sheet [this file-id data]
     (log/info "Save " file-id data)

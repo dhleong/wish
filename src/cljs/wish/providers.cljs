@@ -5,6 +5,7 @@
                    [wish.util.log :as log])
   (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
+            [cljs.reader :as edn]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.wish :as wish]
@@ -66,20 +67,19 @@
 
 (defn load-sheet!
   [sheet-id]
-  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
-    (if-let [{:keys [inst]} (get providers provider-id)]
-      (go (let [[err data] (<! (provider/load-sheet
-                                 inst pro-sheet-id))]
-            (if err
-              (do (log/err "Failed to load sheet: " err)
-                  (>evt [:put-sheet-error! sheet-id
-                         {:err err
-                          :retry-evt [:load-sheet! sheet-id]}]))
+  (go (let [[err data] (<! (load-raw sheet-id))
+            [sheet-err sheet] (when data
+                                (try
+                                  [nil (edn/read-string data)]
+                                  (catch :default e
+                                    [e nil])))]
+        (if-let [e (or err sheet-err)]
+          (do (log/err "Failed to load sheet: " e)
+              (>evt [:put-sheet-error! sheet-id
+                     {:err e
+                      :retry-evt [:load-sheet! sheet-id]}]))
 
-              (>evt [:put-sheet! sheet-id data]))))
-
-      (throw (js/Error. (str "No provider instance for " sheet-id
-                             "(" provider-id " / " pro-sheet-id ")"))))))
+          (>evt [:put-sheet! sheet-id sheet])))))
 
 (defn save-sheet!
   [sheet-id data on-done]

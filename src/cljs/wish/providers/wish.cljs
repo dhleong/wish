@@ -40,9 +40,6 @@
       ; return the ch
       ch))
 
-  (load-sheet [this id]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
-
   (save-sheet [this file-id data]
     (to-chan [[(js/Error. "Not implemented") nil]])))
 

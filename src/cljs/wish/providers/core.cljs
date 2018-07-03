@@ -16,16 +16,7 @@
 
   (load-raw
     [this id]
-    "Load raw data with the given provider-specific `id`. This method
-     can be used to load the raw text from directive files when loading
-     a data-source.
-
-     This returns a channel that emits `[err data]`, where `err`
-     will be nil on success.")
-
-  (load-sheet
-    [this id]
-    "Load the sheet with the given provider-specific `id`.
+    "Load raw data with the given provider-specific `id`.
 
      This returns a channel that emits `[err data]`, where `err`
      will be nil on success.")
