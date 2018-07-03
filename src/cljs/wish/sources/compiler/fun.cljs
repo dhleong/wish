@@ -153,8 +153,6 @@
         {:eval (fn [src]
                  (let [src (update src :source process-source)]
                    (try
-                     ;; (println "eval: " form
-                     ;;          "\n->" (:source src))
                      (js-eval src)
                      (catch :default e
                        (js/console.warn (str "FAILED to js/eval:\n\n"
@@ -164,10 +162,6 @@
                                 (str "FAILED to js/eval:\n\n"
                                      (:source src)
                                      "\n\nOriginal error: " (.-stack e))))))))
-
-         ;; :load (fn [opts cb]
-         ;;         (println ":load " opts)
-         ;;         (throw (js/Error. "Could not require wish.sources.compiler.fun")))
 
          :context :expr
          ;; :source-map true

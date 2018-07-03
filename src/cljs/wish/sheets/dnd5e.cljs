@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
@@ -298,7 +299,7 @@
    (cond
      (= 1 uses) [usage-box-single item (> used-count 0)]
      :else (do
-             (println "Handle " uses " uses")
+             (log/todo "Handle " uses " uses")
              [:div (str (- uses used-count)
                         " uses remaining")]))])
 

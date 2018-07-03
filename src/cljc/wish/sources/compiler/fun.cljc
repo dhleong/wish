@@ -37,7 +37,6 @@
         core-ns (-> fn-symbol resolve meta :ns ns-name name)
         core-ns-symbol (symbol core-ns n)]
     `(as-> ~m ~'m
-       ;; (println ~(meta (resolve fn-symbol)))
        (do
          (defn ^:export ~exported-symbol
            [& ~'args]

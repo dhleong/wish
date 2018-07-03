@@ -232,7 +232,6 @@
           {:on-click (click>evts [:trigger-limited-use-restore :short-rest]
                                  [:+uses (reduce-kv
                                            (fn [m die-size rolls]
-                                             (println "ROLLS" rolls)
                                              (assoc m
                                                     (->die-use-kw
                                                       die-size)

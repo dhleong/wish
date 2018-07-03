@@ -25,7 +25,7 @@
       (and (list? o)
            (= 'fn (first o))) (->callable o)
 
-      :else #(println "Invalid :max-options " o))))
+      :else #(log/warn "Invalid :max-options " o))))
 
 (defn compile-feature
   "Compile a feature map"

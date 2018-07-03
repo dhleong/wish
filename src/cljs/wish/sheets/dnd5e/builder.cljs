@@ -169,7 +169,6 @@
                     (.preventDefault e)
                     ; TODO first, show a preview of the class features
 
-                    (println "Select " c)
                     (>evt [:update-meta [:classes]
                            assoc (:id c)
 

@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "new-sheet"}
   wish.views.new-sheet
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go]]
+                   [wish.util.log :as log])
   (:require [clojure.core.async :refer [chan <!]]
             [clojure.string :as str]
             [reagent.core :as r]
@@ -44,7 +45,7 @@
     (:sheet data)))
 
 (defn on-create-success [sheet-id]
-  (println "Created sheet with id " sheet-id " successfully")
+  (log/info "Created sheet with id " sheet-id " successfully")
   (nav/replace! (sheet-url sheet-id "builder")))
 
 (defn new-sheet-page []
