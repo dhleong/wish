@@ -39,6 +39,48 @@
   (keyword "gdrive" gapi-id))
 
 ;;
+;; gapi wrappers
+;;
+
+(defn- query-files
+  [q & {page-size :max
+        :keys [on-error on-success]
+        :or {page-size 50
+             on-error (fn [e]
+                        (log/err "ERROR listing files" e))}}]
+
+  (-> js/gapi.client.drive.files
+      (.list #js {:q q
+                  :pageSize page-size
+                  :spaces "drive,appDataFolder"
+                  :fields "nextPageToken, files(id, name)"})
+      (.then (fn [response]
+               (log "FILES LIST:" response)
+               (let [response (js->clj response :keywordize-keys true)]
+                 (on-success
+                   (->> response
+                        :result
+                        :files
+                        (map
+                          (fn [raw-file]
+                            [(make-id :gdrive (:id raw-file))
+                             (select-keys raw-file
+                                          [:name])]))))))
+             on-error)))
+
+(defn- update-meta
+  "Update the metadata on a file. Useful for eg:
+   (update-meta
+     :new-source
+     {:appProperties {:wish-type \"data-source\"}})"
+  [file-id metadata]
+  (-> js/gapi.client.drive.files
+      (.update (clj->js
+                 (assoc metadata
+                        :fileId file-id)))
+      promise->chan))
+
+;;
 ;; State management and API interactions
 ;;
 
@@ -65,7 +107,6 @@
   []
   (js/gapi.auth2.getAuthInstance))
 
-(declare on-files-list)
 (defn- update-signin-status!
   [signed-in?]
   (log/info "signed-in? <-" signed-in?)
@@ -74,30 +115,12 @@
                                         :signed-out)])
   (when signed-in?
     (>evt [:mark-provider-listing! :gdrive true])
-    (-> js/gapi.client.drive.files
-        (.list #js {:q "appProperties has { key='wish-type' and value='wish-sheet' }"
-                    :pageSize 50
-                    :spaces "drive,appDataFolder"
-                    :fields "nextPageToken, files(id, name)"})
-        (.then on-files-list
-               (fn [e]
-                 (log/err "ERROR listing files" e))))))
-
-(defn on-files-list
-  [response]
-  (log/info "FILES LIST:" response)
-  (let [response (js->clj response :keywordize-keys true)
-        files (->> response
-                   :result
-                   :files
-                   (map
-                     (fn [raw-file]
-                       [(make-id :gdrive (:id raw-file))
-                        (select-keys raw-file
-                                     [:name])])))]
-    (log/info "Found: " files)
-    (>evt [:add-sheets files])
-    (>evt [:mark-provider-listing! :gdrive false])))
+    (query-files
+      "appProperties has { key='wish-type' and value='wish-sheet' }"
+      :on-success (fn on-files-list [files]
+                    (log/info "Found: " files)
+                    (>evt [:add-sheets files])
+                    (>evt [:mark-provider-listing! :gdrive false])))))
 
 (defn- on-client-init
   []
@@ -108,6 +131,7 @@
   (-> (auth-instance)
       (.-isSignedIn)
       (.listen update-signin-status!))
+
   ; set current status immediately
   (update-signin-status!
     (-> (auth-instance)
@@ -266,6 +290,15 @@
 
             ; success:
             [nil (.-body resp)]))))
+
+  (query-data-sources [this]
+    ; TODO indicate query state?
+    (query-files
+      "appProperties has { key='wish-type' and value='data-source' }"
+      :on-success (fn [files]
+                    ; TODO
+                    (println "Found data sources: " files)
+                    )))
 
   (save-sheet [this file-id data]
     (log/info "Save " file-id data)

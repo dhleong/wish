@@ -21,6 +21,10 @@
      This returns a channel that emits `[err data]`, where `err`
      will be nil on success.")
 
+  (query-data-sources
+    [this]
+    "Query for known data sources, storing into the DB directly")
+
   (save-sheet
     [this id data]
     "Save `data` into the the sheet with the given provider-specific

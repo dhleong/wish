@@ -40,6 +40,8 @@
       ; return the ch
       ch))
 
+  (query-data-sources [this]) ; TODO we probably need to insert builtins...
+
   (save-sheet [this file-id data]
     (to-chan [[(js/Error. "Not implemented") nil]])))
 

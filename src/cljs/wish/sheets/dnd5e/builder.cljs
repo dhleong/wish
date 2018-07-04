@@ -56,7 +56,7 @@
        [:input {:field :text
                 :id :name}]
 
-       ; TODO pick data sources
+       ; TODO pick data sources (this should be a built-in component)
        [:div
         [:p "Data Sources"
          "(TODO)"]]]

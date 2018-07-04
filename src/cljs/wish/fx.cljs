@@ -12,7 +12,7 @@
 
 
 (reg-fx :providers/init! providers/init!)
-
+(reg-fx :providers/query-data-sources providers/query-data-sources!)
 
 ; ======= sheet load requests ==============================
 

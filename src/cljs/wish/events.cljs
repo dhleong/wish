@@ -56,6 +56,12 @@
                    disj)]
       (update db :providers-listing method provider-id))))
 
+(reg-event-fx
+  :query-data-sources
+  [trim-v]
+  (fn-traced [cofx]
+    {:providers/query-data-sources :query}))
+
 
 ; ======= sheet-meta + builder stuff =======================
 

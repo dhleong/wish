@@ -81,6 +81,13 @@
 
           (>evt [:put-sheet! sheet-id sheet])))))
 
+(defn query-data-sources!
+  "Triggers an async query of available datasources from configured providers"
+  []
+  (doseq [{:keys [inst]} (vals providers)]
+    (when inst
+      (provider/query-data-sources inst))))
+
 (defn save-sheet!
   [sheet-id data on-done]
   (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
