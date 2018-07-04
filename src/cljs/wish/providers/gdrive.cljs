@@ -38,6 +38,9 @@
   [gapi-id]
   (keyword "gdrive" gapi-id))
 
+(defn- ->clj [v]
+  (js->clj v :keywordize-keys true))
+
 ;;
 ;; gapi wrappers
 ;;
@@ -56,16 +59,16 @@
                   :fields "nextPageToken, files(id, name)"})
       (.then (fn [response]
                (log "FILES LIST:" response)
-               (let [response (js->clj response :keywordize-keys true)]
-                 (on-success
-                   (->> response
-                        :result
-                        :files
-                        (map
-                          (fn [raw-file]
-                            [(make-id :gdrive (:id raw-file))
-                             (select-keys raw-file
-                                          [:name])]))))))
+               (on-success
+                 (->> response
+                      ->clj
+                      :result
+                      :files
+                      (map
+                        (fn [raw-file]
+                          [(make-id :gdrive (:id raw-file))
+                           (select-keys raw-file
+                                        [:name])])))))
              on-error)))
 
 (defn- update-meta
@@ -106,6 +109,15 @@
    @return {gapi.AuthInstance}"
   []
   (js/gapi.auth2.getAuthInstance))
+
+(defn- access-token
+  "When logged in, get the current user's access token"
+  []
+  (-> (auth-instance)
+      (.-currentUser)
+      (.get)
+      (.getAuthResponse)
+      (.-access_token)))
 
 (defn- update-signin-status!
   [signed-in?]
@@ -245,6 +257,55 @@
           ; no problem; pass it along
           :else [nil resp]))))
 
+; ======= file picker ======================================
+
+(defonce ^:private picker-api-loaded (atom false))
+
+(defn- do-pick-file []
+  (let [ch (chan)]
+    (-> (js/google.picker.PickerBuilder.)
+        (.addView (doto (js/google.picker.View.
+                          js/google.picker.ViewId.DOCS)
+                    (.setMimeTypes "application/edn,application/json,text/plain")))
+        (.addView (js/google.picker.DocsUploadView.))
+        (.setAppId client-id)
+        (.setOAuthToken (access-token))
+        (.setCallback
+          (fn [result]
+            (let [result (->clj result)
+                  uploaded? (= "upload"
+                               (-> result :viewToken first))]
+              (log "Picked: (wasUpload=" uploaded? ") " result)
+              (case (:action result)
+                "cancel" (put! ch [nil nil])
+                "picked" (do
+                           (when uploaded?
+                             ; TODO update mime type and annotate with :wish-type
+                             )
+                           (put! ch [nil (-> result
+                                            :docs
+                                            first
+                                            :id)]))
+                (log "Other pick action")))))
+        (.build)
+        (.setVisible true))
+    ; return the channel
+    ch))
+
+(defn pick-file []
+  (if @picker-api-loaded
+    ; loaded! do it now
+    (do-pick-file)
+
+    ; load first
+    (do
+      (println "Loading picker API")
+      (js/gapi.load "picker" (fn []
+                               (reset! picker-api-loaded true)
+                               (do-pick-file))))))
+
+; ======= Provider def =====================================
+
 (deftype GDriveProvider []
   IProvider
   (id [this] :gdrive)
@@ -299,6 +360,10 @@
                     ; TODO
                     (println "Found data sources: " files)
                     )))
+
+  (register-data-source [this]
+    ; TODO sanity checks galore
+    (pick-file))
 
   (save-sheet [this file-id data]
     (log/info "Save " file-id data)

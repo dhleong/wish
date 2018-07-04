@@ -57,6 +57,7 @@
                 :id :name}]
 
        ; TODO pick data sources (this should be a built-in component)
+       (>evt [:query-data-sources])
        [:div
         [:p "Data Sources"
          "(TODO)"]]]

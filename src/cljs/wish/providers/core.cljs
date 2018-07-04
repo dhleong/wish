@@ -21,6 +21,10 @@
      This returns a channel that emits `[err data]`, where `err`
      will be nil on success.")
 
+  (register-data-source
+    [this]
+    "Launch a UX flow to register a new data source from this provider")
+
   (query-data-sources
     [this]
     "Query for known data sources, storing into the DB directly")
