@@ -65,6 +65,9 @@
 
 (deftype CompositeDataSource [id delegates]
   IDataSource
+  (id [this]
+    (.-id this))
+
   (expand-list [this id options]
     (cat-all this
              #(expand-list % id options)))
@@ -73,6 +76,8 @@
     (first-delegate-by-id this find-class id))
   (find-feature [this id]
     (first-delegate-by-id this find-feature id))
+  (find-item [this id]
+    (first-delegate-by-id this find-item id))
   (find-list-entity [this id]
     (first-delegate-by-id this find-list-entity id))
   (find-race [this id]
@@ -80,10 +85,7 @@
 
   (list-entities [this kind]
     (cat-all this
-             #(list-entities % kind)))
-
-  (id [this]
-    (.-id this)))
+             #(list-entities % kind))))
 
 (defn composite
   [id sources]

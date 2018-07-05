@@ -31,7 +31,7 @@
   "Returns a channel that signals with [err] or [nil source] when done"
   [source-id]
   (go (if-let [existing (get @loaded-sources source-id)]
-        existing
+        [nil existing]
 
         (let [[err raw] (<! (providers/load-raw source-id))]
           (if err
@@ -42,6 +42,7 @@
               (let [compiled (compile-raw-source source-id raw)]
                 ; cache the compiled source for for later
                 (swap! loaded-sources assoc source-id compiled)
+                (log "Compiled " source-id compiled)
 
                 [nil compiled])
 
@@ -68,9 +69,13 @@
       (let [source-chs (map load-source! sources)
             total-count (count sources)]
         (log/info "load " sources)
-        (go-loop [resolved []]
-          (let [[[err loaded-src] _] (alts! source-chs)
-                new-resolved (conj resolved loaded-src)]
+        (go-loop [source-chs source-chs
+                  resolved []]
+          (let [[[err loaded-src] port] (alts! source-chs)
+                new-resolved (if err
+                               resolved
+                               (conj resolved loaded-src))]
+            (log "loaded: " err loaded-src)
             (cond
               err
               (do
@@ -90,4 +95,7 @@
               :else
               (do
                 (log/info "loaded " (id loaded-src) "; still waiting...")
-                (recur new-resolved)))))))))
+                (recur (filterv
+                        (partial not= port)
+                        source-chs)
+                       new-resolved)))))))))

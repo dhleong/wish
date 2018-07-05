@@ -88,6 +88,17 @@
   (fn-traced [cofx [path f & args]]
     (apply update-sheet-path cofx path f args)))
 
+(reg-event-fx
+  :set-sheet-data-sources
+  [trim-v]
+  (fn-traced [cofx [sheet-id data-sources]]
+    (assoc-in
+      (update-sheet-path cofx
+                         [:sources]
+                         (constantly (vec data-sources)))
+
+      ; delete the sheet source to trigger a reload
+      [:db :sheet-sources sheet-id] nil)))
 
 ; ======= sheet-related ====================================
 

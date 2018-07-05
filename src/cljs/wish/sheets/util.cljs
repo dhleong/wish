@@ -12,7 +12,10 @@
             sheet-id
             (keyword sheet-id))]
     [(keyword (namespace k))
-     (name k)]))
+
+     ; NOTE: as below, provider sheet id is prefied with K to safely handle
+     ; provider-specific IDs that start with a number
+     (subs (name k) 1)]))
 
 (defn make-id
   "Pack a provider id and a provider-specific id
@@ -21,7 +24,11 @@
   (keyword (if (keyword? provider-id)
              (name provider-id)
              (str provider-id))
-           pro-sheet-id))
+
+           ; NOTE we now ALWAYS prefix the provider-specific id with `w`
+           ; to ensure we generate valid keywords if the provider sheet
+           ; id starts with a number
+           (str "w" pro-sheet-id)))
 
 
 ; ======= Sheet-modification utils =========================
