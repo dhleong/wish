@@ -4,7 +4,7 @@
   {:page [:home]
    :provider-states {}
 
-   ; map of provider-id -> [{:id,:name,}]
+   ; map of :id -> {:id,:name,}
    :data-sources {}
 
    :sheets {}

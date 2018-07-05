@@ -34,7 +34,6 @@
     (->> db
          :data-sources
          vals
-         (apply concat)
          seq)))
 
 
@@ -58,6 +57,7 @@
 (reg-sub :sheet-sources :sheet-sources)
 
 (reg-sheet-sub :sheet :sheet)
+(reg-sheet-sub ::sources :sources)
 (reg-sheet-sub :sheet-kind :kind)
 (reg-sheet-sub :class-metas (comp vals :classes))
 (reg-sheet-sub :race-ids :races)
@@ -66,6 +66,11 @@
 (reg-sheet-sub :inventory :inventory)
 (reg-sheet-sub :items :items)
 (reg-sheet-sub :equipped :equipped)
+
+(reg-sub
+  :active-sheet-source-ids
+  :<- [::sources]
+  set)
 
 (reg-sub
   :active-sheet-id

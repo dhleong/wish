@@ -63,6 +63,22 @@
     {:providers/query-data-sources :query}))
 
 
+; ======= data source management ===========================
+
+; expects infos to be [{:id,:name}]
+(reg-event-db
+  :add-data-sources
+  [trim-v]
+  (fn-traced [db [infos]]
+    (reduce
+      (fn [db info]
+        (assoc-in db
+                  [:data-sources (:id info)]
+                  info))
+      db
+      infos)))
+
+
 ; ======= sheet-meta + builder stuff =======================
 
 ; this is probably too general...

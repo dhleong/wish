@@ -13,7 +13,8 @@
                               "/sources"))
 
 (def ^:private builtin-sources
-  {"dnd5e-srd" "/dnd5e.edn"})
+  {"dnd5e-srd" {:name "D&D 5e System Reference Document"
+                :path "/dnd5e.edn"}})
 
 (deftype WishProvider []
   IProvider
@@ -26,7 +27,7 @@
   (load-raw
     [this id]
     (let [ch (chan)
-          url (str data-root (builtin-sources id))]
+          url (str data-root (:path (builtin-sources id)))]
       (if url
         (GET url
              {:handler (fn [raw]
@@ -40,7 +41,11 @@
       ; return the ch
       ch))
 
-  (query-data-sources [this]) ; TODO we probably need to insert builtins...
+  (query-data-sources [this]
+    (>evt [:add-data-sources
+           (map (fn [[str-id info]]
+                  (assoc info :id (make-id :wish str-id)))
+                builtin-sources)]))
 
   (register-data-source [this]
     (to-chan [[(js/Error. "Not implemented") nil]]))

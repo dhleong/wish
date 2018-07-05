@@ -66,29 +66,35 @@
 
 (defn data-source-manager []
   (>evt [:query-data-sources])
-  [:div
-   [:h3 "Data Sources"]
-   [:div
-    (if-let [sources (<sub [:data-sources])]
-      (for [s sources]
-        ^{:key (:id s)}
+  (let [selected-source-ids (<sub [:active-sheet-source-ids])]
+    [:div
+     [:h3 "Data Sources"]
+     [:div
+      (if-let [sources (<sub [:data-sources])]
+        (for [s sources]
+          (let [{:keys [id]} s]
+            ^{:key id}
+            [:div
+             [:input {:id id
+                      :name 'sources
+                      :type 'checkbox
+                      :checked (contains? selected-source-ids id)}]
+             [:label {:for id}
+              (:name s)]]))
+
+        [:<> "No data sources available"])]
+
+     [:h5 "Add New Data Source on:"]
+     [:div
+
+      (for [[provider-id state] (<sub [:provider-states])]
+        ^{:key provider-id}
         [:div
-         ; TODO selectable
-         (:name s)])
-
-      [:<> "No data sources available"])]
-
-   [:h5 "Add New Data Source on:"]
-   [:div
-
-    (for [[provider-id state] (<sub [:provider-states])]
-      ^{:key provider-id}
-      [:div
-       [:a {:href "#"
-            :on-click (fn [e]
-                        (.preventDefault e)
-                        (providers/register-data-source provider-id))}
-        (:name (providers/get-info provider-id))]
-       (when (= state :signed-out)
-         [link {:href (str "/providers/" (name provider-id) "/config")}
-          "Configure"])])]])
+         [:a {:href "#"
+              :on-click (fn [e]
+                          (.preventDefault e)
+                          (providers/register-data-source provider-id))}
+          (:name (providers/get-info provider-id))]
+         (when (= state :signed-out)
+           [link {:href (str "/providers/" (name provider-id) "/config")}
+            "Configure"])])]]))

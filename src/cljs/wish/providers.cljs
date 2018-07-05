@@ -25,6 +25,11 @@
     :name "Wish Built-ins"
     :inst (wish/create-provider)}})
 
+(defonce ^:private last-data-source-query (atom 0))
+
+; at least 30 seconds
+(def ^:private min-ms-between-queries (* 30 1000))
+
 (defn config-view
   [provider-id]
   (if-let [{:keys [config]} (get providers provider-id)]
@@ -90,8 +95,8 @@
           (cond
             err (log/warn "Error registering source" err)
             source (do
-                     ; TODO insert into DB
-                     (log/todo "Registered " source))
+                     (>evt [:add-data-sources [source]])
+                     (log "Registered " source))
             :else (log "Canceled registering source"))))
 
     (throw (js/Error. (str "No such provider " provider-id)))))
@@ -99,9 +104,15 @@
 (defn query-data-sources!
   "Triggers an async query of available datasources from configured providers"
   []
-  (doseq [{:keys [inst]} (vals providers)]
-    (when inst
-      (provider/query-data-sources inst))))
+  (let [last-query @last-data-source-query
+        now (js/Date.now)]
+    (when (> (- now last-query)
+             min-ms-between-queries)
+      (log "Initiate data source query")
+      (reset! last-data-source-query now)
+      (doseq [{:keys [inst]} (vals providers)]
+        (when inst
+          (provider/query-data-sources inst))))))
 
 (defn save-sheet!
   [sheet-id data on-done]

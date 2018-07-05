@@ -383,9 +383,11 @@
     (query-files
       "appProperties has { key='wish-type' and value='data-source' }"
       :on-success (fn [files]
-                    ; TODO
-                    (println "Found data sources: " files)
-                    )))
+                    (log "Found data sources: " files)
+                    (>evt [:add-data-sources
+                           (map (fn [[id file]]
+                                  (assoc file :id id))
+                                files)]))))
 
   (register-data-source [this]
     ; TODO sanity checks galore
