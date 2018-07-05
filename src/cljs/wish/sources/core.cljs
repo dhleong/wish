@@ -74,8 +74,17 @@
 
   (find-class [this id]
     (first-delegate-by-id this find-class id))
+
   (find-feature [this id]
-    (first-delegate-by-id this find-feature id))
+    ; merge features to pull in alternate options from
+    ; secondary data sources
+    (->> (.-delegates this)
+         (map #(find-feature % id))
+         (reduce (fn [a b]
+                   (merge-with
+                     conj
+                     a b)))))
+
   (find-item [this id]
     (first-delegate-by-id this find-item id))
   (find-list-entity [this id]
