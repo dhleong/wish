@@ -71,10 +71,10 @@
 
 (defn feature-options-selection [sub-vector]
   (if-let [features (seq (<sub sub-vector))]
-    [bind-fields
-     [:<>
-      (for [[feature-id f] features]
-        ^{:key feature-id}
+    [:<>
+     (for [[feature-id f] features]
+       ^{:key feature-id}
+       [bind-fields
         [:div.feature
          [:h3 (:name f)]
 
@@ -90,17 +90,17 @@
              ; put everything inline anyway, so we use this ^{:key} [component]
              ; pattern
              ^{:key (:id option)}
-             [feature-option option]])]])]
+             [feature-option option]])]]
 
-     {:get #(<sub [:options-> %])
-      :save! (fn [path v]
-               (>evt [:update-meta [:options]
-                      assoc (first path)
-                      (cond
-                        (vector? v) v
-                        (coll? v) (vec v)
-                        :else [v])]))
-      :doc #(<sub [:options])}]
+        {:get #(<sub [:options-> %])
+         :save! (fn [path v]
+                  (>evt [:update-meta [:options]
+                         assoc (first path)
+                         (cond
+                           (vector? v) v
+                           (coll? v) (vec v)
+                           :else [v])]))
+         :doc #(<sub [:options])}]) ]
 
     ; no features
     [:p "No features with options available yet."]))
