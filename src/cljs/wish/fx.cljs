@@ -1,12 +1,20 @@
 (ns ^{:author "Daniel Leong"
       :doc "fx"}
   wish.fx
-  (:require-macros [wish.util.log :as log])
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [re-frame.core :refer [reg-fx]]
             [wish.db :as db]
             [wish.sources :as sources]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.util :refer [>evt]]))
+
+; ======= html stuff =======================================
+
+(reg-fx
+  :title!
+  (fn [title]
+    (log "document.title <-" title)
+    (set! js/document.title title)))
 
 ; ======= provider-related =================================
 

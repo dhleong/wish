@@ -38,6 +38,12 @@
                "overlay")
              overlay-spec])))
 
+(reg-event-fx
+  :title!
+  [trim-v]
+  (fn-traced [_ [title]]
+    {:title! title}))
+
 
 ; ======= Provider management ==============================
 
