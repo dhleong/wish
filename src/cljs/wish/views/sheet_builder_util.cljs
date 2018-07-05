@@ -1,8 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Utility widgets, etc. for implementing a sheet builder"}
   wish.views.sheet-builder-util
-  (:require [wish.util :refer [<sub]]
+  (:require [wish.util :refer [<sub >evt]]
             [wish.util.nav :refer [sheet-url]]
+            [wish.providers :as providers]
             [wish.views.widgets :refer [link save-state] :refer-macros [icon]]))
 
 (defn- find-section
@@ -62,3 +63,32 @@
          ; TODO probably, only show if the sheet is "ready" to use
          [link {:href (sheet-url sheet-id)}
           "Let's play!"])]]]))
+
+(defn data-source-manager []
+  (>evt [:query-data-sources])
+  [:div
+   [:h3 "Data Sources"]
+   [:div
+    (if-let [sources (<sub [:data-sources])]
+      (for [s sources]
+        ^{:key (:id s)}
+        [:div
+         ; TODO selectable
+         (:name s)])
+
+      [:<> "No data sources available"])]
+
+   [:h5 "Add New Data Source on:"]
+   [:div
+
+    (for [[provider-id state] (<sub [:provider-states])]
+      ^{:key provider-id}
+      [:div
+       [:a {:href "#"
+            :on-click (fn [e]
+                        (.preventDefault e)
+                        (providers/register-data-source provider-id))}
+        (:name (providers/get-info provider-id))]
+       (when (= state :signed-out)
+         [link {:href (str "/providers/" (name provider-id) "/config")}
+          "Configure"])])]])

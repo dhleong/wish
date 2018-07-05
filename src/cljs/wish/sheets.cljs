@@ -5,6 +5,7 @@
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
+            [wish.providers :refer [create-sheet-with-data]]
             [wish.util :refer [click>evt <sub >evt]]))
 
 ; ======= const data =======================================
@@ -61,6 +62,13 @@
      :equipped #{}
      }))
 
+(defn create-sheet!
+  "Returns a channel that emits [err sheet-id] on success"
+  [sheet-name provider-id sheet-kind]
+  {:pre [(not (nil? provider-id))
+         (not (nil? sheet-kind))]}
+  (create-sheet-with-data sheet-name provider-id
+                          (stub-sheet sheet-kind sheet-name)))
 
 ; ======= Views ============================================
 

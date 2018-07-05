@@ -4,6 +4,9 @@
   {:page [:home]
    :provider-states {}
 
+   ; map of provider-id -> [{:id,:name,}]
+   :data-sources {}
+
    :sheets {}
 
    ; set of provider ids that are in the process of fetching

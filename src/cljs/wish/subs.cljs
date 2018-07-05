@@ -26,6 +26,18 @@
     (seq (:providers-listing db))))
 
 
+; ======= data sources =====================================
+
+(reg-sub
+  :data-sources
+  (fn [db _]
+    (->> db
+         :data-sources
+         vals
+         (apply concat)
+         seq)))
+
+
 ; ======= Sheet-related ====================================
 
 (defn reg-sheet-sub

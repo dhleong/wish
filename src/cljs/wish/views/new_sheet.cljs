@@ -39,7 +39,7 @@
 
 (defn- do-create
   [data]
-  (providers/create-sheet!
+  (sheets/create-sheet!
     (:name data)
     (:provider data)
     (:sheet data)))

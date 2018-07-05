@@ -9,7 +9,7 @@
             [wish.util :refer [<sub >evt]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
-            [wish.views.sheet-builder-util :refer [router]]
+            [wish.views.sheet-builder-util :refer [data-source-manager router]]
             [wish.views.limited-select]))
 
 ; ======= CSS ==============================================
@@ -50,21 +50,17 @@
 (defn home-page []
   [:div
    [:h3 "Home"
-    [:div
-     [bind-fields
-      [:div
-       [:input {:field :text
-                :id :name}]
+    [bind-fields
+     [:div
+      [:input {:field :text
+               :id :name}] ]
 
-       ; TODO pick data sources (this should be a built-in component)
-       (>evt [:query-data-sources])
-       [:div
-        [:p "Data Sources"
-         "(TODO)"]]]
+     {:get #(get-in (<sub [:sheet-meta]) %)
+      :save! (fn [path v]
+               (>evt [:update-meta path (constantly v)]))}]
 
-      {:get #(get-in (<sub [:sheet-meta]) %)
-       :save! (fn [path v]
-                (>evt [:update-meta path (constantly v)]))}]]]])
+    ; data source mgmt
+    [data-source-manager]]])
 
 (defn feature-option
   [option]

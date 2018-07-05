@@ -17,18 +17,25 @@
 ;;
 
 ;; Client ID and API key from the Developer Console
-(def client-id "661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com")
+(def ^:private client-id "661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com")
 
 ;; Array of API discovery doc URLs for APIs used by the quickstart
-(def discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
+(def ^:private discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
 
 ;; Authorization scopes required by the API; multiple scopes can be
 ;; included, separated by spaces.
-(def scopes (str/join
-              " "
-              ["https://www.googleapis.com/auth/drive.appfolder"
-               "https://www.googleapis.com/auth/drive.appdata"
-               "https://www.googleapis.com/auth/drive.file"]))
+(def ^:private scopes (str/join
+                        " "
+                        ["https://www.googleapis.com/auth/drive.appfolder"
+                         "https://www.googleapis.com/auth/drive.appdata"
+                         "https://www.googleapis.com/auth/drive.file"]))
+
+(def ^:private sheet-desc "WISH Character Sheet")
+(def ^:private sheet-mime "application/edn")
+(def ^:private sheet-props {:wish-type "wish-sheet"})
+(def ^:private source-desc "WISH Data Source")
+(def ^:private source-mime "application/edn")
+(def ^:private source-props {:wish-type "data-source"})
 
 ;;
 ;; Internal util
@@ -96,7 +103,7 @@
 ;   (when-let [ch @gapi-available?]
 ;     (<! ch))
 ;
-(def ^:private gapi-available? (atom (chan)))
+(defonce ^:private gapi-available? (atom (chan)))
 
 (defn- set-gapi-available! []
   (when-let [gapi-available-ch @gapi-available?]
@@ -261,7 +268,12 @@
 
 (defonce ^:private picker-api-loaded (atom false))
 
-(defn- do-pick-file []
+(defn- do-pick-file
+  [{:keys [mimeType description props]}]
+  ; NOTE: I don't love using camel case in my clojure code,
+  ; but since we're using it everywhere else for easier compat
+  ; with google docs, let's just use it here for consistency.
+
   (let [ch (chan)]
     (-> (js/google.picker.PickerBuilder.)
         (.addView (doto (js/google.picker.View.
@@ -278,31 +290,43 @@
               (log "Picked: (wasUpload=" uploaded? ") " result)
               (case (:action result)
                 "cancel" (put! ch [nil nil])
-                "picked" (do
+                "picked" (let [file (-> result
+                                        :docs
+                                        first
+                                        (select-keys [:id :name]))
+                               file-id (:id file)
+                               wish-file (update file :id
+                                                 (partial make-id :gdrive))]
                            (when uploaded?
-                             ; TODO update mime type and annotate with :wish-type
-                             )
-                           (put! ch [nil (-> result
-                                            :docs
-                                            first
-                                            :id)]))
+                             ; update mime type and annotate with :wish-type
+                             (update-meta
+                               file-id
+                               {:appProperties props
+                                :description description
+                                :mimeType mimeType}))
+                           (put! ch [nil wish-file]))
                 (log "Other pick action")))))
         (.build)
         (.setVisible true))
     ; return the channel
     ch))
 
-(defn pick-file []
+(defn pick-file [opts]
   (if @picker-api-loaded
     ; loaded! do it now
-    (do-pick-file)
+    (do-pick-file opts)
 
     ; load first
-    (do
-      (println "Loading picker API")
-      (js/gapi.load "picker" (fn []
-                               (reset! picker-api-loaded true)
-                               (do-pick-file))))))
+    (let [ch (chan)]
+      (log "Loading picker API")
+      (js/gapi.load "picker"
+                    (fn []
+                      (log "Loaded picker! Waiting for result")
+                      (reset! picker-api-loaded true)
+                      (go (>!
+                            ch
+                            (<! (do-pick-file opts))))))
+      ch)))
 
 ; ======= Provider def =====================================
 
@@ -315,8 +339,9 @@
     (go (let [[err resp] (<! (upload-data-with-retry
                                :create
                                {:name file-name
-                                :mimeType "application/edn"
-                                :appProperties {:wish-type "wish-sheet"}}
+                                :description sheet-desc
+                                :mimeType sheet-mime
+                                :appProperties sheet-props}
                                (str data)))]
           (if err
             [err nil]
@@ -340,6 +365,7 @@
     [this id]
     (go (let [_ (when-let [ch @gapi-available?]
                   (<! ch))
+
               [err resp] (<! (promise->chan
                                (-> js/gapi.client.drive.files
                                    (.get #js {:fileId id
@@ -363,14 +389,17 @@
 
   (register-data-source [this]
     ; TODO sanity checks galore
-    (pick-file))
+    (pick-file {:mimeType source-mime
+                :description source-desc
+                :props source-props}))
 
   (save-sheet [this file-id data]
     (log/info "Save " file-id data)
     (upload-data-with-retry
       :update
       {:fileId file-id
-       :mimeType "application/json"
+       :mimeType sheet-mime
+       :description sheet-desc
        :name (:name data)}
       (str data))))
 

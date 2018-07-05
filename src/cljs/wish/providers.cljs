@@ -2,7 +2,7 @@
       :doc "Data source providers"}
   wish.providers
   (:require-macros [cljs.core.async.macros :refer [go]]
-                   [wish.util.log :as log])
+                   [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
@@ -10,7 +10,6 @@
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.wish :as wish]
             [wish.providers.core :as provider]
-            [wish.sheets :refer [stub-sheet]]
             [wish.sheets.util :refer [unpack-id]]
             [wish.util :refer [>evt]]))
 
@@ -42,15 +41,15 @@
     (when-let [inst (:inst provider)]
       (provider/init! inst))))
 
-(defn create-sheet!
+(defn create-sheet-with-data
   "Returns a channel that emits [err sheet-id] on success"
-  [sheet-name provider-id sheet-kind]
+  [sheet-name provider-id data]
   {:pre [(not (nil? provider-id))
-         (not (nil? sheet-kind))]}
+         (not (nil? data))]}
   (if-let [{:keys [inst]} (get providers provider-id)]
     (provider/create-sheet inst
                            sheet-name
-                           (stub-sheet sheet-kind sheet-name))
+                           data)
 
     (throw (js/Error. (str "No provider instance for " provider-id)))))
 
@@ -60,13 +59,16 @@
   [raw-id]
   (let [[provider-id pro-raw-id] (unpack-id raw-id)]
     (if-let [{:keys [inst]} (get providers provider-id)]
-      (provider/load-raw inst pro-raw-id)
+      (do
+        (log "Load " pro-raw-id " from " provider-id)
+        (provider/load-raw inst pro-raw-id))
 
       (throw (js/Error. (str "No provider instance for " raw-id
                              "(" provider-id " / " pro-raw-id ")"))))))
 
 (defn load-sheet!
   [sheet-id]
+  (log "Load sheet " sheet-id)
   (go (let [[err data] (<! (load-raw sheet-id))
             [sheet-err sheet] (when data
                                 (try
@@ -80,6 +82,19 @@
                       :retry-evt [:load-sheet! sheet-id]}]))
 
           (>evt [:put-sheet! sheet-id sheet])))))
+
+(defn register-data-source
+  [provider-id]
+  (if-let [{:keys [inst]} (get providers provider-id)]
+    (go (let [[err source] (<! (provider/register-data-source inst))]
+          (cond
+            err (log/warn "Error registering source" err)
+            source (do
+                     ; TODO insert into DB
+                     (log/todo "Registered " source))
+            :else (log "Canceled registering source"))))
+
+    (throw (js/Error. (str "No such provider " provider-id)))))
 
 (defn query-data-sources!
   "Triggers an async query of available datasources from configured providers"
