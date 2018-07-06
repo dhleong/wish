@@ -100,7 +100,7 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                       true]]}]}
 
             4 {:+features
-               [:ability-improvement#1
+               [:ability-improvement
 
                 {:id :monk/slow-fall
                  :name "Slow Fall"
@@ -121,4 +121,12 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                [{:id :monk/ki-empowered-strikes
                  :name "Ki-Empowered Strikes"
                  :desc "Starting at 6th level, your unarmed strikes count as magical for the purpose of overcoming resistance and immunity to nonmagical attacks and damage."}]}
-            }}]
+
+            8 {:+features
+               [:ability-improvement]}
+            12 {:+features
+                [:ability-improvement]}
+            16 {:+features
+                [:ability-improvement]}
+            19 {:+features
+                [:ability-improvement]} }}]

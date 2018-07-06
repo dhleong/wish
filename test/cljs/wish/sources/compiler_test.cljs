@@ -106,6 +106,17 @@
       (is (= {:attrs {:5e/ac {:monk/unarmored-defense :value}}}
              (select-keys s [:attrs]))))))
 
+(deftest update-attr-test
+  (testing "Update with math"
+    (let [s (compile-directives
+              '[[:!update-attr
+                 [:buffs :dex]
+                 +
+                 1]])]
+      (is (= {:attrs {:buffs {:dex 1}}}
+             (select-keys s [:attrs]))))))
+
+
 (deftest class-test
   (testing "Inflate features by id"
     (let [s (compile-directives
@@ -201,19 +212,49 @@
                     {:features {:rogue/skill-proficiencies true}}
                     ds opts-map)]
       (is (= {}
+             (select-keys applied [:attrs])))))
+
+  (testing "Apply options to a multi-instance feature"
+    (let [ds (->DataSource
+               :source
+               (compile-directives
+                 '[[:!provide-feature
+                    {:id :ability/dex
+                     :name "Stealth"
+                     :! [[:!update-attr [:buffs :dex] + 1]]}]
+                   [:!declare-class
+                    {:id :cleric
+                     :features
+                     [{:id :ability-improvement
+                       :name "Ability Score Improvement"
+                       :max-options 2
+                       :values [:ability/dex]}
+                      ]}]]))
+          opts-map {:ability-improvement [:ability/dex]
+                    :ability-improvement#2 {:id :ability-improvement
+                                            :value [:ability/dex]}}
+          applied (apply-options
+                    ; NOTE: they must *have* the feature for the option
+                    ; to get applied
+                    {:features {:ability-improvement 2}}
+                    ds opts-map)]
+      (is (= {:attrs {:buffs {:dex 2}}}
              (select-keys applied [:attrs]))))))
 
 (deftest apply-levels-test
   (let [ds (->DataSource
              :source
              (compile-directives
-               [[:!provide-feature
-                 {:id :proficiency/stealth
-                  :name "Stealth"
-                  :! [[:!provide-attr :proficiency/stealth true]]}
-                 {:id :proficiency/insight
-                  :name "Insight"
-                  :! [[:!provide-attr :proficiency/insight true]]}]]))]
+               '[[:!provide-feature
+                  {:id :proficiency/stealth
+                   :name "Stealth"
+                   :! [[:!provide-attr :proficiency/stealth true]]}
+                  {:id :proficiency/insight
+                   :name "Insight"
+                   :! [[:!provide-attr :proficiency/insight true]]}
+                  {:id :ability/dex
+                   :name "Dexterity"
+                   :! [[:!update-attr [:buffs :dex] + 1]]}]]))]
 
     (testing "Combine levels"
       (let [class-def {:id :cleric
@@ -232,6 +273,27 @@
         (is (= {:proficiency/stealth true
                 :proficiency/insight true}
                (:attrs (apply-levels level-3 ds))))))
+
+    (testing "Support multiple instances of a feature"
+      (let [class-def {:id :cleric
+                       :&levels {2 {:+features
+                                    [:ability/dex]}
+                                 3 {:+features
+                                    [:ability/dex]}
+                                 4 {:+features
+                                    [:ability/dex]}}}
+            entity-base (assoc class-def :level 1)
+            level-2 (assoc entity-base :level 2)
+            level-3 (assoc entity-base :level 3)
+            level-4 (assoc entity-base :level 4)]
+        (is (= {:buffs {:dex 1}}
+               (:attrs (apply-levels level-2 ds))))
+        (is (= {:buffs {:dex 2}}
+               (:attrs (apply-levels level-3 ds))))
+        (let [applied-4 (apply-levels level-4 ds)]
+          (is (= {:buffs {:dex 3}}
+                 (:attrs applied-4)))
+          (is (= 2 (-> applied-4 :features :ability/dex :wish/instances))))))
 
     (testing "Replace levels"
       ; This is a contrived example, but...

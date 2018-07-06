@@ -7,6 +7,23 @@
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
 
+(defn deep-merge
+  [v & vs]
+  (letfn [(rec-merge [a b]
+            (cond
+              (and (map? a)
+                   (map? b))
+              (merge-with deep-merge a b)
+
+              ;; (and (sequential? a)
+              ;;      (sequential? b))
+              ;; (concat a b)
+
+              :else b))]
+    (if (some identity vs)
+      (reduce #(rec-merge %1 %2) v vs)
+      v)))
+
 (defn click>evts
   "Returns an on-click handler that dispatches the given events
    and prevents the default on-click events"

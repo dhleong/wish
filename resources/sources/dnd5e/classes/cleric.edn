@@ -35,8 +35,18 @@
     }]
 
   :&levels {2 {:+features
-               [:cleric/channel-divinity]
-               }}}]
+               [:cleric/channel-divinity]}
+
+            4 {:+features
+               [:ability-improvement]}
+            8 {:+features
+               [:ability-improvement]}
+            12 {:+features
+                [:ability-improvement]}
+            16 {:+features
+                [:ability-improvement]}
+            19 {:+features
+                [:ability-improvement]}}}]
 
 [:!provide-feature
  {:id :cleric/channel-divinity

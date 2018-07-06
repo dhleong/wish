@@ -14,7 +14,11 @@
  {:paladin/lay-on-hands#uses 0}
 
  ; map of feature-id -> options chosen. The value may be a vector or a set,
- ; but *should* be a collection.
+ ; but *should* be a collection. If the value is a map, then it is for
+ ; a secondary instance of a multi-instance feature, and it must look like:
+ ;   {:id :actual-feature-id, :value [options]}
+ ; In this case, the key will probably be based on :actual-feature-id, but
+ ; may be discarded
  :options
  {:paladin/oath [:paladin/vengeance]}
 

@@ -24,8 +24,14 @@
                 (reduce-kv
                   (fn [features-map fk new-feature]
                     (cond
+                      ; increment to support multiple feature instances.
+                      ; We ONLY support this when referenced by id
                       (keyword? new-feature)
-                      (assoc features-map new-feature true)
+                      (update features-map new-feature (fn [old]
+                                                         (if (or (number? old)
+                                                                 (not old))
+                                                           (inc old)
+                                                           (update old :wish/instances inc))))
 
                       (map? new-feature)
                       (assoc features-map (:id new-feature) new-feature)))

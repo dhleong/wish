@@ -42,4 +42,13 @@ For example, if you’re a 4th-level wizard, you can recover up to two levels wo
           :restore-trigger :long-rest
           :uses 1}]]}]
 
-  }]
+  :&levels {4 {:+features
+               [:ability-improvement]}
+            8 {:+features
+               [:ability-improvement]}
+            12 {:+features
+                [:ability-improvement]}
+            16 {:+features
+                [:ability-improvement]}
+            19 {:+features
+                [:ability-improvement]}}}]

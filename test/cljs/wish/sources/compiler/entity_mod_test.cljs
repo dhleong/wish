@@ -31,15 +31,23 @@
              {:&attrs {:5e/&ability-score-increase {:int 1}}}))))
 
   (testing "Features special case"
-    (is (= {:features {:a true :b {:id :b}}}
-           (apply-entity-mod
-             {:features {:a true}}
-             {:+features {:b {:id :b}}})))
-    (is (= {:features {:a true :b {:id :b}}}
-           (apply-entity-mod
-             {:features {:a true}}
-             {:+features [{:id :b}]})))
-    (is (= {:features {:a true :b true}}
-           (apply-entity-mod
-             {:features {:a true}}
-             {:+features [:b]})))))
+    (let [features-with-a (apply-entity-mod {} {:+features [:a]})]
+      (is (= {:features {:a 1 :b {:id :b}}}
+             (apply-entity-mod
+               features-with-a
+               {:+features {:b {:id :b}}})))
+      (is (= {:features {:a 1 :b {:id :b}}}
+             (apply-entity-mod
+               features-with-a
+               {:+features [{:id :b}]})))
+      (is (= {:features {:a 1 :b 1}}
+             (apply-entity-mod
+               features-with-a
+               {:+features [:b]})))))
+
+  (testing "Multiple Feature instances"
+    (let [features-with-a (apply-entity-mod {} {:+features [:a]})]
+      (is (= {:features {:a 2}}
+             (apply-entity-mod
+               features-with-a
+               {:+features [:a]}))))))

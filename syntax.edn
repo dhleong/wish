@@ -179,6 +179,21 @@
  ; whatever id or path you provided above
  value]
 
+; !update-attr is a slightly more specialized version of :!provide-attr
+; that is especially useful with multi-instance features.
+[:!update-attr
+
+ ; this must be a vector path, like [:5e/ac :monk/unarmored-defense]
+ attr-path
+
+ ; function from a limited set (+-/*, inc, dec) used as in
+ ; (update-in attrs path f value)
+ f
+
+ ; the optional value is attr- and sheet-dependent, so can be whatever
+ ; you need it to be.
+ value]
+
 ;;
 ;; Experiments:
 ;;

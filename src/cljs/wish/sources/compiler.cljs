@@ -11,7 +11,7 @@
             [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
             [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
             [wish.sources.core :refer [find-feature]]
-            [wish.util :refer [->map process-map]]))
+            [wish.util :refer [deep-merge ->map process-map]]))
 
 ; ======= constants ========================================
 
@@ -69,6 +69,20 @@
                   [:attrs id]
                   (cons :attrs id))]
        (assoc-in state path value)))
+
+   :!update-attr
+   (fn update-attr [state path fn-symbol & value]
+     (let [f (case fn-symbol
+               ; NOTE: the case should pick up the left side as compile-time
+               ; symbol constants, and the right should evaluate to the function
+               + +
+               - -
+               / /
+               * *
+               inc inc
+               dec dec
+               (throw (js/Error. "Unexpected update-attr symbol:" fn-symbol)))]
+       (apply update-in state (cons :attrs path) f value)))
 
    :!provide-feature
    (fn provide-feature [state & args]
@@ -141,23 +155,40 @@
                (fn [features]
                  (reduce-kv
                    (fn [m feature-id v]
-                     (if (map? v)
-                       ; ensure it's compiled
-                       (assoc m feature-id (compile-feature v))
+                     (let [instances (:wish/instances v)]
+                       ; if the value is just a map indicating that this
+                       ; is a secondary instance of the feature,
+                       ; just load the feature as normal (2nd branch)
+                       (if (and (map? v)
+                                (not instances))
+                         ; ensure it's compiled
+                         (assoc m feature-id (compile-feature v))
 
-                       ; pull it out of the state (or data source,
-                       ; if we have one)
-                       (assoc m feature-id
-                              (or (get-in s [:features feature-id])
-                                  (when data-source
-                                    (find-feature data-source feature-id))))))
+                         ; pull it out of the state (or data source,
+                         ; if we have one)
+                         (let [from-state (get-in s [:features feature-id])
+                               ; this is a bit obnoxious to avoid eager evaluation
+                               ; from-state could be a number here
+                               f (if (map? from-state)
+                                   from-state
+                                   (when data-source
+                                     (find-feature data-source feature-id)))
+
+                               ; include :wish/instances
+                               f (when f
+                                   (if instances
+                                     (assoc f :wish/instances instances)
+                                     f))]
+                           (assoc m feature-id f)))))
                    features
                    features)))
+
        ; apply features
-       (as-> e (reduce
-                 apply-directive
-                 e
-                 (mapcat :! (vals (:features e))))))))
+       (as-> e
+         (reduce
+           apply-directive
+           e
+           (mapcat :! (vals (:features e))))))))
 
 ; ======= public api =======================================
 
@@ -240,6 +271,15 @@
         feature-id
         (next options-chosen)))))
 
+(defn unpack-option
+  "Given an entry in the :options map (eg: [feature-id v])
+   unpack it to another vector, in case the `v` was a map
+   for a multi-instance feature"
+  [[_ v :as option-entry]]
+  (if (map? v)
+    [(:id v) (:value v)]
+    option-entry))
+
 (defn apply-options
   [state data-source options-map]
   (if (empty? options-map)
@@ -250,10 +290,12 @@
     ; feature-id doesn't exist *yet*, we continue applying other options in case
     ; they trigger more features to be provided that the option can later apply to
     (let [[applyable not-applyable] (reduce
-                                      (fn [[a b] [feature-id _ :as option]]
-                                        (if (get-in state [:features feature-id])
-                                          [(conj a option) b]
-                                          [a (conj b option)]))
+                                      (fn [[a b] option-entry]
+                                        (let [[feature-id _ :as option] (unpack-option
+                                                                          option-entry)]
+                                          (if (get-in state [:features feature-id])
+                                            [(conj a option) b]
+                                            [a (conj b option)])))
                                       [[] []]
                                       options-map)]
       (if (empty? applyable)
@@ -303,8 +345,15 @@
         ; only install features added
         [_ added _] (diff state after)
         new-installed (when added
-                        (install-features state added data-source))]
-    (merge-with merge after new-installed)))
+                        (install-features
+                          state
+                          ; NOTE: copy attrs from the state to handle
+                          ; incremental :attrs (like from :!update-attrs)
+                          (assoc after
+                                 :attrs
+                                 (:attrs state))
+                          data-source))]
+    (deep-merge after new-installed)))
 
 (defn- apply-scaling-for-level
   [state path this-scaling data-source level]

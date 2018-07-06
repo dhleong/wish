@@ -14,11 +14,29 @@
        {:desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."}]]}
 
  ;; Common level-up features
- {:id :ability-improvement#1
-  :name "Ability Score Improvement #1"
+ {:id :ability-improvement
+  :implicit? true
+  :name "Ability Score Improvement"
   :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature."
-  ; TODO
-  }
+  :values
+  [{:id :ability/str
+    :name "Strength"
+    :! [[:!update-attr [:buffs :str] inc]]}
+   {:id :ability/dex
+    :name "Dexterity"
+    :! [[:!update-attr [:buffs :dex] inc]]}
+   {:id :ability/con
+    :name "Constitution"
+    :! [[:!update-attr [:buffs :con] inc]]}
+   {:id :ability/int
+    :name "Intelligence"
+    :! [[:!update-attr [:buffs :int] inc]]}
+   {:id :ability/wis
+    :name "Wisdom"
+    :! [[:!update-attr [:buffs :wis] inc]]}
+   {:id :ability/cha
+    :name "Charisma"
+    :! [[:!update-attr [:buffs :cha] inc]]}]}
 
  {:id :extra-attack
   :name "Extra Attack"
