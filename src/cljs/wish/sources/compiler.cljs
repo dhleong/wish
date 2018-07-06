@@ -88,7 +88,13 @@
    (fn provide-feature [state & args]
      (loop [state state
             args args]
-       (let [features (inflate-features state args)
+       (let [raw-values-features (->> args
+                                      (map :values)
+                                      flatten
+                                      (filter :id))
+             features (inflate-features state
+                                        (concat args
+                                                raw-values-features))
              features-map (->map features)
              features-with-directives (when (:wish/data-source state)
                                         (->> features

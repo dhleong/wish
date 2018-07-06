@@ -115,8 +115,7 @@
     (apply merge-with +
            (:abilities sheet)
            (-> race :attrs :5e/ability-score-increase)
-           ; TODO how should classes do this?
-           [])))
+           (map (comp :buffs :attrs) classes))))
 
 (reg-sub
   ::ability-modifiers
