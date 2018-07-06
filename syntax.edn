@@ -131,12 +131,18 @@
   :name,
   :desc,
 
+  ; if true, this feature can have multiple instances
+  :instanced? false,
+
   ; when provided, indicates that the user should pick one
   ; or more options.
   ; can be a number, a fn, or a list of `filter, number` pairs,
   ; with a special filter `:total` that applies overall.
   ; providing a number is sugar for `[:total number]`
   :max-options,
+
+  ; if true, a given option can be selected more than once
+  :multi? false,
 
   ; an optional list of values or list-ids. Entries can of course
   ; be provided via the !provide-options directive

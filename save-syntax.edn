@@ -20,7 +20,9 @@
  ; In this case, the key will probably be based on :actual-feature-id, but
  ; may be discarded
  :options
- {:paladin/oath [:paladin/vengeance]}
+ {:paladin/oath [:paladin/vengeance]
+  :ability-improvement#paladin#1 {:id :ability-improvement
+                                  :value [:ability/dex :ability/dex]}}
 
  ; map of (inst-id | item-id) -> count. inst-id is the id of a specific
  ; *instance* of an item, whose details will be stored in :items. For

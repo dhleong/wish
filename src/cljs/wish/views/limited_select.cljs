@@ -40,7 +40,8 @@
             (let [old-val @selections
                   new-val (swap! selections
                                  update-selections-for
-                                 accepted? key)]
+                                 accepted?
+                                 key)]
               (when (not= old-val new-val)
                 (save! id (selections->options new-val)))))]
     (fn group-item-renderer []

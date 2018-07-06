@@ -165,16 +165,48 @@
                         :race))))))))
 
 (defn- get-features
+  "Returns a collection of [id feature] pairs."
   [feature-containers [_ entity-id primary?]]
   (->> (if entity-id
          (filter #(= entity-id (:id %)) feature-containers)
          feature-containers)
-       (mapcat :features)
+
+       (mapcat (fn [container]
+                 (map (fn [f]
+                        (with-meta
+                          f
+                          {:container-id (:id container)}))
+                      (:features container))))
 
        ; remove features that only the primary class should have
        ; if we're not the primary
        (remove #(when (:primary-only? (second %))
-                  (not primary?)))))
+                  (not primary?)))
+
+       ; expand multi-instanced features
+       (mapcat (fn [[id f :as entry]]
+                 (if (:instanced? f)
+                   (let [total-instances (inc (:wish/instances f))
+                         {:keys [container-id]} (meta entry)]
+                     (println "instantiate" id)
+                     (map
+                       (fn [n]
+                         (println "instantiate" id n)
+                         (-> entry
+                             (assoc-in
+                               [1 :wish/instance-id]
+                               (keyword
+                                 (namespace id)
+                                 (str (name id)
+                                      "#"
+                                      (name container-id)
+                                      "#"
+                                      n)))
+                             (assoc-in [1 :wish/instance] n)))
+                       (range total-instances)))
+
+                   ; normal feature
+                   [entry])))))
 
 (defn inflate-option-values
   [data-source feature-id values]
@@ -352,7 +384,12 @@
   :options->
   :<- [:options]
   (fn [options [_ path]]
-    (get-in options path)))
+    (let [v (get-in options path)
+          {instanced-value :value} v]
+      (if (and (:id v)
+               instanced-value)
+        instanced-value
+        v))))
 
 ; ======= Save state =======================================
 
