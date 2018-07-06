@@ -188,10 +188,8 @@
                  (if (:instanced? f)
                    (let [total-instances (inc (:wish/instances f))
                          {:keys [container-id]} (meta entry)]
-                     (println "instantiate" id)
                      (map
                        (fn [n]
-                         (println "instantiate" id n)
                          (-> entry
                              (assoc-in
                                [1 :wish/instance-id]
