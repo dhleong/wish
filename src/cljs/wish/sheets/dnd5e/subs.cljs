@@ -285,17 +285,19 @@
   :<- [:classes]
   :<- [::ability-modifiers]
   (fn [[classes modifiers]]
-    ; TODO AC bonuses, AC from equipped armor
     (let [ac-sources (mapcat (comp vals :5e/ac :attrs) classes)
+          ac-buff (apply + (map (comp :ac :buffs :attrs) classes))
           fn-context {:modifiers modifiers}]
-      (apply max
+      (+ ac-buff
 
-             ; unarmored AC (not available if we have armor equipped)
-             (+ 10
-                (:dex modifiers))
+         (apply max
 
-             (map #(% fn-context) ac-sources)
-             ))))
+                ; unarmored AC (not available if we have armor equipped)
+                (+ 10
+                   (:dex modifiers))
+
+                (map #(% fn-context) ac-sources)
+                )))))
 
 (reg-sub
   ::initiative
