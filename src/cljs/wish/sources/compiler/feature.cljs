@@ -17,8 +17,10 @@
       ; already compiled
       (fn? o) o
 
-      (number? o) (fn [{:keys [features]}]
-                    (<= (count features) o))
+      (number? o) (with-meta
+                    (fn [{:keys [features]}]
+                      (<= (count features) o))
+                    {:const o})
 
       ;; (vector? o) ; TODO support filters list whenever we have it
 

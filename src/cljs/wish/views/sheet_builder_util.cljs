@@ -17,6 +17,23 @@
     nil
     candidates))
 
+(defn count-max-options
+  [{values :values
+    accepted? :max-options}]
+  ; if it's a const number, we can skip some steps
+  (or (-> accepted? meta :const)
+
+      (first
+        (keep
+          (fn [to-take]
+            (when-not (accepted? {:features
+                                  (take to-take values)})
+              (dec to-take)))
+          (range 1 (inc (count values)))))
+
+      ;; fallback, I guess?
+      (count values)))
+
 (defn router
   "Sections should be a vector of [id {:name, :fn}] pairs,
    in the order in which they should appear"

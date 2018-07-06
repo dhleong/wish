@@ -1,6 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc ":limited-select widget for react-forms"}
-  wish.views.limited-select
+  wish.views.widgets.limited-select
   (:require-macros [reagent-forms.macros :refer [render-element]])
   (:require [clojure.string :as str]
             [reagent.core :as r]

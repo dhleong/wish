@@ -249,7 +249,7 @@
       (do
         ; NOTE: at this point, there may just be no directives to apply?
         (when-not the-feature
-          (log/warn "failed to apply " (:id the-feature)
+          (log/warn "failed to apply "
                     (when option-value
                       (str " from " option-value
                            " for feature " feature-id))))

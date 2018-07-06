@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "builder"}
   wish.sheets.dnd5e.builder
+  (:require-macros [wish.util.log :refer [log]])
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
@@ -9,8 +10,10 @@
             [wish.util :refer [<sub >evt]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
-            [wish.views.sheet-builder-util :refer [data-source-manager router]]
-            [wish.views.limited-select]))
+            [wish.views.sheet-builder-util :refer [data-source-manager router
+                                                   count-max-options]]
+            [wish.views.widgets.limited-select]
+            [wish.views.widgets.multi-limited-select]))
 
 ; ======= CSS ==============================================
 
@@ -69,22 +72,95 @@
    [:b (:name option)]
    [:p (:desc option)]])
 
-(defn- expand-val
+(defn expanding-assoc
+  "Like (assoc), but safely expands vectors"
+  [vect index v]
+  (let [existing (count vect)]
+    (if (and vect
+             (or (<= index existing)))
+      ; easy case
+      (assoc vect index v)
+
+      ; make space
+      (let [before (- index existing)]
+        (vec
+          (concat
+            vect
+            (repeat before nil)
+            [v]))))))
+
+(defn expand-val
   "Given a feature, expand the value as necessary to handle
    instanced features, etc. Also ensures that the final value
    is a vector."
-  [feature v]
-  (println "expand " (:id feature) v)
-  (let [v (cond
+  [old-value feature path v]
+  ; NOTE this code is pretty terrible and needs to be refactored..
+  (let [{:keys [instanced?]} feature
+
+        index (let [possibly-index (last path)]
+                (when (number? possibly-index)
+                  possibly-index))
+
+        old-value (or old-value
+                      (when instanced?
+                        {:id (:id feature)}))
+
+        v (cond
             (vector? v) v
             (coll? v) (vec v)
             :else [v])]
-    (if (:instanced? feature)
-      {:id (:id feature)
-       :value v}
+    (if instanced?
+      (if index
+        ; should be:
+        (update old-value :value
+                expanding-assoc index (first v))
+        ; just in case
+        (assoc-in old-value (drop 1 path) v))
 
       ; not instanced
       v)))
+
+(defn limited-select-feature-options
+  [f instance-id]
+  [:div.feature-options {:field :limited-select
+                         :accepted? (:max-options f)
+                         :id instance-id}
+   (for [option (:values f)]
+     [:div.feature-option {:key (:id option)}
+      ; NOTE: this extra widget with ^{:key} is a hack around how
+      ; reagent-forms handles :single-select values. Basically,
+      ; everything after the {:key} above seems to become a sequence,
+      ; so react wants keys on all the children. It's a bit deep to
+      ; put everything inline anyway, so we use this ^{:key} [component]
+      ; pattern
+      ^{:key (:id option)}
+      [feature-option option]])])
+
+(defn multi-select-feature-options
+  [f instance-id]
+  (let [max-options (count-max-options f)
+        base-path (if (:wish/instance-id f)
+                    [instance-id :value]
+                    [instance-id])]
+    (vec
+      (cons
+        :div.multi-feature-options
+        (for [i (range max-options)]
+          (vec
+            (concat
+              [:select {:field :multi-limited-select
+                        :id (concat base-path [i])}
+               [:option {:key :-none} "—Select One—"]]
+
+              (for [o (:values f)]
+                ^{:key (:id o)}
+                [:option {:key (:id o)} (:name o)]))))))))
+
+(defn- feature-options
+  [f instance-id ]
+  (if (:multi? f)
+    (multi-select-feature-options f instance-id)
+    (limited-select-feature-options f instance-id)))
 
 (defn feature-options-selection [sub-vector]
   (if-let [features (seq (<sub sub-vector))]
@@ -100,27 +176,15 @@
             (when-let [n (:wish/instance f)]
               (str " #" (inc n)))]
 
-           ; FIXME TODO different :field type when (:multi? f)
-           [:div.feature-options {:field :limited-select
-                                  :accepted? (:max-options f)
-                                  :id instance-id}
-            (for [option (:values f)]
-              [:div.feature-option {:key (:id option)}
-               ; NOTE: this extra widget with ^{:key} is a hack around how
-               ; reagent-forms handles :single-select values. Basically,
-               ; everything after the {:key} above seems to become a sequence,
-               ; so react wants keys on all the children. It's a bit deep to
-               ; put everything inline anyway, so we use this ^{:key} [component]
-               ; pattern
-               ^{:key (:id option)}
-               [feature-option option]])]]
+           (feature-options f instance-id)]
 
           {:get #(<sub [:options-> %])
            :save! (fn [path v]
-                    (println ":save! " path v)
                     (>evt [:update-meta [:options]
-                           assoc (first path)
-                           (expand-val f v)]))
+                           update
+                           (first path)
+                           expand-val
+                           f path v]))
            :doc #(<sub [:options])}])) ]
 
     ; no features
@@ -150,6 +214,7 @@
 ; ======= class management/level-up ========================
 
 (defn class-section [class-info]
+  (log (<sub [:options]))
   [:div.class-section
    [:div.class-header
     [:div.row
