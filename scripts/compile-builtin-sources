@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# space-separated list of builtin ids
+sources=(dnd5e)
+
+# ex:
+# sources=(dnd5e pf fage)
+
+if ! [ -d "scripts" ]; then
+    cd ..
+fi
+
+if ! [ -d "scripts" ]; then
+    echo "Where are you?"
+    exit 1
+fi
+
+for s in "${sources[@]}"; do
+    echo "Compiling $s"
+    scripts/compile-source.cljs "$s"
+done
