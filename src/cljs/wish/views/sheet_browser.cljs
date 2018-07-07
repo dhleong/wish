@@ -9,9 +9,13 @@
   [:div "Sheets"
    (when (<sub [:providers-listing?])
      [:div.loading "Loading..."])
+
    [:ul
     (for [s (<sub [:known-sheets])]
       ^{:key (:id s)}
       [:li.sheet-link
        [link {:href (sheet-url (:id s))}
-        (:name s)]])]])
+        (:name s)]])]
+   [:div
+    [link {:href "/sheets/new"}
+     "Create a new sheet"]]])
