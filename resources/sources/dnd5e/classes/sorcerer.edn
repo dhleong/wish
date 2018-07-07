@@ -45,8 +45,7 @@ Your choice grants you features when you choose it at 1st level and again at 6th
                            :name "Sorcery Points"
                            :uses (fn [level] level)
 
-                           ; TODO we need a custom restore-trigger label?
-                           :restore-trigger :short-rest
+                           :restore-trigger :long-rest
                            :restore-amount (fn [trigger used level]
                                              (if (= :short-rest trigger)
                                                ; at level 20 we can recover
@@ -56,7 +55,7 @@ Your choice grants you features when you choose it at 1st level and again at 6th
 
                                                ; recover all on long rest
                                                used))
-                           }]]}]]}
+                           :levels {20 {:restore-trigger :short-rest}}}]]}]]}
 
             3 {:! [[:!provide-feature
                     {:id :sorcerer/metamagic
