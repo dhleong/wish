@@ -17,7 +17,7 @@
            :fn #'dnd5e/sheet
            :builder #'dnd5e-builder/view
            :v 1
-           :default-sources [:wish/dnd5e-srd]
+           :default-sources [:wish/wdnd5e-srd]
 
            ; Function for post-processing entities,
            ;  IE: applying :attr side-effects.
