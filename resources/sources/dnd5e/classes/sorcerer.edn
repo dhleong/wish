@@ -36,37 +36,38 @@ Your choice grants you features when you choose it at 1st level and again at 6th
     :max-options 1}
    ]
 
-  :&levels {2 {:! [[:!provide-feature
-                    {:id :sorcerer/font-of-magic
-                     :name "Font of Magic"
-                     :desc "At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects."
-                     :! [[:!add-limited-use
-                          {:id :sorcery-points#uses
-                           :name "Sorcery Points"
-                           :uses (fn [level] level)
+  :&levels {2 {:+features
+               [{:id :sorcerer/font-of-magic
+                 :name "Font of Magic"
+                 :desc "At 2nd level, you tap into a deep wellspring of magic within yourself. This wellspring is represented by sorcery points, which allow you to create a variety of magical effects."
+                 :! [[:!add-limited-use
+                      {:id :sorcery-points#uses
+                       :name "Sorcery Points"
+                       :uses (fn [level] level)
 
-                           :restore-trigger :long-rest
-                           :restore-amount (fn [trigger used level]
-                                             (if (= :short-rest trigger)
-                                               ; at level 20 we can recover
-                                               ; up to 4
-                                               (when (= 20 level)
-                                                 (min used 4))
+                       :restore-trigger :long-rest
+                       :restore-amount (fn [trigger used level]
+                                         (if (= :short-rest trigger)
+                                           ; at level 20 we can recover
+                                           ; up to 4
+                                           (when (= 20 level)
+                                             (min used 4))
 
-                                               ; recover all on long rest
-                                               used))
-                           :levels {20 {:restore-trigger :short-rest}}}]]}]]}
+                                           ; recover all on long rest
+                                           used))
+                       :levels {20 {:restore-trigger :short-rest}}}]]}]}
 
-            3 {:! [[:!provide-feature
-                    {:id :sorcerer/metamagic
-                     :name "Metamagic"
-                     :desc "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.
-You can use only one Metamagic option on a spell when you cast it, unless otherwise noted."
-                     :max-options (fn [level]
-                                    (cond
-                                      (< level 10) 2
-                                      (< level 17) 3
-                                      :else 4))}]]}
+            3 {:+features
+               [{:id :sorcerer/metamagic
+                 :name "Metamagic"
+                 :desc "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.
+                        You can use only one Metamagic option on a spell when you cast it, unless otherwise noted."
+                 :max-options (fn [level]
+                                (cond
+                                  (< level 10) 2
+                                  (< level 17) 3
+                                  :else 4))}]}
+
             4 {:+features
                [:ability-improvement]}
             8 {:+features
