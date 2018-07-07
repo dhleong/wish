@@ -333,16 +333,22 @@
   (when-let [scaling (k context)]
     [scaling path]))
 
-(defn- find-level-scaling
+(defn find-feature-scaling
   [state k]
   (-> (get-scaling state k nil)
-      (cons (map
+      (cons (keep
               (fn [[id feature]]
                 (get-scaling feature k [:features id]))
-              (:features state)))
-      (->> (filter identity))))
+              (:features state)))))
 
-(defn- apply-mod-in
+(defn find-limited-use-scaling
+  [state k]
+  (keep
+    (fn [[id limited-use]]
+      (get-scaling limited-use k [:limited-uses id]))
+    (:limited-uses state)))
+
+(defn apply-mod-in
   "Apply mod-map in `path` and install newly-added features"
   [state data-source mod-map path]
   (let [after (if path
@@ -350,7 +356,7 @@
                 (apply-entity-mod state mod-map))
         ; only install features added
         [_ added _] (diff state after)
-        new-installed (when added
+        new-installed (when (:features added)
                         (install-features
                           state
                           ; NOTE: copy attrs from the state to handle
@@ -372,10 +378,10 @@
     state))
 
 (defn- apply-levels-with
-  [original-state data-source levels-key apply-fn]
+  [original-state data-source levels-key find-scaling-fn apply-fn]
   (loop [state original-state
          level (:level state)
-         merge-scaling (find-level-scaling state levels-key)]
+         merge-scaling (find-scaling-fn state levels-key)]
     (if-let [[this-scaling path] (first merge-scaling)]
       (recur
         (apply-fn
@@ -391,11 +397,12 @@
 
 (defn- apply-all-levels
   "Apply :&levels statements in `original-state`"
-  [original-state data-source]
+  [original-state data-source find-scaling-fn]
   (apply-levels-with
     original-state
     data-source
     :&levels
+    find-scaling-fn
     (fn [state path this-scaling data-source level]
       (reduce
         (fn [s apply-level]
@@ -408,18 +415,19 @@
 
 (defn- apply-current-level
   "Applies :levels statements in `original-state`"
-  [original-state data-source]
+  [original-state data-source find-scaling-fn]
   (apply-levels-with
     original-state
     data-source
     :levels
+    find-scaling-fn
     apply-scaling-for-level))
 
 (defn apply-levels
-  [state data-source]
+  [state data-source find-scaling-fn]
   (-> state
-      (apply-current-level data-source)
-      (apply-all-levels data-source)))
+      (apply-current-level data-source find-scaling-fn)
+      (apply-all-levels data-source find-scaling-fn)))
 
 
 ; ======= Public interface =================================
@@ -429,8 +437,15 @@
   [state data-source options-map]
   (-> state
 
-      ; include the data source in case we need it
+      ; include the data source for things that need it
       (assoc :wish/data-source data-source)
 
-      (apply-levels data-source)
-      (apply-options data-source options-map)))
+      ; apply levels first so all base features are available,
+      ; then apply options to get option-provided features and
+      ; apply all their directives
+      (apply-levels data-source find-feature-scaling)
+      (apply-options data-source options-map)
+
+      ; apply levels to limited-use items, since they're
+      ; all available now
+      (apply-levels data-source find-limited-use-scaling)))

@@ -17,6 +17,13 @@
            (extract-mod-and-key :5e/&levels)))))
 
 (deftest apply-entity-mod-test
+  (testing "Simple replace"
+    (is (= {:restore-trigger :short-rest
+            :other :value}
+           (apply-entity-mod
+             {:restore-trigger :long-rest
+              :other :value}
+             {:restore-trigger :short-rest}))))
   (testing "Concat"
     (is (= {:spells [:a :b :c]}
            (apply-entity-mod

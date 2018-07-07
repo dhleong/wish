@@ -1,10 +1,30 @@
 (ns wish.sources.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sources.compiler :refer [apply-levels apply-options compile-directives inflate]]
+            [wish.sources.compiler :as c :refer [apply-levels apply-options compile-directives inflate]]
+            [wish.sources.compiler.limited-use :as lu]
             [wish.sources.core :as src :refer [->DataSource]]))
 
 (def character-state
   {:level 42})
+
+(def apply-feature-levels #(apply-levels %1 %2 c/find-feature-scaling))
+(def apply-limited-levels #(apply-levels %1 %2 c/find-limited-use-scaling))
+
+(deftest apply-mod-in-test
+  (testing "Simple replacement"
+    (is (= {:limited-uses
+            {:hard-burn
+             {:id :hard-burn
+              :restore-trigger :short-rest}}}
+           (-> (c/apply-mod-in
+                 {:limited-uses
+                  {:hard-burn
+                   {:id :hard-burn
+                    :restore-trigger :long-rest}}}
+                 nil
+                 {:restore-trigger :short-rest}
+                 [:limited-uses :hard-burn])
+               (select-keys [:limited-uses]))))))
 
 (deftest provide-feature-test
   (testing "Simple provide"
@@ -266,13 +286,13 @@
             level-2 (assoc entity-base :level 2)
             level-3 (assoc entity-base :level 3) ]
         (is (nil?
-              (:attrs (apply-levels entity-base ds))))
+              (:attrs (apply-feature-levels entity-base ds))))
 
         (is (= {:proficiency/stealth true}
-               (:attrs (apply-levels level-2 ds))))
+               (:attrs (apply-feature-levels level-2 ds))))
         (is (= {:proficiency/stealth true
                 :proficiency/insight true}
-               (:attrs (apply-levels level-3 ds))))))
+               (:attrs (apply-feature-levels level-3 ds))))))
 
     (testing "Support multiple instances of a feature"
       (let [class-def {:id :cleric
@@ -287,10 +307,10 @@
             level-3 (assoc entity-base :level 3)
             level-4 (assoc entity-base :level 4)]
         (is (= {:buffs {:dex 1}}
-               (:attrs (apply-levels level-2 ds))))
+               (:attrs (apply-feature-levels level-2 ds))))
         (is (= {:buffs {:dex 2}}
-               (:attrs (apply-levels level-3 ds))))
-        (let [applied-4 (apply-levels level-4 ds)]
+               (:attrs (apply-feature-levels level-3 ds))))
+        (let [applied-4 (apply-feature-levels level-4 ds)]
           (is (= {:buffs {:dex 3}}
                  (:attrs applied-4)))
           (is (= 2 (-> applied-4 :features :ability/dex :wish/instances))))))
@@ -306,9 +326,31 @@
             level-2 (assoc entity-base :level 2)
             level-3 (assoc entity-base :level 3) ]
         (is (nil?
-              (:attrs (apply-levels entity-base ds))))
+              (:attrs (apply-feature-levels entity-base ds))))
 
         (is (= {:proficiency/stealth true}
-               (:attrs (apply-levels level-2 ds))))
+               (:attrs (apply-feature-levels level-2 ds))))
         (is (= {:proficiency/insight true}
-               (:attrs (apply-levels level-3 ds))))))))
+               (:attrs (apply-feature-levels level-3 ds))))))
+
+    (testing "Apply level scaling to limited-use"
+      (let [class-def {:id :sorcerer
+                       :&levels
+                       {2 {:+features
+                           [{:id :spell-points
+                             :! [[:!add-limited-use
+                                  {:id :spell-points
+                                   :restore-trigger :long-rest
+                                   :levels {20 {:restore-trigger :short-rest}}}]]}]}}}
+            entity-base (assoc class-def :level 2)
+            level-20 (assoc entity-base :level 20)]
+        (is (= :long-rest
+               (-> (inflate entity-base ds {})
+                   :limited-uses
+                   :spell-points
+                   :restore-trigger)))
+        (is (= :short-rest
+               (-> (inflate level-20 ds {})
+                   :limited-uses
+                   :spell-points
+                   :restore-trigger)))))))
