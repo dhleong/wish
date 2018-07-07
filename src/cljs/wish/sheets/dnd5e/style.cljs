@@ -143,7 +143,10 @@
     [:.usage
      [:.button (merge button)
       [:&.selected {:background-color "#ddd"}
-       [:&:hover {:background-color "#eee"}]]]]]]
+       [:&:hover {:background-color "#eee"}]]]
+
+     [:.many flex/center
+      [:.modify {:padding "8px"}]]]]]
 
   [:.spells-section
    [:.spell-slot-level flex/center

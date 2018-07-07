@@ -290,6 +290,21 @@
      "Used"
      "Use")])
 
+(defn usage-box-many
+  "Render a box for specifying how many uses remain"
+  [item uses-left]
+  [:div.many
+   [:a.modify {:href "#"
+               :on-click (click>evt [:+use (:id item) 1])}
+    (icon :remove-circle)]
+
+   ; TODO should this be a text box?
+   uses-left
+
+   [:a.modify {:href "#"
+               :on-click (click>evt [:+use (:id item) -1])}
+    (icon :add-circle)]])
+
 (defn usage-box
   "Render some sort of box for 'using' a limited-use item,
    appropriate to the number of total possible `uses` and
@@ -298,10 +313,8 @@
   [:div.usage
    (cond
      (= 1 uses) [usage-box-single item (> used-count 0)]
-     :else (do
-             (log/todo "Handle " uses " uses")
-             [:div (str (- uses used-count)
-                        " uses remaining")]))])
+     :else (let [uses-left (- uses used-count)]
+             [usage-box-many item uses-left]))])
 
 
 (def trigger-labels
