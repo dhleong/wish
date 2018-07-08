@@ -82,7 +82,11 @@
          (map #(find-feature % id))
          (reduce (fn [a b]
                    (merge-with
-                     conj
+                     (fn [a b]
+                       (if (and (sequential? a)
+                                (sequential? b))
+                         (concat a b)
+                         (conj a b)))
                      a b)))))
 
   (find-item [this id]
