@@ -6,18 +6,14 @@ sudo: true
 addons:
     chrome: stable
 
-script:
-    - lein test
-
-after_success:
-    - lein do clean, cljsbuild once min, less once
-
+before_script:
     # compile builtin sources with LATEST planck
     # - sudo add-apt-repository -y ppa:mfikes/planck
     # - sudo apt-get update -q
     # - sudo apt-get install -y planck
     #
     - sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev
+    - git clone --depth 1 https://github.com/planck-repl/planck.git
     - (cd planck && script/build && script/install)
     - planck --version
 
@@ -29,8 +25,12 @@ after_success:
     # set up the plk tool
     - export PATH=$PATH:$PWD/planck/planck-sh/
 
-    # finally, run
+script:
+    - lein test
     - scripts/compile-builtin-sources
+
+after_success:
+    - lein do clean, cljsbuild once min, less once
 
 deploy:
     provider: pages
