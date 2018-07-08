@@ -21,6 +21,10 @@ Renderer needs to function. Any given sheet may have one or more
 Data Sources, and they all combine together so that the sheet has
 all the information it needs. They can be updated without having to
 change the Sheet Data to get the latest changes.
+4. **Providers** handle saving and loading Sheet Data and Data Sources,
+both of which are basically plain text files. WISH does not store your
+data itself, but rather uses Providers like Google Drive (currently the
+only provider) so you are in complete control of your data.
 
 WISH sheets will generally come with a builtin data source that provides
 the core, publically available bits to get you started. Right now we
@@ -62,7 +66,21 @@ Automatically recompile css file on change.
 lein less auto
 ```
 
-CSS also gets automatically built when running `lein build` and recompiled on change with `lein dev`.
+CSS also gets automatically built when running `lein build`.
+
+### Compile builtin Data Sources:
+
+You'll need to do this on first checkout and any time you update part of a data source:
+
+```
+scripts/compile-builtin-sources
+```
+
+This script uses [planck][4] to execute clojurescript without the extra
+compile steps, and can be used to compile custom Data Sources for homebrew,
+etc. At some point we may just pull this tool out into a separate project
+since we have to build planck from source as part of the CI deploy process
+anyway, so it's not exactly saving time....
 
 ### Run application:
 
@@ -96,3 +114,4 @@ lein build
 [1]: https://github.com/Day8/re-frame
 [2]: https://github.com/tpope/vim-fireplace
 [3]: https://github.com/dhleong/dots/blob/master/.vim/ftplugin/clojure.vim
+[4]: https://github.com/planck-repl/planck
