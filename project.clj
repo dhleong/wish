@@ -57,7 +57,7 @@
                           ["clean"]
                           ["cljsbuild" "once" "min"]
                           ["less" "once"]]
-            "test" ["doo" "chrome" "test" "once"]}
+            "test" ["doo" "chrome-headless" "test" "once"]}
 
   :profiles
   {:dev
