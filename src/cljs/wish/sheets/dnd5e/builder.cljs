@@ -12,6 +12,7 @@
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [data-source-manager router
                                                    count-max-options]]
+            [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.limited-select]
             [wish.views.widgets.multi-limited-select]))
 
@@ -70,7 +71,7 @@
   ; Fragment! avoids unnecessary extra parent
   [:<>
    [:b (:name option)]
-   [:p (:desc option)]])
+   [formatted-text :div.desc (:desc option)]])
 
 (defn expanding-assoc
   "Like (assoc), but safely expands vectors"
