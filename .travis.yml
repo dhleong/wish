@@ -1,0 +1,23 @@
+language: clojure
+
+# Don't use the Travis Container-Based Infrastructure
+sudo: true
+
+addons:
+    chrome: stable
+
+script:
+    - lein test
+
+after_success:
+    - lein do clean, cljsbuild once min, less once
+
+deploy:
+    provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_DEPLOY # Set in travis-ci.org dashboard
+    local_dir: resources/public
+    on:
+        branch: master
+
+
