@@ -15,7 +15,7 @@ before_script:
     # build planck from scratch tosince we need the latest version
     - sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev
     - git clone --depth 1 https://github.com/planck-repl/planck.git
-    - (cd planck && script/build --fast && script/install)
+    - (cd planck && script/build --fast && sudo script/install)
     - planck --version
 
     # set up the plk tool
