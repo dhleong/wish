@@ -7,20 +7,16 @@ addons:
     chrome: stable
 
 before_script:
-    # compile builtin sources with LATEST planck
-    # - sudo add-apt-repository -y ppa:mfikes/planck
-    # - sudo apt-get update -q
-    # - sudo apt-get install -y planck
-    #
-    - sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev
-    - git clone --depth 1 https://github.com/planck-repl/planck.git
-    - (cd planck && script/build && script/install)
-    - planck --version
-
     # plk depends on clojure
     - curl -O https://download.clojure.org/install/linux-install-1.9.0.381.sh
     - chmod +x linux-install-1.9.0.381.sh
     - sudo ./linux-install-1.9.0.381.sh
+
+    # build planck from scratch tosince we need the latest version
+    - sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev
+    - git clone --depth 1 https://github.com/planck-repl/planck.git
+    - (cd planck && script/build --fast && script/install)
+    - planck --version
 
     # set up the plk tool
     - export PATH=$PATH:$PWD/planck/planck-sh/
