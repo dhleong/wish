@@ -77,7 +77,7 @@ google.picker.PickerBuilder.prototype.addView = function() {};
 /** @return {google.picker.PickerBuilder} */
 google.picker.PickerBuilder.prototype.setAppId = function() {};
 /** @return {google.picker.PickerBuilder} */
-google.picker.PickerBuilder.prototype.setOauthToken = function() {};
+google.picker.PickerBuilder.prototype.setOAuthToken = function() {};
 /** @return {google.picker.PickerBuilder} */
 google.picker.PickerBuilder.prototype.setCallback = function() {};
 
