@@ -6,7 +6,7 @@
             [reagent.core :as r]
             [wish.util :refer [<sub >evt click>evt]]
             [wish.util.formatted :refer [->hiccup]]
-            [wish.util.nav :refer [pushy-supported?]]))
+            [wish.util.nav :refer [pushy-supported? pushy-prefix]]))
 
 (defn formatted-text
   [container-spec text]
@@ -21,13 +21,13 @@
 (defn link
   "Drop-in replacement for :a that inserts the # in links if necessary"
   [attrs & contents]
-  (if pushy-supported?
-    (vec (concat [:a attrs] contents))
-    (vec (concat [:a (update attrs
-                             :href
-                             (fn [s]
-                               (str "#" s)))]
-                 contents))))
+  (vec (concat [:a (update attrs
+                           :href
+                           (fn [s]
+                             (if pushy-supported?
+                               (str pushy-prefix s)
+                               (str "#" s))))]
+               contents)))
 
 (defn save-state
   []

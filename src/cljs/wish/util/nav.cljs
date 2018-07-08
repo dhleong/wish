@@ -13,9 +13,11 @@
 (def pushy-supported? (and (not js/goog.DEBUG)
                            (pushy/supported?)))
 
+(def pushy-prefix "/wish")
+
 (defn init! []
   (secretary/set-config! :prefix (if pushy-supported?
-                                   "/"
+                                   (str pushy-prefix "/")
                                    "#")))
 
 ;; must be called after routes have been defined
