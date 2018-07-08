@@ -131,15 +131,20 @@
     ; let us redirect println
     (set! *print-fn* print-to-out)
 
-    (log "Processing " (.-path source-dir) "...")
+    (log "Compiling " (.-path source-dir)
+         (when-not (:stdout options)
+           (str " to " (.-path dest-file)))
+         "...")
 
     (if (:stdout options)
       ; just dump everything to stdout
       (process-source source-dir source-dir-name dest-file)
 
       ; open the output file and bind to *out*
-      (with-open [source-out (writer dest-file)]
-        (binding [*out* source-out]
-          (process-source source-dir source-dir-name dest-file))))))
+      (do
+        (io/make-parents dest-file)
+        (with-open [source-out (writer dest-file)]
+          (binding [*out* source-out]
+            (process-source source-dir source-dir-name dest-file)))))))
 
 (set! *main-cli-fn* -main)
