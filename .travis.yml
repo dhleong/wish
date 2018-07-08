@@ -12,6 +12,12 @@ script:
 after_success:
     - lein do clean, cljsbuild once min, less once
 
+    # compile builtin sources with planck
+    - sudo add-apt-repository ppa:mfikes/planck
+    - sudo apt-get update
+    - sudo apt-get install planck
+    - scripts/compile-builtin-sources
+
 deploy:
     provider: pages
     skip_cleanup: true
