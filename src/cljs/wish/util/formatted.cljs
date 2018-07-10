@@ -5,7 +5,6 @@
 
 (def ul-regex #"^[ ]*-[ ]*(.*)$")
 (def ol-regex #"^[ ]*[0-9]\.[ ]*(.*)$")
-(def b-regex #"^(.*)\*\*(.*)\*\*(.*)$")
 
 (defn- maybe-span
   "If there's just one part, return it
@@ -61,6 +60,70 @@
     ; otherwise, let it be
     :else (concat result [item])))
 
+(defn- conj-in
+  "(conj) in a nested structure with a depth based
+   on the stack"
+  [coll stack value]
+  (letfn [(conj-path [coll stack-height base-path]
+            (if (<= stack-height 0)
+              base-path
+              (recur
+                (last coll)
+                (dec stack-height)
+                (conj base-path (dec (count coll))))))]
+    (let [stack-height (count stack)
+          path (conj-path coll stack-height [])]
+      (if (and (seq coll)
+               (seq path))
+        (update-in coll path conj value)
+        (conj coll value)))))
+
+(defn- expand-formats
+  "Uses a tokenizer approach to expanding possibly-nested ** and _
+   text wrappings into [:b] and [:i], respectively. Should be slightly
+   more efficient than the recursive regex thing we were doing previously
+   for just `**`, while also adding support the `_` tag. Basically trading
+   more memory use (maintaining the token stack, plus many small allocations
+   when calculating the path in which to conj string parts) for CPU time,
+   since this is a linear sweep with a single regex instead of multiple
+   recursive regex calls (which may also have made small allocations, so
+   hopefully that balances out)."
+  [line]
+  ; NOTE this assumes reasonably well-formatted input
+  (loop [result []
+         stack []
+         tokens (str/split line #"(\*\*|_)")]
+    (if-let [tok (first tokens)]
+      (let [tok (case tok
+                  "**" :b
+                  "_" :i
+                  tok)
+            stack-top (last stack)]
+        (cond
+          (= tok stack-top)
+          (recur
+            result
+            (pop stack)
+            (next tokens))
+
+          (keyword? tok)
+          (recur
+            (conj-in result stack [tok])
+            (conj stack tok)
+            (next tokens))
+
+          :else
+          (recur
+            (if (empty? tok)
+              result
+              (conj-in result stack tok))
+
+            stack
+            (next tokens))))
+
+      ; done!
+      result)))
+
 (defn- wrap-line
   [line]
   ; a cond-let macro would be wonderful...
@@ -68,14 +131,10 @@
     (collapse-into :li.ul (wrap-line (second li)))
     (if-let [li (re-find ol-regex line)]
       (collapse-into :li.ol (wrap-line (second li)))
-      (if-let [[_ before b after] (re-find b-regex line)]
-        (maybe-span
-          (wrap-line before)
-          [:b b]
-          (wrap-line after))
 
-        ; nothing left to do:
-        line))))
+      ;; else, just expand ** and _ wraps
+      (apply maybe-span
+             (expand-formats line)))))
 
 
 (defn ->hiccup
@@ -83,4 +142,5 @@
   (let [lines (str/split text "\n")]
     (->> lines
          (map wrap-line)
-         (reduce collapse-lists []))))
+         (reduce collapse-lists [])
+         vec)))

@@ -13,7 +13,18 @@
              "**itskaylee**")))
     (is (= [[:span [:b "its"] " " [:b "kaylee"]]]
            (->hiccup
-             "**its** **kaylee**")))))
+             "**its** **kaylee**"))))
+  (testing "Italicize"
+    (is (= [[:i "itskaylee"]]
+           (->hiccup
+             "_itskaylee_")))
+    (is (= [[:span [:i "its"] " " [:i "kaylee"]]]
+           (->hiccup
+             "_its_ _kaylee_"))))
+  (testing "Bold+Italicize"
+    (is (= [[:b [:i "itskaylee"]]]
+           (->hiccup
+             "**_itskaylee_**")))))
 
 (deftest ul->hiccup-test
   (testing "Listify 1"
