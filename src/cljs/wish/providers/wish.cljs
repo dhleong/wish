@@ -14,7 +14,7 @@
 
 (def ^:private builtin-sources
   {"dnd5e-srd" {:name "D&D 5e System Reference Document"
-                :path "/dnd5e.edn"}})
+                :path "/dnd5e.edn.json"}})
 
 (deftype WishProvider []
   IProvider
@@ -33,6 +33,7 @@
              {:handler (fn [raw]
                          (log "Loaded " url)
                          (put! ch [nil raw]))
+              :response-format :text
               :error-handler (fn [e]
                                (put! ch [e]))})
 

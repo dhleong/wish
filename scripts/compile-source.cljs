@@ -107,7 +107,7 @@
                                    (file "resources")
                                    (file "public")
                                    (file "sources")
-                                   (file (str source-dir-name ".edn"))))
+                                   (file (str source-dir-name ".edn.json"))))
                     :custom (when-let [dst (second arguments)]
                               (file dst)))]
 
