@@ -254,17 +254,37 @@
 (defn- spell-block
   [s {:keys [source-list
              verb]}]
-  [:div.spell
-   [:div.name (:name s)]
-   [:div.prepare
-    {:on-click (click>evt [:update-option-set source-list
-                           (if (:prepared? s)
-                             disj
-                             conj)
-                           (:id s)])}
-    (if (:prepared? s)
-      (icon :check-circle)
-      verb)]])
+  (let [expanded? (r/atom false)]
+    (fn []
+      [:div.spell
+       [:div.header
+        [:div.info
+         {:on-click (fn [e]
+                      (.preventDefault e)
+                      (swap! expanded? not))}
+         [:div.name (:name s)]
+         [:div.meta
+          [:span.level
+           (if (= 0 (:spell-level s))
+             "Cantrip"
+             (str "Level " (:spell-level s)))]
+          (when (:con? s)
+            [:span.tag "C"])
+          (when (:rit? s)
+            [:span.tag "R"])]]
+        [:div.prepare
+         {:on-click (click>evt [:update-option-set source-list
+                                (if (:prepared? s)
+                                  disj
+                                  conj)
+                                (:id s)])}
+         (if (:prepared? s)
+           (icon :check-circle)
+           verb)]]
+
+       (when @expanded?
+         ; TODO more spell info; possibly a common spell block widget?
+         [formatted-text :div.meta (:desc s)])])))
 
 (defn spell-management
   [the-class & {:keys [mode]

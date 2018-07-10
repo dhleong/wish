@@ -89,9 +89,18 @@
 
   [:.spell-management-overlay
    [:.limit metadata]
-   [:.spell (merge flex
-                   {:min-width "300px"})
-    [:.name flex/grow]
+   [:.spell {:padding "4px 0"}
+    [:.header flex]
+    [:.meta (merge metadata
+                   {:max-width "300px"})]
+    [:.info (merge flex/grow
+                   button)
+     [:.tag {:margin "0 4px"
+             :padding "0 4px"
+             :color "#fff"
+             :font-size "80%"
+             :border-radius "12px"
+             :background-color "#333"}]]
     [:.prepare button]]]
 
   [:.abilities
