@@ -10,6 +10,8 @@
 
 (def button {:cursor 'pointer})
 
+(def text-center {:text-align 'center})
+
 (def proficiency-style
   [:.proficiency
    {:color color-proficient
@@ -30,8 +32,8 @@
                     :padding "4px 12px"})
    [:.side flex
     [:.col (merge flex/vertical-center
-                  {:padding "4px 8px"
-                   :text-align 'center})
+                  text-center
+                  {:padding "4px 8px"})
      [:&.left {:text-align 'left}]
 
      [:.meta (merge flex
@@ -46,9 +48,9 @@
    [:.label {:font-size "80%"}]
 
    [:.hp {:align-items 'center}
-    [:.now {:padding "4px"
-            :font-size "120%"
-            :text-align 'center}]
+    [:.now (merge text-center
+                  {:padding "4px"
+                   :font-size "120%"})]
     [:.indicators
      [:.icon {:font-size "12px"}
       [:&.save {:color "#00cc00"}]
@@ -57,14 +59,14 @@
    [:.space flex/grow]]
 
   [:.hp-overlay {:width "300px"}
-   [:.current-hp {:width "5em"
-                  :font-size "1.2em"
-                  :text-align 'center}]
-   [:.centered {:text-align 'center}]
+   [:.current-hp (merge text-center
+                        {:width "5em"
+                         :font-size "1.2em"})]
+   [:.centered text-center]
 
-   [:.new-hp {:padding "12px"
-              :text-align 'center
-              :width "4em"}
+   [:.new-hp (merge text-center
+                    {:padding "12px"
+                     :width "4em"})
     [:.label {:font-size "80%"}]
     [:.amount {:font-size "140%"}
      [:&.healing {:color "#00cc00"}]
@@ -72,11 +74,11 @@
     [:input.apply (merge
                     button
                     {:margin-top "1em"})]]
-   [:.quick-adjust {:text-align 'center
-                    :padding "4px"}
-    [:.number {:font-size "1.2em"
-               :text-align 'center
-               :width "4em"}]]]
+   [:.quick-adjust (merge text-center
+                          {:padding "4px"})
+    [:.number (merge text-center
+                     {:font-size "1.2em"
+                      :width "4em"})]]]
 
   [:.short-rest-overlay {:max-width "400px"}
    [:.sections {:margin-bottom "1em"
@@ -101,7 +103,11 @@
              :font-size "80%"
              :border-radius "12px"
              :background-color "#333"}]]
-    [:.prepare button]]]
+    [:.prepare (merge button
+                      text-center
+                      {:min-width "5em"})
+     [:&.disabled {:cursor 'default
+                   :color "#999"}]]]]
 
   [:.abilities
    [:.ability (merge flex
@@ -143,7 +149,7 @@
     [:.button (merge
                 flex/grow
                 button
-                {:text-align 'center})]]
+                text-center)]]
    [:.limited-use (merge
                     flex/center
                     {:padding "4px"})

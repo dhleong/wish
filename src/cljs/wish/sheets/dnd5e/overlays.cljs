@@ -252,10 +252,13 @@
 ; ======= Spell management =================================
 
 (defn- spell-block
-  [s {:keys [source-list
+  [s {:keys [selectable?
+             source-list
              verb]}]
+
   (let [expanded? (r/atom false)]
-    (fn [s {:keys [source-list
+    (fn [s {:keys [selectable?
+                   source-list
                    verb]}]
       [:div.spell
        [:div.header
@@ -274,11 +277,15 @@
           (when (:rit? s)
             [:span.tag "R"])]]
         (if (:always-prepared? s)
-          [:div.always-prepared
+          [:div.prepare.disabled
+           {:title "Always Prepared"}
            (icon :check-circle-outline)]
 
           [:div.prepare
-           {:on-click (click>evt [:update-option-set source-list
+           {:class (when-not (or (:prepared? s)
+                                 (selectable? s))
+                     "disabled")
+            :on-click (click>evt [:update-option-set source-list
                                   (if (:prepared? s)
                                     disj
                                     conj)
@@ -343,9 +350,15 @@
 
         spells (<sub [::dnd5e/preparable-spell-list the-class available-list])
 
+        can-select-spells? (< (count prepared-spells) spells-limit)
+        can-select-cantrips? (< (count prepared-cantrips) cantrips-limit)
         spell-opts (assoc attrs
                           :verb prepare-verb
-                          :source-list available-list)]
+                          :source-list available-list
+                          :selectable? (fn [{:keys [spell-level]}]
+                                         (if (= 0 spell-level)
+                                           can-select-cantrips?
+                                           can-select-spells?)))]
 
     [:div {:class (:spell-management-overlay styles)}
      [:h5 title
@@ -357,4 +370,4 @@
 
      (for [s spells]
        ^{:key (:id s)}
-       [spell-block s spell-opts]) ]))
+       [spell-block s spell-opts])]))
