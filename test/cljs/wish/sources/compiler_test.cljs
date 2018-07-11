@@ -183,83 +183,90 @@
              (:values f))))))
 
 (deftest apply-options-test
-  (testing "Apply options to class instance"
-    (let [ds (->DataSource
-               :source
-               (compile-directives
-                 [[:!provide-feature
-                   {:id :proficiency/stealth
-                    :name "Stealth"
-                    :! [[:!provide-attr :proficiency/stealth true]]}]
-                  [:!declare-class
-                   {:id :cleric
-                    :features
-                    [{:id :rogue/skill-proficiencies
-                      :name "Proficiencies"
-                      :max-options 2
-                      :values [:proficiency/stealth]}
-                     ]}]]))
-          opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
-          applied (apply-options
-                    ; NOTE: they must *have* the feature for the option
-                    ; to get applied
-                    {:features {:rogue/skill-proficiencies true}}
-                    ds opts-map)]
-      (is (= {:attrs {:proficiency/stealth true}}
-             (select-keys applied [:attrs])))))
+  (let [simple-ds (->DataSource
+                    :source
+                    (compile-directives
+                      [[:!provide-feature
+                        {:id :proficiency/stealth
+                         :name "Stealth"
+                         :primary-only? true
+                         :! [[:!provide-attr :proficiency/stealth true]]
 
-  (testing "Only apply :primary-only? options to :primary? class instance"
-    (let [ds (->DataSource
-               :source
-               (compile-directives
-                 [[:!provide-feature
-                   {:id :proficiency/stealth
-                    :name "Stealth"
-                    :primary-only? true
-                    :! [[:!provide-attr :proficiency/stealth true]]}]
-                  [:!declare-class
-                   {:id :cleric
-                    :features
-                    [{:id :rogue/skill-proficiencies
-                      :name "Proficiencies"
-                      :max-options 2
-                      :values [:proficiency/stealth]}
-                     ]}]]))
-          opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
-          applied (apply-options
-                    ; NOTE: they must *have* the feature for the option
-                    ; to get applied
-                    {:features {:rogue/skill-proficiencies true}}
-                    ds opts-map)]
-      (is (= {}
-             (select-keys applied [:attrs])))))
+                         ; this is bogus, but useful for testing
+                         :&levels {3 {:+! [[:!provide-attr
+                                            :expertise/stealth
+                                            true]]}}}]
+                       [:!declare-class
+                        {:id :cleric
+                         :features
+                         [{:id :rogue/skill-proficiencies
+                           :name "Proficiencies"
+                           :max-options 2
+                           :values [:proficiency/stealth]}
+                          ]}]]))]
 
-  (testing "Apply options to a multi-instance feature"
-    (let [ds (->DataSource
-               :source
-               (compile-directives
-                 '[[:!provide-feature
-                    {:id :ability/dex
-                     :name "Stealth"
-                     :! [[:!update-attr [:buffs :dex] + 1]]}]
-                   [:!declare-class
-                    {:id :cleric
-                     :features
-                     [{:id :ability-improvement
-                       :name "Ability Score Improvement"
-                       :max-options 2
-                       :values [:ability/dex]}
-                      ]}]]))
-          opts-map {:ability-improvement [:ability/dex]
-                    :ability-improvement#2 {:id :ability-improvement
-                                            :value [:ability/dex]}}
-          applied (apply-options
-                    ; NOTE: they must *have* the feature for the option
-                    ; to get applied
-                    {:features {:ability-improvement 2}}
-                    ds opts-map)]
-      (is (= {:attrs {:buffs {:dex 2}}}
-             (select-keys applied [:attrs]))))))
+    (testing "Apply options to class instance"
+      (let [ds simple-ds
+            opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
+            applied (apply-options
+                      ; NOTE: they must *have* the feature for the option
+                      ; to get applied
+                      {:features {:rogue/skill-proficiencies true}
+                       :primary? true}
+                      ds opts-map)]
+        (is (= {:attrs {:proficiency/stealth true}}
+               (select-keys applied [:attrs])))))
+
+    (testing "Only apply :primary-only? options to :primary? class instance"
+      (let [ds simple-ds
+            opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
+            applied (apply-options
+                      ; NOTE: they must *have* the feature for the option
+                      ; to get applied
+                      {:features {:rogue/skill-proficiencies true}}
+                      ds opts-map)]
+        (is (= {}
+               (select-keys applied [:attrs])))))
+
+    (testing "Level-scale options on class instance"
+      (let [ds simple-ds
+            opts-map {:rogue/skill-proficiencies [:proficiency/stealth]}
+            applied (apply-options
+                      ; NOTE: see above note
+                      {:features {:rogue/skill-proficiencies true}
+                       :primary? true
+                       :level 3}
+                      ds opts-map)]
+        (is (= {:attrs {:proficiency/stealth true
+                        :expertise/stealth true}}
+               (select-keys applied [:attrs])))))
+
+    (testing "Apply options to a multi-instance feature"
+      (let [ds (->DataSource
+                 :source
+                 (compile-directives
+                   '[[:!provide-feature
+                      {:id :ability/dex
+                       :name "Stealth"
+                       :! [[:!update-attr [:buffs :dex] + 1]]}]
+                     [:!declare-class
+                      {:id :cleric
+                       :features
+                       [{:id :ability-improvement
+                         :name "Ability Score Improvement"
+                         :max-options 2
+                         :values [:ability/dex]}
+                        ]}]]))
+            opts-map {:ability-improvement [:ability/dex]
+                      :ability-improvement#2 {:id :ability-improvement
+                                              :value [:ability/dex]}}
+            applied (apply-options
+                      ; NOTE: they must *have* the feature for the option
+                      ; to get applied
+                      {:features {:ability-improvement 2}}
+                      ds opts-map)]
+        (is (= {:attrs {:buffs {:dex 2}}}
+               (select-keys applied [:attrs])))))))
 
 (deftest apply-levels-test
   (let [ds (->DataSource

@@ -79,6 +79,6 @@
         ; TODO can we surface this somehow? that would be VERY fancy...
         }]]
 
-  :&levels {3 {:! [[:!add-to-list
-                    :cleric/extra-spells
-                    [:spell/lesser-restoration :spell/spiritual-weapon]]]}}} ]
+  :&levels {3 {:+! [[:!add-to-list
+                     :cleric/extra-spells
+                     [:spell/lesser-restoration :spell/spiritual-weapon]]]}}} ]

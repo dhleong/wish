@@ -255,6 +255,9 @@
                            " for feature " feature-id))))
         state))))
 
+(declare apply-levels)
+(declare find-feature-scaling)
+
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
   (if (or (empty? options-chosen)
@@ -265,7 +268,14 @@
     state
 
     (let [option-value (first options-chosen)
-          the-feature (find-feature data-source option-value)]
+          the-feature (when-let [f (find-feature data-source option-value)]
+                        ; level-scale the feature
+                        (-> f
+                            (assoc :level (:level state))
+                            (apply-levels
+                              data-source
+                              find-feature-scaling)
+                            (dissoc :level)))]
       (recur
         data-source
 
