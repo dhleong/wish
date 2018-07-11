@@ -542,13 +542,23 @@
 ; with `:prepared? bool` inserted as appropriate
 (reg-sub
   ::preparable-spell-list
-  :<- [:sheet-source]
-  :<- [:options]
-  (fn [[data-source options] [_ the-class list-id]]
+
+  (fn [[_ the-class list-id]]
+    [(subscribe [:sheet-source])
+     (subscribe [:options])
+     (subscribe [::prepared-spells (:id the-class)])])
+
+  (fn [[data-source options prepared-spells] [_ the-class list-id]]
     (let [attrs (-> the-class :attrs :5e/spellcaster)
           is-acquired-list? (= (:acquires?-spells attrs)
                                list-id)
-          prepared-set (set (get options list-id))
+          prepared-set (->> prepared-spells
+                            (map :id)
+                            set)
+          always-prepared-set (->> prepared-spells
+                                   (filter :always-prepared?)
+                                   (map :id)
+                                   set)
           source (if is-acquired-list?
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
@@ -562,6 +572,9 @@
       ; TODO limit visible spells by those actually available
       ; (IE it must be of a level we can prepare)
       (->> source
+           (map #(if (always-prepared-set (:id %))
+                   (assoc % :always-prepared? true)
+                   %))
            (map #(if (prepared-set (:id %))
                    (assoc % :prepared? true)
                    %))))))

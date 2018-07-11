@@ -255,7 +255,8 @@
   [s {:keys [source-list
              verb]}]
   (let [expanded? (r/atom false)]
-    (fn []
+    (fn [s {:keys [source-list
+                   verb]}]
       [:div.spell
        [:div.header
         [:div.info
@@ -272,15 +273,19 @@
             [:span.tag "C"])
           (when (:rit? s)
             [:span.tag "R"])]]
-        [:div.prepare
-         {:on-click (click>evt [:update-option-set source-list
-                                (if (:prepared? s)
-                                  disj
-                                  conj)
-                                (:id s)])}
-         (if (:prepared? s)
-           (icon :check-circle)
-           verb)]]
+        (if (:always-prepared? s)
+          [:div.always-prepared
+           (icon :check-circle-outline)]
+
+          [:div.prepare
+           {:on-click (click>evt [:update-option-set source-list
+                                  (if (:prepared? s)
+                                    disj
+                                    conj)
+                                  (:id s)])}
+           (if (:prepared? s)
+             (icon :check-circle)
+             verb)])]
 
        (when @expanded?
          ; TODO more spell info; possibly a common spell block widget?
