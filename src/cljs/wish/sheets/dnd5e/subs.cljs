@@ -303,7 +303,7 @@
   ::initiative
   :<- [::ability-modifiers]
   (fn [abilities]
-    ; TODO others initiative mods?
+    ; TODO other initiative mods?
     (:dex abilities)))
 
 (reg-sub
@@ -538,6 +538,8 @@
        :spells []}
       spells)))
 
+(declare spell-slots)
+
 ; list of all spells on a given spell list for the given class,
 ; with `:prepared? bool` inserted as appropriate
 (reg-sub
@@ -567,11 +569,25 @@
                                 (get options (:spells attrs)))
 
                    ; normal case:
-                   (expand-list data-source list-id nil))]
+                   (expand-list data-source list-id nil))
 
-      ; TODO limit visible spells by those actually available
-      ; (IE it must be of a level we can prepare)
+          highest-spell-level (->> (spell-slots [the-class])
+
+                                   ; only one slot type
+                                   vals
+                                   first
+
+                                   :slots
+
+                                   ; highest spell level available
+                                   keys
+                                   (apply max))]
+
       (->> source
+           ; limit visible spells by those actually available
+           ; (IE it must be of a level we can prepare)
+           (filter #(<= (:spell-level %) highest-spell-level))
+
            (map #(if (always-prepared-set (:id %))
                    (assoc % :always-prepared? true)
                    %))
