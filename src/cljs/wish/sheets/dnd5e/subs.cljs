@@ -530,7 +530,7 @@
   (fn [spells]
     (reduce
       (fn [m s]
-        (let [spell-type (if (= 0 (:level s))
+        (let [spell-type (if (= 0 (:spell-level s))
                            :cantrips
                            :spells)]
           (update m spell-type conj s)))
