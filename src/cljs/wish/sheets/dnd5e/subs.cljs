@@ -509,7 +509,10 @@
 
                    (map #(assoc %
                                 ::source (:id c)
-                                :spell-mod (get modifiers (:id c))))))))
+                                :spell-mod (get modifiers (:id c))))
+
+                   ; sort by level, then name
+                   (sort-by (juxt :spell-level :name))))))
         {}
         classes))))
 
