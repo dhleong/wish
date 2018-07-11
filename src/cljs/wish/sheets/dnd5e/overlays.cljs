@@ -344,14 +344,14 @@
                          ; otherwise, it's the :spells list
                          (:spells attrs))
 
-        all-prepared (<sub [::dnd5e/prepared-spells-by-type (:id the-class)])
-        prepared-spells (:spells all-prepared)
-        prepared-cantrips (:cantrips all-prepared)
+        all-prepared (<sub [::dnd5e/my-prepared-spells-by-type (:id the-class)])
+        prepared-spells-count (count (:spells all-prepared))
+        prepared-cantrips-count (count (:cantrips all-prepared))
 
         spells (<sub [::dnd5e/preparable-spell-list the-class available-list])
 
-        can-select-spells? (< (count prepared-spells) spells-limit)
-        can-select-cantrips? (< (count prepared-cantrips) cantrips-limit)
+        can-select-spells? (< prepared-spells-count spells-limit)
+        can-select-cantrips? (< prepared-cantrips-count cantrips-limit)
         spell-opts (assoc attrs
                           :verb prepare-verb
                           :source-list available-list
@@ -364,9 +364,9 @@
      [:h5 title
       (when spells-limit
         [:div.limit
-         "Spells " (count prepared-spells) " / " spells-limit])
+         "Spells " prepared-spells-count " / " spells-limit])
       [:div.limit
-       "Cantrips " (count prepared-cantrips) " / " cantrips-limit]]
+       "Cantrips " prepared-cantrips-count " / " cantrips-limit]]
 
      (for [s spells]
        ^{:key (:id s)}

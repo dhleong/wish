@@ -520,23 +520,25 @@
   (fn [by-class [_ class-id]]
     (get by-class class-id)))
 
-; reduces ::prepared-spells into {:cantrips, :spells}
+; reduces ::prepared-spells into {:cantrips, :spells},
+; AND removes ones that are always prepared
 (reg-sub
-  ::prepared-spells-by-type
+  ::my-prepared-spells-by-type
 
   (fn [[_ class-id]]
     (subscribe [::prepared-spells class-id]))
 
   (fn [spells]
-    (reduce
-      (fn [m s]
-        (let [spell-type (if (= 0 (:spell-level s))
-                           :cantrips
-                           :spells)]
-          (update m spell-type conj s)))
-      {:cantrips []
-       :spells []}
-      spells)))
+    (->> spells
+         (remove :always-prepared?)
+         (reduce
+           (fn [m s]
+             (let [spell-type (if (= 0 (:spell-level s))
+                                :cantrips
+                                :spells)]
+               (update m spell-type conj s)))
+           {:cantrips []
+            :spells []}))))
 
 (declare spell-slots)
 
