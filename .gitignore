@@ -3,6 +3,7 @@
 /*-init.clj
 /resources/public/js/compiled
 /resources/public/sources/
+/resources/public/css
 out
 .rebel_readline_history
 .lein-repl-history
