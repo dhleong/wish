@@ -9,6 +9,8 @@
 
 (declare apply-entity-mod)
 
+(defn- newest-value [a b] b)
+
 ; NOTE public for testing
 (defn extract-mod-and-key
   "Given an entity-mod keyword, pick the function used
@@ -46,8 +48,10 @@
            [str (mod-key k 2)])
       \& [apply-entity-mod (mod-key k 1)]
 
+      \= [newest-value k]
+
       ; otherwise, just replace:
-      [(fn [a b] b) k])))
+      [newest-value k])))
 
 (defn apply-entity-mod
   "Apply a mod-map to the given entity. This is basically a
@@ -62,6 +66,9 @@
 
    A & prefix is used to merge the provided map into the existing map,
    rather than replace it
+
+   A = prefix can be used to explicitly replace an existing key, if
+   there's some ambiguity with another prefix in the key's name.
 
    For namespaced keys, the prefix should still be part of the key *name*,
    not the namespace."

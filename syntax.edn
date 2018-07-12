@@ -13,6 +13,7 @@
 :>>name ; append
 :+name  ; semantic alias for append
 :&name  ; merge (maps only)
+:=name  ; explicit replace (in case the property starts with a symbol above)
 
 ;;
 ;; Functions
