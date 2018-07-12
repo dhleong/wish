@@ -9,6 +9,7 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
+            [wish.sheets.dnd5e.widgets :refer [spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
@@ -295,8 +296,7 @@
              verb)])]
 
        (when @expanded?
-         ; TODO more spell info; possibly a common spell block widget?
-         [formatted-text :div.meta (:desc s)])])))
+         [spell-card s])])))
 
 (defn spell-management
   [the-class & {:keys [mode]

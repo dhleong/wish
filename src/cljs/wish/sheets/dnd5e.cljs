@@ -10,6 +10,7 @@
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
+            [wish.sheets.dnd5e.widgets :refer [spell-card]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]))
@@ -378,8 +379,7 @@
          (invoke-callable s :dice)])]
 
      ; collapsed:
-     [:div.detail
-      [formatted-text :div.desc (:desc s)]]]))
+     [spell-card s]]))
 
 (defn spell-slot-use-block
   [kind level total used]

@@ -32,6 +32,7 @@
    :desc "You hurl a bubble of acid. Choose one creature within range, or choose two creatures within range that are within 5 feet of each other. A target must succeed on a Dexterity saving throw or take 1d6 acid damage.
 This spell’s damage increases by 1d6 when you reach 5th level (2d6), 11th level (3d6), and 17th level (4d6)."
    :comp :vs
+   :save :dex
    :dam-type :acid
    :dice (fn [total-level]
     (str (cond
@@ -93,6 +94,7 @@ An audible alarm produces the sound of a hand bell for 10 seconds within 60 feet
    :desc "This spell lets you convince a beast that you mean it no harm. Choose a beast that you can see within range. It must see and hear you. If the beast's Intelligence is 4 or higher, the spell fails. Otherwise, the beast must succeed on a Wisdom saving throw or be charmed by you for the spell's duration. If you or one of your companions harms the target, the spells ends.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, you can affect one additional beast t level above 1st."
    :comp [:vs "a morsel of food"]
+   :save :wis
    }
 
   {:spell-level 2
@@ -199,6 +201,7 @@ If the target damages or otherwise harms an affected creature, the affected crea
 **_Ending the Effect. _**If an affected creature ends its turn while not within 60 feet of the target or able to see it, the creature makes a Wisdom saving throw. On a successful save, the creature is no longer affected by the target and recognizes the feeling of repugnance or attraction as magical. In addition, a creature affected by the spell is allowed another Wisdom saving throw every 24 hours while the spell persists.
 A creature that successfully saves against this effect is immune to it for 1 minute, after which time it can be affected again."
    :comp [:vs "V, S, M ("]
+   :save :wis
    }
 
   {:spell-level 4
@@ -347,6 +350,7 @@ If the target is native to a different plane of existence than the one you’re 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 5th level or higher, you can target one additional creature for each slot level above 4th."
    :comp [:vs "an item distasteful to the target"]
    :con? true
+   :save :cha
    }
 
   {:spell-level 2
@@ -406,6 +410,7 @@ When a creature enters the affected area for the first time on a turn or starts 
 A creature restrained by the tentacles can use its action to make a Strength or Dexterity check (its choice) against your spell save DC. On a success, it frees itself."
    :comp [:vs "a piece of tentacle from a giant octopus or a giant squid"]
    :con? true
+   :save :dex
    :dam-type :bludgeoning
    :dice "3d6"
    }
@@ -467,6 +472,7 @@ If you target a nonmagical plant that isn’t a creature, such as a tree or shru
    :desc "You can blind or deafen a foe. Choose one creature that you can see within range to make a Constitution saving throw. If it fails, the target is either blinded or deafened (your choice) for the duration. At the end of each of its turns, the target can make a Constitution saving throw. On a success, the spell ends.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, you can target one additional creature for each slot level above 2nd."
    :comp :v
+   :save :con
    }
 
   {:spell-level 3
@@ -557,6 +563,7 @@ You can suppress any effect causing a target to be charmed or frightened. When t
 Alternatively, you can make a target indifferent about creatures of your choice that it is hostile toward. This indifference ends if the target is attacked or harmed by a spell or if it witnesses any of its friends being harmed. When the spell ends, the creature becomes hostile again, unless the GM rules otherwise."
    :comp :vs
    :con? true
+   :save :cha
    }
 
   {:spell-level 6
@@ -585,6 +592,7 @@ A target must make a Dexterity saving throw. The target takes 10d8 lightning dam
    :desc "You attempt to charm a humanoid you can see within range. It must make a Wisdom saving throw, and does so with advantage if you or your companions are fighting it. If it fails the saving throw, it is charmed by you until the spell ends or until you or your companions do anything harmful to it. The charmed creature regards you as a friendly acquaintance. When the spell ends, the creature knows it was charmed by you.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, you can target one additional creature for each slot level above 1st. The creatures must be within 30 feet of each other when you target them."
    :comp :vs
+   :save :wis
    }
 
   {:spell-level 0
@@ -699,6 +707,7 @@ Some typical commands and their effects follow. You might issue a command other 
 **_Halt. _**The target doesn’t move and takes no actions. A flying creature stays aloft, provided that it is able to do so. If it must move to stay aloft, it flies the minimum distance needed to remain in the air.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, you can affect one additional creature for each slot level above 1st. The creatures must be within 30 feet of each other when you target them."
    :comp :v
+   :save :wis
    }
 
   {:spell-level 5
@@ -759,6 +768,7 @@ this way, it can make another Wisdom saving to try to end the effect.
 A target isn't compelled to move into an obviously deadly hazard, such as a fire or pit, but it will provoke opportunity attacks to move in the designated direction."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 5
@@ -789,6 +799,7 @@ A creature killed by this spell becomes a frozen statue until it thaws.
 An affected target can’t take reactions and must roll a d10 at the start of each of its turns to determine its behavior for that turn."
    :comp [:vs "three nut shells"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 3
@@ -932,6 +943,7 @@ spell during combat.
 **_Seizure. _**The creature is overcome with shaking. The creature has disadvantage on Dexterity checks, Dexterity saving throws, and attack rolls that use Dexterity.
 **_Slimy Doom. _**The creature begins to bleed uncontrollably. The creature has disadvantage on Constitution checks and Constitution saving throws. In addition, whenever the creature takes damage, it is stunned until the end of its next turn."
    :comp :vs
+   :save :con
    }
 
   {:spell-level 6
@@ -1150,6 +1162,7 @@ The fire damages objects in the area and ignites flammable objects that aren’t
 **_At Higher Levels. _**When you cast this spell using a spell slot of 8th level or higher, the base damage increases by 1d6 for each slot level above 7th."
    :comp [:vs "a tiny ball of bat guano and sulfur"]
    :con? true
+   :save :dex
    }
 
   {:spell-level 8
@@ -1219,6 +1232,7 @@ You can also use this spell to detect the presence of thinking creatures you can
 Once you detect the presence of a creature in this way, you can read its thoughts for the rest of the duration as described above, even if you can’t see it, but it must still be within range."
    :comp [:vs "a copper piece"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 4
@@ -1281,6 +1295,7 @@ You can end the spell early by using either of the following special functions.
 **_Dismissal. _**As your action, make a melee spell attack against a celestial, an elemental, a fey, a fiend, or an undead you can reach. On a hit, you attempt to drive the creature back to its home plane. The creature must succeed on a Charisma saving throw or be sent back to its home plane (if it isn’t there already). If they aren’t on their home plane, undead are sent to the Shadowfell, and fey are sent to the Feywild."
    :comp [:vs "holy water or powdered silver and iron"]
    :con? true
+   :save :cha
    }
 
   {:spell-level 3
@@ -1337,6 +1352,7 @@ If you cast the spell two or more times before finishing your next long rest, th
 • 20 hit points or fewer: killed instantly
 Regardless of its current hit points, a celestial, an elemental, a fey, or a fiend that fails its save is forced back to its plane of origin (if it isn’t there already) and can’t return to your current plane for 24 hours by any means short of a _wish _spell."
    :comp :v
+   :save :cha
    }
 
   {:spell-level 4
@@ -1353,6 +1369,7 @@ Each time the target takes damage, it makes a new Wisdom saving throw against th
 **_At Higher Levels. _**When you cast this spell with a 5th-level spell slot, the duration is concentration, up to 10 minutes. When you use a 6th-level spell slot, the duration is concentration, up to 1 hour. When you use a spell slot of 7th level or higher, the duration is concentration, up to 8 hours."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 8
@@ -1369,6 +1386,7 @@ Each time the target takes damage, it makes a new Wisdom saving throw against th
 **_At Higher Levels. _**When you cast this spell with a 9th-level spell slot, the duration is concentration, up to 8 hours."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 5
@@ -1385,6 +1403,7 @@ Each time the target takes damage, it makes a new Wisdom saving throw against th
 **_At Higher Levels. _**When you cast this spell using a 6th-level spell slot, the duration is concentration, up to 10 minutes. When you use a 7th-level spell slot, the duration is concentration, up to 1 hour. When you use a spell slot of 8th level or higher, the duration is concentration, up to 8 hours."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 5
@@ -1435,7 +1454,7 @@ A fissure that opens beneath a structure causes it to automatically collapse (se
 **_Structures. _**The tremor deals 50 bludgeoning damage to any structure in contact with the ground in the area when you cast the spell and at the start of each of your turns until the spell ends. If a structure drops to 0 hit points, it collapses and potentially damages nearby creatures. A creature within half the distance of a structure’s height must make a Dexterity saving throw. On a failed save, the creature takes 5d6 bludgeoning damage, is knocked prone, and is buried in the rubble, requiring a DC 20 Strength (Athletics) check as an action to escape. The GM can adjust the DC higher or lower, depending on the nature of the rubble. On a successful save, the creature takes half as much damage and doesn’t fall prone or become buried."
    :comp [:vs "a pinch of dirt, a piece of rock, and a lump of clay"]
    :con? true
-   :save :dex
+   :save :con
    :dam-type :bludgeoning
    :dice "5d6"
    }
@@ -1515,6 +1534,7 @@ When the spell ends, the conjured plants wilt away."
    :school :enc
    :desc "You weave a distracting string of words, causing creatures of your choice that you can see within range and that can hear you to make a Wisdom saving throw. Any creature that can’t be charmed succeeds on this saving throw automatically, and if you or your companions are fighting a creature, it has advantage on the save. On a failed save, the target has disadvantage on Wisdom (Perception) checks made to perceive any creature other than you until the spell ends or until the target can no longer hear you. The spell ends if you are incapacitated or can no longer speak."
    :comp :vs
+   :save :wis
    }
 
   {:spell-level 7
@@ -1558,6 +1578,7 @@ This spell has no effect if you cast it while you are on the Ethereal Plane or a
 **_Sickened. _**The target has disadvantage on attack rolls and ability checks. At the end of each of its turns, it can make another Wisdom saving throw. If it succeeds, the effect ends."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 4
@@ -1624,6 +1645,7 @@ At the start of each of your turns, the hound attempts to bite one creature with
 While frightened by this spell, a creature must take the Dash action and move away from you by the safest available route on each of its turns, unless there is nowhere to move. If the creature ends its turn in a location where it doesn’t have line of sight to you, the creature can make a Wisdom saving throw. On a successful save, the spell ends for that creature."
    :comp [:vs "a white feather or the heart of a hen"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 1
@@ -1860,6 +1882,7 @@ If the creature is physically broken while petrified, it suffers from similar de
 If you maintain your concentration on this spell for the entire possible duration, the creature is turned to stone until the effect is removed."
    :comp [:vs "a pinch of lime, water, and earth"]
    :con? true
+   :save :con
    }
 
   {:spell-level 1
@@ -1931,6 +1954,7 @@ When you cast the spell, any creature that is completely inside the cage’s are
 A creature inside the cage can’t leave it by nonmagical means. If the creature tries to use teleportation or interplanar travel to leave the cage, it must first make a Charisma saving throw. On a success, the creature can use that magic to exit the cage. On a failure, the creature can’t exit the cage and wastes the use of the spell or effect. The cage also extends into the Ethereal Plane, blocking ethereal travel.
 This spell can’t be dispelled by _dispel magic._"
    :comp [:vs "ruby dust worth 1,500 gp"]
+   :save :cha
    }
 
   {:spell-level 9
@@ -2016,6 +2040,7 @@ You can issue any command you choose, short of an activity that would result in 
 You can end the spell early by using an action to dismiss it. A _remove curse, greater restoration,_ or _wish _spell also ends it.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th or 8th level, the duration is 1 year. When you cast this spell using a spell slot of 9th level, the spell lasts until it is ended by one of the spells mentioned above."
    :comp :v
+   :save :wis
    :dam-type :psychic
    :dice "5d10"
    }
@@ -2089,6 +2114,7 @@ When you inscribe the glyph, choose _explosive runes _or a _spell glyph._
 **_Spell Glyph. _**You can store a prepared spell of 3rd level or lower in the glyph by casting it as part of creating the glyph. The spell must target a single creature or an area. The spell being stored has no immediate effect when cast in this way. When the glyph is triggered, the stored spell is cast. If the spell has a target, it targets the creature that triggered the glyph. If the spell affects an area, the area is centered on that creature. If the spell summons hostile creatures or creates harmful objects or traps, they appear as close as possible to the intruder and attack it. If the spell requires concentration, it lasts until the end of its full duration.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage of an _explosive runes _glyph increases by 1d8 for each slot level above 3rd. If you create a _spell glyph,_ you can store any spell of up to the same level as the slot you use for the _glyph of warding._"
    :comp [:vs "incense and powdered diamond worth at least 200 gp, which the spell consumes"]
+   :save :dex
    }
 
   {:spell-level 1
@@ -2113,6 +2139,7 @@ The berries lose their potency if they have not been consumed within 24 hours of
    :desc "Slick grease covers the ground in a 10-foot square centered on a point within range and turns it into difficult terrain for the duration.
 When the grease appears, each creature standing in its area must succeed on a Dexterity saving throw or fall prone. A creature that enters the area or ends its turn there must also succeed on a Dexterity saving throw or fall prone."
    :comp [:vs "a bit of pork rind or butter"]
+   :save :dex
    }
 
   {:spell-level 4
@@ -2152,6 +2179,7 @@ When the grease appears, each creature standing in its area must succeed on a De
    :desc "A Large spectral guardian appears and hovers for the duration in an unoccupied space of your choice that you can see within range. The guardian occupies that space and is indistinct except for a gleaming sword and shield emblazoned with the symbol of your deity.
 Any creature hostile to you that moves to a space within 10 feet of the guardian for the first time on a turn must succeed on a Dexterity saving throw. The creature takes 20 radiant damage on a failed save, or half as much damage on a successful one. The guardian vanishes when it has dealt a total of 60 damage."
    :comp :v
+   :save :dex
    }
 
   {:spell-level 6
@@ -2242,6 +2270,7 @@ Second, you can bind an extra effect to the area. Choose the effect from the fol
 **_Silence. _**No sound can emanate from within the area, and no sound can reach into it.
 **_Tongues. _**Affected creatures can communicate with any other creature in the area, even if they don’t share a common language."
    :comp [:vs "herbs, oils, and incense worth at least 1,000 gp, which the spell consumes"]
+   :save :cha
    }
 
   {:spell-level 4
@@ -2323,6 +2352,7 @@ If a creature is holding or wearing the object and takes the damage from it, the
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the damage increases by 1d8 for each slot level above 2nd."
    :comp [:vs "a piece of iron and a flame"]
    :con? true
+   :save :con
    :dam-type :fire
    :dice (fn [spell-level]
     (str spell-level "d8"))
@@ -2380,6 +2410,7 @@ A creature that partakes of the feast gains several benefits. The creature is cu
 At the end of each of its turns, and each time it takes damage, the target can make another Wisdom saving throw. The target has advantage on the saving throw if it’s triggered by damage. On a success, the spell ends."
    :comp [:vs "tiny tarts and a feather that is waved in the air"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 5
@@ -2393,6 +2424,7 @@ At the end of each of its turns, and each time it takes damage, the target can m
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, you can target one additional creature for each slot level above 5th. The creatures must be within 30 feet of each other when you target them."
    :comp [:vs "a small, straight piece of iron"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 2
@@ -2406,6 +2438,7 @@ At the end of each of its turns, and each time it takes damage, the target can m
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, you can target one additional humanoid for each slot level above 2nd. The humanoids must be within 30 feet of each other when you target them."
    :comp [:vs "a small, straight piece of iron"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 8
@@ -2418,6 +2451,7 @@ At the end of each of its turns, and each time it takes damage, the target can m
    :desc "Divine light washes out from you and coalesces in a soft radiance in a 30-foot radius around you. Creatures of your choice in that radius when you cast this spell shed dim light in a 5-foot radius and have advantage on all saving throws, and other creatures have disadvantage on attack rolls against them until the spell ends. In addition, when a fiend or an undead hits an affected creature with a melee attack, the aura flashes with brilliant light. The attacker must succeed on a Constitution saving throw or be blinded until the spell ends."
    :comp [:vs "a tiny reliquary worth at least 1,000 gp containing a sacred relic, such as a scrap of cloth from a saint’s robe or a piece of parchment from a religious text"]
    :con? true
+   :save :con
    }
 
   {:spell-level 1
@@ -2444,6 +2478,7 @@ At the end of each of its turns, and each time it takes damage, the target can m
 The spell ends for an affected creature if it takes any damage or if someone else uses an action to shake the creature out of its stupor."
    :comp [:s "a glowing stick of incense or a crystal vial filled with phosphorescent material"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 4
@@ -2513,6 +2548,7 @@ The special component for this version of the spell is a large, transparent gems
 A _dispel magic _spell can end the spell only if it is cast as a 9th-level spell, targeting either the prison or the special component used to create it.
 You can use a particular special component to create only one prison at a time. If you cast the spell again using the same component, the target of the first casting is immediately freed from its binding."
    :comp [:vs "a vellum depiction or a carved statuette in the likeness of the target, and a special component that varies according to the version of the spell you choose, worth at least 500 gp per Hit Die of the target"]
+   :save :wis
    }
 
   {:spell-level 8
@@ -2604,6 +2640,7 @@ _Dispel magic _or a similar effect successfully applied to the sapphire ends thi
 A dancing creature must use all its movement to dance without leaving its space and has disadvantage on Dexterity saving throws and attack rolls. While the target is affected by this spell, other creatures have advantage on attack rolls against it. As an action, a dancing creature makes a Wisdom saving throw to regain control of itself. On a successful save, the spell ends."
    :comp :v
    :con? true
+   :save :wis
    }
 
   {:spell-level 1
@@ -2678,6 +2715,7 @@ When the spell ends, the target floats gently to the ground if it is still aloft
    :desc "You touch one object that is no larger than 10 feet in any dimension. Until the spell ends, the object sheds bright light in a 20-foot radius and dim light for an additional 20 feet. The light can be colored as you like. Completely covering the object with something opaque blocks the light. The spell ends if you cast it again or dismiss it as an action.
 If you target an object held or worn by a hostile creature, that creature must succeed on a Dexterity saving throw to avoid the spell."
    :comp [:v "a firefly or phosphorescent moss"]
+   :save :dex
    }
 
   {:spell-level 3
@@ -2788,6 +2826,7 @@ Choose one or more of the following types of creatures: celestials, elementals, 
 When you cast this spell, you can elect to cause its magic to operate in the reverse direction, preventing a creature of the specified type from leaving the cylinder and protecting targets outside it.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the duration increases by 1 hour for each slot level above 3rd."
    :comp [:vs "holy water or powdered silver and iron worth at least 100 gp, which the spell consumes"]
+   :save :cha
    }
 
   {:spell-level 6
@@ -2805,6 +2844,7 @@ While possessing a body, you can use your action to return from the host body to
 If the container is destroyed or the spell ends, your soul immediately returns to your body. If your body is more than 100 feet away from you or if your body is dead when you attempt to return to it, you die. If another creature’s soul is in the container when it is destroyed, the creature’s soul returns to its body if the body is alive and within 100 feet. Otherwise, that creature dies.
 When the spell ends, the container is destroyed."
    :comp [:vs "a gem, crystal, reliquary, or some other ornamental container worth at least 500 gp"]
+   :save :cha
    }
 
   {:spell-level 1
@@ -2926,6 +2966,7 @@ You can also specify conditions that will trigger a special activity during the 
 If you or any of your companions damage a creature affected by this spell, the spell ends for that creature.
 **_At Higher Levels._** When you cast this spell using a 7th-level spell slot, the duration is 10 days. When you use an 8th-level spell slot, the duration is 30 days. When you use a 9th-level spell slot, the duration is a year and a day."
    :comp [:v "a snake’s tongue and either a bit of honeycomb or a drop of sweet oil"]
+   :save :wis
    }
 
   {:spell-level 8
@@ -3091,6 +3132,7 @@ A _remove curse _or _greater restoration _spell cast on the target restores the 
 **_At Higher Levels._** If you cast this spell using a spell slot of 6th level or higher, you can alter the target’s memories of an event that took place up to 7 days ago (6th level), 30 days ago (7th level), 1 year ago (8th level), or any time in the creature’s past (9th level)."
    :comp :vs
    :con? true
+   :save :wis
    }
 
   {:spell-level 2
@@ -3219,6 +3261,7 @@ A creature enlisted to join your group counts as a member of it, receiving a ful
 A bound creature must follow your instructions to the best of its ability. You might command the creature to accompany you on an adventure, to guard a location, or to deliver a message. The creature obeys the letter of your instructions, but if the creature is hostile to you, it strives to twist your words to achieve its own objectives. If the creature carries out your instructions completely before the spell ends, it travels to you to report this fact if you are on the same plane of existence. If you are on a different plane of existence, it returns to the place where you bound it and remains there until the spell ends.
 **_At Higher Levels. _**When you cast this spell using a spell slot of a higher level, the duration increases to 10 days with a 6th-level slot, to 30 days with a 7th-level slot, to 180 days with an 8th-level slot, and to a year and a day with a 9th-level spell slot."
    :comp [:vs "a jewel worth at least 1,000 gp, which the spell consumes"]
+   :save :cha
    }
 
   {:spell-level 7
@@ -3232,6 +3275,7 @@ A bound creature must follow your instructions to the best of its ability. You m
 Alternatively, if you know the sigil sequence of a teleportation circle on another plane of existence, this spell can take you to that circle. If the teleportation circle is too small to hold all the creatures you transported, they appear in the closest unoccupied spaces next to the circle.
 You can use this spell to banish an unwilling creature to another plane. Choose a creature within your reach and make a melee spell attack against it. On a hit, the creature must make a Charisma saving throw. If the creature fails this save, it is transported to a random location on the plane of existence you specify. A creature so transported must find its own way back to your current plane of existence."
    :comp [:vs "a forked, metal rod worth at least 250 gp, attuned to a particular plane of existence"]
+   :save :cha
    }
 
   {:spell-level 3
@@ -3258,6 +3302,7 @@ If you cast this spell over 8 hours, you enrich the land. All plants in a half-m
    :desc "You extend your hand toward a creature you can see within range and project a puff of noxious gas from your palm. The creature must succeed on a Constitution saving throw or take 1d12 poison damage.
 This spell's damage increases by 1d12 when you reach 5th level (2d12), 11th level (3d12), and 17th level (4d12)."
    :comp :vs
+   :save :con
    :dam-type :poison
    :dice (fn [total-level]
     (str (cond
@@ -3282,6 +3327,7 @@ The creature is limited in the actions it can perform by the nature of its new f
 The target’s gear melds into the new form. The creature can’t activate, use, wield, or otherwise benefit from any of its equipment."
    :comp [:vs "a caterpillar cocoon"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 9
@@ -3305,6 +3351,7 @@ The target’s gear melds into the new form. The creature can’t activate, use,
    :desc "You speak a word of power that can overwhelm the mind of one creature you can see within range, leaving it dumbfounded. If the target has 150 hit points or fewer, it is stunned. Otherwise, the spell has no effect.
 The stunned target must make a Constitution saving throw at the end of each of its turns. On a successful save, this stunning effect ends."
    :comp :v
+   :save :con
    }
 
   {:spell-level 2
@@ -3356,7 +3403,7 @@ If you cast this spell multiple times, you can have up to three of its non-insta
 **_7. Violet. _**On a failed save, the target is blinded. It must then make a Wisdom saving throw at the start of your next turn. A successful save ends the blindness. If it fails that save, the creature is transported to another plane of existence of the GM’s choosing and is no longer blinded. (Typically, a creature that is on a plane that isn’t its home plane is banished home, while other creatures are usually cast into the Astral or Ethereal planes.)
 **_8. Special. _**The target is struck by two rays. Roll twice more, rerolling any 8."
    :comp :vs
-   :save :wis
+   :save :dex
    :dam-type :cold
    :dice "10d6"
    }
@@ -3381,7 +3428,7 @@ The wall can be destroyed, also one layer at a time, in order from red to violet
 While this layer is in place, spells can’t be cast through the wall. The layer is destroyed by bright light shed by a _daylight _spell or a similar spell of equal or higher level.
 **_7. Violet. _**On a failed save, the creature is blinded. It must then make a Wisdom saving throw at the start of your next turn. A successful save ends the blindness. If it fails that save, the creature is transported to another plane of the GM’s choosing and is no longer blinded. (Typically, a creature that is on a plane that isn’t its home plane is banished home, while other creatures are usually cast into the Astral or Ethereal planes.) This layer is destroyed by a _dispel magic _spell or a similar spell of equal or higher level that can end spells and magical effects."
    :comp :vs
-   :save :wis
+   :save :con
    :dam-type :cold
    :dice "10d6"
    }
@@ -3529,6 +3576,7 @@ Coming back from the dead is an ordeal. The target takes a −4 penalty to all a
 At the end of each of the target’s turns, it can make a Constitution saving throw against the spell. On a success, the spell ends."
    :comp :vs
    :con? true
+   :save :con
    }
 
   {:spell-level 0
@@ -3603,6 +3651,7 @@ The sphere is weightless and just large enough to contain the creature or object
 A _disintegrate _spell targeting the globe destroys it without harming anything inside it."
    :comp [:vs "a hemispherical piece of clear crystal and a matching hemispherical piece of gum arabic"]
    :con? true
+   :save :dex
    }
 
   {:spell-level 0
@@ -3644,6 +3693,7 @@ If some solid object (such as a ceiling) is encountered in this fall, falling ob
 At the end of the duration, affected objects and creatures fall back down."
    :comp [:vs "a lodestone and iron filings"]
    :con? true
+   :save :dex
    }
 
   {:spell-level 3
@@ -3681,6 +3731,7 @@ Anything inside the extradimensional space drops out when the spell ends."
    :desc "Flame-like radiance descends on a creature that you can see within range. The target must succeed on a Dexterity saving throw or take 1d8 radiant damage. The target gains no benefit from cover for this saving throw.
 The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
+   :save :dex
    :dam-type :radiant
    :dice (fn [total-level]
     (str (cond
@@ -3701,6 +3752,7 @@ The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level
    :desc "You ward a creature within range against attack. Until the spell ends, any creature who targets the warded creature with an attack or a harmful spell must first make a Wisdom saving throw. On a failed save, the creature must choose a new target or lose the attack or spell. This spell doesn’t protect the warded creature from area effects, such as the explosion of a fireball.
 If the warded creature makes an attack or casts a spell that affects an enemy creature, this spell ends."
    :comp [:vs "a small silver mirror"]
+   :save :wis
    }
 
   {:spell-level 2
@@ -3729,6 +3781,7 @@ Make a ranged spell attack for each ray. On a hit, the target takes 2d6 fire dam
    :desc "You can see and hear a particular creature you choose that is on the same plane of existence as you. The target must make a Wisdom saving throw, which is modified by how well you know the target and the sort of physical connection you have to it. If a target knows you’re casting this spell, it can fail the saving throw voluntarily if it wants to be observed."
    :comp [:vs "a focus worth at least 1,000 gp, such as a crystal ball, a silver mirror, or a font filled with holy water"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 4
@@ -3767,6 +3820,7 @@ The spell disguises physical appearance as well as clothing, armor, weapons, and
 The changes wrought by this spell fail to hold up to physical inspection. For example, if you use this spell to add a hat to a creature’s outfit, objects pass through the hat, and anyone who touches it would feel nothing or would feel the creature’s head and hair. If you use this spell to appear thinner than you are, the hand of someone who reaches out to touch you would bump into you while it was seemingly still in midair.
 A creature can use its action to inspect a target and make an Intelligence (Investigation) check against your spell save DC. If it succeeds, it becomes aware that the target is disguised."
    :comp :vs
+   :save :cha
    }
 
   {:spell-level 3
@@ -3949,6 +4003,7 @@ The ground in the area is covered with slick ice, making it difficult terrain. W
 If a creature is concentrating in the spell’s area, the creature must make a successful Constitution saving throw against your spell save DC or lose concentration."
    :comp [:vs "a pinch of dust and a few drops of water"]
    :con? true
+   :save :dex
    }
 
   {:spell-level 3
@@ -4084,6 +4139,7 @@ Each creature that is completely within the cloud at the start of its turn must 
 A moderate wind (at least 10 miles per hour) disperses the cloud after 4 rounds. A strong wind (at least 20 miles per hour) disperses it after 1 round."
    :comp [:vs "a rotten egg or several skunk cabbage leaves"]
    :con? true
+   :save :con
    }
 
   {:spell-level 4
@@ -4124,7 +4180,7 @@ Each round you maintain concentration on this spell, the storm produces addition
 **_Round 5–10. _**Gusts and freezing rain assail the area under the cloud. The area becomes difficult terrain and is heavily obscured. Each creature there takes 1d6 cold damage. Ranged weapon attacks in the area are impossible. The wind and rain count as a severe distraction for the purposes of maintaining concentration on spells. Finally, gusts of strong wind (ranging from 20 to 50 miles per hour) automatically disperse fog, mists, and similar phenomena in the area, whether mundane or magical."
    :comp :vs
    :con? true
-   :save :dex
+   :save :con
    :dam-type :cold
    :dice "1d6"
    }
@@ -4142,6 +4198,7 @@ You can also specify conditions that will trigger a special activity during the 
 If you or any of your companions damage the target, the spell ends."
    :comp [:v "a snake’s tongue and either a bit of honeycomb or a drop of sweet oil"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 6
@@ -4198,7 +4255,7 @@ When you inscribe the glyph, choose one of the options below for its effect. Onc
 **_Sleep. _**Each target must make a Wisdom saving throw and falls unconscious for 10 minutes on a failed save. A creature awakens if it takes damage or if someone uses an action to shake or slap it awake.
 **_Stunning. _**Each target must make a Wisdom saving throw and becomes stunned for 1 minute on a failed save."
    :comp [:vs "mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes"]
-   :save :wis
+   :save :con
    :dam-type :necrotic
    :dice "10d10"
    }
@@ -4374,6 +4431,7 @@ If the spell becomes permanent, you no longer control the creature. It might rem
 **_Creature into Object. _**If you turn a creature into an object, it transforms along with whatever it is wearing and carrying into that form. The creature’s statistics become those of the object, and the creature has no memory of time spent in this form, after the spell ends and it returns to its normal form."
    :comp [:vs "a drop of mercury, a dollop of gum arabic, and a wisp of smoke"]
    :con? true
+   :save :wis
    }
 
   {:spell-level 9
@@ -4452,6 +4510,7 @@ If you command the servant to perform a task that would move it more than 60 fee
    :desc "You unleash a string of insults laced with subtle enchantments at a creature you can see within range. If the target can hear you (though it need not understand you), it must succeed on a Wisdom saving throw or take 1d4 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.
 This spell's damage increases by 1d4 when you reach 5th level (2d4), 11th level (3d4), and 17th level (4d4)."
    :comp :v
+   :save :wis
    :dam-type :psychic
    :dice (fn [total-level]
     (str (cond
@@ -4507,7 +4566,7 @@ The wall is an object that can be damaged and thus breached. It has AC 12 and 30
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage the wall deals when it appears increases by 2d6, and the damage from passing through the sheet of frigid air increases by 1d6, for each slot level above 6th."
    :comp [:vs "a small piece of quartz"]
    :con? true
-   :save :con
+   :save :dex
    :dam-type :cold
    :dice "5d6"
    }
@@ -4527,6 +4586,7 @@ The wall is an object made of stone that can be damaged and thus breached. Each 
 If you maintain your concentration on this spell for its whole duration, the wall becomes permanent and can’t be dispelled. Otherwise, the wall disappears when the spell ends."
    :comp [:vs "a small block of granite"]
    :con? true
+   :save :dex
    }
 
   {:spell-level 6
@@ -4690,6 +4750,7 @@ You must designate a sanctuary by casting this spell within a location, such as 
    :desc "You create a magical zone that guards against deception in a 15-foot-radius sphere centered on a point of your choice within range. Until the spell ends, a creature that enters the spell’s area for the first time on a turn or starts its turn there must make a Charisma saving throw. On a failed save, a creature can’t speak a deliberate lie while in the radius. You know whether each creature succeeds or fails on its saving throw.
 An affected creature is aware of the spell and can thus avoid answering questions to which it would normally respond with a lie. Such a creature can be evasive in its answers as long as it remains within the boundaries of the truth."
    :comp :vs
+   :save :cha
    }
  ]
 ]
@@ -5527,4 +5588,3 @@ An affected creature is aware of the spell and can thus avoid answering question
   :spell/wish
    ]
 ]
-

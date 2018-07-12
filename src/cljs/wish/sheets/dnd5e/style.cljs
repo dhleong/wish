@@ -93,8 +93,7 @@
    [:.limit metadata]
    [:.spell {:padding "4px 0"}
     [:.header flex]
-    [:.meta (merge metadata
-                   {:max-width "300px"})]
+    [:.meta metadata]
     [:.info (merge flex/grow
                    button)
      [:.tag {:margin "0 4px"
@@ -186,5 +185,8 @@
     [:.delete (merge flex/center
                      flex/justify-center
                      {:align-self 'center})]]]
-)
+  [:.spell-card {:max-width "300px"}
+   [:table.info metadata
+    [:th.header {:text-align 'right}]]
+   [:.desc {:font-size "90%"}]])
 
