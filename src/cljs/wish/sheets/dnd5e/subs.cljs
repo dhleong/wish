@@ -3,8 +3,8 @@
   wish.sheets.dnd5e.subs
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [re-frame.core :refer [reg-sub subscribe]]
-            [wish.sources.core :refer [expand-list find-class find-race]]
-            [wish.sheets.dnd5e.util :refer [ability->mod ->die-use-kw]]
+            [wish.sources.core :as src :refer [expand-list find-class find-race]]
+            [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
             [wish.util :refer [invoke-callable]]))
 
 ; ======= Constants ========================================
@@ -130,10 +130,24 @@
 (reg-sub
   ::limited-uses
   :<- [:limited-uses]
-  (fn [items]
-    (remove
-      :implicit?
-      items)))
+  :<- [::total-level]
+  (fn [[items total-level]]
+    (->> items
+         (remove :implicit?)
+         (map #(assoc % :uses
+                      (invoke-callable % :uses
+                                       :total-level total-level))))))
+
+(reg-sub
+  ::limited-use
+  :<- [::limited-uses]
+  :<- [:limited-used]
+  (fn [[items used] [_ id]]
+    (->> items
+         (filter #(= id (:id %)))
+         (map #(assoc % :uses-left (- (:uses %)
+                                      (get used id))))
+         first)))
 
 (reg-sub
   ::rolled-hp
@@ -523,6 +537,37 @@
   (fn [by-class [_ class-id]]
     (get by-class class-id)))
 
+(reg-sub
+  ::prepared-spells-filtered
+  :<- [::all-prepared-spells]
+  (fn [spells [_ filter-type]]
+    (filter (case filter-type
+              :bonus util/bonus-action?
+              :reaction util/reaction?
+
+              (if (number? filter-type)
+                #(= filter-type (:level %))
+
+                (throw (js/Error.
+                         (str "Unknown spell filter-type:" filter-type)))))
+            spells)))
+
+(reg-sub
+  ::combat-actions
+  :<- [:classes]
+  :<- [:sheet-source]
+  (fn [[classes data-source] [_ filter-type]]
+    (->> classes
+         (mapcat
+           (fn [c]
+             (let [ids (keys (get-in c [:attrs filter-type]))]
+               (map
+                 (fn [id]
+                   (or (get-in c [:features id])
+                       (src/find-feature data-source id)))
+                 ids))))
+         (sort-by :name))))
+
 ; reduces ::prepared-spells into {:cantrips, :spells},
 ; AND removes ones that are always prepared
 (reg-sub
@@ -613,9 +658,8 @@
   ::spell-attacks
   :<- [::spell-attack-bonuses]
   :<- [::all-prepared-spells]
-  (fn [[bonuses & spell-lists]]
-    (->> spell-lists
-         flatten
+  (fn [[bonuses prepared-spells]]
+    (->> prepared-spells
          (filter :attack)
          (map (fn [s]
                 (assoc s

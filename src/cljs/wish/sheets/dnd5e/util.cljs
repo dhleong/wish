@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
-  (:require [wish.sources.compiler.limited-use :refer [compile-limited-use]]
+  (:require [clojure.string :as str]
+            [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.fun :refer [->callable]]))
 
 ; ======= Shared utils =====================================
@@ -39,6 +40,22 @@
 (defn equippable?
   [item]
   (-> item :attrs :type equippable-types))
+
+
+; ======= spell-related ====================================
+
+(defn bonus-action?
+  "Check if the given spell is cast as a bonus action"
+  [s]
+  (str/includes? (:time s)
+                 "onus"))  ; avoid capitalization inconsistency
+
+(defn reaction?
+  "Check if the given spell is cast as a reaction"
+  [s]
+  (str/includes? (:time s)
+                 "eaction"))  ; avoid capitalization inconsistency
+
 
 
 ; ======= :attr application ================================

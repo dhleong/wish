@@ -3,6 +3,7 @@
   wish.sheets.dnd5e
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
+            [reagent.core :as r]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -231,7 +232,7 @@
      (or (:base-dice s)
          (:dmg s))]]])
 
-(defn combat-section []
+(defn- combat-home []
   [:<>
 
    (when-let [s (<sub [::dnd5e/unarmed-strike])]
@@ -241,9 +242,9 @@
    (when-let [weapons (seq (<sub [::dnd5e/equipped-weapons]))]
      [:div.weapons
       [:h4 "Weapons"]
-       (for [w weapons]
-         ^{:key (:id w)}
-         [attack-block w])])
+      (for [w weapons]
+        ^{:key (:id w)}
+        [attack-block w])])
 
    (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
      [:div.spell-attacks
@@ -251,6 +252,70 @@
       (for [s spell-attacks]
         ^{:key (:id s)}
         [attack-block s {:class :spell-attack}])])])
+
+(defn- action-block
+  [a]
+  [:div.action
+   [:div.name (:name a)]
+   (when-let [use-id (:consumes a)]
+     (when-let [{:keys [name uses-left]} (<sub [::dnd5e/limited-use use-id])]
+       [:div.consumable
+        [:div.name name]
+        [:div.uses uses-left " left"]
+        (when (> uses-left 0)
+          [:div.button
+           {:on-click (click>evt [:+use use-id 1])}
+           "Use 1"])]))
+   [formatted-text :div.desc (:desc a)]])
+
+(defn- combat-actions [filter-type]
+  (let [spells (seq (<sub [::dnd5e/prepared-spells-filtered filter-type]))
+        actions (seq (<sub [::dnd5e/combat-actions filter-type]))]
+    (if (or spells actions)
+      [:<>
+       (when spells
+         [:div.spells
+          [:div.section-label "Spells"]
+
+          (for [s spells]
+            ^{:key (:id s)}
+            [:div.spell-name (:name s)])])
+
+       (when actions
+         [:div.actions
+          (for [a actions]
+            ^{:key (:id a)}
+            [action-block a])])]
+
+      [:<> "Nothing available."])))
+
+(defn- combat-page-link
+  [page id label]
+  (let [selected? (= id @page)]
+    [:div.filter {:class (when selected?
+                           "selected")}
+     (if selected?
+       [:span.unselectable label]
+
+       [:a {:href "#"
+            :on-click (fn [e]
+                        (.preventDefault e)
+                        (reset! page id))}
+        label])]))
+
+(defn combat-section []
+  (let [page (r/atom :home)]
+    (fn []
+      [:<>
+       [:div.filters
+        [combat-page-link page :home "Home"]
+        [combat-page-link page :bonuses "Bonuses"]
+        [combat-page-link page :reactions "Reactions"]]
+
+       (case @page
+         :home [combat-home]
+         :bonuses [combat-actions :bonus]
+         :reactions [combat-actions :reaction])])))
 
 
 ; ======= Features =========================================
@@ -348,7 +413,7 @@
 
      (if-not (empty? items)
        (for [item items]
-         (let [uses (invoke-callable item :uses)
+         (let [uses (:uses item)
                used-count (get used (:id item))]
            ^{:key (:id item)}
            [:div.limited-use

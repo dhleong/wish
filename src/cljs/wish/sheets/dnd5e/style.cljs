@@ -140,12 +140,34 @@
      proficiency-style]]]
 
   [:.combat
+   [:.filters (merge flex
+                     {:border-bottom "1px solid #333"
+                      :margin-bottom "8px"})
+    [:.filter {:padding "4px"}]]
    [:.attack flex/center
     [:.name flex/grow]
     [:.info-group (merge flex/center
                          flex/vertical-center
                          {:padding "4px"})
-     [:.label {:font-size "60%"}]]]]
+     [:.label {:font-size "60%"}]]]
+
+   [:.spells (merge flex/center
+                    {:margin-bottom "8px"})
+    [:.section-label {:font-size "90%"
+                      :font-weight 'bold}]
+    [:.spell-name {:font-size "80%"
+                   :font-style 'italic
+                   :padding "4px"}]]
+   [:.action
+    [:.name {:font-size "90%"
+             :font-weight 'bold
+             :font-style 'italic}]
+    [:.consumable (merge flex/center
+                         {:font-size "80%"
+                          :margin-bottom 0
+                          :padding "8px 8px 0 8px"})
+     [:.uses {:padding "4px"}]]
+    [:.desc metadata]]]
 
   [:.limited-use-section
    [:.rests flex/center

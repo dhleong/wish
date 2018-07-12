@@ -27,11 +27,14 @@ a {
 // Other mixins
 //
 
-.clickable() {
-    cursor: pointer;
-
+.unselectable() {
     -webkit-user-select: none;
     user-select: none;
+}
+
+.clickable() {
+    .unselectable();
+    cursor: pointer;
 }
 
 //
@@ -144,6 +147,10 @@ a {
 
 .clickable {
     .clickable();
+}
+
+.unselectable {
+    .unselectable();
 }
 
 .button {
