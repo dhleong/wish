@@ -835,3 +835,9 @@
            {})
          vals
          (sort-by :die #(compare %2 %1)))))
+
+(reg-sub
+  ::notes
+  :<- [:sheet]
+  (fn [sheet _]
+    (get sheet :notes)))

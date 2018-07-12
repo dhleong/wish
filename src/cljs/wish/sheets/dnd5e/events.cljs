@@ -57,6 +57,12 @@
              level-idx
              rolled))))
 
+(reg-event-fx
+  ::set-notes
+  [trim-v]
+  (fn-traced [cofx [new-notes]]
+    (update-sheet cofx assoc :notes new-notes)))
+
 ; set rolled hp amount for [`class-id` `level-1`]
 (reg-event-fx
   ::set-rolled-hp

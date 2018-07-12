@@ -65,7 +65,12 @@
         [:div.classes (->> classes
                            (map (fn [c]
                                   (str (-> c :name) " " (:level c))))
-                           (str/join " / "))]]]]
+                           (str/join " / "))]]]
+
+      [:div.col
+       [link {:href "#"
+              :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
+        (icon :description)]]]
 
      [:div.space]
 

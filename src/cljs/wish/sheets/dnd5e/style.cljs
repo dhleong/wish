@@ -80,6 +80,10 @@
                      {:font-size "1.2em"
                       :width "4em"})]]]
 
+  [:.notes-overlay {:width "300px"}
+   [:textarea.notes {:width "100%"
+                     :min-height "200px"}]]
+
   [:.short-rest-overlay {:max-width "400px"}
    [:.sections {:margin-bottom "1em"
                 :justify-content 'start}

@@ -121,6 +121,19 @@
            ]))))
 
 
+; ======= notes ============================================
+
+(defn notes-overlay []
+  [:div {:class (:notes-overlay styles)}
+   [:h5 "Notes"]
+   [bind-fields
+    [:textarea.notes {:field :textarea
+                      :id :notes}]
+
+    {:get #(<sub [::dnd5e/notes])
+     :save! #(>evt [::events/set-notes %2])}]])
+
+
 ; ======= short rest =======================================
 
 (defn dice-pool [state]
