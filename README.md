@@ -1,4 +1,4 @@
-# wish
+# wish [![Build Status](http://img.shields.io/travis/dhleong/wish.svg?style=flat)](https://travis-ci.org/dhleong/wish)
 
 *The character sheets we've always wished for*
 
