@@ -146,19 +146,34 @@
                         :class)))))
       )))
 
+; sum of levels from all classes
+(reg-sub
+  :total-level
+  :<- [:classes]
+  (fn [classes _]
+    (apply + (map :level classes))))
+
 (reg-sub
   :races
   :<- [:sheet-meta]
   :<- [:sheet-source]
   :<- [:options]
+  :<- [:total-level]
   :<- [:race-ids]
-  (fn [[sheet-meta source options ids] _]
+  (fn [[sheet-meta source options total-level ids] _]
     (when source
       (->> ids
            (map (partial find-race source))
            (map (fn [r]
                   (-> r
+                      ; provide :level for level-scaling...
+                      (assoc :level total-level)
+
                       (inflate source options)
+
+                      ; ... then remove
+                      (dissoc :level)
+
                       (sheets/post-process
                         (:kind sheet-meta)
                         source

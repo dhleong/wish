@@ -80,12 +80,6 @@
 ; ======= class and level ==================================
 
 (reg-sub
-  ::total-level
-  :<- [:classes]
-  (fn [classes _]
-    (apply + (map :level classes))))
-
-(reg-sub
   ::class->level
   :<- [:classes]
   (fn [classes _]
@@ -130,7 +124,7 @@
 (reg-sub
   ::limited-uses
   :<- [:limited-uses]
-  :<- [::total-level]
+  :<- [:total-level]
   (fn [[items total-level]]
     (->> items
          (remove :implicit?)
@@ -161,7 +155,7 @@
   ::max-hp
   :<- [::rolled-hp]
   :<- [::abilities]
-  :<- [::total-level]
+  :<- [:total-level]
   :<- [::class->level]
   (fn [[rolled-hp abilities total-level class->level]]
     (apply +
@@ -267,7 +261,7 @@
 
 (reg-sub
   ::proficiency-bonus
-  :<- [::total-level]
+  :<- [:total-level]
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
 
