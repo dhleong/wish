@@ -487,6 +487,7 @@
              attrs (-> c :attrs :5e/spellcaster)
              prepares? (:prepares? attrs)
              acquires? (:acquires? attrs)
+             fixed-list? (not (:spells attrs))
              any-prepared? (> (count prepared-spells) 0)
              prepared-label (if prepares?
                               "prepared"
@@ -494,12 +495,13 @@
          ^{:key (:id c)}
          [:div.spells
           [:h4 (:name c)
-           [:div.manage-link
-            [:a {:href "#"
-                 :on-click (click>evt [:toggle-overlay
-                                       [#'overlays/spell-management c]
-                                       :scrollable? true])}
-             (str "Manage " prepared-label " spells")]]
+           (when-not fixed-list?
+             [:div.manage-link
+              [:a {:href "#"
+                   :on-click (click>evt [:toggle-overlay
+                                         [#'overlays/spell-management c]
+                                         :scrollable? true])}
+               (str "Manage " prepared-label " spells")]])
            (when acquires?
              [:div.manage-link
               [:a {:href "#"
@@ -510,16 +512,19 @@
                                          :scrollable? true])}
                (str "Manage " (:acquired-label attrs))]])]
 
-          [expandable
-           [:b (str (str/capitalize prepared-label) " Spells")
-            [:span.count "(" (count prepared-spells) ")"]]
+          (if fixed-list?
+            [spells-list prepared-spells]
 
-           (if any-prepared?
-             [spells-list prepared-spells]
-             [:div (str "You don't have any " prepared-label " spells")])
+            [expandable
+             [:b (str (str/capitalize prepared-label) " Spells")
+              [:span.count "(" (count prepared-spells) ")"]]
 
-           ; auto-expand to show the "nothing prepared" explanation
-           {:start-expanded? (not any-prepared?)}]]))
+             (if any-prepared?
+               [spells-list prepared-spells]
+               [:div (str "You don't have any " prepared-label " spells")])
+
+             ; auto-expand to show the "nothing prepared" explanation
+             {:start-expanded? (not any-prepared?)}])]))
 
      ;; [:div.spells
      ;;  [:h4 "Available spells"]

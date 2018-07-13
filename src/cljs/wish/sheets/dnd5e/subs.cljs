@@ -496,6 +496,18 @@
                 ; to un-prepare it. This is an edge case, but we should
                 ; be graceful about it. Alternatively, unlearning a spell
                 ; should also eagerly un-prepare it.
+
+                ; all spells from the extra-spells list
+                ; NOTE: because extra spells are provided
+                ; by features and levels, we can't find them
+                ; in the data source.
+                ; ... unless it's a collection of spell ids
+                extra-spells (or (get-in c [:lists extra-spells-list])
+                                 (when (coll? extra-spells-list)
+                                   (map (partial
+                                          src/find-list-entity
+                                          data-source)
+                                        extra-spells-list)))
                 ]
 
             ; TODO for :acquires? spellcasters, their
@@ -503,11 +515,7 @@
             (assoc
               m (:id c)
               (->> (concat
-                     ; all spells from the extra-spells list
-                     ; NOTE: because extra spells are provided
-                     ; by features and levels, we can't find them
-                     ; in the data source.
-                     (->> (get-in c [:lists extra-spells-list])
+                     (->> extra-spells
                           (map #(assoc % :always-prepared? true)))
 
                      ; only selected spells from the main list
