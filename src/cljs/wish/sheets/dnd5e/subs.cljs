@@ -760,13 +760,21 @@
                     (spell-slots [c]))))))))
 
 (reg-sub
-  ::spell-slots
+  ::spellcaster-classes-with-slots
   :<- [::spellcaster-classes]
+  (fn [all-classes]
+    (filter #(not= :none
+                   (-> % :attrs :5e/spellcaster :slots))
+            all-classes)))
+
+(reg-sub
+  ::spell-slots
+  :<- [::spellcaster-classes-with-slots]
   spell-slots)
 
 (reg-sub
   ::spellcaster-slot-types
-  :<- [::spellcaster-classes]
+  :<- [::spellcaster-classes-with-slots]
   (fn [classes]
     (->> classes
          (filter (complement standard-spell-slots?))
