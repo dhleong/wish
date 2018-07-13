@@ -1,0 +1,18 @@
+
+[:!add-to-list
+ {:id :fighting-styles
+  :type :feature}
+
+ {:id :fight/defense-style
+  :name "Defense Style"
+  :desc "While you are wearing armor, you gain a +1 bonus to AC."
+  :! [[:!add-attrs
+       [:buffs :ac]
+       1]]
+  ; TODO surface this buff conditionally somehow?
+  }
+
+ ; TODO other styles
+ ]
+
+
