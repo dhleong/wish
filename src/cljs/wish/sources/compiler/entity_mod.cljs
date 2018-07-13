@@ -46,9 +46,10 @@
       \> (if (not= \> (second n))
            (throw (js/Error. (str "Invalid mod prefix on key " k)))
            [str (mod-key k 2)])
+
       \& [apply-entity-mod (mod-key k 1)]
 
-      \= [newest-value k]
+      \= [newest-value (mod-key k 1)]
 
       ; otherwise, just replace:
       [newest-value k])))

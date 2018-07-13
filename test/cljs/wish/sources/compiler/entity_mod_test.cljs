@@ -24,6 +24,13 @@
              {:restore-trigger :long-rest
               :other :value}
              {:restore-trigger :short-rest}))))
+
+  (testing "Explicit replace"
+    (is (= {:&levels {3 {:+features [:foo]}}}
+           (apply-entity-mod
+             {}
+             {:=&levels {3 {:+features [:foo]}}}))))
+
   (testing "Concat"
     (is (= {:spells [:a :b :c]}
            (apply-entity-mod
