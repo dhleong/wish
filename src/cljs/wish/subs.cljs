@@ -4,7 +4,7 @@
             [wish.db :as db]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
-            [wish.sources.compiler :refer [inflate]]
+            [wish.sources.compiler :refer [apply-directives inflate]]
             [wish.sources.core :as src :refer [find-class find-race]]))
 
 (reg-sub :showing-overlay :showing-overlay)
@@ -321,9 +321,11 @@
 
                   ; get the :id from the item entry, if any
                   (get item :id))]
-    (or (when item-id
-          (src/find-item data-source item-id))
-        item)))
+    (apply-directives
+      (or (when item-id
+            (src/find-item data-source item-id))
+          item)
+      data-source)))
 
 ; map of :inst-id -> inflated item in the active sheet's inventory,
 ; where each inflated item with an amount > 1 (or which :stacks?)
@@ -334,11 +336,12 @@
 ; set to true
 (reg-sub
   :inventory-map
+  :<- [:sheet-kind]
   :<- [:inventory]
   :<- [:items]
   :<- [:equipped]
   :<- [:sheet-source]
-  (fn [[raw-inventory items equipped data-source]]
+  (fn [[sheet-kind raw-inventory items equipped data-source]]
     (reduce-kv
       (fn [m inst-id amount]
         (let [equipped? (get equipped inst-id)
@@ -349,7 +352,12 @@
                      (assoc inflated :wish/amount amount)
                      inflated)
               item (if equipped?
-                     (assoc item :wish/equipped? true)
+                     (-> item
+                         (assoc :wish/equipped? true)
+                         (sheets/post-process
+                           sheet-kind
+                           data-source
+                           :item))
                      item)]
           (assoc m inst-id
                  (assoc item

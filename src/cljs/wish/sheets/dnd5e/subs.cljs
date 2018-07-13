@@ -291,9 +291,12 @@
 (reg-sub
   ::ac
   :<- [:classes]
+  :<- [:equipped-sorted]
   :<- [::ability-modifiers]
-  (fn [[classes modifiers]]
-    (let [ac-sources (mapcat (comp vals :5e/ac :attrs) classes)
+  (fn [[classes equipped modifiers]]
+    (let [ac-sources (->> (concat classes
+                                  equipped)
+                          (mapcat (comp vals :5e/ac :attrs)))
           ac-buff (apply + (map (comp :ac :buffs :attrs) classes))
           fn-context {:modifiers modifiers}]
       (+ ac-buff

@@ -58,7 +58,17 @@
      (update state :items
              merge
              (->> item-maps
-                  (map #(merge-with merge base %))
+                  (map (partial merge-with
+                                (fn [a b]
+                                  (cond
+                                    (map? a)
+                                    (merge a b)
+
+                                    (coll? a)
+                                    (concat a b)
+
+                                    :else b))
+                                base))
                   ->map)))
 
    ; NOTE: this should never be applied top-level,
@@ -459,3 +469,20 @@
       ; apply levels to limited-use items, since they're
       ; all available now
       (apply-levels data-source find-limited-use-scaling)))
+
+(defn apply-directives
+  "Apply all :! directives on an entity to that entity"
+  [entity data-source]
+  (if-let [directives (:! entity)]
+    (loop [entity (assoc entity :wish/data-source data-source)
+           directives directives]
+      (if-let [d (first directives)]
+        (recur
+          (apply-directive entity d)
+          (next directives))
+
+        ; done
+        (dissoc entity :wish/data-source)))
+
+    ; nothing to do
+    entity))
