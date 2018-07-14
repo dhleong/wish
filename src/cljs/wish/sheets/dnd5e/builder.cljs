@@ -70,7 +70,14 @@
   [option]
   ; Fragment! avoids unnecessary extra parent
   [:<>
-   [:b (:name option)]
+   [:b (:name option)
+
+    ; special case for spells:
+    (when-let [spell-level (:spell-level option)]
+      (if (= 0 spell-level)
+       " · Cantrip"
+       (str " · Level " spell-level)))]
+
    [formatted-text :div.desc (:desc option)]])
 
 (defn expanding-assoc

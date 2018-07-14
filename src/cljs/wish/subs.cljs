@@ -242,10 +242,15 @@
   [[features data-source]]
   (->> features
        (filter (comp :max-options second))
-       (map (fn [[id v]]
-              [id (update v :values (partial inflate-option-values
-                                             data-source
-                                             id))]))))
+       (map (fn [[id v :as entry]]
+              (with-meta
+                [id (-> v
+                        (assoc :wish/raw-values (:values v))
+                        (update :values (partial inflate-option-values
+                                                 data-source
+                                                 id))
+                        )]
+                (meta entry))))))
 
 (reg-sub
   :class-features

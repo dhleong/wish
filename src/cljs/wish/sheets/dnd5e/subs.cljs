@@ -605,9 +605,11 @@
   (fn [[_ the-class list-id]]
     [(subscribe [:sheet-source])
      (subscribe [:options])
-     (subscribe [::prepared-spells (:id the-class)])])
+     (subscribe [::prepared-spells (:id the-class)])
+     (subscribe [::highest-spell-level-for-class-id (:id the-class)])])
 
-  (fn [[data-source options prepared-spells] [_ the-class list-id]]
+  (fn [[data-source options prepared-spells highest-spell-level]
+       [_ the-class list-id]]
     (let [attrs (-> the-class :attrs :5e/spellcaster)
           is-acquired-list? (= (:acquires?-spells attrs)
                                list-id)
@@ -626,19 +628,7 @@
                                 (get options (:spells attrs)))
 
                    ; normal case:
-                   (expand-list data-source list-id nil))
-
-          highest-spell-level (->> (spell-slots [the-class])
-
-                                   ; only one slot type
-                                   vals
-                                   first
-
-                                   :slots
-
-                                   ; highest spell level available
-                                   keys
-                                   (apply max))]
+                   (expand-list data-source list-id nil))]
 
       (->> source
            ; limit visible spells by those actually available
@@ -780,6 +770,30 @@
   spell-slots)
 
 (reg-sub
+  ::spell-slots-for-class-id
+  (fn [[_ class-id]]
+    (subscribe [::class-by-id class-id]))
+  (fn [the-class]
+    (spell-slots [the-class])))
+
+(reg-sub
+  ::highest-spell-level-for-class-id
+  (fn [[_ class-id]]
+    (subscribe [::spell-slots-for-class-id class-id]))
+  (fn [spell-slots]
+    (->> spell-slots
+
+         ; only one slot type since there's only one class
+         vals
+         first
+
+         :slots
+
+         ; highest spell level available
+         keys
+         (apply max))))
+
+(reg-sub
   ::spellcaster-slot-types
   :<- [::spellcaster-classes-with-slots]
   (fn [classes]
@@ -824,6 +838,14 @@
          first)))
 
 (reg-sub
+  ::class-by-id
+  :<- [:classes]
+  (fn [classes [_ id]]
+    (->> classes
+         (filter #(= id (:id %)))
+         first)))
+
+(reg-sub
   ::background
   (fn [[_ primary-class-id]]
     (subscribe [:class-features-with-options primary-class-id true]))
@@ -844,15 +866,29 @@
          (filter #(custom-background-feature-ids (first %))))))
 
 
-; like the default one, but removing :background
+; like the default one, but removing :background and providing
+; special handling for :all-spells
 (reg-sub
   ::class-features-with-options
   (fn [[_ entity-id primary?]]
-    (subscribe [:class-features-with-options entity-id primary?]))
-  (fn [features]
+    [(subscribe [:class-features-with-options entity-id primary?])
+     (subscribe [::highest-spell-level-for-class-id entity-id])])
+  (fn [[features highest-spell-level]]
     (->> features
          (remove #(= :background (first %)))
-         (remove #(custom-background-feature-ids (first %))))))
+         (remove #(custom-background-feature-ids (first %)))
+         (map (fn [[id f :as entry]]
+                (if (= [:all-spells]
+                       (:wish/raw-values f))
+                  ; when a feature lets you pick *any* spell, it's always
+                  ; limited to spells you can actually cast
+                  [id (update f :values
+                              (partial filter
+                                       #(<= (:spell-level %)
+                                            highest-spell-level)))]
+
+                  ; normal case
+                  entry))))))
 
 
 ; ======= etc ==============================================
