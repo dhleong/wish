@@ -1,0 +1,37 @@
+
+;; all armor that incurs disadvantage on stealth
+[:!declare-items
+
+ {:attrs {:type :armor
+          :rolls {:stealth {:disadvantage "Heavy Armor"}}}}
+
+ {:id :ring-armor
+  :name "Ring Armor"
+  :kind :ring-armor
+  :cost [30 :g]
+  :weight 40
+  :attrs {:5e/ac {:ring-armor 14}}}
+
+ {:id :chain-armor
+  :name "Chain Armor"
+  :kind :chain-armor
+  :cost [75 :g]
+  :weight 55
+  :str 13
+  :attrs {:5e/ac {:chain-armor 16}}}
+
+ {:id :splint-armor
+  :name "Splint Armor"
+  :kind :splint-armor
+  :cost [200 :g]
+  :weight 60
+  :str 15
+  :attrs {:5e/ac {:splint-armor 17}}}
+
+ {:id :plate-armor
+  :name "Plate Armor"
+  :kind :plate-armor
+  :cost [1500 :g]
+  :weight 65
+  :str 15
+  :attrs {:5e/ac {:plate-armor 18}}}]
