@@ -56,7 +56,9 @@
   :type} ; sheet-specific type of all items in the list
 
  ; varargs list of:
- :list-id ; a list to copy items from
+ :list-id  ; a list to copy items from
+ :feature-id>>options  ; a feature id with >>options appended to add the
+                       ; selected options from a feature
  {} ; an item
  ]
 

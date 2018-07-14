@@ -2,10 +2,23 @@
       :doc "Lists"}
   wish.sources.compiler.lists
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [wish.sources.core :refer [find-list-entity]]
+  (:require [clojure.string :as str]
+            [wish.sources.core :refer [find-list-entity]]
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.util :refer [->map]]))
+
+(defn unpack-options-key
+  "You can add the selected options from a feature to a list
+   by appending >>options to the feature id keyword. This
+   function unpacks such a keyword and returns the feature id,
+   if it is such a key, or nil if not"
+  [k]
+  (let [n (name k)]
+    (when (str/ends-with? n ">>options")
+      (keyword (namespace k)
+               (subs n 0 (- (count n)
+                            (count ">>options")))))))
 
 (defn- find-entity
   "Always returns a collection `id` could point to a feature,
@@ -27,6 +40,8 @@
       ; else:
       (log/warn "Unable to find entity " id)))
 
+(declare inflate-items)
+
 (defn- inflate-item
   "Always returns a collection"
   [s spec item]
@@ -35,7 +50,15 @@
       (map? item) (if (= :feature (:type spec))
                     [(compile-feature item)]
                     [(compile-entity item)])
-      (keyword? item) (find-entity s item)
+      (keyword? item) (if-let [options-feature-id (unpack-options-key item)]
+                        ; inflate options from the feature
+                        (->> s
+                             :wish/options
+                             options-feature-id
+                             (inflate-items s))
+
+                        ; just find
+                        (find-entity s item))
       (coll? item) (mapcat (partial inflate-item s spec) item)
       :else (throw (js/Error. (str "Unexpected list item: " (type item) item ))))
     (catch :default e

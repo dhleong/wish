@@ -125,11 +125,13 @@
   ::limited-uses
   :<- [:limited-uses]
   :<- [:total-level]
-  (fn [[items total-level]]
+  :<- [::ability-modifiers]
+  (fn [[items total-level modifiers]]
     (->> items
          (remove :implicit?)
          (map #(assoc % :uses
                       (invoke-callable % :uses
+                                       :modifiers modifiers
                                        :total-level total-level))))))
 
 (reg-sub

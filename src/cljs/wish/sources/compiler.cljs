@@ -458,7 +458,8 @@
   (-> state
 
       ; include the data source for things that need it
-      (assoc :wish/data-source data-source)
+      (assoc :wish/data-source data-source
+             :wish/options options-map)
 
       ; apply levels first so all base features are available,
       ; then apply options to get option-provided features and
