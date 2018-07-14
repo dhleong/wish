@@ -130,19 +130,22 @@
 
 (defn limited-select-feature-options
   [f instance-id]
-  [:div.feature-options {:field :limited-select
-                         :accepted? (:max-options f)
-                         :id instance-id}
-   (for [option (:values f)]
-     [:div.feature-option {:key (:id option)}
-      ; NOTE: this extra widget with ^{:key} is a hack around how
-      ; reagent-forms handles :single-select values. Basically,
-      ; everything after the {:key} above seems to become a sequence,
-      ; so react wants keys on all the children. It's a bit deep to
-      ; put everything inline anyway, so we use this ^{:key} [component]
-      ; pattern
-      ^{:key (:id option)}
-      [feature-option option]])])
+  (let [total-items (count (:values f))]
+    [:div.feature-options {:class (when (>= total-items 15)
+                                    "scrollable")
+                           :field :limited-select
+                           :accepted? (:max-options f)
+                           :id instance-id}
+     (for [option (:values f)]
+       [:div.feature-option {:key (:id option)}
+        ; NOTE: this extra widget with ^{:key} is a hack around how
+        ; reagent-forms handles :single-select values. Basically,
+        ; everything after the {:key} above seems to become a sequence,
+        ; so react wants keys on all the children. It's a bit deep to
+        ; put everything inline anyway, so we use this ^{:key} [component]
+        ; pattern
+        ^{:key (:id option)}
+        [feature-option option]])]))
 
 (defn multi-select-feature-options
   [f instance-id]
