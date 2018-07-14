@@ -47,7 +47,10 @@
     (fn group-item-renderer []
       (let [disabled?        (if (fn? disabled) (disabled) disabled)
             active?          (get @selections key)
-            button-or-input? (let [t (subs (name type) 0 5)]
+            ; NOTE we never use this widget for button or input, and
+            ; dropping support lets us know in the widget whether or not
+            ; we're currently selected
+            button-or-input? false #_(let [t (subs (name type) 0 5)]
                                (or (= t "butto") (= t "input")))
             class            (->> [(when active? "active")
                                    (when (and disabled? (not button-or-input?)) "disabled")]
@@ -56,6 +59,7 @@
         [type
          (dissoc
            (merge {:class class
+                   :active? active?
                    (or touch-event :on-click)
                           (when-not disabled? handle-click!)}
                   (clean-attrs attrs)

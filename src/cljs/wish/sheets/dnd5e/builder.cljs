@@ -2,7 +2,8 @@
       :doc "builder"}
   wish.sheets.dnd5e.builder
   (:require-macros [wish.util.log :refer [log]])
-  (:require [reagent.core :as r]
+  (:require [clojure.string :as str]
+            [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [wish.sheets.dnd5e.subs :as subs]
@@ -67,18 +68,21 @@
     [data-source-manager]]])
 
 (defn feature-option
-  [option]
-  ; Fragment! avoids unnecessary extra parent
-  [:<>
-   [:b (:name option)
+  ([option]
+   (feature-option option :selected))
+  ([option selected?]
+   ; Fragment! avoids unnecessary extra parent
+   [:<>
+    [:b (:name option)
 
-    ; special case for spells:
-    (when-let [spell-level (:spell-level option)]
-      (if (= 0 spell-level)
-       " · Cantrip"
-       (str " · Level " spell-level)))]
+     ; special case for spells:
+     (when-let [spell-level (:spell-level option)]
+       (if (= 0 spell-level)
+         " · Cantrip"
+         (str " · Level " spell-level)))]
 
-   [formatted-text :div.desc (:desc option)]])
+    (when selected?
+      [formatted-text :div.desc (:desc option)])]))
 
 (defn expanding-assoc
   "Like (assoc), but safely expands vectors"
@@ -128,6 +132,11 @@
       ; not instanced
       v)))
 
+(defn- limited-select-feature-option
+  [{selected? :active? :as opts} [option]]
+  [:div.feature-option (dissoc opts :active?)
+   [feature-option option selected?]])
+
 (defn limited-select-feature-options
   [f instance-id]
   (let [total-items (count (:values f))
@@ -138,15 +147,15 @@
                            :accepted? (:max-options f)
                            :id instance-id}
      (for [option (:values f)]
-       [:div.feature-option {:key (:id option)}
-        ; NOTE: this extra widget with ^{:key} is a hack around how
-        ; reagent-forms handles :single-select values. Basically,
-        ; everything after the {:key} above seems to become a sequence,
-        ; so react wants keys on all the children. It's a bit deep to
-        ; put everything inline anyway, so we use this ^{:key} [component]
-        ; pattern
-        ^{:key (:id option)}
-        [feature-option option]])]))
+       ; being able to use a fn here is only because :limited-select is a
+       ; custom widget, but it's nice because the map we pass below gets
+       ; updated to include :active?, with which we can limit how much
+       ; we render—very helpful for perf on large lists. One tricky bit
+       ; about this usage, though, is that the body is passed through as
+       ; a sequence, so we need to destructure it (see above)
+       [limited-select-feature-option
+        {:key (:id option)}
+        option])]))
 
 (defn multi-select-feature-options
   [f instance-id]
