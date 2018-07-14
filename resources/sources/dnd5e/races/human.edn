@@ -13,4 +13,5 @@
    :5e/speed 30}
 
   :features
-  [:lang/common]}]
+  [:background
+   :lang/common]}]

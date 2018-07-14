@@ -32,7 +32,6 @@
 
   :features
   [:hit-dice/d8
-   :background
    :hp
    :unarmed-strike
 

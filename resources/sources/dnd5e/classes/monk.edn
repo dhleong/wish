@@ -4,7 +4,6 @@
 
   :features
   [:hit-dice/d8
-   :background
    :hp
 
    :save-proficiency/str

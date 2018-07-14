@@ -227,7 +227,7 @@
               (>evt [:update-meta [:races] (constantly [v])]))}]
 
    ; racial features
-   [feature-options-selection [:race-features-with-options]]
+   [feature-options-selection [::subs/race-features-with-options]]
 
    ])
 

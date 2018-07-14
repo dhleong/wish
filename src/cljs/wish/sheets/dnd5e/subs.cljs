@@ -872,8 +872,7 @@
 
 (reg-sub
   ::background
-  (fn [[_ primary-class-id]]
-    (subscribe [:class-features-with-options primary-class-id true]))
+  :<- [:race-features-with-options]
   (fn [features]
     (->> features
          (filter #(= :background (first %))))))
@@ -884,15 +883,21 @@
     :custom-bg/tools-or-languages})
 (reg-sub
   ::custom-background
-  (fn [[_ primary-class-id]]
-    (subscribe [:class-features-with-options primary-class-id true]))
+  :<- [:race-features-with-options]
   (fn [features]
     (->> features
          (filter #(custom-background-feature-ids (first %))))))
 
+; like the default one, but removing :background
+(reg-sub
+  ::race-features-with-options
+  :<- [:race-features-with-options]
+  (fn [features]
+    (->> features
+         (remove #(= :background (first %)))
+         (remove #(custom-background-feature-ids (first %))))))
 
-; like the default one, but removing :background and providing
-; special handling for :all-spells
+; like the default one, but providing special handling for :all-spells
 (reg-sub
   ::class-features-with-options
   (fn [[_ entity-id primary?]]
@@ -900,8 +905,6 @@
      (subscribe [::highest-spell-level-for-class-id entity-id])])
   (fn [[features highest-spell-level]]
     (->> features
-         (remove #(= :background (first %)))
-         (remove #(custom-background-feature-ids (first %)))
          (map (fn [[id f :as entry]]
                 (if (= [:all-spells]
                        (:wish/raw-values f))
