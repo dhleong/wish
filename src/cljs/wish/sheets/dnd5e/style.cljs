@@ -149,7 +149,8 @@
     [:.info-group (merge flex/center
                          flex/vertical-center
                          {:padding "4px"})
-     [:.label {:font-size "60%"}]]]
+     [:.label {:font-size "60%"}]
+     [:.dmg.alt {:font-size "65%"}]]]
 
    [:.spells (merge flex/center
                     {:margin-bottom "8px"})

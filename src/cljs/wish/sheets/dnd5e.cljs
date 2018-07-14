@@ -230,7 +230,10 @@
      "DMG"]
     [:div.dmg
      (or (:base-dice s)
-         (:dmg s))]]])
+         (:dmg s))]
+    (when-let [alt-dice (:alt-dice s)]
+      [:div.dmg.alt
+       "(" alt-dice ")"])]])
 
 (defn- combat-home []
   [:<>

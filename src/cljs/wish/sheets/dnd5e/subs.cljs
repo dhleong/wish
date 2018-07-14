@@ -2,7 +2,8 @@
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [reg-sub subscribe]]
+  (:require [clojure.string :as str]
+            [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
             [wish.util :refer [invoke-callable]]))
@@ -373,12 +374,21 @@
             :categories {}}))))
 
 (reg-sub
+  ::damage-bonuses
+  :<- [:classes]
+  (fn [classes]
+    (->> classes
+         (map (comp :dmg :buffs :attrs))
+         (apply merge))))
+
+(reg-sub
   ::equipped-weapons
   :<- [:equipped-sorted]
   :<- [::eq-proficiencies]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
-  (fn [[all-equipped proficiencies modifiers proficiency-bonus]]
+  :<- [::damage-bonuses]
+  (fn [[all-equipped proficiencies modifiers proficiency-bonus dmg-bonuses]]
     (let [{proficient-kinds :kinds
            proficient-cats :categories} proficiencies]
       (->> all-equipped
@@ -408,17 +418,32 @@
                      prof-bonus (when proficient?
                                   proficiency-bonus)
 
-                     ; TODO versatile? weapons have a different dam roll when
-                     ; used with two hands vs one hand
+                     ; TODO indicate dmg type?
+                     dmg-bonus-key (if ranged?
+                                     :ranged
+                                     :melee)
+                     other-bonuses (->> dmg-bonuses
+                                        dmg-bonus-key
+                                        vals
+                                        (map :dice))
+
                      dam-bonus (let [b (+ weap-bonus chosen-bonus)]
                                  (when (not= b 0)
-                                   b))]
+                                   b))
+
+                     all-bonuses (->> (cons
+                                        dam-bonus
+                                        other-bonuses)
+                                      (keep identity)
+                                      (str/join " + "))
+                     all-bonuses (when-not (str/blank? all-bonuses)
+                                   (str " + " all-bonuses))]
 
                  ; NOTE I don't *think* weapon damage ever scales?
                  (assoc w
-                        :base-dice (if dam-bonus
-                                     (str (:dice w) "+" dam-bonus)
-                                     (:dice w))
+                        :base-dice (str (:dice w) all-bonuses)
+                        :alt-dice (when-let [versatile (:versatile w)]
+                                    (str versatile all-bonuses))
                         :to-hit (+ dam-bonus prof-bonus)))))))))
 
 

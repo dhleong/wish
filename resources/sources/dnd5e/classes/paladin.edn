@@ -75,7 +75,6 @@ This feature has no effect on undead and constructs."
 Your choice grants you features at 3rd level and again at 7th, 15th, and 20th level. Those features include oath spells and the Channel Divinity feature."
                  :max-options 1}]}
 
-            ; TODO aura of courage
             ; TODO improved divine smite
             ; TODO cleansing touch
 
@@ -83,8 +82,31 @@ Your choice grants you features at 3rd level and again at 7th, 15th, and 20th le
                [:ability-improvement]}
             5 {:+features
                [:extra-attack]}
+
+            6 {:+features
+               [{:id :paladin/aura-protection
+                 :name "Aura of Protection"
+                 :desc "Starting at 6th level, whenever you or a friendly creature within 10 feet of you must make a saving throw, the creature gains a bonus to the saving throw equal to your Charisma modifier (with a minimum bonus of +1). You must be conscious to grant this bonus.
+At 18th level, the range of this aura increases to 30 feet."}]}
+
             8 {:+features
                [:ability-improvement]}
+
+            10 {:+features
+                [{:id :paladin/aura-courage
+                  :name "Aura of Courage"
+                  :desc "Starting at 10th level, you and friendly creatures within 10 feet of you can’t be frightened while you are conscious.
+At 18th level, the range of this aura increases to 30 feet."}]}
+
+            11 {:+features
+                [{:id :paladin/improved-divine-smite
+                  :name "Improved Divine Smite"
+                  :desc "By 11th level, you are so suffused with righteous might that all your melee weapon strikes carry divine power with them. Whenever you hit a creature with a melee weapon, the creature takes an extra 1d8 radiant damage. If you also use your Divine Smite with an attack, you add this damage to the extra damage of your Divine Smite."
+                  :! [[:!provide-attr
+                       [:buffs :dmg :melee :paladin/improved-divine-smite]
+                       {:dice "1d8"
+                        :type :radiant}]]}]}
+
             12 {:+features
                 [:ability-improvement]}
             16 {:+features
