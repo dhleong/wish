@@ -130,8 +130,9 @@
 
 (defn limited-select-feature-options
   [f instance-id]
-  (let [total-items (count (:values f))]
-    [:div.feature-options {:class (when (>= total-items 15)
+  (let [total-items (count (:values f))
+        scrollable? (>= total-items 15)]
+    [:div.feature-options {:class (when scrollable?
                                     "scrollable")
                            :field :limited-select
                            :accepted? (:max-options f)
@@ -225,7 +226,6 @@
 ; ======= class management/level-up ========================
 
 (defn class-section [class-info]
-  (log (<sub [:options]))
   [:div.class-section
    [:div.class-header
     [:div.row
@@ -249,7 +249,9 @@
       [:div.meta "Primary class"])]
    [feature-options-selection [::subs/class-features-with-options
                                (:id class-info)
-                               (:primary? class-info)]]])
+                               (:primary? class-info)]]
+
+   ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
   [:div.class-picker

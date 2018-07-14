@@ -11,6 +11,8 @@
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.7.3"]
 
+                 [cljsjs/react-virtualized "9.18.5-1"]
+
                  ; simpler forms
                  [reagent-forms "0.5.42"]
 
