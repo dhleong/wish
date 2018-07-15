@@ -392,11 +392,11 @@
     (let [{proficient-kinds :kinds
            proficient-cats :categories} proficiencies]
       (->> all-equipped
-           (filter #(= :weapon (-> % :attrs :type)))
+           (filter #(= :weapon (:type %)))
            (map
              (fn [w]
-               (let [{{weap-bonus :+
-                       :keys [kind category ranged? finesse?]} :attrs} w
+               (let [{weap-bonus :+
+                      :keys [kind category ranged? finesse?]} w
 
                      ; we can be proficient in either the weapon's specific kind
                      ; (eg :longbow) or its category (eg :martial)

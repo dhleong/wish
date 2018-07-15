@@ -39,7 +39,7 @@
 
 (defn equippable?
   [item]
-  (-> item :attrs :type equippable-types))
+  (-> item :type equippable-types))
 
 
 ; ======= spell-related ====================================

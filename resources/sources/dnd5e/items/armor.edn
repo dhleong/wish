@@ -2,8 +2,8 @@
 ;; all armor that incurs disadvantage on stealth
 [:!declare-items
 
- {:attrs {:type :armor
-          :rolls {:stealth {:disadvantage "Heavy Armor"}}}}
+ {:type :armor
+  :attrs {:rolls {:stealth {:disadvantage "Heavy Armor"}}}}
 
  {:id :ring-armor
   :name "Ring Armor"

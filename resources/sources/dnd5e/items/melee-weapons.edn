@@ -1,11 +1,11 @@
 [:!declare-items
 
- {:attrs {:type :weapon}}
+ {:type :weapon}
 
  {:id :longsword
   :name "Longsword"
-  :attrs {:category :martial
-          :kind :longsword}
+  :category :martial
+  :kind :longsword
   :cost [15 :g]
   :damage :slashing
   :dice "1d8"

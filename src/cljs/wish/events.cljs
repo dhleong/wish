@@ -284,7 +284,7 @@
    (inventory-add sheet item nil))
   ([sheet item quantity]
    (let [quantity (or quantity
-                      (-> item :attrs :default-quantity)
+                      (-> item :default-quantity)
                       1)
          item-id (:id item)
          custom? (nil? item-id)

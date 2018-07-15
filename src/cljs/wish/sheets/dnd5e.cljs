@@ -541,7 +541,7 @@
 
 (defn- inventory-entry
   [item]
-  (let [{:keys [attrs stacks?]} item]
+  (let [{:keys [attrs stacks? type]} item]
     [expandable
      [:div.item
       [:div.name (:name item)]
@@ -550,7 +550,7 @@
         [:div.quantity
          (:wish/amount item)])
 
-      (when (:ammunition? attrs)
+      (when (= :ammunition type)
         [:div.consume.button
          {:on-click (click>evt [:inventory-subtract item]
                                :propagate? false)}
@@ -577,7 +577,7 @@
 
 (defn inventory-section []
   [:<>
-   (if-let [inventory (seq (<sub [:inventory-sorted]))]
+   (when-let [inventory (seq (<sub [:inventory-sorted]))]
      (for [item inventory]
        ^{:key (:id item)}
        [inventory-entry item]))
