@@ -6,6 +6,7 @@
             [vimsical.re-frame.cofx.inject :as inject]
             [wish.db :as db]
             [wish.fx :as fx]
+            [wish.inventory :as inv]
             [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses update-sheet update-sheet-path]]
             [wish.subs-util :refer [active-sheet-id]]
@@ -287,15 +288,10 @@
                       (-> item :default-quantity)
                       1)
          item-id (:id item)
-         custom? (nil? item-id)
+         custom? (inv/custom? item)
 
          item-id (if custom?
-                   (keyword "custom"
-                            (str
-                              (str/replace
-                                (:name item)
-                                #"[^a-zA-Z0-9]" "")
-                              "-" (js/Date.now)))
+                   (inv/custom-id (:name item))
 
                    ; had an id already
                    item-id)
@@ -305,11 +301,8 @@
                    custom? item-id
 
                    ; generate an instance id
-                   (not (:stacks? item))
-                   (keyword (namespace item-id)
-                            (str (name item-id)
-                                 "-inst-"
-                                 (js/Date.now))))
+                   (not (inv/stacks? item))
+                   (inv/instantiate-id item-id))
 
          sheet (if inst-id
                  ; we instantiated
@@ -347,9 +340,9 @@
        ; easy case; still > 0
        (> new-amount 0) sheet
 
-       ; if the item is *not* a :stacks? custom item, remove it from
+       ; if the item is *not* a stacks? custom item, remove it from
        ; :items if its quantity became <= 0
-       (or (not (:stacks? item))
+       (or (not (inv/stacks? item))
            ; it's custom if :id in :items = inst-id
            (not= inst-id (get-in sheet [:items inst-id :id])))
        (-> sheet

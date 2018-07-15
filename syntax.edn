@@ -107,6 +107,11 @@
   :name,
   :desc,
 
+  ; wish will handle certain "builtin" types, if you wish:
+  ; - :ammunition, :potion  will automatically be treated as
+  ;   if :stacks? true were provided
+  :type,
+
   ; as for :!declare-class; this is a good place to indicate
   ; system-specific item classes that can be used to determine
   ; whether a character can equip an item, for example
@@ -114,7 +119,8 @@
 
   ; flag indicating if this type of item should stack in
   ; inventories (true) or if multiple copies should be instanced
-  ; separately (false)
+  ; separately (false). This flag may also be implicit based on
+  ; :type, above.
   :stacks? false
 
   ; list of directives to apply to the character when the

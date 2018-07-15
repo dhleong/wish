@@ -5,6 +5,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [wish.inventory :as inv]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as dnd5e]
             [wish.sheets.dnd5e.style :refer [styles]]
@@ -384,3 +385,107 @@
      (for [s spells]
        ^{:key (:id s)}
        [spell-block s spell-opts])]))
+
+
+; ======= custom item creation =============================
+
+(defn custom-item-creator []
+  (let [state (r/atom {:type :other})
+
+        ; creates a :visible? fn that returns true when
+        ; the selected :type is equal to the provided key
+        for-type (fn [type]
+                   (comp (partial = type) :type))
+
+        ; create the item once everything is validated
+        create! (fn [s]
+                  (let [custom-id (inv/custom-id
+                                    (:name s))
+                        s (-> s
+                              (dissoc :errors)
+                              (assoc :id custom-id))]
+                    ; TODO transform :armor-ac into [:attrs :5e/ac <id>]
+                    (println "Submit" s)
+                    (>evt [:inventory-add s])
+                    (>evt [:toggle-overlay nil])))]
+
+    (fn []
+      [:div {:class (:custom-item-overlay styles)}
+       [:h5 "Custom Item"]
+       [bind-fields
+        [:form
+         {:on-submit (fn [e]
+                       (.preventDefault e)
+                       (let [s @state]
+                         (cond
+                           (str/blank? (:name s))
+                           (swap! state assoc-in [:errors :name]
+                                  "Name must not be blank")
+
+                           (and (= :ammunition (:type s))
+                                (or (str/blank? (:default-quantity s))
+                                    (<= (:default-quantity s)
+                                        0)))
+                           (swap! state assoc-in [:errors :default-quantity]
+                                  "You must provide a quantity > 0")
+
+                           :else (create! s))))}
+
+         [:div.section
+          [:input {:field :text
+                   :id :name
+                   :placeholder "Name"
+                   :autoComplete "off"}]
+          [:div.error {:field :alert
+                       :id :errors.name}]]
+
+         [:div.section
+          [:label {:for :type}
+           "Type\u00A0"]
+          [:select {:field :list
+                    :id :type}
+           [:option {:key :ammunition} "Ammunition"]
+           ; TODO these types need special attention
+           ;; [:option {:key :armor} "Armor"]
+           ;; [:option {:key :gear} "Gear"]
+           ;; [:option {:key :weapon} "Weapon"]
+           [:option {:key :potion} "Potion"]
+           [:option {:key :other} "Other"]]
+          ]
+
+         ; ammunition config
+         [:div.section {:field :container
+                        :visible? (for-type :ammunition)}
+          [:input {:field :fast-numeric
+                   :id :default-quantity
+                   :placeholder "Default Quantity"}]
+          [:div.error {:field :alert
+                       :id :errors.default-quantity}]]
+
+         ; armor config
+         [:div.section {:field :container
+                        :visible? (for-type :armor)}
+          [:input {:field :numeric
+                   :id :armor-ac
+                   :placeholder "Armor AC"}]]
+
+         [:div.section
+          [:textarea.stretch {:field :textarea
+                              :id :desc
+                              :placeholder "Description (optional)"
+                              :rows 4}]]
+
+         [:div.section
+          [:input {:type :submit
+                   :value "Create!"}]]
+         ]
+
+        ; the state atom
+        state
+
+        ; events:
+        (fn [id value doc]
+          (when (and (some (set id) [:name
+                                     :default-quantity])
+                     (not (str/blank? value)))
+            (update doc :errors dissoc (first id))))]])))

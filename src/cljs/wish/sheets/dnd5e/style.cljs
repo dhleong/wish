@@ -12,6 +12,9 @@
 
 (def text-center {:text-align 'center})
 
+(def one-third
+  {:width "100%"})
+
 (def proficiency-style
   [:.proficiency
    {:color color-proficient
@@ -57,6 +60,14 @@
       [:&.fail {:color "#aa0000"}]]]]
 
    [:.space flex/grow]]
+
+  [:.custom-item-overlay {:width "300px"}
+   [:.section {:padding "8px"}]
+   [:.stretch {:width "100%"}]
+   [:.error {:border "1px solid #aa0000"
+             :padding "4px"
+             :font-size "80%"}
+    [:.close {:display 'none}]]]
 
   [:.hp-overlay {:width "300px"}
    [:.current-hp (merge text-center

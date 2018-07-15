@@ -6,6 +6,7 @@
             [reagent.core :as r]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
+            [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.subs :as dnd5e]
@@ -541,7 +542,8 @@
 
 (defn- inventory-entry
   [item]
-  (let [{:keys [attrs stacks? type]} item]
+  (let [{:keys [attrs type]} item
+        stacks? (inv/stacks? item)]
     [expandable
      [:div.item
       [:div.name (:name item)]
@@ -583,6 +585,12 @@
        [inventory-entry item]))
 
    [:h4 "Add Items"]
+
+   [:a {:href "#"
+        :on-click (click>evt [:toggle-overlay
+                              [#'overlays/custom-item-creator]])}
+    "Create a custom item"]
+
    (for [item (<sub [:all-items])]
      ^{:key (:id item)}
      [:div.item
