@@ -74,9 +74,6 @@ This feature has no effect on undead and constructs."
 Your choice grants you features at 3rd level and again at 7th, 15th, and 20th level. Those features include oath spells and the Channel Divinity feature."
                  :max-options 1}]}
 
-            ; TODO improved divine smite
-            ; TODO cleansing touch
-
             4 {:+features
                [:ability-improvement]}
             5 {:+features
@@ -108,6 +105,19 @@ At 18th level, the range of this aura increases to 30 feet."}]}
 
             12 {:+features
                 [:ability-improvement]}
+
+            14 {:+features
+                [{:id :paladin/cleansing-touch
+                  :name "Cleansing Touch"
+                  :desc "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.
+You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain expended uses when you finish a long rest."
+                  :! [[:!add-limited-use
+                       {:id :paladin/cleansing-touch#uses
+                        :name "Cleansing Touch"
+                        :restore-trigger :long-rest
+                        :uses (fn [modifiers]
+                                (max 1 (:cha modifiers)))}]]}]}
+
             16 {:+features
                 [:ability-improvement]}
             19 {:+features
