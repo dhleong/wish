@@ -1,7 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
+            [wish.sheets.dnd5e.data :as data]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.fun :refer [->callable]]))
 
@@ -95,16 +97,34 @@
 (def compile-ac-source (memoize ->callable))
 (defn- compile-ac-sources
   [entity]
-  (update-in entity [:attrs :5e/ac]
-             (fn [ac-sources-map]
-               (reduce-kv
-                 (fn [m k v]
-                   (assoc m k (compile-ac-source v)))
-                 {}
-                 ac-sources-map))))
+  (cond
+    (get-in entity [:attrs :5e/ac])
+    (update-in entity [:attrs :5e/ac]
+               (fn [ac-sources-map]
+                 (reduce-kv
+                   (fn [m k v]
+                     (assoc m k (compile-ac-source v)))
+                   {}
+                   ac-sources-map)))
+
+    ; armor AC, etc. based on a builtin type
+    (= :armor (:type entity))
+    (data/inflate-armor entity)
+
+    ; nope
+    :else entity))
+
+(defn- compile-weapon-dice
+  [entity]
+  (if (= :weapon (:type entity))
+    (data/inflate-weapon entity)
+
+    ; not a weapon
+    entity))
 
 (defn post-process
   [entity data-source entity-kind]
   (-> entity
       install-spell-uses
-      compile-ac-sources))
+      compile-ac-sources
+      compile-weapon-dice))

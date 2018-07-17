@@ -392,9 +392,15 @@
 ; list of all known items for the current sheet
 (reg-sub
   :all-items
+  :<- [:sheet-kind]
   :<- [:sheet-source]
-  (fn [source]
-    (src/list-entities source :items)))
+  (fn [[sheet-kind source]]
+    (->> (src/list-entities source :items)
+         (map #(sheets/post-process
+                 %
+                 sheet-kind
+                 source
+                 :item)))))
 
 
 ; ======= character builder-related ========================
