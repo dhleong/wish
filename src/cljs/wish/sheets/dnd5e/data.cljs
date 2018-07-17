@@ -89,19 +89,23 @@
                     :dice "1d8"
                     :two-handed? true
                     :uses-ammunition? true
+                    :ranged? true
                     :range [80 320]}
    :dart {:damage :piercing
           :dice "1d4"
           :finesse? true
+          :ranged? true
           :range [20 60]}
    :shortbow {:damage :piercing
               :two-handed? true
               :uses-ammunition? true
+              :ranged? true
               :range [80 320]
               :dice "1d6"}
    :sling {:damage :bludgeoning
            :dice "1d4"
            :uses-ammunition? true
+           :ranged? true
            :range [30 120]}
 
    ; Martial Melee Weapons
@@ -175,23 +179,27 @@
    :blowgun {:damage :piercing
              :dice "1"
              :uses-ammunition? true
+             :ranged? true
              :range [25 100]}
    :handcrossbow {:damage :piercing
                   :dice "1d6"
                   :uses-ammunition? true
                   :light? true
+                  :ranged? true
                   :range [30 120]}
    :heavycrossbow {:damage :piercing
                    :dice "1d10"
                    :heavy? true
                    :two-handed? true
                    :uses-ammunition? true
+                   :ranged? true
                    :range [100 400]}
    :longbow {:damage :piercing
              :dice "1d8"
              :heavy? true
              :two-handed? true
              :uses-ammunition? true
+             :ranged? true
              :range [150 600]}
    :net {:special? true
          :range [5 15]}

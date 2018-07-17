@@ -214,6 +214,9 @@
     [:.dice {:align-self 'center}]]]
 
   [:.inventory-section
+   [:.item-browser {:height "300px"
+                    :padding "4px"
+                    :margin "8px 0 4em 0"}]
    [:.item flex/center
     [:.name flex/grow]
     [:.button {:font-size "60%"}

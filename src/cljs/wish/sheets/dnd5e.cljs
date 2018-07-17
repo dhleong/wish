@@ -15,7 +15,8 @@
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [expandable formatted-text link]]))
+             :refer [expandable formatted-text link]]
+            [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 ; ======= Top bar ==========================================
 
@@ -577,6 +578,23 @@
        (icon :delete-forever)
        " Delete" (when stacks? " all") " from inventory"]]]) )
 
+(defn- item-browser-item [item]
+  [:<>
+   [:div.name (:name item)]
+   [:div.add.button
+    {:on-click (click>evt [:inventory-add item])}
+    "Add"]])
+
+(defn- item-browser []
+  [:<>
+   ; TODO search bar with filtering
+   [:div.item-browser.scrollable
+    [virtual-list
+     :items (<sub [:all-items])
+     :render-item (fn [props item]
+                    [:div.item props
+                     [item-browser-item item]])]]])
+
 (defn inventory-section []
   [:<>
    (when-let [inventory (seq (<sub [:inventory-sorted]))]
@@ -591,13 +609,7 @@
                               [#'overlays/custom-item-creator]])}
     "Create a custom item"]
 
-   (for [item (<sub [:all-items])]
-     ^{:key (:id item)}
-     [:div.item
-      [:div.name (:name item)]
-      [:div.add.button
-       {:on-click (click>evt [:inventory-add item])}
-       "Add"]]) ])
+   [item-browser]])
 
 
 ; ======= Main interface ===================================

@@ -17,6 +17,8 @@
 
    {:id :monk/martial-arts
     :name "Martial Arts"
+    ; TODO add desc and esp info about monk weapons, bonus action attack
+    ; TODO monk weapons are treated as finesse? somehow
     :! [[:!provide-feature
          {:id :unarmed-strike
           :finesse? true

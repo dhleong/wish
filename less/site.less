@@ -27,9 +27,10 @@ a {
 // Other mixins
 //
 
-.unselectable() {
-    -webkit-user-select: none;
-    user-select: none;
+.box-shadow(@args) {
+    -moz-box-shadow: @args;
+    -webkit-box-shadow: @args;
+    box-shadow: @args;
 }
 
 .clickable() {
@@ -37,10 +38,14 @@ a {
     cursor: pointer;
 }
 
-.box-shadow(@args) {
-    -moz-box-shadow: @args;
-    -webkit-box-shadow: @args;
-    box-shadow: @args;
+.scrollable() {
+    overflow-y: scroll;
+    .box-shadow(inset 0 -8px 12px -4px fade(#333, 50%));
+}
+
+.unselectable() {
+    -webkit-user-select: none;
+    user-select: none;
 }
 
 //
@@ -142,9 +147,9 @@ a {
 
 .feature-options {
     &.scrollable {
+        .scrollable();
+
         height: 280px;
-        overflow-y: scroll;
-        .box-shadow(inset 0 -8px 12px -4px fade(#333, 50%));
 
         .feature-option {
             margin: 8px;
@@ -169,6 +174,10 @@ a {
 
 .clickable {
     .clickable();
+}
+
+.scrollable {
+    .scrollable();
 }
 
 .unselectable {

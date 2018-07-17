@@ -6,8 +6,5 @@
   :name "Longsword"
   :category :martial
   :kind :longsword
-  :cost [15 :g]
-  :damage :slashing
-  :dice "1d8"
-  :versatile "1d10"}
+  :cost [15 :g]}
  ]

@@ -400,7 +400,8 @@
                  %
                  sheet-kind
                  source
-                 :item)))))
+                 :item))
+         (sort-by :name))))
 
 
 ; ======= character builder-related ========================
