@@ -381,6 +381,26 @@
          (map (comp :dmg :buffs :attrs))
          (apply merge))))
 
+; returns a set of weapon kind ids that should always be treated
+; as "finesse" weapons
+(reg-sub
+  ::finesse-weapon-kinds
+  :<- [:classes]
+  :<- [:sheet-source]
+  (fn [[classes source]]
+    (->> classes
+         ; combine all class-specific lists
+         (mapcat (comp :finesse-weapon-kinds :lists))
+
+         (map (fn [{:keys [id]}]
+                (if-let [n (namespace id)]
+                  ; unpack eg :proficiency/longsword
+                  (keyword (name id))
+
+                  ; regular weapon kind id
+                  id)))
+         set)))
+
 (reg-sub
   ::equipped-weapons
   :<- [:equipped-sorted]
@@ -388,7 +408,10 @@
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
   :<- [::damage-bonuses]
-  (fn [[all-equipped proficiencies modifiers proficiency-bonus dmg-bonuses]]
+  :<- [::finesse-weapon-kinds]
+  (fn [[all-equipped proficiencies modifiers
+        proficiency-bonus dmg-bonuses
+        finesse-weapon-kinds]]
     (let [{proficient-kinds :kinds
            proficient-cats :categories} proficiencies]
       (->> all-equipped
@@ -402,6 +425,12 @@
                      ; (eg :longbow) or its category (eg :martial)
                      proficient? (or (proficient-kinds kind)
                                      (proficient-cats category))
+
+                     ; some classes can treat certain weapon kinds as
+                     ; finesse even if they aren't naturally (eg: monk)
+                     finesse? (or finesse?
+                                  (contains? finesse-weapon-kinds
+                                             kind))
 
                      ; we can use dex bonus if it's a ranged weapon OR if it's
                      ; finesse?

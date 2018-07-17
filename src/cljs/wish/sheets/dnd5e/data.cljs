@@ -59,6 +59,7 @@
             :light? true
             :range [20 60]}
    :greatclub {:damage :bludgeoning
+               :two-handed? true
                :dice "1d8"}
    :handaxe {:damage :slashing
              :dice "1d6"

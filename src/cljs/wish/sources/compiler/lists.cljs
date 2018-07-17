@@ -3,7 +3,7 @@
   wish.sources.compiler.lists
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
-            [wish.sources.core :refer [find-list-entity]]
+            [wish.sources.core :as src]
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.feature :refer [compile-feature]]
             [wish.util :refer [->map]]))
@@ -34,8 +34,11 @@
       ; if we have a data source (IE when inflating an entity),
       ; check it out
       (when-let [ds (:wish/data-source s)]
-        (when-let [f (find-list-entity ds id)]
-          [f]))
+        (or
+          (when-let [f (src/find-list-entity ds id)]
+            [f])
+          (when-let [f (src/find-feature ds id)]
+            [f])))
 
       ; else:
       (log/warn "Unable to find entity " id)))
