@@ -226,10 +226,13 @@
      [:&:hover {:background-color "#f0f0f0"
                 :color "#333"}
       [:&.disabled {:background-color "#ccc"}]]]]
-   [:.item-info
+   [:.item-info {:padding "0 12px"
+                 :font-size "90%"
+                 :text-align 'justify}
     [:.delete (merge flex/center
                      flex/justify-center
-                     {:align-self 'center})]]]
+                     {:align-self 'center
+                      :margin-bottom "12px"})]]]
   [:.spell-card {:max-width "300px"}
    [:table.info metadata
     [:th.header {:text-align 'right}]]

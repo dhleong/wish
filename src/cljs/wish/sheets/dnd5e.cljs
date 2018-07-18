@@ -575,7 +575,7 @@
            "Attune")])]
 
      [:div.item-info
-      [:div.desc (:desc item)]
+      [formatted-text :div.desc (:desc item)]
 
       ; TODO manage quantity
 
