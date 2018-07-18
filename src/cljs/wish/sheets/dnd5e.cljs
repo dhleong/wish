@@ -4,7 +4,8 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [reagent.core :as r]
-            [wish.util :refer [<sub click>evt invoke-callable]]
+            [reagent-forms.core :refer [bind-fields]]
+            [wish.util :refer [>evt <sub click>evt invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -534,17 +535,37 @@
 
 ; ======= inventory ========================================
 
+(defn- item-quantity-manager [item]
+  [:div.quantity
+   [:a.modify {:href "#"
+               :on-click (click>evt [:inventory-subtract item 1])}
+    (icon :remove-circle)]
+
+   [bind-fields
+
+    [:input.quantity {:field :numeric
+                      :id :quantity
+                      :min 0}]
+
+    {:get #(<sub [::subs/item-quantity (:id item)])
+     :save! (fn [path v]
+              (>evt [:inventory-set-amount item v]))}]
+
+   [:a.modify {:href "#"
+               :on-click (click>evt [:inventory-add item 1])}
+    (icon :add-circle)] ])
+
 (defn- inventory-entry
   [item can-attune?]
-  (let [{:keys [attrs type]} item
+  (let [{:keys [attrs type]
+         quantity :wish/amount} item
         stacks? (inv/stacks? item)]
     [expandable
      [:div.item
       [:div.name (:name item)]
 
       (when stacks?
-        [:div.quantity
-         (:wish/amount item)])
+        [:div.quantity quantity])
 
       (when (= :ammunition type)
         [:div.consume.button
@@ -577,7 +598,8 @@
      [:div.item-info
       [formatted-text :div.desc (:desc item)]
 
-      ; TODO manage quantity
+      (when stacks?
+        [item-quantity-manager item])
 
       [:a.delete {:href "#"
            :on-click (click>evt [:inventory-delete item])}

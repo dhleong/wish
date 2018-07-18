@@ -1,4 +1,5 @@
 (ns wish.events
+  (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.string :as str]
             [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    inject-cofx trim-v]]
@@ -324,6 +325,19 @@
     ; update the sheet meta directly
     (update-sheet-path cofx [] inventory-add item quantity)))
 
+; NOTE: unlike :inventory-add and :inventory-subtract, this
+; is ONLY intended to change the current quantity of a stacks?
+; item and (at least for now) does not attempt to instantiate
+; items or anything fancy like that.
+; It will, however, enforce a min value of 0
+(reg-event-fx
+  :inventory-set-amount
+  [trim-v]
+  (fn [cofx [item quantity]]
+    (update-sheet-path cofx [:inventory]
+                       assoc
+                       (:id item)
+                       (max 0 quantity))))
 
 (defn inventory-subtract
   ([sheet item]

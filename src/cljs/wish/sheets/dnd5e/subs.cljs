@@ -504,6 +504,12 @@
                   (assoc item :attuned? true)
                   item))))))
 
+; current quantity of the given item
+(reg-sub
+  ::item-quantity
+  :<- [:inventory-map]
+  (fn [m [_ item-id]]
+    (->> m item-id :wish/amount)))
 
 ; ======= Spells ===========================================
 

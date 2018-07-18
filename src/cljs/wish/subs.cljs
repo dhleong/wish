@@ -2,6 +2,7 @@
   (:require-macros [wish.util.log :as log])
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.db :as db]
+            [wish.inventory :as inv]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-directives inflate]]
@@ -355,7 +356,7 @@
         (let [equipped? (get equipped inst-id)
               inflated (inflate-item inst-id items data-source)
               show-amount? (or (> amount 1)
-                               (:stacks? inflated))
+                               (inv/stacks? inflated))
               item (if show-amount?
                      (assoc inflated :wish/amount amount)
                      inflated)
