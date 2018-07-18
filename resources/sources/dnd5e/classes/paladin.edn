@@ -17,6 +17,9 @@
    :save-proficiency/wis
    :save-proficiency/cha
 
+   :proficiency/simple-weapons
+   :proficiency/martial-weapons
+
    {:id :paladin/skill-proficiencies
     :implicit? true
     :primary-only? true

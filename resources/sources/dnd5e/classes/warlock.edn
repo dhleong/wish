@@ -35,8 +35,14 @@
    :hp
    :unarmed-strike
 
+   ; save proficiencies
    :save-proficiency/wis
    :save-proficiency/cha
+
+   ; weapon proficiencies
+   :proficiency/simple-weapons
+
+   ; TODO
    ]
 
   :&levels {4 {:+features

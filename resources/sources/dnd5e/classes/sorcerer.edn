@@ -22,6 +22,13 @@
    :save-proficiency/con
    :save-proficiency/cha
 
+   ; weapon proficiencies
+   :proficiency/dagger
+   :proficiency/dart
+   :proficiency/sling
+   :proficiency/quarterstaff
+   :proficiency/light-crossbow
+
    {:id :sorcerer/skill-proficiencies
     :implicit? true
     :primary-only? true

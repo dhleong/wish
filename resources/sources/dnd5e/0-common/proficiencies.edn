@@ -257,6 +257,24 @@
  {:id :weapon-kind-proficiencies
   :type :feature}
 
+ {:id :proficiency/dagger
+  :name "Dagger"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :dagger] true]]}
+ {:id :proficiency/dart
+  :name "Dart"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :dart] true]]}
+
+ {:id :proficiency/hand-crossbow
+  :name "Hand Crossbow"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :hand-crossbow] true]]}
+ {:id :proficiency/light-crossbow
+  :name "Light Crossbow"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :light-crossbow] true]]}
+
  {:id :proficiency/longbow
   :name "Longbow"
   :implicit? true
@@ -273,4 +291,33 @@
  {:id :proficiency/shortsword
   :name "Shortsword"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :shortsword] true]]}]
+  :! [[:!provide-attr [:weapon-kinds :shortsword] true]]}
+
+ {:id :proficiency/rapier
+  :name "Rapier"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :rapier] true]]}
+
+ {:id :proficiency/sling
+  :name "Sling"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :sling] true]]}
+
+ {:id :proficiency/quarterstaff
+  :name "Quarterstaff"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :quarterstaff] true]]}]
+
+[:!add-to-list
+ {:id :weapon-category-proficiencies
+  :type :feature}
+
+ {:id :proficiency/martial-weapons
+  :name "Martial Weapons"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-categories :martial] true]]}
+ {:id :proficiency/simple-weapons
+  :name "Simple Weapons"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-categories :simple] true]]}
+ ]
