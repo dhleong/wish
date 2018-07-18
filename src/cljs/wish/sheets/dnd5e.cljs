@@ -529,14 +529,7 @@
                [:div (str "You don't have any " prepared-label " spells")])
 
              ; auto-expand to show the "nothing prepared" explanation
-             {:start-expanded? (not any-prepared?)}])]))
-
-     ;; [:div.spells
-     ;;  [:h4 "Available spells"]
-     ;;  (for [s spells]
-     ;;    ^{:key (:id s)}
-     ;;    [spell-block s])]
-     ]))
+             {:start-expanded? (not any-prepared?)}])]))]))
 
 
 ; ======= inventory ========================================
