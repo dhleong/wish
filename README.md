@@ -14,7 +14,7 @@ subscriptions, etc. that render the character sheet. This part is
 responsible for implementing the system-specific logic, such as
 health management, etc. Renderers don't know any specific information
 (such as that the Wizard class can cast spells) but they do know
-how to handle things generally (such as managing a Wizards spells
+how to handle things generally (such as managing a Wizard's spells
 and magic use).
 3. **Data Sources** provide all the specific information that a Sheet
 Renderer needs to function. Any given sheet may have one or more
@@ -29,7 +29,7 @@ only provider) so you are in complete control of your data.
 WISH sheets will generally come with a builtin data source that provides
 the core, publically available bits to get you started. Right now we
 support D&D 5th Edition, and our (incomplete) data source is based on
-the System Reference Document.
+the [System Reference Document][5].
 
 ## Development Mode
 
@@ -115,3 +115,4 @@ lein build
 [2]: https://github.com/tpope/vim-fireplace
 [3]: https://github.com/dhleong/dots/blob/master/.vim/ftplugin/clojure.vim
 [4]: https://github.com/planck-repl/planck
+[5]: http://dnd.wizards.com/articles/features/systems-reference-document-srd
