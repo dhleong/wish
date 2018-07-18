@@ -220,8 +220,12 @@
    [:.item flex/center
     [:.name flex/grow]
     [:.button {:font-size "60%"}
+     [:&.disabled {:font-style 'italic
+                   :color "rgba(1,1,1, 0.25) !important"
+                   :cursor 'default}]
      [:&:hover {:background-color "#f0f0f0"
-                :color "#333"}]]]
+                :color "#333"}
+      [:&.disabled {:background-color "#ccc"}]]]]
    [:.item-info
     [:.delete (merge flex/center
                      flex/justify-center

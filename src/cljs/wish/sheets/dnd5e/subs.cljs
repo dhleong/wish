@@ -127,13 +127,24 @@
   :<- [:limited-uses]
   :<- [:total-level]
   :<- [::ability-modifiers]
-  (fn [[items total-level modifiers]]
+  :<- [::attuned-ids]
+  (fn [[items total-level modifiers attuned-set]]
     (->> items
          (remove :implicit?)
+
+         ; eagerly evaluate :uses (the sheet shouldn't do this)
          (map #(assoc % :uses
                       (invoke-callable % :uses
                                        :modifiers modifiers
-                                       :total-level total-level))))))
+                                       :total-level total-level)))
+
+         ; remove uses that come from un-attuned items that require attunement
+         (remove (fn [item]
+                   (and (= :item (:wish/context-type item))
+                        (:attunes? (:wish/context item))
+                        (not (contains? attuned-set (:id (:wish/context item)))))))
+
+         (sort-by :name))))
 
 (reg-sub
   ::limited-use
@@ -356,6 +367,12 @@
 
 ; ======= items and equipment ==============================
 
+(reg-sub
+  ::attuned-ids
+  :<- [:sheet]
+  (fn [sheet _]
+    (get sheet :attuned)))
+
 ; returns a map of :kinds and :categories
 (reg-sub
   ::eq-proficiencies
@@ -474,6 +491,18 @@
                         :alt-dice (when-let [versatile (:versatile w)]
                                     (str versatile all-bonuses))
                         :to-hit (+ dam-bonus prof-bonus)))))))))
+
+; like :inventory-sorted but with :attuned? added as appropriate
+(reg-sub
+  ::inventory-sorted
+  :<- [:inventory-sorted]
+  :<- [::attuned-ids]
+  (fn [[inventory attuned-set]]
+    (->> inventory
+         (map (fn [item]
+                (if (contains? attuned-set (:id item))
+                  (assoc item :attuned? true)
+                  item))))))
 
 
 ; ======= Spells ===========================================

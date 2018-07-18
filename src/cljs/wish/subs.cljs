@@ -296,14 +296,17 @@
   :limited-uses
   :<- [:classes]
   :<- [:races]
-  ; TODO also, probably, items?
-  (fn [[classes races]]
+  :<- [:inventory-map]
+  (fn [[classes races inventory]]
     (flatten
       (concat
         (->> races
              (map (partial uses-with-context :race)))
         (->> classes
-             (map (partial uses-with-context :class)))))))
+             (map (partial uses-with-context :class)))
+        (->> inventory
+             vals
+             (map (partial uses-with-context :item)))))))
 
 (reg-sub
   :limited-uses-map

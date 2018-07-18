@@ -84,3 +84,18 @@
   [trim-v]
   (fn-traced [cofx [kind m]]
     (update-sheet cofx dissoc :death-saving-throws)))
+
+(reg-event-fx
+  ::toggle-attuned
+  [trim-v]
+  (fn-traced [cofx [item]]
+    (update-in-sheet cofx [:attuned]
+                     (fn [attuned]
+                       (let [attuned-set (if (set? attuned)
+                                           attuned
+                                           (set attuned))
+                             item-id (:id item)]
+                         (if (contains? attuned-set
+                                        item-id)
+                           (disj attuned-set item-id)
+                           (conj attuned-set item-id)))))))

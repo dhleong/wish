@@ -542,7 +542,7 @@
 ; ======= inventory ========================================
 
 (defn- inventory-entry
-  [item]
+  [item can-attune?]
   (let [{:keys [attrs type]} item
         stacks? (inv/stacks? item)]
     [expandable
@@ -566,7 +566,20 @@
          (if (:wish/equipped? item)
            "Unequip"
            "Equip")])
-      ]
+
+      (when (:attunes? item)
+        [:div.attune.button
+         {:class (when-not (or (:attuned? item)
+                               can-attune?)
+                   ; "limit" 3 attuned
+                   "disabled")
+
+          :on-click (click>evt [::events/toggle-attuned item]
+                               :propagate? false)}
+
+         (if (:attuned? item)
+           "Unattune"
+           "Attune")])]
 
      [:div.item-info
       [:div.desc (:desc item)]
@@ -597,10 +610,12 @@
 
 (defn inventory-section []
   [:<>
-   (when-let [inventory (seq (<sub [:inventory-sorted]))]
-     (for [item inventory]
-       ^{:key (:id item)}
-       [inventory-entry item]))
+   (when-let [inventory (seq (<sub [::dnd5e/inventory-sorted]))]
+     (let [can-attune? (< (count (<sub [::dnd5e/attuned-ids]))
+                          3)]
+       (for [item inventory]
+         ^{:key (:id item)}
+         [inventory-entry item can-attune?])))
 
    [:h4 "Add Items"]
 
