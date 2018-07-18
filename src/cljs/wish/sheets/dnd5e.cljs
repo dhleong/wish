@@ -9,7 +9,7 @@
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :refer [styles]]
-            [wish.sheets.dnd5e.subs :as dnd5e]
+            [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
@@ -38,13 +38,13 @@
        {:key i}))])
 
 (defn- hp-death-saving-throws []
-  (let [{:keys [saves fails]} (<sub [::dnd5e/death-saving-throws])]
+  (let [{:keys [saves fails]} (<sub [::subs/death-saving-throws])]
     [:<>
      [save-indicators "😇" :save saves]
      [save-indicators "☠️" :fail fails]]))
 
 (defn hp []
-  (let [[hp max-hp] (<sub [::dnd5e/hp]) ]
+  (let [[hp max-hp] (<sub [::subs/hp]) ]
     [:div.clickable.hp.col
      {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
 
@@ -80,24 +80,24 @@
      [:div.right.side
       [:div.col
        [:div.stat (mod->str
-                    (<sub [::dnd5e/proficiency-bonus]))]
+                    (<sub [::subs/proficiency-bonus]))]
        [:div.label "Proficiency"]]
 
       [:div.col
-       [:div.stat (<sub [::dnd5e/ac])]
+       [:div.stat (<sub [::subs/ac])]
        [:div.label "AC"]]
 
       [:div.col
-       [:div.stat (<sub [::dnd5e/speed]) [:span.unit " ft"]]
+       [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
        [:div.label "Base Speed"]]
 
       [:div.col
-       [:div.stat (<sub [::dnd5e/passive-perception])]
+       [:div.stat (<sub [::subs/passive-perception])]
        [:div.label "Pass. Perc."]]
 
       [:div.col
        [:div.stat (mod->str
-                    (<sub [::dnd5e/initiative]))]
+                    (<sub [::subs/initiative]))]
        [:div.label "Initiative"]]
 
       [:div.col
@@ -120,10 +120,10 @@
    [:cha "Charisma"]])
 
 (defn abilities-section []
-  (let [abilities (<sub [::dnd5e/abilities])
-        prof-bonus (<sub [::dnd5e/proficiency-bonus])
-        save-proficiencies (<sub [::dnd5e/save-proficiencies])
-        save-extras (<sub [::dnd5e/save-extras])]
+  (let [abilities (<sub [::subs/abilities])
+        prof-bonus (<sub [::subs/proficiency-bonus])
+        save-proficiencies (<sub [::subs/save-proficiencies])
+        save-extras (<sub [::subs/save-extras])]
     [:<>
      (for [[id label] labeled-abilities]
        (let [score (get abilities id)
@@ -194,10 +194,10 @@
                    "expert"))}]])
 
 (defn skills-section []
-  (let [abilities (<sub [::dnd5e/abilities])
-        expertise (<sub [::dnd5e/skill-expertise])
-        proficiencies (<sub [::dnd5e/skill-proficiencies])
-        prof-bonus (<sub [::dnd5e/proficiency-bonus])]
+  (let [abilities (<sub [::subs/abilities])
+        expertise (<sub [::subs/skill-expertise])
+        proficiencies (<sub [::subs/skill-proficiencies])
+        prof-bonus (<sub [::subs/proficiency-bonus])]
     (vec (cons
            :div.sections
            (map
@@ -240,18 +240,18 @@
 (defn- combat-home []
   [:<>
 
-   (when-let [s (<sub [::dnd5e/unarmed-strike])]
+   (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike
       [attack-block (assoc s :name "Unarmed Strike")]])
 
-   (when-let [weapons (seq (<sub [::dnd5e/equipped-weapons]))]
+   (when-let [weapons (seq (<sub [::subs/equipped-weapons]))]
      [:div.weapons
       [:h4 "Weapons"]
       (for [w weapons]
         ^{:key (:id w)}
         [attack-block w])])
 
-   (when-let [spell-attacks (seq (<sub [::dnd5e/spell-attacks]))]
+   (when-let [spell-attacks (seq (<sub [::subs/spell-attacks]))]
      [:div.spell-attacks
       [:h4 "Spell Attacks"]
       (for [s spell-attacks]
@@ -263,7 +263,7 @@
   [:div.action
    [:div.name (:name a)]
    (when-let [use-id (:consumes a)]
-     (when-let [{:keys [name uses-left]} (<sub [::dnd5e/limited-use use-id])]
+     (when-let [{:keys [name uses-left]} (<sub [::subs/limited-use use-id])]
        [:div.consumable
         [:div.name name]
         [:div.uses uses-left " left"]
@@ -274,8 +274,8 @@
    [formatted-text :div.desc (:desc a)]])
 
 (defn- combat-actions [filter-type]
-  (let [spells (seq (<sub [::dnd5e/prepared-spells-filtered filter-type]))
-        actions (seq (<sub [::dnd5e/combat-actions filter-type]))]
+  (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
+        actions (seq (<sub [::subs/combat-actions filter-type]))]
     (if (or spells actions)
       [:<>
        (when spells
@@ -334,14 +334,14 @@
 
 (defn features-section []
   [:<>
-   (when-let [fs (<sub [::dnd5e/features-for [:classes]])]
+   (when-let [fs (<sub [::subs/features-for [:classes]])]
       [:div.features-category
        [:h3 "Class features"]
        (for [f fs]
          ^{:key (:id f)}
          [feature f])])
 
-    (when-let [fs (<sub [::dnd5e/features-for [:races]])]
+    (when-let [fs (<sub [::subs/features-for [:races]])]
       [:div.features-category
        [:h3 "Racial Traits"]
        (for [f fs]
@@ -404,7 +404,7 @@
     (str uses " uses / " (trigger-labels trigger))))
 
 (defn limited-use-section [items]
-  (let [items (<sub [::dnd5e/limited-uses])
+  (let [items (<sub [::subs/limited-uses])
         used (<sub [:limited-used])]
     [:<>
      [:div.rests
@@ -471,9 +471,9 @@
      [spell-block s])])
 
 (defn spells-section [spell-classes]
-  (let [slots-sets (<sub [::dnd5e/spell-slots])
-        slots-used (<sub [::dnd5e/spell-slots-used])
-        prepared-spells-by-class (<sub [::dnd5e/prepared-spells-by-class])]
+  (let [slots-sets (<sub [::subs/spell-slots])
+        slots-used (<sub [::subs/spell-slots-used])
+        prepared-spells-by-class (<sub [::subs/prepared-spells-by-class])]
     [:<>
      (for [[id {:keys [label slots]}] slots-sets]
        ^{:key id}
@@ -603,8 +603,8 @@
 
 (defn inventory-section []
   [:<>
-   (when-let [inventory (seq (<sub [::dnd5e/inventory-sorted]))]
-     (let [can-attune? (< (count (<sub [::dnd5e/attuned-ids]))
+   (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
+     (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
                           3)]
        (for [item inventory]
          ^{:key (:id item)}
@@ -654,7 +654,7 @@
      :limited-use-section
      [limited-use-section]]
 
-    (when-let [spell-classes (seq (<sub [::dnd5e/spellcaster-classes]))]
+    (when-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))]
       [section "Spells"
        :spells-section
        [spells-section spell-classes]])
