@@ -13,7 +13,7 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
-            [wish.sheets.dnd5e.widgets :refer [spell-card]]
+            [wish.sheets.dnd5e.widgets :refer [currency-preview spell-card]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]
@@ -686,6 +686,8 @@
        :spells-section
        [spells-section spell-classes]])
 
-    [section "Inventory"
+    [section [:<>
+              "Inventory"
+              [currency-preview]]
      :inventory-section
      [inventory-section]]]])

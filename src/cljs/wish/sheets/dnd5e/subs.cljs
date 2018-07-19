@@ -1056,6 +1056,12 @@
 
 ; ======= etc ==============================================
 
+(reg-sub
+  ::currency
+  :<- [:sheet]
+  (fn [sheet _]
+    (:currency sheet)))
+
 ; hacks?
 (reg-sub
   ::features-for

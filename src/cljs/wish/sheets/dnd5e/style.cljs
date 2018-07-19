@@ -244,8 +244,24 @@
                      flex/justify-center
                      {:align-self 'center
                       :margin "12px 0"})]]]
+
   [:.spell-card {:max-width "300px"}
    [:table.info metadata
     [:th.header {:text-align 'right}]]
-   [:.desc {:font-size "90%"}]])
+   [:.desc {:font-size "90%"}]]
+
+  [:.currency-preview (merge flex/center
+                             {:font-size "10pt"})
+   [:.pair {:margin "0 4px"}
+    [:.currency {:margin "0 4px"
+                 :padding "0 4px"
+                 :color "#fff"
+                 :font-size "80%"
+                 :border-radius "12px" }
+     [:&.p {:background-color "#f3f3f3"}]
+     [:&.g {:background-color "#e3b17b"}]
+     [:&.e {:background-color "#6b7a85"}]
+     [:&.s {:background-color "#a6a4a0"}]
+     [:&.c {:background-color "#a77c65"}]]]
+   ])
 
