@@ -56,8 +56,9 @@ This feature has no effect on undead and constructs."
                  :name "Fighting Style"
                  :max-options 1
                  :values [:fight/defense-style
-                          ; TODO other styles
-                          ]}
+                          :fight/dueling-style
+                          :fight/great-weapon
+                          :fight/protection]}
 
                 {:id :paladin/divine-smite
                  :name "Divine Smite"
