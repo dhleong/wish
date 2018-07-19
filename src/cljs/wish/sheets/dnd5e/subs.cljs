@@ -166,13 +166,28 @@
                     ?path))))
 
 (reg-sub
+  ::temp-hp
+  :<- [:sheet]
+  (fn [sheet _]
+    (:temp-hp sheet)))
+
+(reg-sub
+  ::temp-max-hp
+  :<- [:sheet]
+  (fn [sheet _]
+    (:temp-max-hp sheet)))
+
+(reg-sub
   ::max-hp
   :<- [::rolled-hp]
+  :<- [::temp-max-hp]
   :<- [::abilities]
   :<- [:total-level]
   :<- [::class->level]
-  (fn [[rolled-hp abilities total-level class->level]]
+  (fn [[rolled-hp temp-max abilities total-level class->level]]
     (apply +
+           temp-max
+
            (* total-level
               (->> abilities
                    :con
@@ -193,12 +208,14 @@
 
 (reg-sub
   ::hp
+  :<- [::temp-hp]
   :<- [::max-hp]
   :<- [:limited-used]
-  (fn [[max-hp limited-used-map]]
+  (fn [[temp-hp max-hp limited-used-map]]
     (let [used-hp (or (:hp#uses limited-used-map)
                       0)]
-      [(- max-hp used-hp) max-hp])))
+      [(+ temp-hp
+          (- max-hp used-hp)) max-hp])))
 
 (reg-sub
   ::death-saving-throws

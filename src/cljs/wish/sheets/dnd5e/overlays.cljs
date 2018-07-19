@@ -7,7 +7,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.subs :as dnd5e]
+            [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
@@ -21,17 +21,17 @@
 ; ======= hit points =======================================
 
 (defn hp-overlay []
-  (let [[starting-hp _] (<sub [::dnd5e/hp])
+  (let [[starting-hp _] (<sub [::subs/hp])
         state (r/atom {})]
     (fn []
-      (let [[hp max-hp] (<sub [::dnd5e/hp])
+      (let [[hp max-hp] (<sub [::subs/hp])
             {:keys [heal damage]} @state
             new-hp (max
                      0  ; you can't go negative in 5e
                      (min max-hp
                           (- (+ hp heal)
                              damage)))
-            death-saves (<sub [::dnd5e/death-saving-throws])]
+            death-saves (<sub [::subs/death-saving-throws])]
         [:div {:class (:hp-overlay styles)}
          (when (= 0 hp)
            [:<>
@@ -58,16 +58,13 @@
                :on-click (click>evt [::events/update-hp -1 max-hp])}
            (icon :remove-circle)]
 
-          ; TODO support for tmp hp, temporarily modified max hp,
-          ; boxes to input damage/healing, and possibly a "deferred update"
-          ; mechanism somehow.
           [:div.current-hp hp]
 
           [:a {:href "#"
                :on-click (click>evt [::events/update-hp 1 max-hp])}
            (icon :add-circle)]]
 
-         [:h5.centered "Quick Adjust"]
+         [:h5.centered.section-header "Quick Adjust"]
          [:form#hp-adjust-input
           {:on-submit (fn [e]
                         (.preventDefault e)
@@ -119,6 +116,32 @@
             [:div.sections
              [:input.apply {:type 'submit
                             :value "Apply!"}] ])]
+
+         ; temporary health management
+         [:h5.centered.section-header "Temporary Health"]
+         [:div.sections
+          [:div.quick-adjust
+           [:div "Temp HP"]
+
+           [bind-fields
+            [:input.number {:field :fast-numeric
+                            :id :temp-hp
+                            :min 0}]
+            {:get #(<sub [::subs/temp-hp])
+             :save! #(>evt [::events/temp-hp! %2])}]]
+
+          ; just a spacer
+          [:div.new-hp]
+
+          [:div.quick-adjust
+           [:div "Extra Max HP"]
+
+           [bind-fields
+            [:input.number {:field :fast-numeric
+                            :id :temp-max-hp
+                            :min 0}]
+            {:get #(<sub [::subs/temp-max-hp])
+             :save! #(>evt [::events/temp-max-hp! %2])}]]]
            ]))))
 
 
@@ -131,14 +154,14 @@
     [:textarea.notes {:field :textarea
                       :id :notes}]
 
-    {:get #(<sub [::dnd5e/notes])
+    {:get #(<sub [::subs/notes])
      :save! #(>evt [::events/set-notes %2])}]])
 
 
 ; ======= short rest =======================================
 
 (defn dice-pool [state]
-  (let [dice-info (<sub [::dnd5e/hit-dice])
+  (let [dice-info (<sub [::subs/hit-dice])
         values (:values @state)]
     [:div.hit-dice-pool
      [:p "Your hit dice:"]
@@ -185,7 +208,7 @@
    state])
 
 (defn dice-usage [state]
-  (let [con-mod (-> (<sub [::dnd5e/ability-modifiers])
+  (let [con-mod (-> (<sub [::subs/ability-modifiers])
                     :con
                     mod->str)]
     (when-let [values (seq (:values @state))]
@@ -222,7 +245,7 @@
                                                        seq)]
                              (let [dice-sum (apply + dice-totals)]
                                (when (> dice-sum 0)
-                                 (let [con-mod (:con (<sub [::dnd5e/ability-modifiers]))
+                                 (let [con-mod (:con (<sub [::subs/ability-modifiers]))
                                        dice-used (->> dice-totals
                                                       (keep identity)
                                                       count)]
@@ -257,7 +280,7 @@
                                            (:values @state))]
                                  [::events/update-hp
                                   amount-to-heal
-                                  (<sub [::dnd5e/max-hp])]
+                                  (<sub [::subs/max-hp])]
                                  [:toggle-overlay nil])}
           "Take a short rest"
           (when (> amount-to-heal 0)
@@ -318,7 +341,7 @@
   (let [attrs (-> the-class :attrs :5e/spellcaster)
         {:keys [acquires? prepares?]} attrs
 
-        knowable (<sub [::dnd5e/knowable-spell-counts (:id the-class)])
+        knowable (<sub [::subs/knowable-spell-counts (:id the-class)])
 
         ; in :acquisition mode (eg: for spellbooks), cantrips have
         ; the normal limit but spells are unlimited
@@ -358,11 +381,11 @@
                          ; otherwise, it's the :spells list
                          (:spells attrs))
 
-        all-prepared (<sub [::dnd5e/my-prepared-spells-by-type (:id the-class)])
+        all-prepared (<sub [::subs/my-prepared-spells-by-type (:id the-class)])
         prepared-spells-count (count (:spells all-prepared))
         prepared-cantrips-count (count (:cantrips all-prepared))
 
-        spells (<sub [::dnd5e/preparable-spell-list the-class available-list])
+        spells (<sub [::subs/preparable-spell-list the-class available-list])
 
         can-select-spells? (< prepared-spells-count spells-limit)
         can-select-cantrips? (< prepared-cantrips-count cantrips-limit)

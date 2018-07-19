@@ -74,6 +74,7 @@
                         {:width "5em"
                          :font-size "1.2em"})]
    [:.centered text-center]
+   [:.section-header {:margin-bottom "0px"}]
 
    [:.new-hp (merge text-center
                     {:padding "12px"
