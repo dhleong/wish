@@ -404,7 +404,7 @@
     (str "Once per " (trigger-labels trigger))
     (str uses " uses / " (trigger-labels trigger))))
 
-(defn limited-use-section [items]
+(defn limited-use-section []
   (let [items (<sub [::subs/limited-uses])
         used (<sub [:limited-used])]
     [:<>

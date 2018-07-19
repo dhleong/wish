@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Fixed 5e SRD data to avoid too much dup
             in the data sources"}
-  wish.sheets.dnd5e.data)
+  wish.sheets.dnd5e.data
+  (:require [clojure.string :as str]))
 
 (defn- ac<-dex+
   "Returns a fn that computes AC given dex plus
@@ -12,6 +13,21 @@
    (fn [{{dex :dex} :modifiers}]
      (+ ac-base (min max-modifier
                      dex)))))
+
+(defn- ->kind-maps
+  "Given a map, takes the keys and converts them to a sorted
+   collection of {:id,:label} maps, where the :label is
+   derived from the id."
+  [m]
+  (->> m
+       keys
+       (map (fn [id]
+              {:id id
+               :label (-> id
+                          name
+                          (str/replace "-" " ")
+                          str/capitalize)}))
+       (sort-by :label)))
 
 (def ^:private armor
   {
@@ -46,6 +62,9 @@
     ; shield:
     :shield {:ac-buff 2}  ; 10gp, +2; 6 lb
    })
+
+(def armor-kinds (memoize
+                   #(->kind-maps armor)))
 
 (def ^:private weapons
   {
@@ -206,6 +225,9 @@
          :range [5 15]}
    })
 
+(def weapon-kinds (memoize
+                    #(->kind-maps weapons)))
+
 (defn inflate-armor
   [a]
   (let [opts (get armor (:kind a))]
@@ -237,3 +259,12 @@
   (if-let [m (get weapons (:kind w))]
     (merge m w)
     w))
+
+(defn inflate-by-type
+  [{:keys [type] :as item}]
+  (case type
+    :armor (inflate-armor item)
+    :weapon (inflate-weapon item)
+
+    ; nothing to do
+    item))

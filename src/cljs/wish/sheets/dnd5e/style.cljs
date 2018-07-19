@@ -62,12 +62,17 @@
    [:.space flex/grow]]
 
   [:.custom-item-overlay {:width "300px"}
-   [:.section {:padding "8px"}]
+   [:.section {:padding "8px"}
+    [:&.flex (merge flex/center
+                    {:justify-content 'space-between})]
+    [:&.limited-use {:margin "0 12px"}]]
    [:.stretch {:width "100%"}]
    [:.error {:border "1px solid #aa0000"
              :padding "4px"
              :font-size "80%"}
-    [:.close {:display 'none}]]]
+    [:.close {:display 'none}]]
+   [:input.numeric {:width "2em"
+                    :font-size "110%"}]]
 
   [:.hp-overlay {:width "300px"}
    [:.current-hp (merge text-center

@@ -6,6 +6,7 @@
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.inventory :as inv]
+            [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :refer [styles]]
@@ -412,6 +413,30 @@
 
 ; ======= custom item creation =============================
 
+; NOTE public for testing!
+(defn install-limited-use
+  "Modify the custom item spec to install the limited use directives
+   if necessary, and remove any related keys as necessary"
+  [{:keys [limited-use?]
+    item-id :id
+    item-name :name
+    {use-name :name
+     uses :uses} :limited-use
+    :as item}]
+  (let [item (if limited-use?
+               (assoc item
+                      :! [[:!add-limited-use
+                           {:id item-id
+                            :name (or use-name item-name)
+                            :uses (or uses 1)
+                            :restore-trigger :long-rest}]])
+
+               ; strip :attunes? if there's no limited-use
+               (dissoc item :attunes?))]
+
+    ; always strip these keys
+    (dissoc item :limited-use? :limited-use)))
+
 (defn custom-item-creator []
   (let [state (r/atom {:type :other})
 
@@ -420,15 +445,41 @@
         for-type (fn [type]
                    (comp (partial = type) :type))
 
+        ; as above, but for any of the provided types
+        for-types (fn [& types]
+                    (comp (set types) :type))
+
+        ; function that returns a section for selecting the :kind
+        ; of the current item type
+        kind-selector (fn [type values-fn]
+                        [:div.section {:field :container
+                                       :visible? (for-type type)}
+                         [:label {:for [:kind type]}
+                          "Kind\u00A0"]
+                         [:select {:field :list
+                                   :id [:kind type]}
+                          (for [{:keys [id label]} (values-fn)]
+                            [:option {:key id}
+                             label])]])
+
         ; create the item once everything is validated
         create! (fn [s]
                   (let [custom-id (inv/custom-id
                                     (:name s))
                         s (-> s
                               (dissoc :errors)
-                              (assoc :id custom-id))]
-                    ; TODO transform :armor-ac into [:attrs :5e/ac <id>]
-                    (println "Submit" s)
+                              (assoc :id custom-id)
+
+                              ; create any requested limited-use directive
+                              install-limited-use
+
+                              ; pull up the appropriate kind
+                              (assoc :kind (get-in s [:kind (:type s)]))
+
+                              ; and inflate
+                              data/inflate-by-type)]
+
+                    (log "Add! custom item" s)
                     (>evt [:inventory-add s])
                     (>evt [:toggle-overlay nil])))]
 
@@ -468,10 +519,9 @@
           [:select {:field :list
                     :id :type}
            [:option {:key :ammunition} "Ammunition"]
-           ; TODO these types need special attention
-           ;; [:option {:key :armor} "Armor"]
-           ;; [:option {:key :gear} "Gear"]
-           ;; [:option {:key :weapon} "Weapon"]
+           [:option {:key :armor} "Armor"]
+           [:option {:key :gear} "Gear"]
+           [:option {:key :weapon} "Weapon"]
            [:option {:key :potion} "Potion"]
            [:option {:key :other} "Other"]]
           ]
@@ -486,11 +536,48 @@
                        :id :errors.default-quantity}]]
 
          ; armor config
-         [:div.section {:field :container
-                        :visible? (for-type :armor)}
-          [:input {:field :numeric
-                   :id :armor-ac
-                   :placeholder "Armor AC"}]]
+         (kind-selector :armor data/armor-kinds)
+
+         ; weapon config
+         (kind-selector :weapon data/weapon-kinds)
+
+         [:div.section.flex
+          [:div {:field :container
+                 :visible? (for-types :ammunition
+                                      :weapon
+                                      :armor)}
+           [:label {:for :+}
+            "+\u00A0"]
+           [:input.numeric {:field :fast-numeric
+                            :id :+}]]
+
+          [:div {:field :container
+                 :visible? (for-types :gear
+                                      :weapon
+                                      :armor)}
+           [:input {:field :checkbox
+                    :id :limited-use?}]
+           [:label.meta {:for :limited-use?}
+            "Provides a Limited-Use"]]]
+
+         [:div.section.limited-use {:field :container
+                                    :visible? #(:limited-use? %)}
+          [:div
+           [:input {:field :checkbox
+                    :id :attunes?}]
+           [:label.meta {:for :attunes?}
+            "Requires attunement"]]
+
+          [:div
+           [:input {:field :text
+                    :id :limited-use.name
+                    :placeholder "Limited Use Name"}]]
+
+          [:div
+           [:label.meta {:for :attunes?}
+            "Uses\u00A0"]
+           [:input.numeric {:field :fast-numeric
+                            :id :limited-use.uses}]]]
 
          [:div.section
           [:textarea.stretch {:field :textarea
