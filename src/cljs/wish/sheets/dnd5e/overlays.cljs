@@ -290,6 +290,19 @@
 
 ; ======= Spell management =================================
 
+(defn- spell-info-header [opts s]
+  [:div.info opts
+   [:div.name (:name s)]
+   [:div.meta
+    [:span.level
+     (if (= 0 (:spell-level s))
+       "Cantrip"
+       (str "Level " (:spell-level s)))]
+    (when (:con? s)
+      [:span.tag "C"])
+    (when (:rit? s)
+      [:span.tag "R"])]] )
+
 (defn- spell-block
   [s {:keys [selectable?
              source-list
@@ -301,20 +314,11 @@
                    verb]}]
       [:div.spell
        [:div.header
-        [:div.info
+        [spell-info-header
          {:on-click (fn [e]
                       (.preventDefault e)
                       (swap! expanded? not))}
-         [:div.name (:name s)]
-         [:div.meta
-          [:span.level
-           (if (= 0 (:spell-level s))
-             "Cantrip"
-             (str "Level " (:spell-level s)))]
-          (when (:con? s)
-            [:span.tag "C"])
-          (when (:rit? s)
-            [:span.tag "R"])]]
+         s]
         (if (:always-prepared? s)
           [:div.prepare.disabled
            {:title "Always Prepared"}
@@ -409,6 +413,14 @@
      (for [s spells]
        ^{:key (:id s)}
        [spell-block s spell-opts])]))
+
+
+; ======= spell info =======================================
+
+(defn spell-info [s]
+  [:div.spell-info
+   [spell-info-header {} s]
+   [spell-card s]])
 
 
 ; ======= custom item creation =============================

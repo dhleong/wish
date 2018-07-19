@@ -288,7 +288,9 @@
 
           (for [s spells]
             ^{:key (:id s)}
-            [:div.spell-name (:name s)])])
+            [:div.spell-name.clickable
+             {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])}
+             (:name s)])])
 
        (when actions
          [:div.actions
