@@ -6,8 +6,8 @@
  {:id :fight/defense-style
   :name "Defense Style"
   :desc "While you are wearing armor, you gain a +1 bonus to AC."
-  :! [[:!add-attrs
-       [:buffs :ac]
+  :! [[:!provide-attr
+       [:buffs :ac :fight/defense-style]
        1]]
   ; TODO surface this buff conditionally somehow?
   }
@@ -15,7 +15,11 @@
  {:id :fight/dueling-style
   :name "Dueling Style"
   :desc "When you are wielding a melee weapon in one hand and no other weapons, you gain a +2 bonus to damage rolls with that weapon."
-  ; TODO buff
+  :! [[:!provide-attr
+       [:buffs :dmg :melee :fight/dueling-style]
+       {:when-two-handed? false
+        :when-versatile? false
+        :+ 2}]]
   }
 
  {:id :fight/great-weapon

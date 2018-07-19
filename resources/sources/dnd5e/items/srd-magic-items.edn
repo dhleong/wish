@@ -166,7 +166,7 @@ The bowl is about 1 foot in diameter and half as deep. It weighs 3 pounds and ho
   :type :gear
   :desc "While wearing these bracers, you gain a +2 bonus to AC if you are wearing no armor and using no shield."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :bracers-of-defense] 2]]}
+  :! [[:!provide-attr [:buffs :ac :bracers-of-defense] 2]]}
  {:name "Brazier of Commanding Fire Elementals"
   :id :brazier-of-commanding-fire-elementals
   :type :other
@@ -253,8 +253,8 @@ The chime can be used ten times. After the tenth time, it cracks and becomes use
   :type :gear
   :desc "You gain a +1 bonus to AC and saving throws while you wear this cloak."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :cloak-of-protection] 1]
-      [:!provide-attrs [:buffs :saves :cloak-of-protection] 1]]}
+  :! [[:!provide-attr [:buffs :ac :cloak-of-protection] 1]
+      [:!provide-attr [:buffs :saves :cloak-of-protection] 1]]}
  {:name "Cloak of the Bat"
   :id :cloak-of-the-bat
   :type :gear
@@ -338,7 +338,7 @@ Once a card is drawn, it fades from existence. Unless the card is the Fool or th
   :desc "While wearing this armor, you gain a +1 bonus to AC, and you can understand and speak Abyssal. In addition, the armor’s clawed gauntlets turn unarmed strikes with your hands into magic weapons that deal slashing damage, with a +1 bonus to attack rolls and damage rolls and a damage die of 1d8.
 **_Curse. _**Once you don this cursed armor, you can’t doff it unless you are targeted by the _remove curse _spell or similar magic. While wearing the armor, you have disadvantage on attack rolls against demons and on saving throws against their spells and special abilities."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :demon-armor] 1]]}
+  :! [[:!provide-attr [:buffs :ac :demon-armor] 1]]}
  {:name "Dimensional Shackles"
   :id :dimensional-shackles
   :type :other
@@ -377,7 +377,7 @@ When you use an action to throw a handful of the dust into the air, you and each
   :id :dwarven-plate
   :type :armor
   :desc "While wearing this armor, you gain a +2 bonus to AC. In addition, if an effect moves you against your will along the ground, you can use your reaction to reduce the distance you are moved by up to 10 feet."
-  :! [[:!provide-attrs [:buffs :ac :dwarven-plate] 2]]}
+  :! [[:!provide-attr [:buffs :ac :dwarven-plate] 2]]}
  {:name "Dwarven Thrower"
   :id :dwarven-thrower
   :type :weapon
@@ -477,7 +477,7 @@ The gem regains 1d3 expended charges daily at dawn."
   :id :glamoured-studded-leather
   :type :armor
   :desc "While wearing this armor, you gain a +1 bonus to AC. You can also use a bonus action to speak the armor’s command word and cause the armor to assume the appearance of a normal set of clothing or some other kind of armor. You decide what it looks like, including color, style, and accessories, but the armor retains its normal bulk and weight. The illusory appearance lasts until you use this property again or remove the armor."
-  :! [[:!provide-attrs [:buffs :ac :glamoured-studded-leather] 1]]}
+  :! [[:!provide-attr [:buffs :ac :glamoured-studded-leather] 1]]}
  {:name "Gloves of Missile Snaring"
   :id :gloves-of-missile-snaring
   :type :gear
@@ -620,7 +620,7 @@ While this stone orbits your head, you can cast any spell stored in it. The spel
 **_Strength (Very Rare). _**Your Strength score increases by 2, to a maximum of 20, while this pale blue rhomboid orbits your head.
 **_Sustenance (Rare). _**You don’t need to eat or drink while this clear spindle orbits your head."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :ioun-stone] 1]]}
+  :! [[:!provide-attr [:buffs :ac :ioun-stone] 1]]}
  {:name "Iron Bands of Binding"
   :id :iron-bands-of-binding
   :type :other
@@ -933,8 +933,8 @@ If you die while wearing the ring, your soul enters it, unless it already houses
   :type :gear
   :desc "You gain a +1 bonus to AC and saving throws while wearing this ring."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :ring-of-protection] 1]
-      [:!provide-attrs [:buffs :saves :ring-of-protection] 1]]}
+  :! [[:!provide-attr [:buffs :ac :ring-of-protection] 1]
+      [:!provide-attr [:buffs :saves :ring-of-protection] 1]]}
  {:name "Ring of Regeneration"
   :id :ring-of-regeneration
   :type :gear
@@ -1047,7 +1047,7 @@ A _light _spell cast on the robe or a _daylight _spell cast within 5 feet of the
 Six stars, located on the robe’s upper front portion, are particularly large. While wearing this robe, you can use an action to pull off one of the stars and use it to cast _magic missile _as a 5th-level spell. Daily at dusk, 1d6 removed stars reappear on the robe.
 While you wear the robe, you can use an action to enter the Astral Plane along with everything you are wearing and carrying. You remain there until you use an action to return to the plane you were on. You reappear in the last space you occupied, or if that space is occupied, the nearest unoccupied space."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :saves :robe-of-stars] 1]]}
+  :! [[:!provide-attr [:buffs :saves :robe-of-stars] 1]]}
  {:name "Robe of the Archmagi"
   :id :robe-of-the-archmagi
   :type :gear
@@ -1095,8 +1095,8 @@ A newly found rod has 1d10 levels of spell energy stored in it already. A rod th
 **_Protective Aura. _**As an action, you can plant the haft end of the rod in the ground, whereupon the rod’s head sheds bright light in a 60-foot radius and dim light for an additional 60 feet. While in that bright light, you and any creature that is friendly to you gain a +1 bonus to AC and saving throws and can sense the location of any invisible hostile creature that is also in the bright light.
 The rod’s head stops glowing and the effect ends after 10 minutes, or when a creature uses an action to pull the rod from the ground. This property can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :ac :rod-of-alertness] 1]
-      [:!provide-attrs [:buffs :saves :rod-of-alertness] 1]
+  :! [[:!provide-attr [:buffs :ac :rod-of-alertness] 1]
+      [:!provide-attr [:buffs :saves :rod-of-alertness] 1]
       [:!add-limited-use
        {:id :rod-of-alertness#uses
         :name "Rod of Alertness"
@@ -1296,8 +1296,8 @@ The staff has 20 charges for the following properties. The staff regains 2d8 + 4
 **_Retributive Strike. _**You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.
 You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :spell-atk :staff-of-power] 2]
-      [:!provide-attrs [:buffs :saves :staff-of-power] 2]
+  :! [[:!provide-attr [:buffs :spell-atk :staff-of-power] 2]
+      [:!provide-attr [:buffs :saves :staff-of-power] 2]
       [:!add-limited-use
        {:id :staff-of-power#uses
         :name "Staff of Power"
@@ -1341,7 +1341,7 @@ You can also use an action to cast one of the following spells from the staff wi
 **_Retributive Strike. _**You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.
 You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :spell-atk :staff-of-the-magi] 2]
+  :! [[:!provide-attr [:buffs :spell-atk :staff-of-the-magi] 2]
       [:!add-limited-use
        {:id :staff-of-the-magi#uses
         :name "Staff of the Magi"
@@ -1408,8 +1408,8 @@ The staff can be wielded as a magic quarterstaff. On a hit, it deals damage as a
   :type :other
   :desc "While this polished agate is on your person, you gain a +1 bonus to ability checks and saving throws."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :checks :stone-of-good-luck-luckstone-] 1]
-      [:!provide-attrs [:buffs :saves :stone-of-good-luck-luckstone-] 1]]}
+  :! [[:!provide-attr [:buffs :checks :stone-of-good-luck-luckstone-] 1]
+      [:!provide-attr [:buffs :saves :stone-of-good-luck-luckstone-] 1]]}
  {:name "Sun Blade"
   :id :sun-blade
   :type :weapon
@@ -1425,7 +1425,7 @@ The sword’s luminous blade emits bright light in a 15-foot radius and dim ligh
 If you are a good cleric or paladin, you can use the talisman as a holy symbol, and you gain a +2 bonus to spell attack rolls while you wear or hold it.
 The talisman has 7 charges. If you are wearing or holding it, you can use an action to expend 1 charge from it and choose one creature you can see on the ground within 120 feet of you. If the target is of evil alignment, a flaming fissure opens under it. The target must succeed on a DC 20 Dexterity saving throw or fall into the fissure and be destroyed, leaving no remains. The fissure then closes, leaving no trace of its existence. When you expend the last charge, the talisman disperses into motes of golden light and is destroyed."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :spell-atk :talisman-of-pure-good] 2]
+  :! [[:!provide-attr [:buffs :spell-atk :talisman-of-pure-good] 2]
       [:!add-limited-use
        {:id :talisman-of-pure-good#uses
         :name "Talisman of Pure Good"
@@ -1444,7 +1444,7 @@ The talisman has 7 charges. If you are wearing or holding it, you can use an act
 If you are an evil cleric or paladin, you can use the talisman as a holy symbol, and you gain a +2 bonus to spell attack rolls while you wear or hold it.
 The talisman has 6 charges. If you are wearing or holding it, you can use an action to expend 1 charge from the talisman and choose one creature you can see on the ground within 120 feet of you. If the target is of good alignment, a flaming fissure opens under it. The target must succeed on a DC 20 Dexterity saving throw or fall into the fissure and be destroyed, leaving no remains. The fissure then closes, leaving no trace of its existence. When you expend the last charge, the talisman dissolves into foul-smelling slime and is destroyed."
   :attunes? true
-  :! [[:!provide-attrs [:buffs :spell-atk :talisman-of-ultimate-evil] 2]
+  :! [[:!provide-attr [:buffs :spell-atk :talisman-of-ultimate-evil] 2]
       [:!add-limited-use
        {:id :talisman-of-ultimate-evil#uses
         :name "Talisman of Ultimate Evil"

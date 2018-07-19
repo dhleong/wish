@@ -124,18 +124,21 @@
   (let [abilities (<sub [::subs/abilities])
         prof-bonus (<sub [::subs/proficiency-bonus])
         save-proficiencies (<sub [::subs/save-proficiencies])
+        save-buffs (<sub [::subs/save-buffs])
         save-extras (<sub [::subs/save-extras])]
     [:<>
      (for [[id label] labeled-abilities]
+       ; TODO this should probably be a single subscription...
        (let [score (get abilities id)
              modifier (ability->mod score)
              modifier-str (mod->str modifier)
              proficient? (get save-proficiencies id)
              save-str (if proficient?
                         (mod->str
-                          (+ modifier prof-bonus))
+                          (+ modifier save-buffs prof-bonus))
 
-                        modifier-str)]
+                        (mod->str
+                          (+ modifier save-buffs)))]
          ^{:key id}
          [:div.ability
           [:div.score score]

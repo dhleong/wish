@@ -37,7 +37,7 @@
 ; ======= item-related =====================================
 
 (def ^:private equippable-types
-  #{:weapon :armor})
+  #{:weapon :armor :gear})
 
 (defn equippable?
   [item]

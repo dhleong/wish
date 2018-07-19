@@ -240,11 +240,25 @@
          (map (comp keyword name first))
          (into #{}))))
 
+; returns a const number
+(reg-sub
+  ::save-buffs
+  :<- [:races]
+  :<- [:classes]
+  :<- [:equipped-sorted]
+  (fn [entity-lists _]
+    (->> entity-lists
+         flatten
+         (mapcat (comp vals :saves :buffs :attrs))
+         (apply +))))
+
+
 ; returns a collection of features
 (reg-sub
   ::save-extras
   :<- [:races]
   :<- [:classes]
+  :<- [:equipped-sorted]
   (fn [entity-lists _]
     (->> entity-lists
          flatten
@@ -328,7 +342,10 @@
     (let [ac-sources (->> (concat classes
                                   equipped)
                           (mapcat (comp vals :5e/ac :attrs)))
-          ac-buff (apply + (map (comp :ac :buffs :attrs) classes))
+          ac-buff (->> (concat classes
+                               equipped)
+                       (mapcat (comp vals :ac :buffs :attrs))
+                       (apply +))
           fn-context {:modifiers modifiers}]
       (+ ac-buff
 
@@ -435,6 +452,95 @@
                   id)))
          set)))
 
+(defn calculate-weapon
+  [proficient-cats proficient-kinds
+   modifiers
+   ; NOTE we have to provide a type hint for the compiler
+   ; here for some reason....
+   ^number proficiency-bonus,
+   dmg-bonuses
+   finesse-weapon-kinds
+   w]
+  (let [{weap-bonus :+
+         :keys [kind category ranged? finesse?]} w
+
+        ; we can be proficient in either the weapon's specific kind
+        ; (eg :longbow) or its category (eg :martial)
+        proficient? (or (proficient-kinds kind)
+                        (proficient-cats category))
+
+        ; some classes can treat certain weapon kinds as
+        ; finesse even if they aren't naturally (eg: monk)
+        finesse? (or finesse?
+                     (contains? finesse-weapon-kinds
+                                kind))
+
+        ; we can use dex bonus if it's a ranged weapon OR if it's
+        ; finesse?
+        dex-bonus (when (or ranged? finesse?)
+                    (:dex modifiers))
+
+        ; we can use str bonus only for melee weapons
+        str-bonus (when (not ranged?)
+                    (:str modifiers))
+
+        ; this is also added to the atk roll
+        chosen-bonus (max dex-bonus str-bonus)
+
+        prof-bonus (when proficient?
+                     proficiency-bonus)
+
+        weap-type-key (if ranged?
+                        :ranged
+                        :melee)
+
+        bonus-maps (->> dmg-bonuses weap-type-key vals)
+
+        ; raw bonus maps {:+,:when-versatile?}
+        other-bonus (->> bonus-maps
+                         (filter #(= (:when-two-handed? %)
+                                     (boolean (:two-handed? w)))))
+
+        other-bonus-any (->> other-bonus
+                             (filter #(:when-versatile? % true))
+                             (keep :+))
+        other-bonus-versatile (->> other-bonus
+                                   (filter :when-versatile?)
+                                   (keep :+))
+        other-bonus-non-versatile (->> other-bonus
+                                   (remove :when-versatile?)
+                                   (keep :+))
+
+        ; TODO indicate dmg type?
+        other-dice-bonuses (keep :dice bonus-maps)
+
+        stat-bonus (let [b (+ weap-bonus chosen-bonus)]
+                     (when (not= b 0)
+                       b))
+
+        dam-bonus (when stat-bonus
+                    stat-bonus
+                    (apply + stat-bonus other-bonus-any))
+
+        ; fn that accepts a coll of constant bonus values
+        ; and generates a string of "+ <bonus>" including
+        ; all other dice bonuses, etc.
+        dam-bonuses (fn [const-bonuses]
+                      (let [base (->> (cons
+                                        (apply + dam-bonus const-bonuses)
+                                        other-dice-bonuses)
+                                      (keep identity)
+                                      (str/join " + "))]
+                        (when-not (str/blank? base)
+                          (str " + " base))))]
+
+    ; NOTE I don't *think* weapon damage ever scales?
+    (assoc w
+           :base-dice (str (:dice w) (dam-bonuses other-bonus-non-versatile))
+           :alt-dice (when-let [versatile (:versatile w)]
+                       (str versatile (dam-bonuses other-bonus-versatile)))
+           :to-hit (+ stat-bonus prof-bonus))))
+
 (reg-sub
   ::equipped-weapons
   :<- [:equipped-sorted]
@@ -451,63 +557,11 @@
       (->> all-equipped
            (filter #(= :weapon (:type %)))
            (map
-             (fn [w]
-               (let [{weap-bonus :+
-                      :keys [kind category ranged? finesse?]} w
-
-                     ; we can be proficient in either the weapon's specific kind
-                     ; (eg :longbow) or its category (eg :martial)
-                     proficient? (or (proficient-kinds kind)
-                                     (proficient-cats category))
-
-                     ; some classes can treat certain weapon kinds as
-                     ; finesse even if they aren't naturally (eg: monk)
-                     finesse? (or finesse?
-                                  (contains? finesse-weapon-kinds
-                                             kind))
-
-                     ; we can use dex bonus if it's a ranged weapon OR if it's
-                     ; finesse?
-                     dex-bonus (when (or ranged? finesse?)
-                                 (:dex modifiers))
-
-                     ; we can use str bonus only for melee weapons
-                     str-bonus (when (not ranged?)
-                                 (:str modifiers))
-
-                     ; this is also added to the atk roll
-                     chosen-bonus (max dex-bonus str-bonus)
-
-                     prof-bonus (when proficient?
-                                  proficiency-bonus)
-
-                     ; TODO indicate dmg type?
-                     dmg-bonus-key (if ranged?
-                                     :ranged
-                                     :melee)
-                     other-bonuses (->> dmg-bonuses
-                                        dmg-bonus-key
-                                        vals
-                                        (map :dice))
-
-                     dam-bonus (let [b (+ weap-bonus chosen-bonus)]
-                                 (when (not= b 0)
-                                   b))
-
-                     all-bonuses (->> (cons
-                                        dam-bonus
-                                        other-bonuses)
-                                      (keep identity)
-                                      (str/join " + "))
-                     all-bonuses (when-not (str/blank? all-bonuses)
-                                   (str " + " all-bonuses))]
-
-                 ; NOTE I don't *think* weapon damage ever scales?
-                 (assoc w
-                        :base-dice (str (:dice w) all-bonuses)
-                        :alt-dice (when-let [versatile (:versatile w)]
-                                    (str versatile all-bonuses))
-                        :to-hit (+ dam-bonus prof-bonus)))))))))
+             (partial calculate-weapon
+                      proficient-cats proficient-kinds
+                      modifiers
+                      proficiency-bonus dmg-bonuses
+                      finesse-weapon-kinds))))))
 
 ; like :inventory-sorted but with :attuned? added as appropriate
 (reg-sub
