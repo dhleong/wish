@@ -1072,6 +1072,7 @@
          (mapcat (comp vals :features))
          (filter :name)
          (remove :implicit?)
+         (sort-by :name)
          seq)))
 
 ; returns a list of {:die,:classes,:used,:total}
