@@ -291,8 +291,14 @@
   ::skill-expertise
   :<- [:classes]
   (fn [classes _]
-    ; TODO expertise support
-    #{}))
+    ; TODO use this
+    (->> classes
+         (mapcat :attrs)
+         (filter (fn [[k v]]
+                   (when (= v true)
+                     (= "expertise" (namespace k)))))
+         (map (comp keyword name first))
+         (into #{}))))
 
 (defn level->proficiency-bonus
   [level]

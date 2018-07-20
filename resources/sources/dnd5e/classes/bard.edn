@@ -66,16 +66,13 @@ Your Bardic Inspiration die changes when you reach certain levels in this class.
                  :desc "Beginning at 2nd level, you can use soothing music or oration to help revitalize your wounded allies during a short rest. If you or any friendly creatures who can hear your performance regain hit points at the end of the short rest by spending one or more Hit Dice, each of those creatures regains an extra 1d6 hit points.
 The extra hit points increase when you reach certain levels in this class: to 1d8 at 9th level, to 1d10 at 13th level, and to 1d12 at 17th level."}]}
 
-            ; TODO Expertise
-            ; TODO countercharm
-            ; TODO magical secrets
-            ; TODO superior inspiration
-
             3 {:+features
                [{:id :bard/college
                  :name "Bard College"
                  :desc "At 3rd level, you delve into the advanced techniques of a bard college of your choice, such as the College of Lore. Your choice grants you features at 3rd level and again at 6th and 14th level."
-                 :max-options 1}]}
+                 :max-options 1}
+
+                :bard/expertise]}
 
             4 {:+features
                [:ability-improvement]}
@@ -85,14 +82,31 @@ The extra hit points increase when you reach certain levels in this class: to 1d
                  :name "Font of Inspiration"
                  :desc "Beginning when you reach 5th level, you regain all of your expended uses of Bardic Inspiration when you finish a short or long rest."}]}
 
+            ; TODO countercharm
+            ; TODO magical secrets
+            ; TODO superior inspiration
+
             8 {:+features
                [:ability-improvement]}
+
+            10 {:+features
+                [:bard/expertise]}
+
             12 {:+features
                 [:ability-improvement]}
             16 {:+features
                 [:ability-improvement]}
             19 {:+features
                 [:ability-improvement]}}}]
+
+[:!provide-feature
+ {:id :bard/expertise
+  :name "Expertise"
+  :desc "Choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
+At 10th level, you can choose another two skill proficiencies to gain this benefit."
+  :max-options 2
+  :instanced? true
+  :values [:all-skill-expertise]}]
 
 [:!provide-options
  :bard/college

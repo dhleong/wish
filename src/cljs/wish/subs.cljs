@@ -224,8 +224,13 @@
 
 (defn inflate-option-values
   [data-source feature-id values]
-  (or (:values
-        (src/find-feature data-source feature-id))
+  (or (when-let [feature-values
+                 (:values
+                   (src/find-feature data-source feature-id))]
+        (when-not (and (= feature-values values)
+                       (some keyword? values))
+          ; inflated values from a feature
+          feature-values))
 
       ; not a feature with :values? Okay inflate now
       (mapcat

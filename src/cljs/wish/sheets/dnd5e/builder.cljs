@@ -124,11 +124,12 @@
             :else [v])]
     (if instanced?
       (if index
-        ; should be:
+        ; for :multi?
         (update old-value :value
                 expanding-assoc index (first v))
-        ; just in case
-        (assoc-in old-value (drop 1 path) v))
+
+        ; non-:multi?
+        (assoc old-value :value v))
 
       ; not instanced
       v)))

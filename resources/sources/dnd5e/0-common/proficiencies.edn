@@ -93,6 +93,84 @@
 
 [:!add-to-list
 
+ {:id :all-skill-expertise
+  :type :feature}
+
+ {:id :expertise/acrobatics
+  :name "Acrobatics"
+  :implicit? true
+  :! [[:!provide-attr :expertise/acrobatics true]]}
+ {:id :expertise/animal-handling
+  :name "Animal Handling"
+  :implicit? true
+  :! [[:!provide-attr :expertise/animal-handling true]]}
+ {:id :expertise/arcana
+  :name "Arcana"
+  :implicit? true
+  :! [[:!provide-attr :expertise/arcana true]]}
+ {:id :expertise/athletics
+  :name "Athletics"
+  :implicit? true
+  :! [[:!provide-attr :expertise/athletics true]]}
+ {:id :expertise/deception
+  :name "Deception"
+  :implicit? true
+  :! [[:!provide-attr :expertise/deception true]]}
+ {:id :expertise/history
+  :name "History"
+  :implicit? true
+  :! [[:!provide-attr :expertise/history true]]}
+ {:id :expertise/insight
+  :name "Insight"
+  :implicit? true
+  :! [[:!provide-attr :expertise/insight true]]}
+ {:id :expertise/intimidation
+  :name "Intimidation"
+  :implicit? true
+  :! [[:!provide-attr :expertise/intimidation true]]}
+ {:id :expertise/investigation
+  :name "Investigation"
+  :implicit? true
+  :! [[:!provide-attr :expertise/investigation true]]}
+ {:id :expertise/medicine
+  :name "Medicine"
+  :implicit? true
+  :! [[:!provide-attr :expertise/medicine true]]}
+ {:id :expertise/nature
+  :name "Nature"
+  :implicit? true
+  :! [[:!provide-attr :expertise/nature true]]}
+ {:id :expertise/perception
+  :name "Perception"
+  :implicit? true
+  :! [[:!provide-attr :expertise/perception true]]}
+ {:id :expertise/performance
+  :name "Performance"
+  :implicit? true
+  :! [[:!provide-attr :expertise/performance true]]}
+ {:id :expertise/persuasion
+  :name "Persuasion"
+  :implicit? true
+  :! [[:!provide-attr :expertise/persuasion true]]}
+ {:id :expertise/religion
+  :name "Religion"
+  :implicit? true
+  :! [[:!provide-attr :expertise/religion true]]}
+ {:id :expertise/sleight-of-hand
+  :name "Sleight of Hand"
+  :implicit? true
+  :! [[:!provide-attr :expertise/sleight-of-hand true]]}
+ {:id :expertise/stealth
+  :name "Stealth"
+  :implicit? true
+  :! [[:!provide-attr :expertise/stealth true]]}
+ {:id :expertise/survival
+  :name "Survival"
+  :implicit? true
+  :! [[:!provide-attr :expertise/survival true]]}]
+
+[:!add-to-list
+
  {:id :all-tool-proficiencies
   :type :feature}
 

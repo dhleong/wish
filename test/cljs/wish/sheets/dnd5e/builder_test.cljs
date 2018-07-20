@@ -32,6 +32,18 @@
            (expanding-assoc [:itskaylee] 4 :mreynolds)))))
 
 (deftest expand-val-test
+  (testing "Instanced? Feature"
+    ; from scratch
+    (is (= {:id :base-id
+            :value [:dex]}
+           (expand-val
+             nil
+             {:instanced? true
+              :id :base-id}
+             [:base-id#0]
+
+             [:dex]))))
+
   (testing "Multi? Instanced? Feature @1"
     ; from scratch
     (is (= {:id :base-id
@@ -39,6 +51,7 @@
            (expand-val
              nil
              {:instanced? true
+              :multi? true
               :id :base-id}
              [:base-id#0 :value 1]
 
@@ -51,6 +64,7 @@
              {:id :base-id
               :value [:str]}
              {:instanced? true
+              :multi? true
               :id :base-id}
              [:base-id#0 :value 1]
 
