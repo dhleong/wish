@@ -17,7 +17,8 @@
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [formatted-text link]]
-            [wish.views.widgets.fast-numeric]))
+            [wish.views.widgets.fast-numeric]
+            [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 ; ======= hit points =======================================
 
@@ -410,6 +411,12 @@
       [:div.limit
        "Cantrips " prepared-cantrips-count " / " cantrips-limit]]
 
+     #_[:div.stretch
+      [virtual-list
+       :items spells
+       :render-item (fn [opts item]
+                      [:div.spell-container opts
+                       [spell-block item spell-opts]])]]
      (for [s spells]
        ^{:key (:id s)}
        [spell-block s spell-opts])]))

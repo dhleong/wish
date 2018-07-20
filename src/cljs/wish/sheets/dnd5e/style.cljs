@@ -116,8 +116,11 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
-  [:.spell-management-overlay
+  [:.spell-management-overlay #_(merge flex/vertical
+                                     {:height "100%"})
    [:.limit metadata]
+   ;; [:.stretch (merge flex/grow
+   ;;                   {:width "100%"})]
    [:.spell {:padding "4px 0"}
     [:.header flex]
     [:.meta metadata]
