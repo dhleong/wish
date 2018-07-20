@@ -48,6 +48,9 @@
       (expose-fn min)
       (expose-fn max)
 
+      (expose-fn inc)
+      (expose-fn dec)
+
       (expose-fn keyword)
       (expose-fn name)
       (expose-fn str)
