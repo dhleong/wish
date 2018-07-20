@@ -267,6 +267,7 @@
   :update-option-set
   [trim-v]
   (fn [cofx [option-id method entry]]
+    (println "Update " option-id method entry)
     (update-sheet-path cofx [:options option-id]
                        (fn [old-v m e]
                          (m

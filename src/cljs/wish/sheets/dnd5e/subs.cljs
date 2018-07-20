@@ -771,16 +771,31 @@
   (fn [[data-source options prepared-spells highest-spell-level]
        [_ the-class list-id]]
     (let [attrs (-> the-class :attrs :5e/spellcaster)
-          is-acquired-list? (= (:acquires?-spells attrs)
+
+          ; is this the prepared list for an acquires? spellcaster?
+          acquires-list? (= (:acquires?-spells attrs)
                                list-id)
-          prepared-set (->> prepared-spells
-                            (map :id)
-                            set)
+
+          ; are we listing spells that an acquires? spellcaster *can* acquire?
+          acquire-mode? (and (:acquires? attrs)
+                             (not acquires-list?))
+
+          prepared-set (if acquire-mode?
+                         ; in acquire mode, the "prepared set" is actually
+                         ; the "acquired set"
+                         (get options (:spells attrs) #{})
+
+                         (->> prepared-spells
+                              (map :id)
+                              set))
+
+          ; TODO for an acquires? spellcaster, their cantrips are "always prepared"
           always-prepared-set (->> prepared-spells
                                    (filter :always-prepared?)
                                    (map :id)
                                    set)
-          source (if is-acquired-list?
+
+          source (if acquires-list?
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
                    (expand-list data-source

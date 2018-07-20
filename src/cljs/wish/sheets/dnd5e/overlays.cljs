@@ -393,7 +393,8 @@
 
         spells (<sub [::subs/preparable-spell-list the-class available-list])
 
-        can-select-spells? (< prepared-spells-count spells-limit)
+        can-select-spells? (or (nil? spells-limit)
+                               (< prepared-spells-count spells-limit))
         can-select-cantrips? (< prepared-cantrips-count cantrips-limit)
         spell-opts (assoc attrs
                           :verb prepare-verb
