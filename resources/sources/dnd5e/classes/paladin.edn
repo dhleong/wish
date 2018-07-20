@@ -136,22 +136,63 @@ You can use this feature a number of times equal to your Charisma modifier (a mi
   :! [[:!add-to-list
        :paladin/extra-spells
        [:spell/protection-from-evil-and-good
-        :spell/sanctuary]]]
+        :spell/sanctuary]]
 
-  ; TODO channel divinity
-  ; TODO aura of devotion
-  ; TODO purity of spirit
-  ; TODO holy nimbus
+      [:!provide-feature
+       {:id :paladin/channel-divinity-devotion
+        :name "Channel Divinity"
+        :desc "You have the following two Channel Divinity options:
+               **_Sacred Weapon._** As an action, you can imbue one weapon that you are holding with positive energy, using your Channel Divinity. For 1 minute, you add your Charisma modifier to attack rolls made with that weapon (with a minimum bonus of +1). The weapon also emits bright light in a 20-foot radius and dim light 20 feet beyond that. If the weapon is not already magical, it becomes magical for the duration.
+               You can end this effect on your turn as part of any other action. If you are no longer holding or carrying this weapon, or if you fall unconscious, this effect ends.
+
+               **_Turn the Unholy._** As an action, you present your holy symbol and speak a prayer censuring fiends and undead, using your Channel Divinity. Each fiend or undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes damage.
+               A turned creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there’s nowhere to move, the creature can use the Dodge action."
+        :! [[:!add-limited-use
+             {:id :paladin/channel-divinity-devotion#uses
+              :name "Channel Divinity"
+              :restore-trigger :short-rest
+              :uses 1}]]}
+       ]]
 
   :&levels {5 {:+! [[:!add-to-list
                      :paladin/extra-spells
                      [:spell/lesser-restoration :spell/zone-of-truth]]]}
+
+            7 {:+! [[:!provide-feature
+                    {:id :paladin/aura-devotion
+                     :name "Aura of Devotion"
+                     :desc "Starting at 7th level, you and friendly creatures within 10 feet of you can’t be charmed while you are conscious.
+                            At 18th level, the range of this aura increases to 30 feet."}
+
+                    ]]}
+
             9 {:+! [[:!add-to-list
                      :paladin/extra-spells
                      [:spell/beacon-of-hope :spell/dispel-magic]]]}
             13 {:+! [[:!add-to-list
                      :paladin/extra-spells
                      [:spell/freedom-of-movement :spell/guardian-of-faith]]]}
+
+            15 {:+! [[:!provide-feature
+                      {:id :paladin/purity-spirit
+                       :name "Purity of Spirit"
+                       :desc "Beginning at 15th level, you are always under the effects of a _protection from evil and good spell_."}]]}
+
             17 {:+! [[:!add-to-list
                      :paladin/extra-spells
-                     [:spell/commune :spell/flame-strike]]]}}}]
+                     [:spell/commune :spell/flame-strike]]]}
+
+            20 {:+! [[:!provide-feature
+                      {:id :paladin/holy-nimbus
+                       :name "Holy Nimbus"
+                       :desc "At 20th level, as an action, you can emanate an aura of sunlight. For 1 minute, bright light shines from you in a 30-foot radius, and dim light shines 30 feet beyond that.
+                              Whenever an enemy creature starts its turn in the bright light, the creature takes 10 radiant damage.
+                              In addition, for the duration, you have advantage on saving throws against spells cast by fiends or undead.
+                              Once you use this feature, you can’t use it again until you finish a long rest."
+                       :! [[:!add-limited-use
+                            {:id :paladin/holy-nimbus#uses
+                             :name "Holy Nimbus"
+                             :restore-trigger :long-rest
+                             :uses 1}]]}
+
+                      ]]}}}]
