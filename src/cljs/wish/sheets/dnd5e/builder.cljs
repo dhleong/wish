@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "builder"}
   wish.sheets.dnd5e.builder
-  (:require-macros [wish.util.log :refer [log]])
+  (:require-macros [wish.util.log :refer [log]]
+                   [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -252,7 +253,15 @@
        :save! (fn [path v]
                 ; NOTE this seems to get triggered whenever this section is
                 ; rendered for some reason...
-                (>evt [:update-meta [:classes] assoc-in path v]))}]]
+                (>evt [:update-meta [:classes] assoc-in path v]))}]
+
+     [:div.remove.clickable
+      {:title (str "Remove " (:name class-info) " Class")
+       :on-click (fn [e]
+                   (.preventDefault e)
+                   (when (js/confirm "Are you sure you want to remove this class?")
+                     (>evt [:update-meta [:classes] dissoc (:id class-info)])))}
+      (icon :clear)]]
 
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
