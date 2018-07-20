@@ -785,7 +785,7 @@
                    ; source is actually the selected from (:spells)
                    (expand-list data-source
                                 (:spells attrs)
-                                (get options (:spells attrs)))
+                                (get options (:spells attrs) #{}))
 
                    ; normal case:
                    (expand-list data-source list-id nil))]
