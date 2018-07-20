@@ -6,8 +6,35 @@
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw]]
-            [wish.sheets.util :refer [update-sheet update-in-sheet update-uses]]
+            [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
+                                      update-sheet-path]]
             [wish.util :refer [process-map]]))
+
+; ======= builder-specific =================================
+
+(defn remove-class
+  [classes class-info]
+  (let [removed (dissoc classes (:id class-info))]
+    (if (:primary? class-info)
+      ; we removed the primary class; promote another class
+      ; to take its place
+      (if-let [other-id (->> removed keys first)]
+        (assoc-in removed [other-id :primary?] true)
+
+        ; no other classes
+        removed)
+
+      ; easy case
+      removed)))
+
+(reg-event-fx
+  ::remove-class
+  [trim-v]
+  (fn-traced [cofx [class-info]]
+    (update-sheet-path cofx [:classes] remove-class class-info)))
+
+
+; ======= etc ==============================================
 
 (defn with-range
   [old-val [min-val max-val] f & args]

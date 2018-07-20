@@ -260,7 +260,7 @@
        :on-click (fn [e]
                    (.preventDefault e)
                    (when (js/confirm "Are you sure you want to remove this class?")
-                     (>evt [:update-meta [:classes] dissoc (:id class-info)])))}
+                     (>evt [::events/remove-class class-info])))}
       (icon :clear)]]
 
     (when (:primary? class-info)

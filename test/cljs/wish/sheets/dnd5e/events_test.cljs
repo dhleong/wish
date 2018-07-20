@@ -1,7 +1,29 @@
 (ns wish.sheets.dnd5e.events-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.events :refer [update-hp-rolled
+            [wish.sheets.dnd5e.events :refer [remove-class
+                                              update-hp-rolled
                                               update-hp]]))
+
+(deftest remove-class-test
+  (testing "Simple remove"
+    (is (= {}
+           (remove-class
+             {:pilot {:primary? true}}
+             {:id :pilot
+              :primary? true})))
+    (is (= {:pilot {:primary? true}}
+           (remove-class
+             {:captain {}
+              :pilot {:primary? true}}
+             {:id :captain}))))
+  (testing "Promote a class to :primary?"
+    (is (= {:captain {:primary? true}}
+           (remove-class
+             {:captain {}
+              :pilot {:primary? true}}
+             {:id :pilot
+              :primary? true})))))
+
 
 (defn cofx
   "Stub the cofx map given a :sheet"

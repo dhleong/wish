@@ -37,7 +37,11 @@
 ; a save of the sheet.
 
 (defn update-sheet-path
-  "Update a path in the current sheet meta"
+  "This poorly-named method updates a path in the current *sheet-meta map*,
+   and is the basis for other update-* methods below. We should probably
+   rename it to update-meta-path or something, so it's clearer that the
+   references to 'sheet' in the other method names refer to the :sheet
+   key inside a sheet-meta map."
   [{:keys [db]} path f & args]
   (let [sheet-id (active-sheet-id db)]
     (let [new-db (apply update-in db
