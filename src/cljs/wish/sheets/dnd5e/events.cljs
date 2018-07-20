@@ -86,6 +86,24 @@
   (fn-traced [cofx [kind level max-slots]]
     (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] dec)))
 
+(reg-event-fx
+  ::adjust-currency
+  [trim-v]
+  (fn-traced [cofx [adjust-map]]
+    (update-in-sheet cofx [:currency] (partial merge-with +) adjust-map)))
+
+(reg-event-fx
+  ::set-currency
+  [trim-v]
+  (fn-traced [cofx [currency-id amount]]
+    (update-in-sheet cofx [:currency] assoc currency-id amount)))
+
+(reg-event-fx
+  ::set-notes
+  [trim-v]
+  (fn-traced [cofx [new-notes]]
+    (update-sheet cofx assoc :notes new-notes)))
+
 (defn update-hp-rolled
   [hp-rolled-map [class-id level-idx :as path] rolled]
   (if (vector? (get hp-rolled-map class-id))
@@ -100,12 +118,6 @@
                        nil))
              level-idx
              rolled))))
-
-(reg-event-fx
-  ::set-notes
-  [trim-v]
-  (fn-traced [cofx [new-notes]]
-    (update-sheet cofx assoc :notes new-notes)))
 
 ; set rolled hp amount for [`class-id` `level-1`]
 (reg-event-fx

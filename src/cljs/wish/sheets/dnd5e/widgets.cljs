@@ -43,39 +43,36 @@
         str/capitalize
         (str/replace "-" " "))))
 
-(defn currency-preview
-  ([] (currency-preview nil))
-  ([opts]
-   (let [{:keys [platinum gold silver electrum copper]} (<sub [::subs/currency])
-         any? (> (+ platinum gold silver electrum copper)
-                 0)]
-     [:span (merge opts
-                   {:class (:currency-preview styles)})
-      "Currency"
+(defn currency-preview []
+  (let [{:keys [platinum gold silver electrum copper]} (<sub [::subs/currency])
+        any? (> (+ platinum gold silver electrum copper)
+                0)]
+    [:span {:class (:currency-preview styles)}
+     "Currency"
 
-      (when-not any?
-        " (just some lint)")
+     (when-not any?
+       " (just some lint)")
 
-      (when (> platinum 0)
-        [:div.pair
-         platinum
-         [:span.currency.p "P"]])
-      (when (> gold 0)
-        [:div.pair
-         gold
-         [:span.currency.g "G"]])
-      (when (> electrum 0)
-        [:div.pair
-         electrum
-         [:span.currency.e "E"]])
-      (when (> silver 0)
-        [:div.pair
-         silver
-         [:span.currency.s "S"]])
-      (when (> copper 0)
-        [:div.pair
-         copper
-         [:span.currency.c "C"]])])))
+     (when (> platinum 0)
+       [:div.pair
+        platinum
+        [:span.currency.p "P"]])
+     (when (> gold 0)
+       [:div.pair
+        gold
+        [:span.currency.g "G"]])
+     (when (> electrum 0)
+       [:div.pair
+        electrum
+        [:span.currency.e "E"]])
+     (when (> silver 0)
+       [:div.pair
+        silver
+        [:span.currency.s "S"]])
+     (when (> copper 0)
+       [:div.pair
+        copper
+        [:span.currency.c "C"]])]))
 
 (defn spell-card
   "Spell info card widget"

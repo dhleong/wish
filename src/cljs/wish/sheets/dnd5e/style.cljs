@@ -8,6 +8,12 @@
 (def color-proficient "#77E731")
 (def color-expert "#E8E154")
 
+(def color-platinum "#f3f3f3")
+(def color-gold "#e3b17b")
+(def color-electrum "#6b7a85")
+(def color-silver "#a6a4a0")
+(def color-copper "#a77c65")
+
 (def button {:cursor 'pointer})
 
 (def text-center {:text-align 'center})
@@ -250,6 +256,19 @@
     [:th.header {:text-align 'right}]]
    [:.desc {:font-size "90%"}]]
 
+  [:.currency-manager-overlay
+   [:.meta (merge metadata
+                  text-center
+                  {:max-width "180px"})]
+   [:th.header {:font-size "80%"}
+    [:&.p {:background-color color-platinum}]
+    [:&.g {:background-color color-gold}]
+    [:&.e {:background-color color-electrum}]
+    [:&.s {:background-color color-silver}]
+    [:&.c {:background-color color-copper}]]
+   [:.amount {:width "4em"
+              :text-align 'center}]]
+
   [:.currency-preview (merge flex/center
                              {:font-size "10pt"})
    [:.pair {:margin "0 4px"}
@@ -258,10 +277,10 @@
                  :color "#fff"
                  :font-size "80%"
                  :border-radius "12px" }
-     [:&.p {:background-color "#f3f3f3"}]
-     [:&.g {:background-color "#e3b17b"}]
-     [:&.e {:background-color "#6b7a85"}]
-     [:&.s {:background-color "#a6a4a0"}]
-     [:&.c {:background-color "#a77c65"}]]]
+     [:&.p {:background-color color-platinum}]
+     [:&.g {:background-color color-gold}]
+     [:&.e {:background-color color-electrum}]
+     [:&.s {:background-color color-silver}]
+     [:&.c {:background-color color-copper}]]]
    ])
 

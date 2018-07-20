@@ -688,6 +688,9 @@
 
     [section [:<>
               "Inventory"
-              [currency-preview]]
+              [:span.clickable
+               {:class "clickable"
+                :on-click (click>evt [:toggle-overlay [#'overlays/currency-manager]])}
+               [currency-preview]]]
      :inventory-section
      [inventory-section]]]])

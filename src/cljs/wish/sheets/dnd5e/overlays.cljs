@@ -423,6 +423,93 @@
    [spell-card s]])
 
 
+; ======= currency =========================================
+
+(defn currency-manager []
+  (let [quick-adjust (r/atom {})]
+    (fn []
+      [bind-fields
+       [:form
+        {:on-submit (fn [e]
+                      (.preventDefault e)
+                      (when-let [v (:adjust @quick-adjust)]
+                        (log "Adjust currency: " v)
+                        (>evt [::events/adjust-currency v]))
+                      (>evt [:toggle-overlay nil]))}
+        [:input {:type 'submit
+                 :style {:display 'none}}]
+        [:div {:class (:currency-manager-overlay styles)}
+         [:h5 "Currency"]
+         [:table
+          [:tbody
+           [:tr
+            [:th.header.p "Platinum"]
+            [:th.header.g "Gold"]
+            [:th.header.e "Electrum"]
+            [:th.header.s "Silver"]
+            [:th.header.c "Copper"]]
+
+           ; current values
+           [:tr
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :platinum}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :gold}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :electrum}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :silver}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :copper}]]]
+
+           [:tr
+            [:td.meta {:col-span 5}
+             "Adjust totals directly"]]
+
+           [:tr
+            [:th {:col-span 5
+                  :style {:padding-top "1em"}}
+             "Quick Adjust"]]
+
+           [:tr
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :adjust.platinum}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :adjust.gold}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :adjust.electrum}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :adjust.silver}]]
+            [:td
+             [:input.amount {:field :fast-numeric
+                             :id :adjust.copper}]]]
+
+           [:tr
+            [:td.meta {:col-span 5}
+             "Add or subtract amounts by inputting above and pressing 'enter'"]]
+
+           ]]]]
+
+       {:get #(if (= :adjust (first %))
+                (get-in @quick-adjust %)
+                (get-in (<sub [::subs/currency]) %))
+
+        :save! (fn [path v]
+                 (if (not= :adjust (first path))
+                   (>evt [::events/set-currency (first path) v])
+
+                   (swap! quick-adjust assoc-in path v)))}])))
+
+
 ; ======= custom item creation =============================
 
 ; NOTE public for testing!
