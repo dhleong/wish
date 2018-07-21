@@ -78,6 +78,28 @@
                                         [:name])])))))
              on-error)))
 
+(defn- get-file
+  ([file-id]
+   (get-file file-id nil))
+  ([file-id alt]
+   (-> js/gapi.client.drive.files
+       (.get (if alt
+               #js {:fileId file-id
+                    :alt alt}
+               #js {:fileId file-id
+                    :fields "id, name, mimeType, description, appProperties"}))
+       (promise->chan 1 (map (fn [[err resp :as r]]
+                               (if (and resp
+                                        (not alt))
+                                 ; if we have a response, and we wanted the file
+                                 ; metadata; clojure-ify it
+                                 [err (->> resp
+                                           ->clj
+                                           :result)]
+
+                                 ; just return as-is
+                                 r)))))))
+
 (defn- update-meta
   "Update the metadata on a file. Useful for eg:
    (update-meta
@@ -89,6 +111,22 @@
                  (assoc metadata
                         :fileId file-id)))
       promise->chan))
+
+(defn- ensure-meta
+  ([file-id metadata]
+   (ensure-meta file-id metadata false))
+  ([file-id metadata force?]
+   (go (if force?
+         (<! (update-meta file-id metadata))
+
+         (let [[err resp] (<! (get-file file-id))]
+           (when (or err
+                     (not= (select-keys
+                             resp
+                             (keys metadata))
+                           metadata))
+             (log "Updating " file-id "metadata <- " metadata)
+             (update-meta file-id metadata)))))))
 
 ;;
 ;; State management and API interactions
@@ -297,13 +335,16 @@
                                file-id (:id file)
                                wish-file (update file :id
                                                  (partial make-id :gdrive))]
-                           (when uploaded?
-                             ; update mime type and annotate with :wish-type
-                             (update-meta
-                               file-id
-                               {:appProperties props
-                                :description description
-                                :mimeType mimeType}))
+
+                           ; update mime type and annotate with :wish-type
+                           (ensure-meta
+                             file-id
+                             {:appProperties props
+                              :description description}
+
+                             ; force update when uploaded (skip a roundtrip)
+                             uploaded?)
+
                            (put! ch [nil wish-file]))
                 (log "Other pick action")))))
         (.build)
@@ -366,10 +407,7 @@
     (go (let [_ (when-let [ch @gapi-available?]
                   (<! ch))
 
-              [err resp] (<! (promise->chan
-                               (-> js/gapi.client.drive.files
-                                   (.get #js {:fileId id
-                                              :alt "media"}))))]
+              [err resp] (<! (get-file id "media"))]
           (if err
             (let [status (.-status err)]
               (log/err "ERROR loading " id err)
