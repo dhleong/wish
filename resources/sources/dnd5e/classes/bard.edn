@@ -82,31 +82,66 @@ The extra hit points increase when you reach certain levels in this class: to 1d
                  :name "Font of Inspiration"
                  :desc "Beginning when you reach 5th level, you regain all of your expended uses of Bardic Inspiration when you finish a short or long rest."}]}
 
-            ; TODO countercharm
-            ; TODO magical secrets
-            ; TODO superior inspiration
+            6 {:+features
+               [{:id :bard/countercharm
+                 :name "Countercharm"
+                 :desc "You gain the ability to use musical notes or words of power to disrupt mind-influencing effects. As an action, you can start a performance that lasts until the end of your next turn. During that time, you and any friendly creatures within 30 feet of you have advantage on saving throws against being frightened or charmed. A creature must be able to hear you to gain this benefit. The performance ends early if you are incapacitated or silenced or if you voluntarily end it (no action required)."
+                 :! [[:!provide-attr
+                      [:action :bard/countercharm]
+                      true]]}]}
 
             8 {:+features
                [:ability-improvement]}
 
             10 {:+features
-                [:bard/expertise]}
+                [:bard/expertise
+
+                 ; sadly we have to manually instance this for the
+                 ; options to work...
+                 {:id :bard/magic-secrets
+                  :name "Magical Secrets"
+                  :desc "You have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip.
+The chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table.
+You learn two additional spells from any class at 14th level and again at 18th level."
+                  :max-options (fn [level]
+                                 (cond
+                                   (< level 14) 2
+                                   (< level 18) 4
+                                   :else 6))
+                  :values [:all-spells]
+                  :! [[:!add-to-list
+                       :bard/extra-spells
+
+                       ; special syntax to add the selected
+                       ; options from this feature
+                       :bard/magic-secrets>>options
+                       ]]}
+                 ]}
 
             12 {:+features
                 [:ability-improvement]}
             16 {:+features
                 [:ability-improvement]}
             19 {:+features
-                [:ability-improvement]}}}]
+                [:ability-improvement]}
+
+            20 {:+features
+                [{:id :bard/superior-inspiration
+                  :name "Superior Inspiration"
+                  :desc "At 20th level, when you roll initiative and have no uses of Bardic Inspiration left, you regain one use."}]}}}]
 
 [:!provide-feature
+
+ ; repeating, standard bard features:
+
  {:id :bard/expertise
   :name "Expertise"
   :desc "Choose two of your skill proficiencies. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
 At 10th level, you can choose another two skill proficiencies to gain this benefit."
   :max-options 2
   :instanced? true
-  :values [:all-skill-expertise]}]
+  :values [:all-skill-expertise]}
+]
 
 [:!provide-options
  :bard/college
@@ -135,7 +170,7 @@ The college’s members gather in libraries and sometimes in actual colleges, co
 
   :&levels {6 {:+! [[:!provide-feature
                      {:id :bard/additional-magic-secrets
-                      :name "Additional Magic Secrets"
+                      :name "Additional Magical Secrets"
                       :desc "At 6th level, you learn two spells of your choice from any class. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip. The chosen spells count as bard spells for you but don’t count against the number of bard spells you know."
                       :max-options 2
                       :values [:all-spells]
