@@ -6,7 +6,8 @@
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-sheet-with-data]]
-            [wish.util :refer [click>evt <sub >evt]]))
+            [wish.util :refer [click>evt <sub >evt]]
+            [wish.views.widgets :refer [link]]))
 
 ; ======= const data =======================================
 
@@ -72,29 +73,52 @@
 
 ; ======= Views ============================================
 
-(defn sheet-error-widget []
+(defn- sheet-error-resolver
+  [err data]
+  (when (:permissions? data)
+    ; is there something we can do about this?
+    ; TODO for gdrive, it's possible that we could launch a
+    ; Picker to open it, thus effectively granting permission...
+    [:div "You may not have permission to view this file"]))
+
+(defn- sheet-error-widget [what]
   (when-let [{:keys [err retry-evt]} (<sub [:sheet-error-info])]
     [:div.sheet.error
-     [:p "Error loading sheet"]
-     [:div "Info for nerds: "
-      [:p.error-info (.-message err)]]
+     [:p "Error loading " what]
+
+     (if-let [data (ex-data err)]
+       [sheet-error-resolver err data]
+
+       ; unknown error; something went wrong
+       [:div "Info for nerds: "
+        [:p.error-info (ex-message err)]])
+
      [:div
       [:a {:href "#"
            :on-click (click>evt retry-evt)}
-       "Try again"]]]))
+       "Try again"]]
+
+     [:div
+      [link {:href "/sheets"}
+       "Pick another sheet"]]]))
 
 (defn sheet-loader [?sheet]
-  [:<>
-   (if-let [{:keys [name]} ?sheet]
-     [:div (str "Loading " name "...")]
-     [:div "Loading..."])
-   [sheet-error-widget]])
+  (let [{sheet-name :name} ?sheet]
+    (if-let [err-widget (sheet-error-widget (if sheet-name
+                                              sheet-name
+                                              "Sheet"))]
+      err-widget
+
+      (if sheet-name
+        [:div (str "Loading " sheet-name "...")]
+        [:div "Loading..."]))))
 
 (defn sources-loader
   [sheet]
-  [:<>
-   [:div "Loading data for " (:name sheet) "..."]
-   [sheet-error-widget]])
+  (if-let [err-widget (sheet-error-widget (str "Data for " (:name sheet)))]
+    err-widget
+
+    [:div "Loading data for " (:name sheet) "..."]))
 
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])

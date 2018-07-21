@@ -371,9 +371,18 @@
                                    (.get #js {:fileId id
                                               :alt "media"}))))]
           (if err
-            (do
+            (let [status (.-status err)]
               (log/err "ERROR loading " id err)
-              [err nil])
+              (if (= 404 status)
+                ; possibly caused by permissions
+                [(ex-info
+                   (ex-message err)
+                   {:permissions? true}
+                   err)
+                 nil]
+
+                ; some other error
+                [err nil]))
 
             ; success:
             [nil (.-body resp)]))))

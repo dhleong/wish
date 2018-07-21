@@ -110,18 +110,32 @@
 
 ; ======= sheet-related ====================================
 
+(defn- reset-sheet-err
+  [db sheet-id]
+  (if (get-in db [:sheet-sources sheet-id :err])
+    ; we previous error'd; since we've loaded the sheet now,
+    ; let's reset the entire source so the UI doesn't think
+    ; it's still error'd while we reload it
+    (update db :sheet-sources dissoc sheet-id)
+
+    ; normal case
+    db))
+
 (reg-event-fx
   :load-sheet!
   [trim-v]
-  (fn-traced [_ [sheet-id]]
-    {:load-sheet! sheet-id}))
+  (fn-traced [{:keys [db]} [sheet-id]]
+    {:load-sheet! sheet-id
+     :db (reset-sheet-err db sheet-id)}))
 
 ; sheet loaded
 (reg-event-db
   :put-sheet!
   [trim-v]
   (fn-traced [db [sheet-id sheet]]
-    (assoc-in db [:sheets sheet-id] sheet)))
+    (-> db
+        (assoc-in [:sheets sheet-id] sheet)
+        (reset-sheet-err sheet-id))))
 
 (reg-event-db
   :put-sheet-error!
