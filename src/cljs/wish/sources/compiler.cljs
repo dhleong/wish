@@ -312,7 +312,7 @@
     ; done!
     state
 
-    ; FIXME we have to basically use options-map like a work queue, where if the
+    ; we have to basically use options-map like a work queue, where if the
     ; feature-id doesn't exist *yet*, we continue applying other options in case
     ; they trigger more features to be provided that the option can later apply to
     (let [[applyable not-applyable] (reduce
