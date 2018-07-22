@@ -14,6 +14,9 @@
 (def color-silver "#a6a4a0")
 (def color-copper "#a77c65")
 
+(def media-smartphones {:screen :only
+                        :max-width "479px"})
+
 (def button {:cursor 'pointer})
 
 (def text-center {:text-align 'center})
@@ -37,13 +40,20 @@
    [:&.expert::before
     {:color color-expert}]])
 
-(defstyle styles
+(defstyle header
+  (at-media
+    media-smartphones
+    [:.header
+     [:.side
+      [:&.settings {:order "0 !important"}]]])
   [:.header (merge flex
                    flex/wrap
                    {:background "#666666"
                     :color "#f0f0f0"
                     :padding "4px 12px"})
    [:.side flex
+    [:&.settings {:order 1}]
+
     [:.col (merge flex/vertical-center
                   text-center
                   {:padding "4px 8px"})
@@ -69,8 +79,9 @@
       [:&.save {:color "#00cc00"}]
       [:&.fail {:color "#aa0000"}]]]]
 
-   [:.space flex/grow]]
+   [:.space flex/grow]])
 
+(defstyle styles
   [:.custom-item-overlay overlay
    [:.section {:padding "8px"}
     [:&.flex (merge flex/center

@@ -9,7 +9,7 @@
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
-            [wish.sheets.dnd5e.style :refer [styles]]
+            [wish.sheets.dnd5e.style :as styles :refer [styles]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
@@ -56,7 +56,7 @@
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div {:class (:header styles)}
+    [:div {:class (:header styles/header)}
      [:div.left.side
       [:div.col
        [widgets/save-state]]
@@ -77,6 +77,12 @@
         (icon :description)]]]
 
      [:div.space]
+
+     [:div.settings.side
+      [:div.col
+       (let [sheet-id (<sub [:active-sheet-id])]
+         [link {:href (sheet-url sheet-id :builder :class)}
+          (icon :settings)])]]
 
      [:div.right.side
       [:div.col
@@ -102,12 +108,7 @@
        [:div.label "Initiative"]]
 
       [:div.col
-       [hp]]
-
-      [:div.col
-       (let [sheet-id (<sub [:active-sheet-id])]
-         [link {:href (sheet-url sheet-id :builder :class)}
-          (icon :settings)])]]]))
+       [hp]] ] ]))
 
 
 ; ======= abilities ========================================
