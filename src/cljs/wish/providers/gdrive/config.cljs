@@ -11,16 +11,25 @@
    "Sign in"])
 
 (defn connected-view []
-  [:div "Connected!"
-   [:div
-    [link {:href "/sheets/new"}
-     "Create a new sheet"]]
-   [:div
-    [link {:href "/sheets"}
-     "Open a sheet"]]
-   [:div.button
-    {:on-click gdrive/signout!}
-    "Disconnect Google Account"]])
+  (let [user (gdrive/active-user)]
+    [:div "Connected!"
+     (when-let [n (:name user)]
+       [:div
+        "Welcome back, " n])
+
+     [:div
+      [link {:href "/sheets/new"}
+       "Create a new sheet"]]
+     [:div
+      [link {:href "/sheets"}
+       "Open a sheet"]]
+
+     [:div.button
+      {:on-click gdrive/signout!}
+
+      [:div "Disconnect Google Account"]
+      (when-let [e (:email user)]
+        [:div "(" e ")"])]]))
 
 (defn view []
   (let [state (<sub [:provider-state :gdrive])]

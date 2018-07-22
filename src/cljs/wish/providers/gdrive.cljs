@@ -155,12 +155,15 @@
   []
   (js/gapi.auth2.getAuthInstance))
 
+(defn- current-user []
+  (some-> (auth-instance)
+          (.-currentUser)
+          (.get)))
+
 (defn- access-token
   "When logged in, get the current user's access token"
   []
-  (-> (auth-instance)
-      (.-currentUser)
-      (.get)
+  (-> (current-user)
       (.getAuthResponse)
       (.-access_token)))
 
@@ -223,6 +226,13 @@
   []
   (-> (auth-instance)
       (.signOut)))
+
+(defn active-user []
+  (when-let [profile (some-> (current-user)
+                             (.getBasicProfile))]
+    {:name (.getName profile)
+     :email (.getEmail profile)}))
+
 
 (defn upload-data
   "The GAPI client doesn't provide proper support for
