@@ -645,8 +645,9 @@
   :<- [::spellcaster-classes]
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
+  :<- [::spell-attack-bonuses]
   :<- [:options]
-  (fn [[classes data-source modifiers options]]
+  (fn [[classes data-source modifiers attack-bonuses options]]
     (when (seq classes)
       (reduce
         (fn [m c]
@@ -696,7 +697,14 @@
 
                    (map #(assoc %
                                 ::source (:id c)
-                                :spell-mod (get modifiers (:id c))))
+                                :spell-mod (get modifiers (:id c))
+                                :save-label (when-let [k (:save %)]
+                                              (str/upper-case
+                                                (name k)))
+
+                                ; save dc is attack modifier + 8
+                                :save-dc (+ (get attack-bonuses (:id c))
+                                            8)))
 
                    ; sort by level, then name
                    (sort-by (juxt :spell-level :name))))))

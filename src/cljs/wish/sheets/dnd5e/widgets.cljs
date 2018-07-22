@@ -122,7 +122,9 @@
            :con "Constitution"
            :int "Intelligence"
            :wis "Wisdom"
-           :cha "Charisma")]])
+           :cha "Charisma")
+         (when-let [dc (:save-dc s)]
+           (str " (" dc ")"))]])
      ]]
 
    [formatted-text :div.desc (:desc s)]])

@@ -256,10 +256,11 @@
                    :font-size "80%"}]
 
    [:.spell flex/center
+    [:.meta metadata]
     [:.spell-info flex/grow
-     [:.name {:font-weight "bold"}]
-     [:.meta metadata]]
-    [:.dice {:align-self 'center}]]]
+     [:.name {:font-weight "bold"}]]
+    [:.dice (merge text-center
+                   {:align-self 'center})]]]
 
   [:.inventory-section
    [:.item-browser {:height "300px"

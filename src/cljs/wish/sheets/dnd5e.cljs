@@ -459,9 +459,16 @@
                     "Cantrip"
                     (str "Level " level))]]
 
-      (when (:dice s)
+      (cond
+        (:dice s)
         [:div.dice
-         (invoke-callable s :dice)])]
+         (invoke-callable s :dice)]
+
+        (:save s)
+        [:div.dice
+         [:div.meta (:save-label s)]
+         (:save-dc s)]
+        )]
 
      ; collapsed:
      [spell-card s]]))
