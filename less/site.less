@@ -17,11 +17,7 @@ a {
 }
 
 @import "flex.less";
-
-// // just for testing with re-frame-10x visible:
-// #app {
-//     width: 60%;
-// }
+@import "media.less";
 
 //
 // Other mixins
@@ -57,6 +53,12 @@ a {
     .justify-content(center);
     .align-items(center);
 
+    @media @smartphones {
+        & {
+            .justify-content(flex-start);
+        }
+    }
+
     position: fixed;
     top: 0;
     left: 0;
@@ -71,9 +73,25 @@ a {
     position: relative;
     background: #f0f0f0;
     border-radius: 2px;
-    padding: 32px;
 
     max-width: 80%;
+
+    @media @smartphones {
+        & {
+            width: 85%;
+            max-width: 85%;
+
+            height: 100% !important;
+            max-height: 100% !important;
+
+            .wrapper > :first-child {
+                // override padding and dimensions
+                // on mobile
+                padding: 0;
+                width: 85% !important;
+            }
+        }
+    }
 
     .close-button {
         .clickable();
@@ -84,6 +102,9 @@ a {
     }
 
     .wrapper {
+        .flex();
+        .justify-content(center);
+
         margin-top: 8px;
         height: 100%;
     }

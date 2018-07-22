@@ -21,6 +21,10 @@
 (def one-third
   {:width "100%"})
 
+(def base-overlay {:padding "32px"})
+(def overlay (merge base-overlay
+                    {:width "300px"}))
+
 (def proficiency-style
   [:.proficiency
    {:color color-proficient
@@ -67,7 +71,7 @@
 
    [:.space flex/grow]]
 
-  [:.custom-item-overlay {:width "300px"}
+  [:.custom-item-overlay overlay
    [:.section {:padding "8px"}
     [:&.flex (merge flex/center
                     {:justify-content 'space-between})]
@@ -80,7 +84,7 @@
    [:input.numeric {:width "2em"
                     :font-size "110%"}]]
 
-  [:.hp-overlay {:width "300px"}
+  [:.hp-overlay overlay
    [:.current-hp (merge text-center
                         {:width "5em"
                          :font-size "1.2em"})]
@@ -103,11 +107,12 @@
                      {:font-size "1.2em"
                       :width "4em"})]]]
 
-  [:.notes-overlay {:width "300px"}
+  [:.notes-overlay overlay
    [:textarea.notes {:width "100%"
                      :min-height "200px"}]]
 
-  [:.short-rest-overlay {:max-width "400px"}
+  [:.short-rest-overlay (merge base-overlay
+                               {:max-width "400px"})
    [:.sections {:margin-bottom "1em"
                 :justify-content 'start}
     [:.hit-dice-pool {:margin-right "2em"}
@@ -116,8 +121,7 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
-  [:.spell-management-overlay #_(merge flex/vertical
-                                     {:height "100%"})
+  [:.spell-management-overlay base-overlay
    [:.limit metadata]
    ;; [:.stretch (merge flex/grow
    ;;                   {:width "100%"})]
@@ -259,7 +263,7 @@
     [:th.header {:text-align 'right}]]
    [:.desc {:font-size "90%"}]]
 
-  [:.currency-manager-overlay
+  [:.currency-manager-overlay base-overlay
    [:.meta (merge metadata
                   text-center
                   {:max-width "180px"})]
