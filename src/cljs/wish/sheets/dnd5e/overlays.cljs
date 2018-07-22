@@ -426,7 +426,7 @@
 ; ======= spell info =======================================
 
 (defn spell-info [s]
-  [:div.spell-info
+  [:div {:class (:spell-info-overlay styles)}
    [spell-info-header {} s]
    [spell-card s]])
 

@@ -155,6 +155,8 @@
      [:.hit-die-value {:width "5em"}]]]
    [:.desc metadata]]
 
+  [:.spell-info-overlay base-overlay]
+
   [:.spell-management-overlay base-overlay
    [:.limit metadata]
    ;; [:.stretch (merge flex/grow
