@@ -11,6 +11,12 @@
     }
 }
 
+.flex-direction(@direction) {
+    -webkit-flex-direction: @direction;
+    -ms-flex-direction: @direction;
+    flex-direction: @direction;
+}
+
 .justify-content(@where: center) {
     -ms-flex-pack: @where;
     justify-content: @where;

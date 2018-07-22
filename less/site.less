@@ -221,6 +221,18 @@ a {
     }
 }
 
+.expandable {
+    width: 100%;
+
+    & > .content {
+        .flex();
+        .align-items(center);
+        .flex-direction(column);
+
+        width: 100%;
+    }
+}
+
 .slots-use-block {
     .flex(wrap);
 
