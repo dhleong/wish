@@ -47,6 +47,7 @@
      [:.side
       [:&.settings {:order "0 !important"}]
       [:&.right {:justify-content 'space-between
+                 :padding "0 12px"
                  :width "100%"}]]
      [:.hp
       [:.label
@@ -62,10 +63,12 @@
                    flex/wrap
                    {:background "#666666"
                     :color "#f0f0f0"
-                    :padding "4px 12px"
+                    :padding "4px 0"
                     :width "100%"})
    [:.side flex
-    [:&.settings {:order 1}]
+    [:&.left {:padding-left "12px"}]
+    [:&.settings {:order 1
+                  :padding-right "12px"}]
 
     [:.col (merge flex/vertical-center
                   text-center
