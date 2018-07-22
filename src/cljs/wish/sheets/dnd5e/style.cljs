@@ -100,6 +100,11 @@
    [:.space flex/grow]])
 
 (defstyle styles
+  (at-media
+    media-smartphones
+    [:.notes-overlay
+     [:textarea.notes {:height "80vh"}]])
+
   [:.custom-item-overlay overlay
    [:.section {:padding "8px"}
     [:&.flex (merge flex/center
@@ -138,7 +143,7 @@
 
   [:.notes-overlay overlay
    [:textarea.notes {:width "100%"
-                     :min-height "200px"}]]
+                     :min-height "50vh"}]]
 
   [:.short-rest-overlay (merge base-overlay
                                {:max-width "400px"})
