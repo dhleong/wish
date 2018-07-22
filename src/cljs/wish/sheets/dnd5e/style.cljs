@@ -45,12 +45,25 @@
     media-smartphones
     [:.header
      [:.side
-      [:&.settings {:order "0 !important"}]]])
+      [:&.settings {:order "0 !important"}]
+      [:&.right {:justify-content 'space-between
+                 :width "100%"}]]
+     [:.hp
+      [:.label
+       [:.content {:display 'none}]
+       [:&:after {:content "'HP'"}]]
+      [:.value {:display "block !important"}]
+      [:.divider {:display 'block
+                  :height "1px"
+                  :border-top "1px solid #fff"
+                  :overflow 'hidden}]
+      [:.max {:font-size "60%"}]]])
   [:.header (merge flex
                    flex/wrap
                    {:background "#666666"
                     :color "#f0f0f0"
-                    :padding "4px 12px"})
+                    :padding "4px 12px"
+                    :width "100%"})
    [:.side flex
     [:&.settings {:order 1}]
 
@@ -70,10 +83,12 @@
 
    [:.label {:font-size "80%"}]
 
-   [:.hp {:align-items 'center}
-    [:.now (merge text-center
-                  {:padding "4px"
-                   :font-size "120%"})]
+   [:.hp flex/center
+    [:.value (merge flex
+                    text-center
+                    {:padding "4px"
+                     :font-size "120%"})]
+    [:.divider {:padding "0 4px"}]
     [:.indicators
      [:.icon {:font-size "12px"}
       [:&.save {:color "#00cc00"}]

@@ -23,8 +23,11 @@
 
 (defn- hp-normal [hp max-hp]
   [:<>
-   [:div.label "Hit Points"]
-   [:div.now (str hp " / " max-hp)]])
+   [:div.label [:span.content "Hit Points"]]
+   [:div.value
+    [:div.now hp]
+    [:div.divider " / "]
+    [:div.max max-hp]]])
 
 (defn- save-indicators
   [prefix icon-class used]
@@ -96,7 +99,7 @@
 
       [:div.col
        [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
-       [:div.label "Base Speed"]]
+       [:div.label "Speed"]]
 
       [:div.col
        [:div.stat (<sub [::subs/passive-perception])]
