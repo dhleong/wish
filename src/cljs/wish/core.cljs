@@ -14,6 +14,11 @@
     (enable-console-print!)
     (println "dev mode")))
 
+(defn mount-worker []
+  (when js/navigator.serviceWorker
+    (println "mount worker")
+    (.register js/navigator.serviceWorker "/js/compiled/worker.js")))
+
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
   (when config/debug?
@@ -27,4 +32,5 @@
   (re-frame/dispatch-sync [::events/initialize-db])
   (re-frame/dispatch-sync [::rp/add-keyboard-event-listener "keydown"])
   (dev-setup)
+  (mount-worker)
   (mount-root))

@@ -43,6 +43,7 @@
                                     "test/js"]
 
   :figwheel {:css-dirs ["resources/public/css"]
+             :builds-to-start ["dev" "worker-dev"]
              :nrepl-port 7002
              :server-ip "0.0.0.0"
              :ring-handler wish.dev-server/http-handler
@@ -101,6 +102,20 @@
                                            "day8.re_frame.tracing.trace_enabled_QMARK_" true
                                            wish.util.nav.LOCAL true}
                     :external-config      {:devtools/config {:features-to-install :all}}
+                    }}
+
+    {:id           "worker-dev"
+     :source-paths ["src/cljs-worker"]
+     ; NOTE: "autoload" doesn't work here because the code
+     ; is executing in the worker process; instead, just
+     ; let Chrome handle updating
+     :figwheel     {:autoload false}
+     :compiler     {:main                 wish.worker.core
+                    :output-to            "resources/public/js/compiled/worker.js"
+                    :output-dir           "resources/public/js/compiled/worker-out"
+                    :asset-path           "worker-out"
+                    :source-map-timestamp true
+                    :target               :webworker
                     }}
 
     {:id           "min"
