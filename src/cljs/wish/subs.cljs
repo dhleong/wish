@@ -241,7 +241,10 @@
                 (src/expand-list data-source opt-or-id nil)
 
                 (log/warn "Unable to inflate  " opt-or-id))
-            opt-or-id))
+
+            ; provided value; wrap in collection so the maps' entries
+            ; don't get flattened by mapcat
+            [opt-or-id]))
         values)))
 
 (defn- inflate-feature-options
