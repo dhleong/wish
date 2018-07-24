@@ -78,6 +78,20 @@
 
 (def std-slots-label "Spell Slots")
 
+
+; ======= utils ============================================
+
+(defn- reg-sheet-sub
+  "Convenience for creating a sub that just gets a specific
+   field from the :sheet key of the sheet-meta"
+  [id getter]
+  (reg-sub
+    id
+    :<- [:meta/sheet]
+    (fn [sheet _]
+      (getter sheet))))
+
+
 ; ======= class and level ==================================
 
 (reg-sub
@@ -103,7 +117,7 @@
 ; TODO There are also equippable items, but we don't yet support that.
 (reg-sub
   ::abilities
-  :<- [:sheet]
+  :<- [:meta/sheet]
   :<- [:race]
   :<- [:classes]
   (fn [[sheet race classes]]
@@ -159,23 +173,19 @@
 
 (reg-sub
   ::rolled-hp
-  :<- [:sheet]
+  :<- [:meta/sheet]
   (fn [sheet [_ ?path]]
     (get-in sheet (concat
                     [:hp-rolled]
                     ?path))))
 
-(reg-sub
+(reg-sheet-sub
   ::temp-hp
-  :<- [:sheet]
-  (fn [sheet _]
-    (:temp-hp sheet)))
+  :temp-hp)
 
-(reg-sub
+(reg-sheet-sub
   ::temp-max-hp
-  :<- [:sheet]
-  (fn [sheet _]
-    (:temp-max-hp sheet)))
+  :temp-max-hp)
 
 (reg-sub
   ::max-hp
@@ -217,11 +227,9 @@
       [(+ temp-hp
           (- max-hp used-hp)) max-hp])))
 
-(reg-sub
+(reg-sheet-sub
   ::death-saving-throws
-  :<- [:sheet]
-  (fn [sheet]
-    (:death-saving-throws sheet)))
+  :death-saving-throws)
 
 
 ; ======= Proficiency and expertise ========================
@@ -407,11 +415,9 @@
 
 ; ======= items and equipment ==============================
 
-(reg-sub
+(reg-sheet-sub
   ::attuned-ids
-  :<- [:sheet]
-  (fn [sheet _]
-    (get sheet :attuned)))
+  :attuned)
 
 ; returns a map of :kinds and :categories
 (reg-sub
@@ -646,7 +652,7 @@
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
-  :<- [:options]
+  :<- [:meta/options]
   (fn [[classes data-source modifiers attack-bonuses options]]
     (when (seq classes)
       (reduce
@@ -778,7 +784,7 @@
 
   (fn [[_ the-class list-id]]
     [(subscribe [:sheet-source])
-     (subscribe [:options])
+     (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id the-class)])
      (subscribe [::highest-spell-level-for-class-id (:id the-class)])])
 
@@ -1085,11 +1091,9 @@
 
 ; ======= etc ==============================================
 
-(reg-sub
+(reg-sheet-sub
   ::currency
-  :<- [:sheet]
-  (fn [sheet _]
-    (:currency sheet)))
+  :currency)
 
 ; hacks?
 (reg-sub
@@ -1130,8 +1134,6 @@
          vals
          (sort-by :die #(compare %2 %1)))))
 
-(reg-sub
+(reg-sheet-sub
   ::notes
-  :<- [:sheet]
-  (fn [sheet _]
-    (get sheet :notes)))
+  :notes)

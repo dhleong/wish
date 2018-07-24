@@ -40,11 +40,11 @@
 
 ; ======= Sheet-related ====================================
 
-(defn reg-sheet-sub
+(defn- reg-meta-sub
   [id getter]
   ; NOTE: instead of depending on a single subscription,
   ; we go ahead and create a separate subscription for
-  ; each part of the sheet, to avoid a small edit to HP,
+  ; each part of the sheet-meta, to avoid a small edit to HP,
   ; for example, causing all of the spell lists and features
   ; (which rely on classes, etc.) to be re-calculated
   (reg-sub
@@ -57,20 +57,20 @@
 (reg-sub :sheets :sheets)
 (reg-sub :sheet-sources :sheet-sources)
 
-(reg-sheet-sub :sheet :sheet)
-(reg-sheet-sub ::sources :sources)
-(reg-sheet-sub :sheet-kind :kind)
-(reg-sheet-sub :class-metas (comp vals :classes))
-(reg-sheet-sub :race-ids :races)
-(reg-sheet-sub :limited-used :limited-uses)
-(reg-sheet-sub :options :options)
-(reg-sheet-sub :inventory :inventory)
-(reg-sheet-sub :items :items)
-(reg-sheet-sub :equipped :equipped)
+(reg-meta-sub :meta/sheet :sheet)
+(reg-meta-sub :meta/sources :sources)
+(reg-meta-sub :meta/kind :kind)
+(reg-meta-sub :meta/classes (comp vals :classes))
+(reg-meta-sub :meta/races :races)
+(reg-meta-sub :limited-used :limited-uses)
+(reg-meta-sub :meta/options :options)
+(reg-meta-sub :meta/inventory :inventory)
+(reg-meta-sub :meta/items :items)
+(reg-meta-sub :meta/equipped :equipped)
 
 (reg-sub
   :active-sheet-source-ids
-  :<- [::sources]
+  :<- [:meta/sources]
   set)
 
 (reg-sub
@@ -129,10 +129,10 @@
 
 (reg-sub
   :classes
-  :<- [:sheet-kind]
+  :<- [:meta/kind]
   :<- [:sheet-source]
-  :<- [:options]
-  :<- [:class-metas]
+  :<- [:meta/options]
+  :<- [:meta/classes]
   (fn [[sheet-kind source options metas] _]
     (when source
       (->> metas
@@ -158,9 +158,9 @@
   :races
   :<- [:sheet-meta]
   :<- [:sheet-source]
-  :<- [:options]
+  :<- [:meta/options]
   :<- [:total-level]
-  :<- [:race-ids]
+  :<- [:meta/races]
   (fn [[sheet-meta source options total-level ids] _]
     (when source
       (->> ids
@@ -350,10 +350,10 @@
 ; set to true
 (reg-sub
   :inventory-map
-  :<- [:sheet-kind]
-  :<- [:inventory]
-  :<- [:items]
-  :<- [:equipped]
+  :<- [:meta/kind]
+  :<- [:meta/inventory]
+  :<- [:meta/items]
+  :<- [:meta/equipped]
   :<- [:sheet-source]
   (fn [[sheet-kind raw-inventory items equipped data-source]]
     (reduce-kv
@@ -401,7 +401,7 @@
 ; list of all known items for the current sheet
 (reg-sub
   :all-items
-  :<- [:sheet-kind]
+  :<- [:meta/kind]
   :<- [:sheet-source]
   (fn [[sheet-kind source]]
     (->> (src/list-entities source :items)
@@ -424,7 +424,7 @@
 
 (reg-sub
   :options->
-  :<- [:options]
+  :<- [:meta/options]
   (fn [options [_ path]]
     (let [v (get-in options path)
           {instanced-value :value} v]

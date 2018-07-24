@@ -208,7 +208,7 @@
                            (first path)
                            expand-val
                            f path v]))
-           :doc #(<sub [:options])}])) ]
+           :doc #(<sub [:meta/options])}])) ]
 
     ; no features
     [:p "No features with options available yet."]))
@@ -224,7 +224,7 @@
        [:div.feature-option {:key (:id r)}
         (:name r)])]
 
-    {:get #(first (get-in (<sub [:sheet-meta]) [:races]))
+    {:get #(first (<sub [:meta/races]))
      :save! (fn [_ v]
               (>evt [:update-meta [:races] (constantly [v])]))}]
 
@@ -408,7 +408,7 @@
 
         ]]
       {:get (fn [path]
-              (let [a (:abilities (<sub [:sheet]))]
+              (let [a (:abilities (<sub [:meta/sheet]))]
                 (get-in a path)))
        :save! (fn [path v]
                 (>evt [:update-meta (concat [:sheet :abilities])
