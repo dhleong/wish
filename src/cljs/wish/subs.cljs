@@ -335,11 +335,13 @@
 
                   ; get the :id from the item entry, if any
                   (get item :id))]
-    (apply-directives
-      (or (when item-id
-            (src/find-item data-source item-id))
-          item)
-      data-source)))
+    (merge
+      (dissoc item :id)
+      (apply-directives
+        (or (when item-id
+              (src/find-item data-source item-id))
+            item)
+        data-source))))
 
 ; map of :inst-id -> inflated item in the active sheet's inventory,
 ; where each inflated item with an amount > 1 (or which :stacks?)

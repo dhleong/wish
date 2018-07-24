@@ -24,6 +24,14 @@
              "-"
              (js/Date.now))))
 
+(defn instanced?
+  "Check if a given item is instanced? (IE: has its own entry in
+   :meta/items)"
+  [item]
+  (or (not= (:id item)
+            (:item-id item))
+      (= "custom" (namespace (:id item)))))
+
 (defn instantiate-id
   "Given an item ID, return a NEW instance id for it.
    Note that custom items typically just use their item-id

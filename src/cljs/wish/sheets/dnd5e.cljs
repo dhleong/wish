@@ -578,7 +578,18 @@
         stacks? (inv/stacks? item)]
     [expandable
      [:div.item
-      [:div.name (:name item)]
+      [:div.info
+       [:div.name (:name item)]
+       (when-let [n (:notes item)]
+         [:div.notes-preview n])]
+
+      (when (inv/instanced? item)
+        [:div.notes
+         [link {:href "#"
+                :on-click (click>evt [:toggle-overlay
+                                      [#'overlays/notes-overlay :item item]]
+                                     :propagate? false)}
+          (icon :description)]])
 
       (when stacks?
         [:div.quantity quantity])

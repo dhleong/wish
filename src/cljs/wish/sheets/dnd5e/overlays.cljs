@@ -149,15 +149,29 @@
 
 ; ======= notes ============================================
 
-(defn notes-overlay []
+(defn- actual-notes-overlay
+  [bind-opts]
   [:div {:class (:notes-overlay styles)}
    [:h5 "Notes"]
    [bind-fields
     [:textarea.notes {:field :textarea
                       :id :notes}]
+    bind-opts]])
 
-    {:get #(<sub [::subs/notes])
-     :save! #(>evt [::events/set-notes %2])}]])
+(defn notes-overlay
+  ([]
+   (actual-notes-overlay
+     {:get #(<sub [::subs/notes])
+      :save! #(>evt [::events/set-notes %2])}))
+  ([kind entity]
+   (case kind
+     :item (actual-notes-overlay
+             {:get #(get-in (<sub [:inventory-map])
+                            [(:id entity) :notes])
+              :save! #(>evt [:update-meta [:items (:id entity)]
+                             assoc
+                             :notes
+                             %2])}))))
 
 
 ; ======= short rest =======================================

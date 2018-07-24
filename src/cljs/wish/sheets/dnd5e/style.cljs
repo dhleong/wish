@@ -274,7 +274,14 @@
                     :padding "4px"
                     :margin "8px 0 4em 0"}]
    [:.item flex/center
-    [:.name flex/grow]
+    [:.info flex/grow
+     [:.notes-preview {:overflow 'hidden
+                       :font-size "10px"
+                       :height "12px"
+                       :max-width "150px"
+                       :padding-right "1em"
+                       :text-overflow 'ellipsis
+                       :white-space 'pre}]]
     [:.button {:font-size "60%"}
      [:&.disabled {:font-style 'italic
                    :color "rgba(1,1,1, 0.25) !important"
