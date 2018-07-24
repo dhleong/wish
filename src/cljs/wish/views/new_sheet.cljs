@@ -2,6 +2,7 @@
       :doc "new-sheet"}
   wish.views.new-sheet
   (:require-macros [cljs.core.async.macros :refer [go]]
+                   [wish.util :refer [fn-click]]
                    [wish.util.log :as log])
   (:require [clojure.core.async :refer [chan <!]]
             [clojure.string :as str]
@@ -22,8 +23,7 @@
              #(keyword (.-id %))
              #(.-value %)))
   ([ratom key-fn val-fn]
-   (fn [e]
-     (.preventDefault e)
+   (fn-click [e]
      (swap! ratom
             assoc
             (key-fn (.-target e))
@@ -60,8 +60,7 @@
          [:h3 "New Sheet"]
          [:div
           [:form#new-sheet
-           {:on-submit (fn [e]
-                         (.preventDefault e)
+           {:on-submit (fn-click
                          (reset! state :creating)
                          (go (let [[err sheet-id] (<! (do-create @form-data))]
                                (if err

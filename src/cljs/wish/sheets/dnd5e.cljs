@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
-  (:require-macros [wish.util.log :as log])
+  (:require-macros [wish.util :refer [fn-click]]
+                   [wish.util.log :as log])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -313,8 +314,7 @@
        [:span.unselectable label]
 
        [:a {:href "#"
-            :on-click (fn [e]
-                        (.preventDefault e)
+            :on-click (fn-click
                         (reset! page id))}
         label])]))
 

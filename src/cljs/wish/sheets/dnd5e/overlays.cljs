@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Overlays"}
   wish.sheets.dnd5e.overlays
-  (:require-macros [wish.util.log :refer [log]])
+  (:require-macros [wish.util :refer [fn-click]]
+                   [wish.util.log :refer [log]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -12,7 +13,7 @@
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
-            [wish.util :refer [<sub >evt click>evt click>evts]]
+            [wish.util :refer [<sub >evt click>evt click>evts click>swap!]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -68,8 +69,7 @@
 
          [:h5.centered.section-header "Quick Adjust"]
          [:form#hp-adjust-input
-          {:on-submit (fn [e]
-                        (.preventDefault e)
+          {:on-submit (fn-click
                         (let [{:keys [heal damage]} @state]
                           (log "Update HP: heal +" heal "  -" damage)
                           (>evt [::events/update-hp (- heal damage) max-hp])
@@ -186,8 +186,7 @@
              free-dice (- total used pending-uses)]
          ^{:key die}
          [:div.hit-die
-          {:on-click (fn [e]
-                       (.preventDefault e)
+          {:on-click (fn-click
                        (when (> free-dice 0)
                          (let [next-id (:next-id
                                          (swap! state update :next-id inc))]
@@ -215,10 +214,7 @@
     (when removable?
       [:a {:href "#"
            :tabIndex -1
-           :on-click (fn [e]
-                       (.preventDefault e)
-
-                       (swap! state #(update-in % [:values die] dissoc i)))}
+           :on-click (click>swap! state #(update-in % [:values die] dissoc i))}
        (icon :remove-circle)])]
 
    state])
@@ -330,9 +326,7 @@
       [:div.spell
        [:div.header
         [spell-info-header
-         {:on-click (fn [e]
-                      (.preventDefault e)
-                      (swap! expanded? not))}
+         {:on-click (click>swap! expanded? not)}
          s]
         (if (:always-prepared? s)
           [:div.prepare.disabled
@@ -452,8 +446,7 @@
     (fn []
       [bind-fields
        [:form
-        {:on-submit (fn [e]
-                      (.preventDefault e)
+        {:on-submit (fn-click
                       (when-let [v (:adjust @quick-adjust)]
                         (log "Adjust currency: " v)
                         (>evt [::events/adjust-currency v]))
@@ -609,8 +602,7 @@
        [:h5 "Custom Item"]
        [bind-fields
         [:form
-         {:on-submit (fn [e]
-                       (.preventDefault e)
+         {:on-submit (fn-click
                        (let [s @state]
                          (cond
                            (str/blank? (:name s))

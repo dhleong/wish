@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.util
+  (:require-macros [wish.util :refer [fn-click]])
   (:require [reagent.dom :as reagent-dom]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
 
@@ -28,9 +29,7 @@
   "Returns an on-click handler that dispatches the given events
    and prevents the default on-click events"
   [& events]
-  (fn [e]
-    (.preventDefault e)
-
+  (fn-click [e]
     (doseq [event events]
       (>evt event))
 
@@ -42,14 +41,22 @@
    and prevents the default on-click events"
   [event & {:keys [propagate?]
             :or {propagate? true}}]
-  (fn [e]
-    (.preventDefault e)
-
+  (fn-click [e]
     (>evt event)
 
     ; prevent propagation, optionally
     (when-not propagate?
       (.stopPropagation e))))
+
+(defn click>swap!
+  "Returns an on-click handler that performs (swap!) with the
+   given arguments"
+  ([a f]
+   (fn-click
+     (swap! a f)))
+  ([a f x]
+   (fn-click
+     (swap! a f x))))
 
 (def is-ios?
   (memoize

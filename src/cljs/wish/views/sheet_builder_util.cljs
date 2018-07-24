@@ -1,8 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Utility widgets, etc. for implementing a sheet builder"}
   wish.views.sheet-builder-util
+  (:require-macros [wish.util :refer [fn-click]])
   (:require [reagent.core :as r]
-            [wish.util :refer [<sub >evt]]
+            [wish.util :refer [<sub >evt click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.providers :as providers]
             [wish.views.widgets :refer [link save-state] :refer-macros [icon]]))
@@ -118,11 +119,9 @@
                [:p.warning
                 "Warning! Removing the builtin data source may cause problems!"])
              [:input {:type 'button
-                      :on-click (fn [e]
-                                  (.preventDefault e)
-                                  (>evt [:set-sheet-data-sources
-                                         sheet-id
-                                         this-source-ids]))
+                      :on-click (click>evt [:set-sheet-data-sources
+                                            sheet-id
+                                            this-source-ids])
                       :value "Save Changes"}]])]
 
          [:h5 "Add New Data Source on:"]
@@ -132,8 +131,7 @@
             ^{:key provider-id}
             [:div
              [:a {:href "#"
-                  :on-click (fn [e]
-                              (.preventDefault e)
+                  :on-click (fn-click
                               (providers/register-data-source provider-id))}
               (:name (providers/get-info provider-id))]
              (when (= state :signed-out)

@@ -4,7 +4,7 @@
   (:require-macros [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as string]
             [reagent.core :as r]
-            [wish.util :refer [<sub >evt click>evt]]
+            [wish.util :refer [<sub >evt click>evt click>swap!]]
             [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :refer [pushy-supported? pushy-prefix]]))
 
@@ -51,9 +51,7 @@
       (let [now-expanded? @expanded?]
         [:div.expandable
          [:div.header.button
-          {:on-click (fn [e]
-                       (.preventDefault e)
-                       (swap! expanded? not))}
+          {:on-click (click>swap! expanded? not)}
           (if (fn? header-fn)
             [header-fn now-expanded?]
             header-fn)]

@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "builder"}
   wish.sheets.dnd5e.builder
-  (:require-macros [wish.util.log :refer [log]]
+  (:require-macros [wish.util :refer [fn-click]]
+                   [wish.util.log :refer [log]]
                    [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
@@ -9,7 +10,7 @@
             [cljs-css-modules.macro :refer-macros [defstyle]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
-            [wish.util :refer [<sub >evt]]
+            [wish.util :refer [<sub >evt click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [data-source-manager router
@@ -258,8 +259,7 @@
 
      [:div.remove.clickable
       {:title (str "Remove " (:name class-info) " Class")
-       :on-click (fn [e]
-                   (.preventDefault e)
+       :on-click (fn-click
                    (when (js/confirm "Are you sure you want to remove this class?")
                      (>evt [::events/remove-class class-info])))}
       (icon :clear)]]
@@ -280,8 +280,7 @@
                  (remove (comp unavailable-class-ids :id)))]
       ^{:key (:id c)}
       [:div.feature-option
-       {:on-click (fn [e]
-                    (.preventDefault e)
+       {:on-click (fn-click
                     ; TODO first, show a preview of the class features
 
                     (>evt [:update-meta [:classes]
@@ -358,9 +357,7 @@
            [:div.pick-new-class
             [:h2 "Multiclassing"]
             [:a {:href "#"
-                 :on-click (fn [e]
-                             (.preventDefault e)
-                             (swap! show-picker? not))}
+                 :on-click (click>swap! show-picker? not)}
              "Add another class"]])
 
          ; class feature config
