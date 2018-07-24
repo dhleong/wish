@@ -16,16 +16,19 @@
 
 (defn update-selections-for
   [selections accepted? key-clicked]
-  ; TODO if we only seem to accept a single value, act
-  ; like a radio button
-  (let [updated (update-in selections [key-clicked] not)]
-    ; TODO handling filters, esp. for spells?
-    (if (accepted? {:features (selections->options updated)})
-      ; only return the updated value if it was accepted
-      updated
+  (let [const-max (-> accepted? meta :const)]
+    (if (= 1 const-max)
+      ; act like a radio button
+      {key-clicked true}
 
-      ; no deal; don't change
-      selections)))
+      (let [updated (update-in selections [key-clicked] not)]
+        ; TODO handling filters, esp. for spells?
+        (if (accepted? {:features (selections->options updated)})
+          ; only return the updated value if it was accepted
+          updated
+
+          ; no deal; don't change
+          selections)))))
 
 (defn- clean-attrs
   [attrs]
