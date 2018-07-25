@@ -29,19 +29,22 @@
     [:div {:class (:ability-tmp-overlay styles)}
      [:h5 label " " score " (" modifier ")"]
 
-     [bind-fields
+     [:form
+      {:on-submit (click>evt [:toggle-overlay nil])}
 
-      [:div
-       [:label {:for :ability-tmp}
-        "Temporary Modifier"]
-       [:input.number {:field :fast-numeric
-                       :id :ability-tmp}]]
+      [bind-fields
 
-      {:get #(get-in (<sub [:meta/sheet]) [:ability-tmp id])
-       :save! (fn [path v]
-                (>evt [:update-meta
-                       [:sheet :ability-tmp]
-                       assoc id v]))}]]))
+       [:div
+        [:label {:for :ability-tmp}
+         "Temporary Modifier"]
+        [:input.number {:field :fast-numeric
+                        :id :ability-tmp}]]
+
+       {:get #(get-in (<sub [:meta/sheet]) [:ability-tmp id])
+        :save! (fn [path v]
+                 (>evt [:update-meta
+                        [:sheet :ability-tmp]
+                        assoc id v]))}]]]))
 
 
 ; ======= hit points =======================================

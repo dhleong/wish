@@ -181,7 +181,12 @@
                {:score score
                 :modifier (mod->str (get modifiers ability))
                 :save (get saves ability)
-                :has-tmp? (not= score (get base ability))
+                :mod (let [delta (- score
+                                    (get base ability))]
+                       (cond
+                         (= delta 0) nil
+                         (> delta 0) :buff
+                         :else :nerf))
                 :proficient? (get save-proficiencies ability)}))
       {}
       abilities)))

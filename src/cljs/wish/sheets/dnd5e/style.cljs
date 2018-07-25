@@ -188,9 +188,12 @@
                      flex/align-center
                      button
                      {:height "1.7em"})
-    [:&.modified
+    [:&.buffed
      [:.score {:color "#0d0"}]
      [:.mod {:color "#0d0"}]]
+    [:&.nerfed
+     [:.score {:color "#d00"}]
+     [:.mod {:color "#d00"}]]
     [:.score {:font-size "1.1em"
               :width "1.9em"} ]
     [:.label flex/grow]

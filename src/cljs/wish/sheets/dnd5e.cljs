@@ -131,10 +131,12 @@
     [:<>
      (for [[id label] labeled-abilities]
        (let [{:keys [score modifier save
-                     has-tmp? proficient?]} (get abilities id)]
+                     mod proficient?]} (get abilities id)]
          ^{:key id}
-         [:div.ability {:class (when has-tmp?
-                                 "modified")
+         [:div.ability {:class (when mod
+                                 (case mod
+                                   :buff "buffed"
+                                   :nerf "nerfed"))
                         :on-click (click>evt [:toggle-overlay
                                               [#'overlays/ability-tmp
                                                id
