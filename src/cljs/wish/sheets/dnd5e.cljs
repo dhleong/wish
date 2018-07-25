@@ -126,32 +126,19 @@
    [:cha "Charisma"]])
 
 (defn abilities-section []
-  (let [abilities (<sub [::subs/abilities])
-        prof-bonus (<sub [::subs/proficiency-bonus])
-        save-proficiencies (<sub [::subs/save-proficiencies])
-        save-buffs (<sub [::subs/save-buffs])
+  (let [abilities (<sub [::subs/ability-info])
         save-extras (<sub [::subs/save-extras])]
     [:<>
      (for [[id label] labeled-abilities]
-       ; TODO this should probably be a single subscription...
-       (let [score (get abilities id)
-             modifier (ability->mod score)
-             modifier-str (mod->str modifier)
-             proficient? (get save-proficiencies id)
-             save-str (if proficient?
-                        (mod->str
-                          (+ modifier save-buffs prof-bonus))
-
-                        (mod->str
-                          (+ modifier save-buffs)))]
+       (let [{:keys [score modifier save proficient?]} (get abilities id)]
          ^{:key id}
          [:div.ability
           [:div.score score]
           [:div.label label]
           [:div.info "mod"]
-          [:div.mod modifier-str]
+          [:div.mod modifier]
           [:div.info "save"]
-          [:div.mod save-str]
+          [:div.mod save]
           [:div.proficiency
            {:class (when proficient?
                      "proficient")}]]))

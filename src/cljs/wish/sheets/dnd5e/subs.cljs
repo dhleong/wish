@@ -5,7 +5,8 @@
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
-            [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
+            [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
+                                                     mod->str]]
             [wish.util :refer [invoke-callable]]))
 
 ; ======= Constants ========================================
@@ -116,7 +117,7 @@
 ; from the class.
 ; TODO There are also equippable items, but we don't yet support that.
 (reg-sub
-  ::abilities
+  ::abilities-base
   :<- [:meta/sheet]
   :<- [:race]
   :<- [:classes]
@@ -127,6 +128,13 @@
            (map (comp :buffs :attrs) classes))))
 
 (reg-sub
+  ::abilities
+  :<- [::abilities-base]
+  (fn [base]
+    ; TODO temp mods
+    base))
+
+(reg-sub
   ::ability-modifiers
   :<- [::abilities]
   (fn [abilities]
@@ -135,6 +143,43 @@
        (assoc m ability (ability->mod score)))
      {}
      abilities)))
+
+(reg-sub
+  ::ability-saves
+  :<- [::ability-modifiers]
+  :<- [::proficiency-bonus]
+  :<- [::save-proficiencies]
+  :<- [::save-buffs]
+  (fn [[modifiers prof-bonus save-proficiencies save-buffs]]
+    (reduce-kv
+      (fn [m ability modifier]
+        (let [proficient? (get save-proficiencies ability)]
+          (assoc m ability
+                 (if proficient?
+                   (mod->str
+                     (+ modifier save-buffs prof-bonus))
+
+                   (mod->str
+                     (+ modifier save-buffs))))))
+      {}
+      modifiers)))
+
+(reg-sub
+  ::ability-info
+  :<- [::abilities]
+  :<- [::ability-modifiers]
+  :<- [::save-proficiencies]
+  :<- [::ability-saves]
+  (fn [[abilities modifiers save-proficiencies saves]]
+    (reduce-kv
+      (fn [m ability score]
+        (assoc m ability
+               {:score score
+                :modifier (mod->str (get modifiers ability))
+                :save (get saves ability)
+                :proficient? (get save-proficiencies ability)}))
+      {}
+      abilities)))
 
 (reg-sub
   ::limited-uses
