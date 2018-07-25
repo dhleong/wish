@@ -130,9 +130,15 @@
         save-extras (<sub [::subs/save-extras])]
     [:<>
      (for [[id label] labeled-abilities]
-       (let [{:keys [score modifier save proficient?]} (get abilities id)]
+       (let [{:keys [score modifier save
+                     has-tmp? proficient?]} (get abilities id)]
          ^{:key id}
-         [:div.ability
+         [:div.ability {:class (when has-tmp?
+                                 "modified")
+                        :on-click (click>evt [:toggle-overlay
+                                              [#'overlays/ability-tmp
+                                               id
+                                               label]])}
           [:div.score score]
           [:div.label label]
           [:div.info "mod"]

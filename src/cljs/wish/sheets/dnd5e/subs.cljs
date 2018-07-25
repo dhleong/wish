@@ -130,9 +130,12 @@
 (reg-sub
   ::abilities
   :<- [::abilities-base]
-  (fn [base]
+  :<- [:meta/sheet]
+  (fn [[base sheet]]
     ; TODO temp mods
-    base))
+    (merge-with +
+                base
+                (:ability-tmp sheet))))
 
 (reg-sub
   ::ability-modifiers
@@ -167,16 +170,18 @@
 (reg-sub
   ::ability-info
   :<- [::abilities]
+  :<- [::abilities-base]
   :<- [::ability-modifiers]
   :<- [::save-proficiencies]
   :<- [::ability-saves]
-  (fn [[abilities modifiers save-proficiencies saves]]
+  (fn [[abilities base modifiers save-proficiencies saves]]
     (reduce-kv
       (fn [m ability score]
         (assoc m ability
                {:score score
                 :modifier (mod->str (get modifiers ability))
                 :save (get saves ability)
+                :has-tmp? (not= score (get base ability))
                 :proficient? (get save-proficiencies ability)}))
       {}
       abilities)))

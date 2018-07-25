@@ -105,6 +105,11 @@
     [:.notes-overlay
      [:textarea.notes {:height "80vh"}]])
 
+  [:.ability-tmp-overlay overlay
+   [:.number {:font-size "110%"
+              :margin-left "8px"
+              :width "3em"}]]
+
   [:.custom-item-overlay overlay
    [:.section {:padding "8px"}
     [:&.flex (merge flex/center
@@ -181,9 +186,13 @@
   [:.abilities
    [:.ability (merge flex
                      flex/align-center
+                     button
                      {:height "1.7em"})
+    [:&.modified
+     [:.score {:color "#0d0"}]
+     [:.mod {:color "#0d0"}]]
     [:.score {:font-size "1.1em"
-              :width "1.9em"}]
+              :width "1.9em"} ]
     [:.label flex/grow]
     [:.info (merge metadata
                    {:padding "0 4px"})]

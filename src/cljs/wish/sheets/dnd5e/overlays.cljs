@@ -21,6 +21,29 @@
             [wish.views.widgets.fast-numeric]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
+; ======= ability info/tmp mods ============================
+
+(defn ability-tmp
+  [id label]
+  (let [{{:keys [score modifier]} id} (<sub [::subs/ability-info])]
+    [:div {:class (:ability-tmp-overlay styles)}
+     [:h5 label " " score " (" modifier ")"]
+
+     [bind-fields
+
+      [:div
+       [:label {:for :ability-tmp}
+        "Temporary Modifier"]
+       [:input.number {:field :fast-numeric
+                       :id :ability-tmp}]]
+
+      {:get #(get-in (<sub [:meta/sheet]) [:ability-tmp id])
+       :save! (fn [path v]
+                (>evt [:update-meta
+                       [:sheet :ability-tmp]
+                       assoc id v]))}]]))
+
+
 ; ======= hit points =======================================
 
 (defn hp-overlay []
