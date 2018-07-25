@@ -101,7 +101,8 @@
        (let [raw-values-features (->> args
                                       (map :values)
                                       flatten
-                                      (filter :id))
+                                      (filter :id)
+                                      (map #(assoc % :wish/option? true)))
              features (inflate-features state
                                         (concat args
                                                 raw-values-features))

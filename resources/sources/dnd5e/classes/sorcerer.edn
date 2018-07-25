@@ -155,34 +155,44 @@ To be eligible, a spell must be incapable of targeting more than one creature at
 You can speak, read, and write Draconic. Additionally, whenever you make a Charisma check when interacting with dragons, your proficiency bonus is doubled if it applies to the check."
         :max-options 1
         :values [{:id :dragon/black
-                  :name "Black"
+                  :name "Black Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Acid."
                   :! [[:!provide-attr :dragon-damage "Acid"]]}
                  {:id :dragon/blue
-                  :name "Blue"
+                  :name "Blue Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Lightning."
                   :! [[:!provide-attr :dragon-damage "Lightning"]]}
                  {:id :dragon/brass
-                  :name "Brass"
+                  :name "Brass Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Fire."
                   :! [[:!provide-attr :dragon-damage "Fire"]]}
                  {:id :dragon/bronze
-                  :name "Bronze"
+                  :name "Bronze Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Lightning."
                   :! [[:!provide-attr :dragon-damage "Lightning"]]}
                  {:id :dragon/copper
-                  :name "Copper"
+                  :name "Copper Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Acid."
                   :! [[:!provide-attr :dragon-damage "Acid"]]}
                  {:id :dragon/gold
-                  :name "Gold"
+                  :name "Gold Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Fire."
                   :! [[:!provide-attr :dragon-damage "Fire"]]}
                  {:id :dragon/green
-                  :name "Green"
+                  :name "Green Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Poison."
                   :! [[:!provide-attr :dragon-damage "Poison"]]}
                  {:id :dragon/red
-                  :name "Red"
+                  :name "Red Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Fire."
                   :! [[:!provide-attr :dragon-damage "Fire"]]}
                  {:id :dragon/silver
-                  :name "Silver"
+                  :name "Silver Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Cold."
                   :! [[:!provide-attr :dragon-damage "Cold"]]}
                  {:id :dragon/white
-                  :name "White"
+                  :name "White Dragon Ancestor"
+                  :desc "The damage type associated with your draconic lineage is Cold."
                   :! [[:!provide-attr :dragon-damage "Cold"]]}]}
 
        {:id :sorcerer/draconic-resilience

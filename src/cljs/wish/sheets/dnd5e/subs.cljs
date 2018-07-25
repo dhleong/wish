@@ -1095,16 +1095,33 @@
   ::currency
   :currency)
 
+(reg-sub
+  ::selected-option-ids
+  :<- [:meta/options]
+  (fn [options]
+    (->> options
+         vals
+         flatten
+         set)))
+
 ; hacks?
 (reg-sub
   ::features-for
   (fn [[_ sub-vec]]
-    (subscribe sub-vec))
-  (fn [sources]
+    [(subscribe sub-vec)
+     (subscribe [::selected-option-ids])])
+  (fn [[sources selected-options]]
     (->> sources
          (mapcat (comp vals :features))
          (filter :name)
          (remove :implicit?)
+
+         ; if the feature is an option, we only want it
+         ; if it was actually selected
+         (remove #(and (:wish/option? %)
+                       (not (contains? selected-options
+                                       (:id %)))))
+
          (sort-by :name)
          seq)))
 
