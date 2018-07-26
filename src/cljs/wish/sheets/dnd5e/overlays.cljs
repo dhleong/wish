@@ -13,11 +13,12 @@
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
-            [wish.util :refer [<sub >evt click>evt click>evts click>swap!]]
+            [wish.util :refer [<sub >evt click>evt click>evts click>swap!
+                               dec-dissoc]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [formatted-text link]]
+             :refer [expandable formatted-text link]]
             [wish.views.widgets.fast-numeric]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
@@ -48,6 +49,69 @@
 
 
 ; ======= hit points =======================================
+
+(defn- condition-widget
+  [[id level] on-delete]
+  (let [c (get data/conditions id)]
+    [:div.condition
+     [expandable
+      [:<>
+       [:div.name
+        [:a.delete
+         {:href "#"
+          :on-click (click>evt [:update-meta
+                                [:sheet :conditions]
+                                dec-dissoc
+                                id]
+                               :propagate? false)}
+         (if (> level 1)
+           (icon :remove-circle)
+           (icon :clear))]
+        (:name c)
+        (when (:levels c)
+          [:span.meta " (" level ")"])]
+       (when-let [per-level (:per-level c)]
+         [:ul.per-levels
+          (for [the-level (range 1 (inc level))]
+            ^{:key the-level}
+            [:li (get per-level the-level)])])]
+
+      [formatted-text :div.desc (:desc c)]]]))
+
+(defn- conditions-management []
+  (let [afflicted (<sub [::subs/conditions])]
+    [:<>
+     [:h5.centered.section-header "Conditions"]
+     (for [[id _ :as c] afflicted]
+       ^{:key id}
+       [condition-widget c])
+
+     [:div.centered
+
+      (when-not (seq afflicted)
+        [:div.none "(none)"])
+
+      [:select
+       {:id :condition
+        :value :-none
+        :on-change (fn-click [e]
+                     (let [v (keyword (.. e -target -value))]
+                       (when-not (= :-none v)
+                         (set! (.. e -target -value) "-none")
+                         (>evt [:update-meta [:sheet :conditions v] inc]))))}
+
+       [:option {:key :-none}
+        "— Add a Condition —"]
+
+       (for [c (->> (data/conditions-sorted)
+                    (filter (fn [{:keys [id levels]}]
+                              (let [max-level (or levels 1)
+                                    current-level (get afflicted id 0)]
+                                (< current-level max-level)))))]
+         ^{:key (:id c)}
+         [:option {:value (:id c)}
+          (:name c)])]
+      ]]))
 
 (defn hp-overlay []
   (let [[starting-hp _] (<sub [::subs/hp])
@@ -170,7 +234,9 @@
                             :min 0}]
             {:get #(<sub [::subs/temp-max-hp])
              :save! #(>evt [::events/temp-max-hp! %2])}]]]
-           ]))))
+
+          ; this ought to get its own overlay at some point:
+          [conditions-management]]))))
 
 
 ; ======= notes ============================================

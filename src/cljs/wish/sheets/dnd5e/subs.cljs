@@ -1150,6 +1150,10 @@
   ::currency
   :currency)
 
+(reg-sheet-sub
+  ::conditions
+  :conditions)
+
 (reg-sub
   ::selected-option-ids
   :<- [:meta/options]

@@ -8,6 +8,14 @@
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
 
+(defn dec-dissoc
+  "Update the key `k` in the given map `m`, decrementing it
+   if > 1 or dissoc if <= 1"
+  [m k]
+  (if (> (get m k) 1)
+    (update m k dec)
+    (dissoc m k)))
+
 (defn deep-merge
   [v & vs]
   (letfn [(rec-merge [a b]

@@ -144,7 +144,17 @@
                           {:padding "4px"})
     [:.number (merge text-center
                      {:font-size "1.2em"
-                      :width "4em"})]]]
+                      :width "4em"})]]
+
+   [:.none (merge metadata
+                  {:padding "8px"})]
+   [:.condition {:margin "4px 0"}
+    [:.expandable :.header {:padding "4px 0"}
+     [:ul.per-levels {:margin "4px"}]]
+    [:.name flex/center
+     [:.delete {:margin-right "4px"}]
+     [:.meta {:margin-left "4px"}]]
+    [:.desc metadata]]]
 
   [:.notes-overlay overlay
    [:textarea.notes {:width "100%"
