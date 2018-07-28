@@ -833,6 +833,10 @@
      [:option {:value i}
       (:name c)])])
 
+(defn- equipment-count
+  [item amount]
+  [:span [:b "(" amount ") "] (:name item)])
+
 (defn- equipment-pack
   ([pack]
    (equipment-pack pack false))
@@ -848,17 +852,16 @@
             (str/join ", "))])]))
 
 (defn- equipment-and
-  [state path values]
-  (let [chosen-path (conj path :chosen)
-        chosen? (get-in @state chosen-path)
-        options-count (count values)
-        top-level? (= 1 (count path))]
+  [state path values chosen?]
+  (let [top-level? (= 1 (count path))
+        chosen-path (conj path :chosen)
+        options-count (count values)]
     [:div
      (when top-level?
        {:class "alternatives clickable"
         :on-click (fn-click [e]
                     (when (direct-click? e)
-                     (swap! state toggle-in chosen-path true)))})
+                      (swap! state toggle-in chosen-path true)))})
      [:div
       {:class (when top-level?
                 ["choice" (when chosen?
@@ -870,11 +873,17 @@
            (= i 0) nil
            (= i (dec options-count)) " and "
            :else ", ")
-         (if (vector? v)
-           ; should be always :or
+         (cond
+           (and (vector? v)
+                (= :or (first v)))
            [equipment-choice state (conj path i) (second v) chosen?]
 
+           (and (vector? v)
+                (= :count (first v)))
+           [equipment-count (second v) (last v)]
+
            ; single item
+           :else
            (:name v))])]]))
 
 (defn- equipment-or
@@ -893,12 +902,13 @@
           :class (when chosen?
                    "chosen")}
          (if (vector? v)
-           (let [[kind v] v]
+           (let [[kind v amount] v]
              ; special case
              (case kind
+               :count [equipment-count v amount]
                :pack [equipment-pack v (when chosen?
                                          :expand!)]
-               :and [equipment-and state (conj path i) v]
+               :and [equipment-and state (conj path i) v chosen?]
                :or (if chosen?
                      [equipment-choice state (conj path i) v :enabled]
                      [:span "(choice)"])))
@@ -906,62 +916,62 @@
            ; single item
            [:span (:name v)])]))]))
 
-; this is terribly over-complicated...
 (defn expand-starting-eq
-  [choices state-map]
-  (mapcat
-    (fn [[idx {chosen :chosen :as opts}]]
-      (when chosen
-        (let [entry (nth choices idx)]
-          (if (true? chosen)
-            ; [:and] selected
-            (->> entry
-                 second
-                 (map-indexed
-                   (fn [i e]
-                     (if (and (vector? e)
-                              (= :or (first e)))
-                       (let [chosen-idx (get opts i 0)]
-                         ; eg nth of [:or [:a :b]]
-                         (-> e second (nth chosen-idx)))
+  ([choices state-map]
+   (->> choices
+        (map-indexed list)
+        (mapcat
+          (fn [[i outer-choice]]
+            (expand-starting-eq outer-choice state-map [i] false)))))
 
-                       ; just a direct entry
-                       e))))
+  ([choice state-map path and?]
+   (when-let [chosen (or (get-in state-map (conj path :chosen))
+                         (get-in state-map path)
+                         and?)]
+     (if (vector? choice)
+       (let [[kind values ?amount] choice]
+         (case kind
+           ; wacky (when-not) to handle de-selected top-level and
+           :and (when-not (and (map? chosen)
+                               (contains? chosen :chosen)
+                               (not (:chosen chosen)))
+                  (->> values
+                       (map-indexed list)
+                       (mapcat
+                         (fn [[i item]]
+                           (expand-starting-eq item state-map
+                                               (conj path i)
+                                               :and!)))))
 
-            ; if not true? it must be :or
-            (let [chosen-group (second entry)
-                  chosen-item (nth chosen-group chosen)]
-              (cond
-                (and (vector? chosen-item)
-                     (= :and (first chosen-item)))
-                (second chosen-item)
+           :or (when-let [chosen (if (number? chosen)
+                                   chosen
 
-                (and (vector? chosen-item)
-                     (= :or (first chosen-item)))
-                (-> chosen-item
-                    second
-                    (nth (get opts chosen 0))
-                    list)
+                                   ; top-level :or do NOT have a default
+                                   ; value, but nested ones do
+                                   (when (> (count path) 1)
+                                     0))]
+                 (expand-starting-eq
+                   (nth values chosen)
+                   state-map
+                   (conj path chosen)
+                   true))
 
-                (and (vector? chosen-item)
-                     (= :pack (first chosen-item)))
-                (->> chosen-item
-                     second
-                     :contents)
+           ; easy peasy
+           :count [[values ?amount]]
 
-                (sequential? chosen-item)
-                chosen-item
+           ; also easy
+           :pack (-> values :contents)))
 
-                :else
-                [chosen-item]))))))
-    state-map))
+       ; simple case
+       [choice]))))
 
 (defn starting-equipment-adder []
   (let [state (r/atom {})]
     (fn []
       (let [{primary-class :class
              choices :choices
-             :as info} (<sub [::subs/starting-eq])]
+             :as info} (<sub [::subs/starting-eq])
+            this-state @state]
         [:div {:class (:starting-equipment-overlay styles)}
          [:h5 (:name primary-class) " Starting Equipment"]
 
@@ -969,16 +979,19 @@
            (with-meta
              (case kind
                :or [equipment-or state [i] values]
-               :and [equipment-and state [i] values])
+               :and [equipment-and state [i] values
+                     (when (get this-state i)
+                       :chosen!)])
              {:key i}))
 
-         (when (some :chosen (vals @state))
+         (when (some :chosen (vals this-state))
            [:div.accept
             [:a {:href "#"
                  :on-click (fn-click
                              (let [items (expand-starting-eq
                                            choices
                                            @state)]
+                               (log "State:" @state)
                                (log "Add items: " items)
                                (>evt [:inventory-add-n items])
                                (>evt [:toggle-overlay nil])))}

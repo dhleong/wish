@@ -42,10 +42,24 @@
                                  :limited-use? true})))))
 
 (deftest expand-starting-eq-est
+  (testing "Simple `and` UNselected"
+    (is (= []
+           (expand-starting-eq
+             [[:and [{:id :mreynolds}]]]
+
+             {0 {:chosen nil}}))))
+
   (testing "Simple `and` selected"
     (is (= [{:id :mreynolds}]
            (expand-starting-eq
              [[:and [{:id :mreynolds}]]]
+
+             {0 {:chosen true}}))))
+
+  (testing "Simple `and` with count"
+    (is (= [[{:id :bobble-geisha} 10]]
+           (expand-starting-eq
+             [[:and [[:count {:id :bobble-geisha} 10]]]]
 
              {0 {:chosen true}}))))
 
@@ -125,4 +139,14 @@
              (expand-starting-eq
                choices
 
-               {0 {:chosen true}}))))))
+               {0 {:chosen true}})))))
+
+  (testing "Or in And in Or"
+    (is (= [{:id :yosafbridge} {:id :zoe}]
+           (expand-starting-eq
+             '([:or [{:id :badger}
+                     [:and [{:id :yosafbridge}
+                            [:or [{:id :mreynolds}
+                                  {:id :zoe}]]]]]])
+
+             {0 {:chosen 1, 1 {1 1}}})))))

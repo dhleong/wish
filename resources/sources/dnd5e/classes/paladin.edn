@@ -7,7 +7,25 @@
     :spells :paladin/spells-list
     :slots :standard/half
     :extra-spells :paladin/extra-spells
-    :prepares? true}}
+    :prepares? true}
+
+   :5e/starting-eq
+   [; shield + weapon or 2 weapons
+    ([{:type :weapon
+       :category :martial}
+      :shield]
+     [{:type :weapon
+       :category :martial}
+      {:type :weapon
+       :category :martial}])
+
+    ({:id :javelin
+      :count 5}
+     {:type :weapon
+      :category :simple})
+
+    (:priests-pack :explorers-pack)
+    [:chain-mail {:kind :holy-symbol}]]}
 
   :features
   [:hit-dice/d10

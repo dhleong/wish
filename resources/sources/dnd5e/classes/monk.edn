@@ -1,6 +1,13 @@
 [:!declare-class
  {:id :monk
   :name "Monk"
+  :attrs
+  {:5e/starting-eq
+   [(:shortsword {:type :weapon
+                  :category :simple})
+    (:dungeoneers-pack :explorers-pack)
+    [{:id :dart
+      :count 10}]]}
 
   :features
   [:hit-dice/d8

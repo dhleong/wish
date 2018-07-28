@@ -296,6 +296,20 @@
                '{:type :weapon
                  :category :simple}))))
 
+    (testing "Unpack (quantity)"
+      (is (= [:count dagger 10]
+             (unpack-eq-choices
+               source
+               packs
+               '{:id :dagger
+                 :count 10})))
+      (is (= [:count dagger 10]
+             (unpack-eq-choices
+               source
+               packs
+               '[{:id :dagger
+                  :count 10}]))))
+
     (testing "Nested choices"
       (is (= [:or [[:and [dagger thieves-tools]]
                    lute]]

@@ -1171,13 +1171,18 @@
   [:and (map (partial unpack-eq-choices source packs) choices)])
 (defmethod unpack-eq-choices :filter
   [source packs choices]
-  (let [choice-keys (keys choices)]
-    [:or (->> (src/list-entities source :items)
-              (remove :+) ; no magic items
-              (remove :desc) ; or fancy items
-              (filter (fn [item]
-                        (let [matching-keys (select-keys item choice-keys)]
-                          (= matching-keys choices)))))]))
+  (if-let [id (:id choices)]
+    ; single item with a :count
+    [:count (src/find-item source id) (:count choices)]
+
+    ; filter
+    (let [choice-keys (keys choices)]
+      [:or (->> (src/list-entities source :items)
+                (remove :+) ; no magic items
+                (remove :desc) ; or fancy items
+                (filter (fn [item]
+                          (let [matching-keys (select-keys item choice-keys)]
+                            (= matching-keys choices)))))])))
 (defmethod unpack-eq-choices :id
   [source packs choice]
   (or (when-let [p (get packs choice)]
