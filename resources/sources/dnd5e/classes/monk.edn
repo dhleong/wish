@@ -83,18 +83,32 @@ Certain monasteries use specialized forms of the monk weapons. For example, you 
                [{:id :monk/ki
                  :name "Ki"
                  :desc "Starting at 2nd level, your training allows you to harness the mystic energy of ki. Your access to this energy is represented by a number of ki points. Your monk level determines the number of points you have, as shown in the Ki Points column of the Monk table.
-                        You can spend these points to fuel various ki features. You start knowing three such features: Flurry of Blows, Patient Defense, and Step of the Wind. You learn more ki features as you gain levels in this class.
+You can spend these points to fuel various ki features. You start knowing three such features: Flurry of Blows, Patient Defense, and Step of the Wind. You learn more ki features as you gain levels in this class.
 
-                        When you spend a ki point, it is unavailable until you finish a short or long rest, at the end of which you draw all of your expended ki back into yourself. You must spend at least 30 minutes of the rest meditating to regain your ki points.
+When you spend a ki point, it is unavailable until you finish a short or long rest, at the end of which you draw all of your expended ki back into yourself. You must spend at least 30 minutes of the rest meditating to regain your ki points.
 
-                        Some of your ki features require your target to make a saving throw to resist the feature’s effects. The saving throw DC is calculated as follows:
+Some of your ki features require your target to make a saving throw to resist the feature’s effects. The saving throw DC is calculated as follows:
 
-                        8 + your proficiency bonus + your Wisdom modifier"
+    8 + your proficiency bonus + your Wisdom modifier"
                  :! [[:!add-limited-use
                       {:id :monk/ki#uses
                        :name "Ki Points"
                        :restore-trigger :short-rest
                        :uses (fn [level] level)}]]}
+
+                {:id :monk/unarmored-movement
+                 :name "Unarmored Movement"
+                 :desc "Your speed increases by 10 feet while you are not wearing armor or wielding a shield. This bonus increases when you reach certain monk levels, as shown in the Monk table.
+At 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move."
+                 :! [[:!provide-attr
+                      [:buffs :speed :monk/unarmored-movement]
+                      {:fn (fn [level]
+                             (cond
+                               (< level 6) 10
+                               (< level 10) 15
+                               (< level 14) 20
+                               (< level 18) 25
+                               :else 30))}]]}
 
                 {:id :monk/flurry-of-blows
                  :name "Flurry of Blows"

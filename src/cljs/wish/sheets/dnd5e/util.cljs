@@ -114,6 +114,25 @@
     ; nope
     :else entity))
 
+(def compile-speed-buff (memoize ->callable))
+(defn- compile-speed-buffs
+  [entity]
+  (if (get-in entity [:attrs :buffs :speed])
+    (update-in entity [:attrs :buffs :speed]
+               (fn [buffs-map]
+                 (reduce-kv
+                   (fn [m k v]
+                     (if (number? v)
+                       m
+
+                       ; should look like {:fn (fn [level])}
+                       (update-in m [k :fn] compile-speed-buff)))
+                   buffs-map
+                   buffs-map)))
+
+    ; nope
+    entity))
+
 (defn- compile-weapon-dice
   [entity]
   (if (= :weapon (:type entity))
@@ -127,4 +146,5 @@
   (-> entity
       install-spell-uses
       compile-ac-sources
+      compile-speed-buffs
       compile-weapon-dice))

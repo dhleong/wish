@@ -395,9 +395,22 @@
 (reg-sub
   ::speed
   :<- [:race]
-  (fn [race]
-    ; TODO other mods to speed?
-    (-> race :attrs :5e/speed)))
+  :<- [:classes]
+  (fn [[race classes]]
+    (apply +
+           (-> race :attrs :5e/speed)
+           (->> classes
+                (map (juxt (comp vals :speed :buffs :attrs)
+                           :level))
+                (mapcat
+                  (fn [[values level]]
+                    (map
+                      (fn [v]
+                        (if (number? v)
+                          v
+                          (invoke-callable v :fn
+                                           :level level)))
+                      values)))))))
 
 
 ; ======= combat ===========================================
