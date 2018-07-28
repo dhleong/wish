@@ -332,12 +332,24 @@
                      (:id item))]
      (update-in sheet [:inventory inst-id] + quantity))))
 
+(defn- do-add
+  [cofx item quantity]
+  ; update the sheet meta directly
+  (if (or (not quantity)
+          (inv/stacks? item))
+    (update-sheet-path cofx [] inventory-add item quantity)
+
+    ; instantiate each one
+    (reduce
+      #(update-sheet-path %1 [] inventory-add item)
+      cofx
+      (range quantity))))
+
 (reg-event-fx
   :inventory-add
   [trim-v]
   (fn [cofx [item & [quantity]]]
-    ; update the sheet meta directly
-    (update-sheet-path cofx [] inventory-add item quantity)))
+    (do-add cofx item quantity)))
 
 ; add many items at once; an "item" can be an item map directly
 ; or a pair of [item amount] to add multiple
@@ -349,10 +361,10 @@
       (fn [cofx item]
         (if (map? item)
           ; single item
-          (update-sheet-path cofx [] inventory-add item)
+          (do-add cofx item nil)
 
           ; [item, amount] pair
-          (update-sheet-path cofx [] inventory-add (first item) (second item))))
+          (do-add cofx (first item) (second item))))
       cofx
       items)))
 
