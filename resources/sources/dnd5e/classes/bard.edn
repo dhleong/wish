@@ -11,7 +11,14 @@
     :spells :bard/spells-list
     :extra-spells :bard/extra-spells
     :prepares? false
-    }}
+    }
+
+   :5e/starting-eq
+   [(:rapier :longsword {:type :weapon
+                         :category :simple})
+    (:diplomats-pack :entertainers-pack)
+    (:lute {:kind :musical-instrument})
+    [:leather-armor :dagger]]}
 
   :features
   [:hit-dice/d8

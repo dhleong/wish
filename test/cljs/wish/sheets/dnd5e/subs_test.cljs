@@ -3,7 +3,15 @@
             [wish.sheets.dnd5e.subs :refer [knowable-spell-counts-for
                                             level->proficiency-bonus
                                             spell-slots
-                                            calculate-weapon]]))
+                                            calculate-weapon
+                                            unpack-eq-choices]]
+            [wish.sources.compiler :refer [compile-directives]]
+            [wish.sources.core :as src :refer [->DataSource]]))
+
+(defn- ->ds
+  [& directives]
+  (->DataSource :ds
+                (compile-directives directives)))
 
 (def ^:private warlock
   {:attrs
@@ -244,3 +252,54 @@
                                  :versatile "1d10"})
 
                           [:base-dice :alt-dice :to-hit]))))))
+
+(deftest unpack-eq-choices-test
+  (let [dagger {:id :dagger
+                :type :weapon
+                :kind :dagger
+                :category :simple}
+        lute {:id :lute
+              :type :gear
+              :kind :musical-instrument}
+        thieves-tools {:id :thieves-tools
+                       :type :other
+                       :kind :tool}
+
+        source (->ds
+                 [:!declare-items
+                  {}
+                  dagger
+                  lute
+                  thieves-tools])
+
+        packs {:explorers-pack {:backpack 1}}]
+
+    (testing "Unpack 'or'"
+      (is (= [:or [dagger lute]]
+             (unpack-eq-choices
+               source
+               packs
+               '(:dagger :lute)))))
+
+    (testing "Unpack 'and'"
+      (is (= [:and [dagger lute]]
+             (unpack-eq-choices
+               source
+               packs
+               '[:dagger :lute]))))
+
+    (testing "Unpack (filter)"
+      (is (= [:or [dagger]]
+             (unpack-eq-choices
+               source
+               packs
+               '{:type :weapon
+                 :category :simple}))))
+
+    (testing "Nested choices"
+      (is (= [:or [[:and [dagger thieves-tools]]
+                   lute]]
+             (unpack-eq-choices
+               source
+               packs
+               '([:dagger :thieves-tools] :lute)))))))

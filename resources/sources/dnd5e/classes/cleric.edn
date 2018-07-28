@@ -10,7 +10,14 @@
     :spells :cleric/spells-list
     :extra-spells :cleric/extra-spells
     :prepares? true}
-   }
+
+   :5e/starting-eq
+   [(:mace :warhammer)
+    (:scale-mail :leather-armor :chain-mail)
+    ([:light-crossbow :crossbow-bolt] {:type :weapon
+                                       :category :simple})
+    (:priests-pack :explorers-pack)
+    [:shield {:kind :holy-symbol}]]}
 
   :features
   [:hit-dice/d8

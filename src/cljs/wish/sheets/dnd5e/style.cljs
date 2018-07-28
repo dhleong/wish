@@ -292,6 +292,7 @@
                    {:align-self 'center})]]]
 
   [:.inventory-section
+   [:.special {:justify-content 'space-between}]
    [:.item-browser {:height "300px"
                     :padding "4px"
                     :margin "8px 0 4em 0"}]
@@ -354,6 +355,34 @@
      [:&.g {:background-color color-gold}]
      [:&.e {:background-color color-electrum}]
      [:&.s {:background-color color-silver}]
-     [:&.c {:background-color color-copper}]]]
-   ])
+     [:&.c {:background-color color-copper}]]] ]
+
+  [:.starting-equipment-overlay overlay
+    [:.alternatives {:border "1px solid #333"
+                     :margin "4px 0"
+                     :overflow-x 'hidden
+                     :padding "4px"}
+     [:.choice {:color "rgba(0,0,0, 0.5)"
+                :padding "4px"}
+      ["&:nth-child(n+2)" {:position 'relative
+                           :padding-top "12px"}
+       [:&:before {:content "''"
+                   :position 'absolute
+                   :top "2px"
+                   :width "98%"
+                   :border-bottom "1px solid #999"}]
+       [:&:after {:background-color "#f0f0f0"
+                  :color "#999"
+                  :content "'OR'"
+                  :font-size "10px"
+                  :position 'absolute
+                  :padding "0 8px"
+                  :top "-3px"
+                  :left "3em"
+                  }]]
+      [:&.chosen {:color "#000"}]]]
+   [:.pack
+    [:.contents metadata]]
+   [:.accept {:padding "8px"
+              :font-size "120%"}]])
 

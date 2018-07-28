@@ -147,6 +147,17 @@
                         :class)))))
       )))
 
+; A single class instance, or nil if none at all; if any
+; class is marked primary, that class is returned. If none
+; are so marked, then nil is returned
+(reg-sub
+  :primary-class
+  :<- [:classes]
+  (fn [classes]
+    (->> classes
+         (filter :primary?)
+         first)))
+
 ; sum of levels from all classes
 (reg-sub
   :total-level

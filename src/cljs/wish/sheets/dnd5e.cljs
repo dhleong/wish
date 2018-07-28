@@ -656,10 +656,16 @@
 
    [:h4 "Add Items"]
 
-   [:a {:href "#"
-        :on-click (click>evt [:toggle-overlay
-                              [#'overlays/custom-item-creator]])}
-    "Create a custom item"]
+   [:div.sections.special
+    [:a {:href "#"
+         :on-click (click>evt [:toggle-overlay
+                               [#'overlays/custom-item-creator]])}
+     "Create a custom item"]
+
+    [:a {:href "#"
+         :on-click (click>evt [:toggle-overlay
+                               [#'overlays/starting-equipment-adder]])}
+     "Starting Equipment"]]
 
    [item-browser]])
 

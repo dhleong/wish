@@ -7,7 +7,7 @@
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
-            [wish.util :refer [invoke-callable]]))
+            [wish.util :refer [invoke-callable ->map]]))
 
 ; ======= Constants ========================================
 
@@ -1142,6 +1142,68 @@
 
                   ; normal case
                   entry))))))
+
+
+; ======= starting equipment ==============================
+
+(reg-sub
+  ::starter-packs-by-id
+  :<- [:sheet-source]
+  (fn [source]
+    (->map
+      (src/expand-list source :5e/starter-packs nil))))
+
+(defmulti unpack-eq-choices (fn [source packs choices]
+                              (cond
+                                (vector? choices) :and
+                                (list? choices) :or
+                                (map? choices) :filter
+                                (keyword? choices) :id
+                                :else
+                                (do
+                                  (log/warn "Unexpected choices: " choices)
+                                  (type choices)))))
+(defmethod unpack-eq-choices :or
+  [source packs choices]
+  [:or (map (partial unpack-eq-choices source packs) choices)])
+(defmethod unpack-eq-choices :and
+  [source packs choices]
+  [:and (map (partial unpack-eq-choices source packs) choices)])
+(defmethod unpack-eq-choices :filter
+  [source packs choices]
+  (let [choice-keys (keys choices)]
+    [:or (->> (src/list-entities source :items)
+              (remove :+) ; no magic items
+              (remove :desc) ; or fancy items
+              (filter (fn [item]
+                        (let [matching-keys (select-keys item choice-keys)]
+                          (= matching-keys choices)))))]))
+(defmethod unpack-eq-choices :id
+  [source packs choice]
+  (or (when-let [p (get packs choice)]
+        ; packs are special
+        [:pack (update p :contents
+                       (partial
+                         map
+                         (fn [[id amount]]
+                           [(src/find-item source id)
+                            amount])))])
+
+      ; just an item
+      (src/find-item source choice)))
+
+(reg-sub
+  ::starting-eq
+  :<- [:sheet-source]
+  :<- [::starter-packs-by-id]
+  :<- [:primary-class]
+  (fn [[source packs {{eq :5e/starting-eq} :attrs
+                      :as primary-class}]]
+    {:class primary-class
+     :choices
+     (map
+       (partial unpack-eq-choices source packs)
+       eq)}))
 
 
 ; ======= etc ==============================================

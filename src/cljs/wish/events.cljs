@@ -339,6 +339,24 @@
     ; update the sheet meta directly
     (update-sheet-path cofx [] inventory-add item quantity)))
 
+; add many items at once; an "item" can be an item map directly
+; or a pair of [item amount] to add multiple
+(reg-event-fx
+  :inventory-add-n
+  [trim-v]
+  (fn [cofx [items]]
+    (reduce
+      (fn [cofx item]
+        (if (map? item)
+          ; single item
+          (update-sheet-path cofx [] inventory-add item)
+
+          ; [item, amount] pair
+          (update-sheet-path cofx [] inventory-add (first item) (second item))))
+      cofx
+      items)))
+
+
 ; NOTE: unlike :inventory-add and :inventory-subtract, this
 ; is ONLY intended to change the current quantity of a stacks?
 ; item and (at least for now) does not attempt to instantiate

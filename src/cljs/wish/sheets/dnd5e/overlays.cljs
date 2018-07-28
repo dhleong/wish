@@ -2,7 +2,7 @@
       :doc "Overlays"}
   wish.sheets.dnd5e.overlays
   (:require-macros [wish.util :refer [fn-click]]
-                   [wish.util.log :refer [log]])
+                   [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -14,7 +14,7 @@
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts click>swap!
-                               dec-dissoc]]
+                               dec-dissoc toggle-in]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -804,3 +804,182 @@
                                      :default-quantity])
                      (not (str/blank? value)))
             (update doc :errors dissoc (first id))))]])))
+
+
+; ======= starting equipment ==============================
+
+(defn- direct-click?
+  "Return true if the click event was directly on the
+   desired element"
+  [e]
+  ; okay, sort of; this is slightly simpler than having
+  ; to track the actual dom elements
+  (not (#{"SELECT"}
+         (.. e -target -tagName))))
+
+(defn- equipment-choice
+  [state path choices enabled?]
+  [:select
+   {:on-change (fn-click [e]
+                 (swap! state
+                        assoc-in path
+                        (int (.. e -target -value))))
+    :value (if-let [v (get-in @state path)]
+             v
+             js/undefined)
+    :disabled (not enabled?)}
+   (for [[i c] (map-indexed list choices)]
+     ^{:key (:id c)}
+     [:option {:value i}
+      (:name c)])])
+
+(defn- equipment-pack
+  ([pack]
+   (equipment-pack pack false))
+  ([pack expanded?]
+   [:div.pack
+    [:div.name (:name pack)]
+    (when expanded?
+      [:div.contents
+       (->> pack
+            :contents
+            (map (fn [[item amount]]
+                   (str amount " " (:name item))))
+            (str/join ", "))])]))
+
+(defn- equipment-and
+  [state path values]
+  (let [chosen-path (conj path :chosen)
+        chosen? (get-in @state chosen-path)
+        options-count (count values)
+        top-level? (= 1 (count path))]
+    [:div
+     (when top-level?
+       {:class "alternatives clickable"
+        :on-click (fn-click [e]
+                    (when (direct-click? e)
+                     (swap! state toggle-in chosen-path true)))})
+     [:div
+      {:class (when top-level?
+                ["choice" (when chosen?
+                            "chosen")])}
+      (for [[i v] (map-indexed list values)]
+        ^{:key i}
+        [:span
+         (cond
+           (= i 0) nil
+           (= i (dec options-count)) " and "
+           :else ", ")
+         (if (vector? v)
+           ; should be always :or
+           [equipment-choice state (conj path i) (second v) chosen?]
+
+           ; single item
+           (:name v))])]]))
+
+(defn- equipment-or
+  [state path choices]
+  (let [chosen-path (conj path :chosen)
+        chosen (get-in @state chosen-path)]
+    [:div.alternatives
+    (for [[i v] (map-indexed list choices)]
+      (let [chosen? (= chosen i)]
+        ^{:key i}
+        [:div.choice.clickable
+         {:on-click (fn-click [e]
+                      ; ignore clicks on contained, clickable children (esp [select])
+                      (when (direct-click? e)
+                        (swap! state toggle-in chosen-path i)))
+          :class (when chosen?
+                   "chosen")}
+         (if (vector? v)
+           (let [[kind v] v]
+             ; special case
+             (case kind
+               :pack [equipment-pack v (when chosen?
+                                         :expand!)]
+               :and [equipment-and state (conj path i) v]
+               :or (if chosen?
+                     [equipment-choice state (conj path i) v :enabled]
+                     [:span "(choice)"])))
+
+           ; single item
+           [:span (:name v)])]))]))
+
+; this is terribly over-complicated...
+(defn expand-starting-eq
+  [choices state-map]
+  (mapcat
+    (fn [[idx {chosen :chosen :as opts}]]
+      (when chosen
+        (let [entry (nth choices idx)]
+          (if (true? chosen)
+            ; [:and] selected
+            (->> entry
+                 second
+                 (map-indexed
+                   (fn [i e]
+                     (if (and (vector? e)
+                              (= :or (first e)))
+                       (let [chosen-idx (get opts i 0)]
+                         ; eg nth of [:or [:a :b]]
+                         (-> e second (nth chosen-idx)))
+
+                       ; just a direct entry
+                       e))))
+
+            ; if not true? it must be :or
+            (let [chosen-group (second entry)
+                  chosen-item (nth chosen-group chosen)]
+              (cond
+                (and (vector? chosen-item)
+                     (= :and (first chosen-item)))
+                (second chosen-item)
+
+                (and (vector? chosen-item)
+                     (= :or (first chosen-item)))
+                (-> chosen-item
+                    second
+                    (nth (get opts chosen 0))
+                    list)
+
+                (and (vector? chosen-item)
+                     (= :pack (first chosen-item)))
+                (->> chosen-item
+                     second
+                     :contents)
+
+                (sequential? chosen-item)
+                chosen-item
+
+                :else
+                [chosen-item]))))))
+    state-map))
+
+(defn starting-equipment-adder []
+  (let [state (r/atom {})]
+    (fn []
+      (let [{primary-class :class
+             choices :choices
+             :as info} (<sub [::subs/starting-eq])]
+        [:div {:class (:starting-equipment-overlay styles)}
+         [:h5 (:name primary-class) " Starting Equipment"]
+
+         (for [[i [kind values]] (map-indexed list choices)]
+           (with-meta
+             (case kind
+               :or [equipment-or state [i] values]
+               :and [equipment-and state [i] values])
+             {:key i}))
+
+         (when (some :chosen (vals @state))
+           [:div.accept
+            [:a {:href "#"
+                 :on-click (fn-click
+                             (let [items (expand-starting-eq
+                                           choices
+                                           @state)]
+                               (log "Add items: " items)
+                               (>evt [:inventory-add-n items])
+                               (>evt [:toggle-overlay nil])))}
+             "I'll take it!"]])]))))

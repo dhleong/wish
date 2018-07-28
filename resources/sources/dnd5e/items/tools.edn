@@ -1,0 +1,91 @@
+[:!declare-items
+
+ {:type :other
+  :kind :tool}
+
+ {:id :alchemists-supplies
+  :name "Alchemist's Supplies"}
+ {:id :brewers-supplies
+  :name "Brewer's Supplies"}
+ {:id :calligraphers-supplies
+  :name "Calligrapher's Supplies"}
+ {:id :carpenters-tools
+  :name "Carpenter's Tools"}
+ {:id :cartographers-tools
+  :name "Cartographer's Tools"}
+ {:id :cobblers-tools
+  :name "Cobbler's Tools"}
+ {:id :cooks-utensils
+  :name "Cook's Utensils"}
+ {:id :dice-set
+  :name "Dice Set"}
+ {:id :disguise-kit
+  :name "Disguise Kit"}
+ {:id :dragonchess-set
+  :name "Dragonchess Set"}
+ {:id :forgery-kit
+  :name "Forgery Kit"}
+ {:id :glassblowers-tools
+  :name "Glassblower's Tools"}
+ {:id :herbalism-kit
+  :name "Herbalism Kit"}
+ {:id :jewelers-tools
+  :name "Jeweler's Tools"}
+ {:id :leatherworkers-tools
+  :name "Leatherworker's Tools"}
+ {:id :masons-tools
+  :name "Mason's Tools"}
+ {:id :navigators-tools
+  :name "Navigator's Tools"}
+ {:id :painters-supplies
+  :name "Painter's Supplies"}
+ {:id :playing-card-set
+  :name "Playing Card Set"}
+ {:id :poisoners-kit
+  :name "Poisoner's Kit"}
+ {:id :potters-tools
+  :name "Potter's Tools"}
+ {:id :smiths-tools
+  :name "Smith's Tools"}
+ {:id :thieves-tools
+  :name "Thieves' Tools"}
+ {:id :three-dragon-ante-set
+  :name "Three-Dragon Ante Set"}
+ {:id :tinkers-tools
+  :name "Tinker's Tools"}
+ {:id :vehicles-land
+  :name "Vehicles (Land)"}
+ {:id :vehicles-water
+  :name "Vehicles (Water)"}
+ {:id :weavers-tools
+  :name "Weaver's Tools"}
+ {:id :woodcarvers-tools
+  :name "Woodcarver's Tools"}]
+
+
+[:!declare-items
+
+ {:type :other
+  :kind :musical-instrument}
+
+ {:id :bagpipes
+  :name "Bagpipes"}
+ {:id :drum
+  :name "Drum"}
+ {:id :dulcimer
+  :name "Dulcimer"}
+ {:id :flute
+  :name "Flute"}
+ {:id :horn
+  :name "Horn"}
+ {:id :lute
+  :name "Lute"}
+ {:id :lyre
+  :name "Lyre"}
+ {:id :pan-flute
+  :name "Pan Flute"}
+ {:id :shawm
+  :name "Shawm"}
+ {:id :viol
+  :name "Viol"}
+ ]

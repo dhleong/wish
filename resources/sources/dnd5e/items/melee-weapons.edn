@@ -1,10 +1,97 @@
 [:!declare-items
+ {:type :weapon
+  :category :simple}
 
- {:type :weapon}
+ {:id :club
+  :kind :club
+  :name "Club"}
+ {:id :dagger
+  :kind :dagger
+  :name "Dagger"}
+ {:id :greatclub
+  :kind :greatclub
+  :name "Greatclub"}
+ {:id :handaxe
+  :kind :handaxe
+  :name "Handaxe"}
+ {:id :javelin
+  :kind :javelin
+  :name "Javelin"}
+ {:id :light-hammer
+  :kind :light-hammer
+  :name "Light Hammer"}
+ {:id :mace
+  :kind :mace
+  :name "Mace"}
+ {:id :quarterstaff
+  :kind :quarterstaff
+  :name "Quarterstaff"}
+ {:id :sickle
+  :kind :sickle
+  :name "Sickle"}
+ {:id :spear
+  :kind :spear
+  :name "Spear"}
+ ]
 
+[:!declare-items
+
+ {:type :weapon
+  :category :martial}
+
+ {:id :battleaxe
+  :kind :battleaxe
+  :name "Battleaxe"}
+ {:id :flail
+  :kind :flail
+  :name "Flail"}
+ {:id :glaive
+  :kind :glaive
+  :name "Glaive"}
+ {:id :greataxe
+  :kind :greataxe
+  :name "Greataxe"}
+ {:id :greatsword
+  :kind :greatsword
+  :name "Greatsword"}
+ {:id :halberd
+  :kind :halberd
+  :name "Halberd"}
+ {:id :lance
+  :kind :lance
+  :name "Lance"}
  {:id :longsword
-  :name "Longsword"
-  :category :martial
   :kind :longsword
+  :name "Longsword"
   :cost [15 :g]}
+ {:id :maul
+  :kind :maul
+  :name "Maul"}
+ {:id :morningstar
+  :kind :morningstar
+  :name "Morningstar"}
+ {:id :pike
+  :kind :pike
+  :name "Pike"}
+ {:id :rapier
+  :kind :rapier
+  :name "Rapier"}
+ {:id :scimitar
+  :kind :scimitar
+  :name "Scimitar"}
+ {:id :shortsword
+  :kind :shortsword
+  :name "Shortsword"}
+ {:id :trident
+  :kind :trident
+  :name "Trident"}
+ {:id :warpick
+  :kind :warpick
+  :name "Warpick"}
+ {:id :warhammer
+  :kind :warhammer
+  :name "Warhammer"}
+ {:id :whip
+  :kind :whip
+  :name "Whip"}
  ]

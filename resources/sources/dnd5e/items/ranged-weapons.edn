@@ -2,13 +2,45 @@
 
  {:type :weapon
   :ranged? true
-  :uses-ammunition? true}
+  :category :simple}
 
- {:id :longbow
-  :name "Longbow"
+ {:id :light-crossbow
+  :kind :light-crossbow
+  :name "Light Crossbow"}
+ {:id :dart
+  :kind :dart
+  :name "Dart"}
+ {:id :shortbow
+  :kind :shortbow
+  :name "Shortbow"}
+ {:id :sling
+  :kind :sling
+  :name "Sling"}
 
+ ]
+
+[:!declare-items
+
+ {:type :weapon
   :category :martial
+  :ranged? true}
+
+ {:id :blowgun
+  :kind :blowgun
+  :name "Blowgun"}
+ {:id :handcrossbow
+  :kind :handcrossbow
+  :name "Hand Crossbow"}
+ {:id :heavycrossbow
+  :kind :heavycrossbow
+  :name "Heavy Crossbow"}
+ {:id :longbow
   :kind :longbow
-  :range [150 600]
-  }
+  :name "Longbow"}
+
+ {:id :net
+  :kind :net
+  :name "Net"
+  :special? true
+  :range [5 15]}
  ]

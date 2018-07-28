@@ -33,6 +33,14 @@
       (reduce #(rec-merge %1 %2) v vs)
       v)))
 
+(defn toggle-in
+  "Like assoc-in, but if the existing value at the given path
+   matches the provided value, it is set to nil instead"
+  [m path v]
+  (update-in m path (fn [old]
+                      (when-not (= old v)
+                        v))))
+
 (defn click>evts
   "Returns an on-click handler that dispatches the given events
    and prevents the default on-click events"
@@ -64,7 +72,10 @@
      (swap! a f)))
   ([a f x]
    (fn-click
-     (swap! a f x))))
+     (swap! a f x)))
+  ([a f x y]
+   (fn-click
+     (swap! a f x y))))
 
 (def is-ios?
   (memoize

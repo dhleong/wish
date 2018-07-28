@@ -1,0 +1,530 @@
+
+;;
+;; Basic, generic adventuring gear from the srd
+;;
+
+[:!declare-items
+
+ {:type :other}
+
+ {:id :abacus
+  :name "Abacus"
+  :cost [2 :g]
+  :weight 2}
+
+ {:id :acid
+  :name "Acid"
+  :cost [25 :g]
+  :weight 1}
+
+ {:id :alchemists-fire
+  :name "Alchemist’s fire"
+  :unit "flask"
+  :cost [50 :g]
+  :weight 1}
+
+ {:id :alms-box
+  :name "Alms Box"}
+
+ {:id :antitoxin
+  :name "Antitoxin"
+  :unit "vial"
+  :cost [50 :g]}
+
+ {:id :backpack
+  :name "Backpack"
+  :cost [2 :g]
+  :weight 5}
+
+ {:id :bag-of-sand
+  :name "Bag of Sand"}
+
+ {:id :ball-bearings
+  :name "Ball bearings"
+  :default-quantity 1000
+  :unit "bag"
+  :cost [1 :g]
+  :weight 2}
+
+ {:id :barrel
+  :name "Barrel"
+  :cost [2 :g]
+  :weight 70}
+
+ {:id :basket
+  :name "Basket"
+  :cost [4 :s]
+  :weight 2}
+
+ {:id :bedroll
+  :name "Bedroll"
+  :cost [1 :g]
+  :weight 7}
+
+ {:id :bell
+  :name "Bell"
+  :cost [1 :g]}
+
+ {:id :blanket
+  :name "Blanket"
+  :cost [5 :s]
+  :weight 3}
+
+ {:id :block-and-tackle
+  :name "Block and tackle"
+  :cost [1 :g]
+  :weight 5}
+
+ {:id :book
+  :name "Book"
+  :cost [25 :g]
+  :weight 5}
+
+ {:id :bottle-glass
+  :name "Bottle, glass"
+  :cost [2 :g]
+  :weight 2}
+
+ {:id :bucket
+  :name "Bucket"
+  :cost [5 :c]
+  :weight 2}
+
+ {:id :caltrops
+  :name "Caltrops"
+  :default-quantity 20
+  :unit "bag"
+  :cost [1 :g]
+  :weight 2}
+
+ {:id :candle
+  :name "Candle"
+  :cost [1 :c]}
+
+ {:id :case-crossbow-bolt
+  :name "Case, crossbow bolt"
+  :cost [1 :g]
+  :weight 1}
+
+ {:id :case-map-or-scroll
+  :name "Case, map or scroll"
+  :cost [1 :g]
+  :weight 1}
+
+ {:id :censer
+  :name "Censer"}
+
+ {:id :chain
+  :name "Chain"
+  :default-quantity 10
+  :unit "feet"
+  :cost [5 :g]
+  :weight 10}
+
+ {:id :chalk
+  :name "Chalk"
+  :unit "piece"
+  :cost [1 :c]}
+
+ {:id :chest
+  :name "Chest"
+  :cost [5 :g]
+  :weight 25}
+
+ {:id :climbers-kit
+  :name "Climber’s kit"
+  :cost [25 :g]
+  :weight 12}
+
+ {:id :clothes-common
+  :name "Clothes, common"
+  :cost [5 :s]
+  :weight 3}
+
+ {:id :clothes-costume
+  :name "Clothes, costume"
+  :cost [5 :g]
+  :weight 4}
+
+ {:id :clothes-fine
+  :name "Clothes, fine"
+  :cost [15 :g]
+  :weight 6}
+
+ {:id :clothes-travelers
+  :name "Clothes, traveler’s"
+  :cost [2 :g]
+  :weight 4}
+
+ {:id :component-pouch
+  :name "Component pouch"
+  :cost [25 :g]
+  :weight 2}
+
+ {:id :crowbar
+  :name "Crowbar"
+  :cost [2 :g]
+  :weight 5}
+
+ {:id :fishing-tackle
+  :name "Fishing tackle"
+  :cost [1 :g]
+  :weight 4}
+
+ {:id :flask-or-tankard
+  :name "Flask or tankard"
+  :cost [2 :c]
+  :weight 1}
+
+ {:id :grappling-hook
+  :name "Grappling hook"
+  :cost [2 :g]
+  :weight 4}
+
+ {:id :hammer
+  :name "Hammer"
+  :cost [1 :g]
+  :weight 3}
+
+ {:id :hammer-sledge
+  :name "Hammer, sledge"
+  :cost [2 :g]
+  :weight 10}
+
+ {:id :healers-kit
+  :name "Healer’s kit"
+  :cost [5 :g]
+  :weight 3}
+
+ {:id :holy-water
+  :name "Holy water"
+  :unit "flask"
+  :cost [25 :g]
+  :weight 1}
+
+ {:id :hourglass
+  :name "Hourglass"
+  :cost [25 :g]
+  :weight 1}
+
+ {:id :hunting-trap
+  :name "Hunting trap"
+  :cost [5 :g]
+  :weight 25}
+
+ {:id :ink
+  :name "Ink"
+  :unit "ounce bottle"
+  :cost [10 :g]}
+
+ {:id :ink-pen
+  :name "Ink pen"
+  :cost [2 :c]}
+
+ {:id :incense
+  :name "Incense"
+  :unit "block"}
+
+ {:id :jug-or-pitcher
+  :name "Jug or pitcher"
+  :cost [2 :c]
+  :weight 4}
+
+ {:id :knife-small
+  :name "Knife, Small"}
+
+ {:id :ladder-10-foot
+  :name "Ladder (10-foot)"
+  :cost [1 :s]
+  :weight 25}
+
+ {:id :lamp
+  :name "Lamp"
+  :cost [5 :s]
+  :weight 1}
+
+ {:id :lantern-bullseye
+  :name "Lantern, bullseye"
+  :cost [10 :g]
+  :weight 2}
+
+ {:id :lantern-hooded
+  :name "Lantern, hooded"
+  :cost [5 :g]
+  :weight 2}
+
+ {:id :lock
+  :name "Lock"
+  :cost [10 :g]
+  :weight 1}
+
+ {:id :magnifying-glass
+  :name "Magnifying glass"
+  :cost [100 :g]}
+
+ {:id :manacles
+  :name "Manacles"
+  :cost [2 :g]
+  :weight 6}
+
+ {:id :mess-kit
+  :name "Mess kit"
+  :cost [2 :s]
+  :weight 1}
+
+ {:id :mirror-steel
+  :name "Mirror, steel"
+  :cost [5 :g]
+  :weight 1/2}
+
+ {:id :oil
+  :name "Oil"
+  :unit "flask"
+  :cost [1 :s]
+  :weight 1}
+
+ {:id :paper
+  :name "Paper"
+  :unit "sheet"
+  :cost [2 :s]}
+
+ {:id :parchment
+  :name "Parchment"
+  :unit "sheet"
+  :cost [1 :s]}
+
+ {:id :perfume
+  :name "Perfume"
+  :unit "vial"
+  :cost [5 :g]}
+
+ {:id :pick-miners
+  :name "Pick, miner’s"
+  :cost [2 :g]
+  :weight 10}
+
+ {:id :piton
+  :name "Piton"
+  :cost [5 :c]
+  :weight 1/4}
+
+ {:id :poison-basic
+  :name "Poison, basic"
+  :unit "vial"
+  :cost [100 :g]}
+
+ {:id :pole-10-foot
+  :name "Pole (10-foot)"
+  :cost [5 :c]
+  :weight 7}
+
+ {:id :pot-iron
+  :name "Pot, iron"
+  :cost [2 :g]
+  :weight 10}
+
+ {:id :potion-of-healing
+  :name "Potion of healing"
+  :cost [50 :g]
+  :weight 1/2}
+
+ {:id :pouch
+  :name "Pouch"
+  :cost [5 :s]
+  :weight 1}
+
+ {:id :prayer-book
+  :name "Prayer Book"}
+
+ {:id :prayer-wheel
+  :name "Prayer Wheel"}
+
+ {:id :purse
+  :name "Purse"}
+
+ {:id :quiver
+  :name "Quiver"
+  :cost [1 :g]
+  :weight 1}
+
+ {:id :ram-portable
+  :name "Ram, portable"
+  :cost [4 :g]
+  :weight 35}
+
+ {:id :rations-1-day
+  :name "Rations (1 day)"
+  :cost [5 :s]
+  :weight 2}
+
+ {:id :robes
+  :name "Robes"
+  :cost [1 :g]
+  :weight 4}
+
+ {:id :rope-hempen
+  :name "Rope, hempen"
+  :unit "feet"
+  :default-quantity 50
+  :cost [1 :g]
+  :weight 10}
+
+ {:id :rope-silk
+  :name "Rope, silk"
+  :unit "feet"
+  :default-quantity 50
+  :cost [10 :g]
+  :weight 5}
+
+ {:id :sack
+  :name "Sack"
+  :cost [1 :c]
+  :weight 1/2}
+
+ {:id :scale-merchants
+  :name "Scale, merchant’s"
+  :cost [5 :g]
+  :weight 3}
+
+ {:id :sealing-wax
+  :name "Sealing wax"
+  :cost [5 :s]}
+
+ {:id :shovel
+  :name "Shovel"
+  :cost [2 :g]
+  :weight 5}
+
+ {:id :signal-whistle
+  :name "Signal whistle"
+  :cost [5 :c]}
+
+ {:id :signet-ring
+  :name "Signet ring"
+  :cost [5 :g]}
+
+ {:id :soap
+  :name "Soap"
+  :cost [2 :c]}
+
+ {:id :spellbook
+  :name "Spellbook"
+  :cost [50 :g]
+  :weight 3}
+
+ {:id :spikes-iron
+  :name "Spikes, iron"
+  :default-quantity 10
+  :cost [1 :g]
+  :weight 5}
+
+ {:id :spyglass
+  :name "Spyglass"
+  :cost [1000 :g]
+  :weight 1}
+
+ {:id :string
+  :name "String"
+  :unit "feet"
+  :default-quantity 10}
+
+ {:id :tent-two-person
+  :name "Tent, two-person"
+  :cost [2 :g]
+  :weight 20}
+
+ {:id :tinderbox
+  :name "Tinderbox"
+  :cost [5 :s]
+  :weight 1}
+
+ {:id :torch
+  :name "Torch"
+  :cost [1 :c]
+  :weight 1}
+
+ {:id :vial
+  :name "Vial"
+  :cost [1 :g]}
+
+ {:id :vestments
+  :name "Vestments"}
+
+ {:id :waterskin
+  :name "Waterskin"
+  :cost [2 :s]
+  :weight 5}
+
+ {:id :whetstone
+  :name "Whetstone"
+  :cost [1 :c]
+  :weight 1}
+ ]
+
+;;
+;; Focuses
+;;
+
+[:!declare-items
+
+ {:type :gear
+  :kind :arcane-focus}
+
+ {:id :crystal
+  :name "Crystal"
+  :cost [10 :g]
+  :weight 1}
+ {:id :orb
+  :name "Orb"
+  :cost [20 :g]
+  :weight 3}
+ {:id :rod
+  :name "Rod"
+  :cost [10 :g]
+  :weight 2}
+ {:id :staff
+  :name "Staff"
+  :cost [5 :g]
+  :weight 4}
+ {:id :wand
+  :name "Wand"
+  :cost [10 :g]
+  :weight 1}]
+
+[:!declare-items
+
+ {:type :gear
+  :kind :druidic-focus}
+
+ {:id :sprig-of-mistletoe
+  :name "Sprig of mistletoe"
+  :cost [1 :g]}
+ {:id :totem
+  :name "Totem"
+  :cost [1 :g]}
+ {:id :wooden-staff
+  :name "Wooden staff"
+  :cost [5 :g]
+  :weight 4}
+ {:id :yew-wand
+  :name "Yew wand"
+  :cost [10 :g]
+  :weight 1}]
+
+[:!declare-items
+
+ {:type :gear
+  :kind :holy-symbol}
+
+ {:id :amulet
+  :name "Amulet"
+  :cost [5 :g]
+  :weight 1}
+ {:id :emblem
+  :name "Emblem"
+  :cost [5 :g]}
+ {:id :reliquary
+  :name "Reliquary"
+  :cost [5 :g]
+  :weight 2}]
+
