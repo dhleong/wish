@@ -4,7 +4,7 @@
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.data :refer [diff]]
             [wish.sources.compiler.entity :refer [compile-entity]]
-            [wish.sources.compiler.entity-mod :refer [apply-entity-mod]]
+            [wish.sources.compiler.entity-mod :refer [apply-entity-mod merge-mods]]
             [wish.sources.compiler.feature :refer [compile-feature inflate-features]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
@@ -172,7 +172,12 @@
                (fn [features]
                  (reduce-kv
                    (fn [m feature-id v]
-                     (let [instances (:wish/instances v)]
+                     (let [instances (or (:wish/instances v)
+
+                                         ; the v could just be a number
+                                         ; of instances
+                                         (when (number? v)
+                                           v))]
                        ; if the value is just a map indicating that this
                        ; is a secondary instance of the feature,
                        ; just load the feature as normal (2nd branch)
@@ -202,10 +207,20 @@
 
        ; apply features
        (as-> e
-         (reduce
-           apply-directive
-           e
-           (mapcat :! (vals (:features e))))))))
+         (->> e
+              :features
+              vals
+              (mapcat (fn [{instances :wish/instances
+                            directives :!}]
+                        (if instances
+                          ; repeat the directives n times
+                          (mapcat
+                            (constantly directives)
+                            (range instances))
+
+                          directives)
+                        ))
+              (reduce apply-directive e))))))
 
 ; ======= public api =======================================
 
@@ -356,11 +371,13 @@
 
 (defn find-feature-scaling
   [state k]
-  (-> (get-scaling state k nil)
-      (cons (keep
-              (fn [[id feature]]
-                (get-scaling feature k [:features id]))
-              (:features state)))))
+  (let [features (keep
+                   (fn [[id feature]]
+                     (get-scaling feature k [:features id]))
+                   (:features state))]
+    (if-let [top-level (get-scaling state k nil)]
+      (cons top-level features)
+      features)))
 
 (defn find-limited-use-scaling
   [state k]
@@ -425,14 +442,14 @@
     :&levels
     find-scaling-fn
     (fn [state path this-scaling data-source level]
-      (reduce
-        (fn [s apply-level]
-          (apply-scaling-for-level
-            s path
-            this-scaling data-source
-            apply-level))
-        state
-        (range 1 (inc level))))))
+      ; combine all mod maps up to this level and
+      ; apply *once* to avoid dup applications
+      (let [merged-mod-map (->> (range 1 (inc level))
+                                (keep this-scaling)
+                                (apply merge-mods))]
+        (apply-mod-in
+          state data-source
+          merged-mod-map path)))))
 
 (defn- apply-current-level
   "Applies :levels statements in `original-state`"

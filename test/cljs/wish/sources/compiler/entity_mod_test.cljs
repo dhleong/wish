@@ -1,7 +1,8 @@
 (ns wish.sources.compiler.entity-mod-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.sources.compiler.entity-mod :refer [extract-mod-and-key
-                                                      apply-entity-mod]]))
+                                                      apply-entity-mod
+                                                      merge-mods]]))
 
 (deftest extract-mod-and-key-test
   (testing "Concat"
@@ -65,3 +66,19 @@
              (apply-entity-mod
                features-with-a
                {:+features [:a]}))))))
+
+(deftest merge-mods-test
+  (testing "Merge directives"
+    (is (= [[:!add-to-list
+             :list
+             :2]
+            [:!add-to-list
+             :list
+             :3]]
+           (:+! (merge-mods
+                  {:+! [[:!add-to-list
+                         :list
+                         :2]]}
+                  {:+! [[:!add-to-list
+                         :list
+                         :3]]}))))))

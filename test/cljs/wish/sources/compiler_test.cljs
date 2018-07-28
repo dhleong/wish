@@ -301,6 +301,35 @@
                 :proficiency/insight true}
                (:attrs (apply-feature-levels level-3 ds))))))
 
+    (testing "Don't duplicate when combining feature levels"
+      (let [class-def {:id :cleric
+                       :features
+                       {:test-feature
+                        ; REMINDER: though it's a list in the edn
+                        ; file for simplicity, it gets inflated to
+                        ; a map
+                        {:id :test-feature
+                         :! [[:!add-to-list
+                              :feature-list
+                              {:id :1}]]
+                         :&levels {2 {:+! [[:!add-to-list
+                                            :feature-list
+                                            {:id :2}]]}
+                                   3 {:+! [[:!add-to-list
+                                            :feature-list
+                                            {:id :3}]]}}} }}
+            entity-base (assoc class-def :level 1)
+            level-2 (assoc entity-base :level 2)
+            level-3 (assoc entity-base :level 3) ]
+        (is (= [:1 :2]
+               (->> (apply-feature-levels level-2 ds)
+                    :lists :feature-list
+                    (map :id))))
+        (is (= [:1 :2 :3]
+               (->> (apply-feature-levels level-3 ds)
+                    :lists :feature-list
+                    (map :id))))))
+
     (testing "Support multiple instances of a feature"
       (let [class-def {:id :cleric
                        :&levels {2 {:+features
@@ -320,7 +349,7 @@
         (let [applied-4 (apply-feature-levels level-4 ds)]
           (is (= {:buffs {:dex 3}}
                  (:attrs applied-4)))
-          (is (= 2 (-> applied-4 :features :ability/dex :wish/instances))))))
+          (is (= 3 (-> applied-4 :features :ability/dex :wish/instances))))))
 
     (testing "Replace levels"
       ; This is a contrived example, but...

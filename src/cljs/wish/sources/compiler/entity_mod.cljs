@@ -23,20 +23,28 @@
              ; :features is a special case because the edn list
              ; actually gets inflated into a map
              [(fn [features new-features]
-                (reduce-kv
-                  (fn [features-map fk new-feature]
-                    (cond
-                      ; increment to support multiple feature instances.
-                      ; We ONLY support this when referenced by id
-                      (keyword? new-feature)
-                      (update features-map new-feature (fn [old]
-                                                         (if (or (number? old)
-                                                                 (not old))
-                                                           (inc old)
-                                                           (update old :wish/instances inc))))
+                (reduce
+                  (fn [features-map new-feature]
+                    (let [new-feature (if (map-entry? new-feature)
+                                        ; unpack
+                                        (second new-feature)
 
-                      (map? new-feature)
-                      (assoc features-map (:id new-feature) new-feature)))
+                                        ; normal
+                                        new-feature)]
+                      (cond
+                        ; increment to support multiple feature instances.
+                        ; We ONLY support this when referenced by id
+                        (keyword? new-feature)
+                        (update features-map new-feature
+                                (fn [old]
+                                  (if (or (number? old)
+                                          (not old))
+                                    (inc old)
+                                    (update old :wish/instances inc))))
+
+                        (map? new-feature)
+                        (assoc features-map (:id new-feature) new-feature)
+                        )))
                   features
                   new-features))
               the-key]
@@ -81,3 +89,8 @@
                 modify-with v)))
     (or entity {})
     mod-map))
+
+(defn merge-mods
+  "Merge one or more mod maps"
+  [v & vs]
+  (apply merge-with concat v vs))
