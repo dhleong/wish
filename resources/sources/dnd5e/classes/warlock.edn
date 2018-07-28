@@ -28,7 +28,17 @@
     :multiclass-levels-mod 0
     :restore-trigger :short-rest
     }
-   }
+
+   :5e/starting-eq
+   [([:light-crossbow :crossbow-bolt] {:type :weapon
+                                       :category :simple})
+    (:component-pouch {:kind :arcane-focus})
+    (:scholars-pack :dungeoneers-pack)
+    [:leather-armor
+     {:type :weapon
+      :category :simple}
+     {:id :dagger
+      :count 2}]]}
 
   :features
   [:hit-dice/d8

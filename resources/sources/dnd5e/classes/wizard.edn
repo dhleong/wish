@@ -13,7 +13,13 @@
     :acquired-label "Spellbook"
     :prepares? true
     :acquires? true
-    }}
+    }
+
+   :5e/starting-eq
+   [(:quarterstaff :dagger)
+    (:component-pouch {:kind :arcane-focus})
+    (:scholars-pack :explorers-pack)
+    [:spellbook]]}
 
   :features
   [:hit-dice/d6
