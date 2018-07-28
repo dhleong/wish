@@ -303,7 +303,7 @@
                packs
                '{:id :dagger
                  :count 10})))
-      (is (= [:count dagger 10]
+      (is (= [:and [[:count dagger 10]]]
              (unpack-eq-choices
                source
                packs
