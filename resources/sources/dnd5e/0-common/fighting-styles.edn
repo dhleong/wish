@@ -3,6 +3,13 @@
  {:id :fighting-styles
   :type :feature}
 
+ {:id :fight/archery-style
+  :name "Archery Style"
+  :desc "You gain a +2 bonus to attack rolls you make with ranged weapons."
+  :! [[:!provide-attr
+       [:buffs :atk :ranged :fight/archery-style]
+       2]]}
+
  {:id :fight/defense-style
   :name "Defense Style"
   :desc "While you are wearing armor, you gain a +1 bonus to AC."
@@ -33,7 +40,9 @@
        [:reaction :fight/protection]
        true]]}
 
- ; TODO other styles
+ {:id :fight/two-weapon
+  :name "Two-Weapon Fighting"
+  :desc "When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack."}
  ]
 
 

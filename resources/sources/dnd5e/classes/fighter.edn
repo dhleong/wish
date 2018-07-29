@@ -1,0 +1,167 @@
+[:!declare-class
+ {:id :fighter
+  :name "Fighter"
+  :attrs
+  {:5e/starting-eq
+   [(:chain-mail [:leather-armor
+                  :longbow
+                  :arrow])
+    ([{:type :weapon
+       :category :martial}
+      :shield]
+
+     [{:type :weapon
+       :category :martial}
+      {:type :weapon
+       :category :martial}])
+
+    ([:light-crossbow :crossbow-bolt]
+     {:id :handaxe
+      :count 2})
+
+    (:dungeoneers-pack :explorers-pack)]}
+
+  :features
+  [:hit-dice/d10
+   :hp
+   :unarmed-strike
+
+   :save-proficiency/str
+   :save-proficiency/con
+
+   ; weapon proficiencies
+   :proficiency/simple-weapons
+   :proficiency/martial-weapons
+
+   {:id :fighter/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/acrobatics :proficiency/animal-handling
+             :proficiency/athletics :proficiency/history
+             :proficiency/insight :proficiency/intimidation
+             :proficiency/perception :proficiency/survival]}
+
+   {:id :fighter/fighting-style
+    :name "Fighting Style"
+    :desc "You adopt a particular style of fighting as your specialty. Choose one of the following options. You can’t take a Fighting Style option more than once, even if you later get to choose again."
+    :max-options 1
+    :values [:fighting-styles]}
+
+   {:id :fighter/second-wind
+    :name "Second Wind"
+    :desc "You have a limited well of stamina that you can draw on to protect yourself from harm. On your turn, you can use a bonus action to regain hit points equal to 1d10 + your fighter level. Once you use this feature, you must finish a short or long rest before you can use it again."
+    :consumes :fighter/second-wind#uses
+    :! [[:!add-limited-use
+         {:id :fighter/second-wind#uses
+          :name "Second Wind"
+          :uses 1
+          :restore-trigger :short-rest}]
+        [:!provide-attr
+         [:bonus :fighter/second-wind]
+         true]]}
+   ]
+
+  :&levels {2 {:+features
+               [{:id :fighter/action-surge
+                 :name "Action Surge"
+                 :desc "You can push yourself beyond your normal limits for a moment. On your turn, you can take one additional action on top of your regular action and a possible bonus action.
+Once you use this feature, you must finish a short or long rest before you can use it again. Starting at 17th level, you can use it twice before a rest, but only once on the same turn."
+                 :! [[:!add-limited-use
+                      {:id :fighter/action-surge#uses
+                       :name "Action Surge"
+                       :uses 1
+                       :restore-trigger :short-rest
+                       :&levels {17 {:uses 2}}}]]}
+                ]}
+
+            3 {:+features
+               [{:id :fighter/archetype
+                 :name "Martial Archetype"
+                 :desc "At 3rd level, you choose an archetype that you strive to emulate in your combat styles and techniques."
+                 :max-options 1}
+                ]}
+
+            4 {:+features
+               [:ability-improvement]}
+
+            5 {:+features
+               [{:id :fighter/extra-attack
+                 :name "Extra Attack"
+                 :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn.
+The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class."
+                 ; TODO surface number of attacks
+                 }
+
+                ]}
+
+            6 {:+features
+               [:ability-improvement]}
+
+            8 {:+features
+               [:ability-improvement]}
+
+            9 {:+features
+               [{:id :fighter/indomitable
+                 :name "Indomitable"
+                 :desc "You can reroll a saving throw that you fail. If you do so, you must use the new roll, and you can’t use this feature again until you finish a long rest.
+You can use this feature twice between long rests starting at 13th level and three times between long rests starting at 17th level."
+                 :! [[:!add-limited-use
+                      {:id :fighter/indomitable#uses
+                       :name "Indomitable"
+                       :uses (fn [level]
+                               (cond
+                                 (< level 13) 1
+                                 (< level 17) 2
+                                 :else 3))
+                       :restore-trigger :long-rest}]]}]}
+
+            12 {:+features
+                [:ability-improvement]}
+
+            14 {:+features
+                [:ability-improvement]}
+
+            16 {:+features
+                [:ability-improvement]}
+
+            19 {:+features
+                [:ability-improvement]} }}]
+
+[:!provide-options
+ :fighter/archetype
+
+ {:id :fighter/champion
+  :name "Champion"
+  :desc "The archetypal Champion focuses on the development of raw physical power honed to deadly perfection. Those who model themselves on this archetype combine rigorous training with physical excellence to deal devastating blows."
+  :! [[:!provide-feature
+       {:id :fighter/improved-critical
+        :name "Improved Critical"
+        :desc "Beginning when you choose this archetype at 3rd level, your weapon attacks score a critical hit on a roll of 19 or 20."} ]]
+  :&levels {7 {:+! [[:!provide-feature
+                     {:id :fighter/remarkable-athlete
+                      :name "Remarkable Athlete"
+                      :desc "Starting at 7th level, you can add half your proficiency bonus (round up) to any Strength, Dexterity, or Constitution check you make that doesn’t already use your proficiency bonus.
+In addition, when you make a running long jump, the distance you can cover increases by a number of feet equal to your Strength modifier."
+                      ; TODO oh boy
+                      }]]}
+
+            10 {:+! [[:!provide-feature
+
+                      {:id :fighter/fighting-style
+                       :name "Additional Fighting Style"
+                       :desc "You can choose a second option from the Fighting Style class feature."
+                       :max-options 1
+                       :values [:fighting-styles]}
+
+                      ]]}
+
+            15 {:+! [[:!provide-feature
+                      {:id :fighter/superior-critical
+                       :name "Superior Critical"
+                       :desc "Your weapon attacks score a critical hit on a roll of 18–20."}]]}
+
+            18 {:+! [[:!provide-feature
+                      {:id :fighter/survivor
+                       :name "Survivor"
+                       :desc "At 18th level, you attain the pinnacle of resilience in battle. At the start of each of your turns, you regain hit points equal to 5 + your Constitution modifier if you have no more than half of your hit points left. You don’t gain this benefit if you have 0 hit points."}]]}}}]

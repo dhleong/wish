@@ -505,6 +505,14 @@
             :categories {}}))))
 
 (reg-sub
+  ::attack-bonuses
+  :<- [:classes]
+  (fn [classes]
+    (->> classes
+         (map (comp :atk :buffs :attrs))
+         (apply merge))))
+
+(reg-sub
   ::damage-bonuses
   :<- [:classes]
   (fn [classes]
@@ -538,7 +546,7 @@
    ; NOTE we have to provide a type hint for the compiler
    ; here for some reason....
    ^number proficiency-bonus,
-   dmg-bonuses
+   atk-bonuses dmg-bonuses
    finesse-weapon-kinds
    w]
   (let [{weap-bonus :+
@@ -574,10 +582,11 @@
                         :ranged
                         :melee)
 
-        bonus-maps (->> dmg-bonuses weap-type-key vals)
+        dmg-bonus-maps (->> dmg-bonuses weap-type-key vals)
+        atk-bonuses (->> atk-bonuses weap-type-key vals)
 
         ; raw bonus maps {:+,:when-versatile?}
-        other-bonus (->> bonus-maps
+        other-bonus (->> dmg-bonus-maps
                          (filter #(= (:when-two-handed? %)
                                      (boolean (:two-handed? w)))))
 
@@ -592,7 +601,7 @@
                                    (keep :+))
 
         ; TODO indicate dmg type?
-        other-dice-bonuses (keep :dice bonus-maps)
+        other-dice-bonuses (keep :dice dmg-bonus-maps)
 
         stat-bonus (let [b (+ weap-bonus chosen-bonus)]
                      (when (not= b 0)
@@ -619,7 +628,7 @@
            :base-dice (str (:dice w) (dam-bonuses other-bonus-non-versatile))
            :alt-dice (when-let [versatile (:versatile w)]
                        (str versatile (dam-bonuses other-bonus-versatile)))
-           :to-hit (+ stat-bonus prof-bonus))))
+           :to-hit (apply + stat-bonus prof-bonus atk-bonuses))))
 
 (reg-sub
   ::equipped-weapons
@@ -627,10 +636,12 @@
   :<- [::eq-proficiencies]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
+  :<- [::attack-bonuses]
   :<- [::damage-bonuses]
   :<- [::finesse-weapon-kinds]
   (fn [[all-equipped proficiencies modifiers
-        proficiency-bonus dmg-bonuses
+        proficiency-bonus
+        atk-bonuses dmg-bonuses
         finesse-weapon-kinds]]
     (let [{proficient-kinds :kinds
            proficient-cats :categories} proficiencies]
@@ -640,7 +651,8 @@
              (partial calculate-weapon
                       proficient-cats proficient-kinds
                       modifiers
-                      proficiency-bonus dmg-bonuses
+                      proficiency-bonus
+                      atk-bonuses dmg-bonuses
                       finesse-weapon-kinds))))))
 
 ; like :inventory-sorted but with :attuned? added as appropriate
