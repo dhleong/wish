@@ -335,6 +335,11 @@
  {:id :weapon-kind-proficiencies
   :type :feature}
 
+ {:id :proficiency/club
+  :name "Club"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :club] true]]}
+
  {:id :proficiency/dagger
   :name "Dagger"
   :implicit? true
@@ -343,6 +348,11 @@
   :name "Dart"
   :implicit? true
   :! [[:!provide-attr [:weapon-kinds :dart] true]]}
+
+ {:id :proficiency/javelin
+  :name "Javelin"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :javelin] true]]}
 
  {:id :proficiency/hand-crossbow
   :name "Hand Crossbow"
@@ -362,6 +372,11 @@
   :implicit? true
   :! [[:!provide-attr [:weapon-kinds :longsword] true]]}
 
+ {:id :proficiency/mace
+  :name "Mace"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :mace] true]]}
+
  {:id :proficiency/shortbow
   :name "Shortbow"
   :implicit? true
@@ -376,10 +391,25 @@
   :implicit? true
   :! [[:!provide-attr [:weapon-kinds :rapier] true]]}
 
+ {:id :proficiency/scimitar
+  :name "Scimitar"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :scimitar] true]]}
+
+ {:id :proficiency/sickle
+  :name "Sickle"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :sickle] true]]}
+
  {:id :proficiency/sling
   :name "Sling"
   :implicit? true
   :! [[:!provide-attr [:weapon-kinds :sling] true]]}
+
+ {:id :proficiency/spear
+  :name "Spear"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-kinds :spear] true]]}
 
  {:id :proficiency/quarterstaff
   :name "Quarterstaff"
