@@ -117,9 +117,11 @@
 
              ; install new features always
              state (update state :features
-                           (partial merge-with (fn [a b]
-                                                 (if a
-                                                   a b)))
+                           (partial merge-with
+                                    (fn [a b]
+                                      (if a
+                                        (update a :wish/instances inc)
+                                        b)))
                            features-map)]
 
          (if features-with-directives
@@ -294,7 +296,12 @@
     state
 
     (let [option-value (first options-chosen)
-          the-feature (when-let [f (find-feature data-source option-value)]
+          the-feature (when-let [f (merge
+                                     (find-feature data-source option-value)
+                                     (or (get-in state [:features option-value])
+                                         (->> (get-in state [:features feature-id :values])
+                                              (filter #(= option-value (:id %)))
+                                              first)))]
                         ; level-scale the feature
                         (-> f
                             (assoc :level (:level state))
@@ -302,6 +309,7 @@
                               data-source
                               find-feature-scaling)
                             (dissoc :level)))]
+
       (recur
         data-source
 

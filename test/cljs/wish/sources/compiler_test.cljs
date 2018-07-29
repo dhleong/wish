@@ -351,6 +351,35 @@
                  (:attrs applied-4)))
           (is (= 3 (-> applied-4 :features :ability/dex :wish/instances))))))
 
+    (testing "Support providing multiple instances of a feature"
+      ; NOTE: as noted elsewhere, once compiled the :features for a class
+      ; becomes a map
+      (let [class-def {:id :cleric
+                       :features
+                       {:dex-options
+                        {:id :dex-options
+                         :max-options 2
+                         :values [{:id :dex1
+                                   :! [[:!provide-feature :ability/dex]]}
+                                  {:id :dex2
+                                   :! [[:!provide-feature :ability/dex]]}
+                                  {:id :dex3
+                                   :! [[:!provide-feature :ability/dex]]}]} }}
+            opts1 {:dex-options [:dex1]}
+            opts2 {:dex-options [:dex1 :dex2]}
+            opts3 {:dex-options [:dex1 :dex2 :dex3]}
+            ]
+        (is (= {:buffs {:dex 1}}
+               (:attrs (inflate class-def ds opts1))))
+        (is (= {:buffs {:dex 2}}
+               (:attrs (inflate class-def ds opts2))))
+        (let [applied-3 (inflate class-def ds opts3)]
+          (is (= {:buffs {:dex 3}}
+                 (:attrs applied-3)))
+          ; FIXME right now the feature is applied instances + 1 times in this
+          ; case.... So it works as expected, but :wish/instances is off by 1
+          (is (= 2 (-> applied-3 :features :ability/dex :wish/instances))))))
+
     (testing "Replace levels"
       ; This is a contrived example, but...
       (let [class-def {:id :cleric
