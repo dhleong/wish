@@ -92,7 +92,12 @@
                    :list-entities)
         inflated-map (->> inflated-items
                           (filter :id)
-                          ->map)]
+                          ->map)
+        deferred (->> items
+                      flatten
+                      (filter keyword?)
+                      (remove (partial contains? inflated-map)))]
+
     (-> s
         (update dest-key merge inflated-map)
 
@@ -103,4 +108,19 @@
                        (with-meta
                          (concat existing
                                  inflated-items)
-                         m)))))))
+                         m))))
+
+        (as-> s
+          (if (seq deferred)
+            (update-in s [:deferred-lists id] concat deferred)
+
+            s)))))
+
+(defn install-deferred-lists [s]
+  (if-let [deferred (:deferred-lists s)]
+    (reduce-kv
+      (fn [s list-id deferred-id]
+        (add-to-list s list-id deferred-id))
+      s
+      deferred)
+    s))

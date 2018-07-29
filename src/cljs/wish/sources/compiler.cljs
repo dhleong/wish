@@ -8,7 +8,7 @@
             [wish.sources.compiler.feature :refer [compile-feature inflate-features]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
-            [wish.sources.compiler.lists :refer [add-to-list inflate-items]]
+            [wish.sources.compiler.lists :refer [add-to-list inflate-items install-deferred-lists]]
             [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
             [wish.sources.core :refer [find-feature]]
             [wish.util :refer [deep-merge ->map process-map]]))
@@ -252,6 +252,7 @@
 
        ; deferred processing, now that all directives have been applied
        ; and all features/options should be available
+       install-deferred-lists
        install-deferred-options
        install-deferred-subraces
 
