@@ -157,7 +157,7 @@
                  proficient-kinds
                  modifiers
                  proficiency-bonus
-                 dmg-bonuses
+                 {} dmg-bonuses
                  finesse-weapon-kinds
                  w))]
 
