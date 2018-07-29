@@ -1,0 +1,199 @@
+[:!declare-class
+ {:id :rogue
+  :name "Rogue"
+  :attrs
+  {:5e/starting-eq
+   [(:rapier :shortsword)
+
+    ([:shortbow :quiver :arrow]
+     :shortsword)
+
+    (:burglers-pack :dungeoneers-pack :explorers-pack)
+    [:leather-armor {:id :dagger
+                     :count 2} :thieves-tools]]}
+
+  :features
+  [:hit-dice/d8
+   :hp
+   :unarmed-strike
+
+   :save-proficiency/str
+   :save-proficiency/con
+
+   ; weapon proficiencies
+   :proficiency/simple-weapons
+   :proficiency/hand-crossbow
+   :proficiency/longsword
+   :proficiency/rapier
+   :proficiency/shortsword
+
+   {:id :rogue/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 4
+    :values [:proficiency/acrobatics :proficiency/athletics
+             :proficiency/deception :proficiency/insight
+             :proficiency/intimidation :proficiency/investigation
+             :proficiency/perception :proficiency/performance
+             :proficiency/persuasion :proficiency/sleight-of-hand
+             :proficiency/stealth]}
+
+   {:id :rogue/expertise
+    :name "Expertise"
+    :desc "Choose two of your skill proficiencies, or one of your skill proficiencies and your proficiency with thieves’ tools. Your proficiency bonus is doubled for any ability check you make that uses either of the chosen proficiencies.
+At 6th level, you can choose two more of your proficiencies (in skills or with thieves’ tools) to gain this benefit."
+    :max-options 2
+    :instanced? true
+    :values [:all-skill-expertise]
+    :&levels {6 {:max-options 4}}}
+
+   {:id :rogue/sneak-attack
+    :name "Sneak Attack"
+    :desc "You know how to strike subtly and exploit a foe’s distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack if you have advantage on the attack roll. The attack must use a finesse or a ranged weapon.
+You don’t need advantage on the attack roll if another enemy of the target is within 5 feet of it, that enemy isn’t incapacitated, and you don’t have disadvantage on the attack roll.
+The amount of the extra damage increases as you gain levels in this class, as shown in the Sneak Attack column of the Rogue table."
+    ; TODO surface sneak attack damage somewhere?
+    :levels {1 {:>>desc "\nAt 1st level, your sneak attack damage is 1d6"}
+             2 {:>>desc "\nAt 2nd level, your sneak attack damage is 1d6"}
+             3 {:>>desc "\nAt 3rd level, your sneak attack damage is 2d6"}
+             4 {:>>desc "\nAt 4th level, your sneak attack damage is 2d6"}
+             5 {:>>desc "\nAt 5rd level, your sneak attack damage is 3d6"}
+             6 {:>>desc "\nAt 6th level, your sneak attack damage is 3d6"}
+             7 {:>>desc "\nAt 7rd level, your sneak attack damage is 4d6"}
+             8 {:>>desc "\nAt 8th level, your sneak attack damage is 4d6"}
+             9 {:>>desc "\nAt 9rd level, your sneak attack damage is 5d6"}
+             10 {:>>desc "\nAt 10th level, your sneak attack damage is 5d6"}
+             11 {:>>desc "\nAt 11th level, your sneak attack damage is 6d6"}
+             12 {:>>desc "\nAt 12th level, your sneak attack damage is 6d6"}
+             13 {:>>desc "\nAt 13th level, your sneak attack damage is 7d6"}
+             14 {:>>desc "\nAt 14th level, your sneak attack damage is 7d6"}
+             15 {:>>desc "\nAt 15th level, your sneak attack damage is 8d6"}
+             16 {:>>desc "\nAt 16th level, your sneak attack damage is 8d6"}
+             17 {:>>desc "\nAt 17th level, your sneak attack damage is 9d6"}
+             18 {:>>desc "\nAt 18th level, your sneak attack damage is 9d6"}
+             19 {:>>desc "\nAt 19th level, your sneak attack damage is 10d6"}
+             20 {:>>desc "\nAt 20th level, your sneak attack damage is 10d6"}}}
+
+   {:id :rogue/thieves-cant
+    :name "Thieve's Cant"
+    :desc "During your rogue training you learned thieves’ cant, a secret mix of dialect, jargon, and code that allows you to hide messages in seemingly normal conversation. Only another creature that knows thieves’ cant understands such messages. It takes four times longer to convey such a message than it does to speak the same idea plainly.
+In addition, you understand a set of secret signs and symbols used to convey short, simple messages, such as whether an area is dangerous or the territory of a thieves’ guild, whether loot is nearby, or whether the people in an area are easy marks or will provide a safe house for thieves on the run."}
+
+   ]
+
+  :&levels {2 {:+features
+               [{:id :rogue/cunning-action
+                 :name "Cunning Action"
+                 :desc "Your quick thinking and agility allow you to move and act quickly. You can take a bonus action on each of your turns in combat. This action can be used only to take the Dash, Disengage, or Hide action."
+                 :! [[:!provide-attr
+                      [:bonus :rogue/cunning-action]
+                      true]]}
+                ]}
+
+            3 {:+features
+               [{:id :rogue/archetype
+                 :name "Roguish Archetype"
+                 :desc "At 3rd level, you choose an archetype that you emulate in the exercise of your rogue abilties."
+                 :max-options 1}
+                ]}
+
+            4 {:+features
+               [:ability-improvement]}
+
+            5 {:+features
+               [{:id :rogue/uncanny-dodge
+                 :name "Uncanny Dodge"
+                 :desc "When an attacker that you can see hits you with an attack, you can use your reaction to halve the attack’s damage against you."
+                 :! [[:!provide-attr
+                      [:reaction :rogue/uncanny-dodge]
+                      true]]}
+                ]}
+
+            6 {:+features
+               [:ability-improvement]}
+
+            7 {:+features
+               [{:id :rogue/evasion
+                 :name "Evasion"
+                 :desc "You can nimbly dodge out of the way of certain area effects, such as a red dragon’s fiery breath or an _ice storm_ spell. When you are subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail."}
+                ]}
+
+            8 {:+features
+               [:ability-improvement]}
+
+            10 {:+features
+                [:ability-improvement]}
+
+            11 {:+features
+                [{:id :rogue/reliable-talent
+                  :name "Reliable Talent"
+                  :desc "By 11th level, you have refined your chosen skills until they approach perfection. Whenever you make an ability check that lets you add your proficiency bonus, you can treat a d20 roll of 9 or lower as a 10."}]}
+
+            12 {:+features
+                [:ability-improvement]}
+
+            14 {:+features
+                [:ability-improvement
+
+                 {:id :rogue/blindsense
+                  :name "Blindsense"
+                  :desc "Starting at 14th level, if you are able to hear, you are aware of the location of any hidden or invisible creature within 10 feet of you."}]}
+
+            15 {:+features
+                [{:id :rogue/slippery-mind
+                  :name "Slippery Mind"
+                  :desc "By 15th level, you have acquired greater mental strength. You gain proficiency in Wisdom saving throws."}
+
+                 :save-proficiency/wis]}
+
+            16 {:+features
+                [:ability-improvement]}
+
+            18 {:+features
+                [{:id :rogue/elusive
+                  :name "Elusive"
+                  :desc "Beginning at 18th level, you are so evasive that attackers rarely gain the upper hand against you. No attack roll has advantage against you while you aren’t incapacitated."}]}
+
+            19 {:+features
+                [:ability-improvement]}
+
+            20 {:+features
+                [{:id :rogue/stroke-luck
+                  :name "Stroke of Luck"
+                  :desc "At 20th level, you have an uncanny knack for succeeding when you need to. If your attack misses a target within range, you can turn the miss into a hit. Alternatively, if you fail an ability check, you can treat the d20 roll as a 20.
+Once you use this feature, you can’t use it again until you finish a short or long rest."
+                  :! [[:!add-limited-use
+                       {:id :rogue/stroke-luck#uses
+                        :name "Stroke of Luck"
+                        :uses 1
+                        :restore-trigger :short-rest}]]}]}}}]
+
+[:!provide-options
+ :rogue/archetype
+
+ {:id :rogue/thief
+  :name "Thief"
+  :desc "You hone your skills in the larcenous arts. Burglars, bandits, cutpurses, and other criminals typically follow this archetype, but so do rogues who prefer to think of themselves as professional treasure seekers, explorers, delvers, and investigators. In addition to improving your agility and stealth, you learn skills useful for delving into ancient ruins, reading unfamiliar languages, and using magic items you normally couldn’t employ."
+  :! [[:!provide-feature
+       {:id :rogue/fast-hands
+        :name "Fast Hands"
+        :desc "You can use the bonus action granted by your Cunning Action to make a Dexterity (Sleight of Hand) check, use your thieves’ tools to disarm a trap or open a lock, or take the Use an Object action."}
+
+       {:id :rogue/second-story-work
+        :name "Second-Story Work"
+        :desc "You have the ability to climb faster than normal; climbing no longer costs you extra movement.
+In addition, when you make a running jump, the distance you cover increases by a number of feet equal to your Dexterity modifier."}]]
+
+  :&levels {9 {:+! [[:!provide-feature
+                     {:id :rogue/supreme-sneak
+                      :name "Supreme Sneak"
+                      :desc "Starting at 9th level, you have advantage on a Dexterity (Stealth) check if you move no more than half your speed on the same turn."}]]}
+            13 {:+! [[:!provide-feature
+                      {:id :rogue/use-magical-device
+                       :name "Use Magical Device"
+                       :desc "You have learned enough about the workings of magic that you can improvise the use of items even when they are not intended for you. You ignore all class, race, and level requirements on the use of magic items."}]]}
+            17 {:+! [[:!provide-feature
+                      {:id :rogue/thiefs-reflexes
+                       :name "Thief's Reflexes"
+                       :desc "When you reach 17th level, you have become adept at laying ambushes and quickly escaping danger. You can take two turns during the first round of any combat. You take your first turn at your normal initiative and your second turn at your initiative minus 10. You can’t use this feature when you are surprised."}]]}}}
+ ]
