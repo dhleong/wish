@@ -52,16 +52,86 @@
    ; weapon proficiencies
    :proficiency/simple-weapons
 
-   ; TODO
+   {:id :warlock/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/arcana :proficiency/deception
+             :proficiency/history :proficiency/intimidation
+             :proficiency/investigation :proficiency/nature
+             :proficiency/religion]}
+
+   {:id :warlock/patron
+    :name "Otherworldly Patron"
+    :desc "At 1st level, you have struck a bargain with an otherworldly being of your choice."
+    :max-options 1}
+
    ]
 
-  :&levels {4 {:+features
+  :&levels {2 {:+features
+               [{:id :warlock/eldritch-invocations
+                 :name "Eldritch Invocations"
+                 :desc "In your study of occult lore, you have unearthed eldritch invocations, fragments of forbidden knowledge that imbue you with an abiding magical ability.
+At 2nd level, you gain two eldritch invocations of your choice. Your invocation options are detailed at the end of the class description. When you gain certain warlock levels, you gain additional invocations of your choice, as shown in the Invocations Known column of the Warlock table.
+Additionally, when you gain a level in this class, you can choose one of the invocations you know and replace it with another invocation that you could learn at that level."
+                 :max-options (fn [level]
+                                (cond
+                                  (< level 5) 2
+                                  (< level 7) 3
+                                  (< level 9) 4
+                                  (< level 12) 5
+                                  (< level 15) 6
+                                  (< level 18) 7
+                                  :else 8))} ]}
+
+            3 {:+features
+               [{:id :warlock/pact-boon
+                 :name "Pact Boon"
+                 :desc "At 3rd level, your otherworldly patron bestows a gift upon you for your loyal service. You gain one of the following features of your choice."
+                 :max-options 1}]}
+
+            4 {:+features
                [:ability-improvement]}
             8 {:+features
                [:ability-improvement]}
+
+            11 {:+features
+                [{:id :warlock/mystic-arcanum
+                  :name "Mystic Arcanum"
+                  :desc "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th-level spell from the warlock spell list as this arcanum.
+You can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.
+At higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th-level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest."
+                  ; TODO probably separate features whose values are based on
+                  ; the level of spell
+                  }]}
+
             12 {:+features
                 [:ability-improvement]}
             16 {:+features
                 [:ability-improvement]}
             19 {:+features
-                [:ability-improvement]}}}]
+                [:ability-improvement]}
+            20 {:+features
+                [{:id :warlock/eldritch-master
+                  :name "Eldritch Master"
+                  :desc "At 20th level, you can draw on your inner reserve of mystical power while entreating your patron to regain expended spell slots. You can spend 1 minute entreating your patron for aid to regain all your expended spell slots from your Pact Magic feature. Once you regain spell slots with this feature, you must finish a long rest before you can do so again."
+                  :! [[:!add-limited-use
+                       {:id :warlock/eldritch-master#uses
+                        :name "Eldritch Master"
+                        :uses 1
+                        :restore-trigger :long-rest}]]}]}}}]
+
+[:!provide-options
+ :warlock/patron
+ ; TODO
+ ]
+
+[:!provide-options
+ :warlock/pact-boon
+ ; TODO
+ ]
+
+[:!provide-options
+ :warlock/eldritch-invocations
+ ; TODO
+ ]
