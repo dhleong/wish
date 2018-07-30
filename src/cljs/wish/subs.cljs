@@ -1,11 +1,13 @@
 (ns wish.subs
   (:require-macros [wish.util.log :as log])
-  (:require [re-frame.core :refer [reg-sub subscribe]]
+  (:require [clojure.string :as str]
+            [re-frame.core :refer [reg-sub subscribe]]
             [wish.db :as db]
             [wish.inventory :as inv]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-directives inflate]]
+            [wish.sources.compiler.lists :as lists]
             [wish.sources.core :as src :refer [find-class find-race]]))
 
 (reg-sub :showing-overlay :showing-overlay)
@@ -234,7 +236,7 @@
                    [entry])))))
 
 (defn inflate-option-values
-  [data-source feature-id values]
+  [data-source options feature-id values]
   (or (when-let [feature-values
                  (:values
                    (src/find-feature data-source feature-id))]
@@ -251,6 +253,19 @@
                   [f])
                 (src/expand-list data-source opt-or-id nil)
 
+                (when-let [f (src/find-list-entity data-source opt-or-id)]
+                  [f])
+
+                (when-let [options-src-id (lists/unpack-options-key
+                                        opt-or-id)]
+                  ; this was eg: :wizard/spells-list>>options
+                  ; inflate the chosen :values from the given feature-id
+                  (inflate-option-values
+                    data-source
+                    options
+                    options-src-id
+                    (get options options-src-id)))
+
                 (log/warn "Unable to inflate  " opt-or-id))
 
             ; provided value; wrap in collection so the maps' entries
@@ -259,7 +274,7 @@
         values)))
 
 (defn- inflate-feature-options
-  [[features data-source]]
+  [[features options data-source]]
   (->> features
        (filter (comp :max-options second))
        (map (fn [[id v :as entry]]
@@ -268,6 +283,7 @@
                         (assoc :wish/raw-values (:values v))
                         (update :values (partial inflate-option-values
                                                  data-source
+                                                 options
                                                  id))
                         )]
                 (meta entry))))))
@@ -281,6 +297,7 @@
   :class-features-with-options
   (fn [[_ entity-id primary?]]
     [(subscribe [:class-features entity-id primary?])
+     (subscribe [:meta/options])
      (subscribe [:sheet-source])])
   inflate-feature-options)
 
@@ -292,6 +309,7 @@
 (reg-sub
   :race-features-with-options
   :<- [:race-features]
+  :<- [:meta/options]
   :<- [:sheet-source]
   inflate-feature-options)
 

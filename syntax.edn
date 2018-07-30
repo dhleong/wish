@@ -154,7 +154,9 @@
   :multi? false,
 
   ; an optional list of values or list-ids. Entries can of course
-  ; be provided via the !provide-options directive
+  ; be provided via the !provide-options directive. You can also
+  ; use the special syntax :feature-id>>options to source values
+  ; from the selected options of another feature.
   :values []
 
   ; map of level -> feature-map, where any keys in the feature-map
