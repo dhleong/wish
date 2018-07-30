@@ -4,6 +4,7 @@
   :attrs
   {:5e/starting-eq
    [(:greataxe {:type :weapon
+                :ranged? false
                 :category :martial})
     ({:id :handaxe
       :count 2}

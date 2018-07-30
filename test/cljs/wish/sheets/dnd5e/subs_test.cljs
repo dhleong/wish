@@ -296,6 +296,15 @@
                '{:type :weapon
                  :category :simple}))))
 
+    (testing "Unpack (filter) with omitted key"
+      (is (= [:or [dagger]]
+             (unpack-eq-choices
+               source
+               packs
+               '{:type :weapon
+                 :ranged? false
+                 :category :simple}))))
+
     (testing "Unpack (quantity)"
       (is (= [:count dagger 10]
              (unpack-eq-choices

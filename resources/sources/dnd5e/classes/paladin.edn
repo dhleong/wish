@@ -23,6 +23,7 @@
     ({:id :javelin
       :count 5}
      {:type :weapon
+      :ranged? false
       :category :simple})
 
     (:priests-pack :explorers-pack)

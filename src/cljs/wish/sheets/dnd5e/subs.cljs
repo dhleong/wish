@@ -1178,6 +1178,16 @@
     (->map
       (src/expand-list source :5e/starter-packs nil))))
 
+(defn- select-filter-keys
+  "Like (select-keys) but any keys that weren't missing
+   get a default value of false"
+  [item keyseq]
+  (reduce
+    (fn [m k]
+      (assoc m k (get item k false)))
+    {}
+    keyseq))
+
 (defmulti unpack-eq-choices (fn [source packs choices]
                               (cond
                                 (vector? choices) :and
@@ -1206,7 +1216,9 @@
                 (remove :+) ; no magic items
                 (remove :desc) ; or fancy items
                 (filter (fn [item]
-                          (let [matching-keys (select-keys item choice-keys)]
+                          ; would it be more efficient to just make a
+                          ; custom = fn here?
+                          (let [matching-keys (select-filter-keys item choice-keys)]
                             (= matching-keys choices)))))])))
 (defmethod unpack-eq-choices :id
   [source packs choice]

@@ -15,7 +15,7 @@
    [(:shield {:type :weapon
               :category :simple})
     (:scimitar {:type :weapon
-                ; TODO melee
+                :ranged? false
                 :category :simple})
     [:leather-armor :explorers-pack {:kind :druidic-focus}]]}
 

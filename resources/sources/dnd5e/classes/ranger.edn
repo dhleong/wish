@@ -17,10 +17,10 @@
       :count 2}
 
      [{:type :weapon
-       ; TODO melee
+       :ranged? false
        :category :simple}
       {:type :weapon
-       ; TODO melee
+       :ranged? false
        :category :simple}])
 
     (:dungeoneers-pack :explorers-pack)
