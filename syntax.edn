@@ -159,6 +159,15 @@
   ; from the selected options of another feature.
   :values []
 
+  ; an optional (fn) used to filter the actually available entries.
+  ; This works like:
+  ;
+  ;   (filter (fn [{:keys []}]) values)
+  ;
+  ; where `values` is a collection of all the values available, whether
+  ; from :values above or provided by !provide-options
+  :values-filter (fn [])
+
   ; map of level -> feature-map, where any keys in the feature-map
   ; get replaced (or modified, following the above rules based on
   ; prefixes to the keyword)

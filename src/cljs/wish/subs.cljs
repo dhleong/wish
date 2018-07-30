@@ -285,6 +285,12 @@
                                                  data-source
                                                  options
                                                  id))
+
+                        ; filter values, if a fn was provided
+                        (as-> v
+                          (if-let [filter-fn (:values-filter v)]
+                            (update v :values (partial filter filter-fn))
+                            v))
                         )]
                 (meta entry))))))
 

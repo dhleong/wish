@@ -35,6 +35,7 @@
   ; TODO how can sheets declare keys that should be callable?
   (-> fm
       (update :max-options compile-max-options)
+      (update :values-filter ->callable)
       compile-entity))
 
 (defn- ->feature [state f]

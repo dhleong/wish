@@ -70,15 +70,24 @@ For example, if you’re a 4th-level wizard, you can recover up to two levels wo
                 [:ability-improvement]}
 
             18 {:+features
-                [{:id :wizard/spell-master
+                [{:id :wizard/spell-mastery
                   :name "Spell Mastery"
                   :desc "At 18th level, you have achieved such mastery over certain spells that you can cast them at will. Choose a 1st-level wizard spell and a 2nd-level wizard spell that are in your spellbook. You can cast those spells at their lowest level without expending a spell slot when you have them prepared. If you want to cast either spell at a higher level, you must expend a spell slot as normal.
-By spending 8 hours in study, you can exchange one or both of the spells you chose for different spells of the same levels."
-                  ; TODO remember this for the user somehow. Can we source selected spells
-                  ; from the "spellbook" list as options? Even if we do, the UI needs
-                  ; to indicate selected values for features with options (it ought
-                  ; to do this anyway)
-                  }]}
+By spending 8 hours in study, you can exchange one or both of the spells you chose for different spells of the same levels."}
+
+                 {:id :wizard/spell-mastery-1
+                  :name "Spell Mastery: Level 1 Spell"
+                  :max-options 1
+                  :values [:wizard/spells-list>>options]
+                  :values-filter (fn [spell-level]
+                                   (= 1 spell-level))}
+                 {:id :wizard/spell-mastery-2
+                  :name "Spell Mastery: Level 2 Spell"
+                  :max-options 1
+                  :values [:wizard/spells-list>>options]
+                  :values-filter (fn [spell-level]
+                                   (= 2 spell-level))}
+                 ]}
 
             19 {:+features
                 [:ability-improvement]}
@@ -88,8 +97,9 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
                   :desc "When you reach 20th level, you gain mastery over two powerful spells and can cast them with little effort. Choose two 3rd-level wizard spells in your spellbook as your signature spells. You always have these spells prepared, they don’t count against the number of spells you have prepared, and you can cast each of them once at 3rd level without expending a spell slot. When you do so, you can’t do so again until you finish a short or long rest.
 If you want to cast either spell at a higher level, you must expend a spell slot as normal."
                   :max-options 2
-                  ; TODO filter to only (= 3 spell-level)
                   :values [:wizard/spells-list>>options]
+                  :values-filter (fn [spell-level]
+                                   (= 3 spell-level))
                   :! [[:!add-to-list
                        :wizard/extra-spells
                        :wizard/signature-spells>>options]
