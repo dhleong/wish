@@ -286,6 +286,18 @@
 
 (declare apply-levels)
 (declare find-feature-scaling)
+(defn- level-scale-feature
+  [data-source level f]
+  (if (map? f)
+    (-> f
+        (assoc :level level)
+        (apply-levels
+          data-source
+          find-feature-scaling)
+        (dissoc :level))
+
+    ; unable
+    f))
 
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
@@ -304,12 +316,7 @@
                                               (filter #(= option-value (:id %)))
                                               first)))]
                         ; level-scale the feature
-                        (-> f
-                            (assoc :level (:level state))
-                            (apply-levels
-                              data-source
-                              find-feature-scaling)
-                            (dissoc :level)))]
+                        (level-scale-feature data-source (:level state) f))]
 
       (recur
         data-source
@@ -403,14 +410,40 @@
                 (apply-entity-mod state mod-map))
         ; only install features added
         [_ added _] (diff state after)
+
+        level-scaler (partial level-scale-feature
+                              (:wish/data-source state)
+                              (:level state))
         new-installed (when (:features added)
                         (install-features
                           state
                           ; NOTE: copy attrs from the state to handle
                           ; incremental :attrs (like from :!update-attrs)
-                          (assoc after
-                                 :attrs
-                                 (:attrs state))
+                          (-> after
+                              (assoc :attrs
+                                     (:attrs state))
+                              (update :features
+                                      (fn [m]
+                                        (reduce-kv
+                                          (fn [m f-id f]
+                                            (if (map? f)
+                                              ; level-scale, but not :!; that is
+                                              ; handled elsewhere.
+                                              ; FIXME This is a terrible hack, but otherwise
+                                              ; top-level features added by level-scaling
+                                              ; don't get any level scaling themselves...
+                                              ; (See: Cleric's Destroy Undead)
+                                              ; Hopefully fresh eyes can eventually
+                                              ; figure out a better way to handle this
+                                              (assoc m f-id
+                                                     (-> f
+                                                         level-scaler
+                                                         (assoc :! (:! f))))
+
+                                              ; no change
+                                              m))
+                                          m
+                                          m))))
                           data-source))]
     (deep-merge after new-installed)))
 

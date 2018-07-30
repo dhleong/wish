@@ -24,7 +24,22 @@
                  nil
                  {:restore-trigger :short-rest}
                  [:limited-uses :hard-burn])
-               (select-keys [:limited-uses]))))))
+               (select-keys [:limited-uses])))))
+
+  (testing "Level-scale new features"
+    (is (= {:id :hard-burn
+            :desc "Burn baby burn"}
+           (-> (c/apply-mod-in
+                 {:level 3}
+                 nil
+                 {:+features
+                  [{:id :hard-burn
+                    :desc "Burn"
+                    :levels {3 {:>>desc " baby burn"}}}]}
+                 nil)
+               :features
+               :hard-burn
+               (select-keys [:id :desc]))))))
 
 (deftest provide-feature-test
   (testing "Simple provide"

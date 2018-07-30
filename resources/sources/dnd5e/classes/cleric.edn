@@ -31,25 +31,70 @@
    ; weapon proficiencies
    :proficiency/simple-weapons
 
+   {:id :cleric/skill-proficiencies
+    :implicit? true
+    :primary-only? true
+    :max-options 2
+    :values [:proficiency/history :proficiency/insight
+             :proficiency/medicine :proficiency/persuasion
+             :proficiency/religion]
+    }
+
    {:id :cleric/domain
     :name "Divine Domain"
     :desc "Choose one domain related to your deity, such as Life. Each domain is detailed at the end of the class description, and each one provides examples of gods associated with it. Your choice grants you domain spells and other features when you choose it at 1st level. It also grants you additional ways to use Channel Divinity when you gain that feature at 2nd level, and additional benefits at 6th, 8th, and 17th levels."
     :max-options 1}
 
-   {:id :cleric/skill-proficiencies
-    :implicit? true
-    :primary-only? true
-    :max-options 2
-    :values [:proficiency/history :proficiency/insight :proficiency/medicine :proficiency/persuasion :proficiency/religion]
-    }]
+   ]
 
   :&levels {2 {:+features
-               [:cleric/channel-divinity]}
+               [:cleric/channel-divinity
+
+                {:id :cleric/channel-turn-undead
+                 :name "Channel Divinity: Turn Undead"
+                 :desc "As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.
+A turned creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there’s nowhere to move, the creature can use the Dodge action."}]}
 
             4 {:+features
                [:ability-improvement]}
+
+            5 {:+features
+               [{:id :cleric/destroy-undead
+                 :name "Destroy Undead"
+                 :desc "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold."
+                 :levels {
+                          5 {:>>desc "\nAt 5th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
+                          6 {:>>desc "\nAt 6th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
+                          7 {:>>desc "\nAt 7th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
+                          8 {:>>desc "\nAt 8th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
+                          9 {:>>desc "\nAt 9th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
+                          10 {:>>desc "\nAt 10th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
+                          11 {:>>desc "\nAt 11th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
+                          12 {:>>desc "\nAt 12th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
+                          13 {:>>desc "\nAt 13th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
+                          14 {:>>desc "\nAt 14th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
+                          15 {:>>desc "\nAt 15th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
+                          16 {:>>desc "\nAt 16th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
+                          }
+                 :&levels {17 {:>>desc "\nAt 17th level and above, your Destroy Undead destroys undead creatures of CR 4 or lower"}}
+                 }]}
+
             8 {:+features
                [:ability-improvement]}
+
+            10 {:+features
+                [{:id :cleric/divine-intervention
+                  :name "Divine Intervention"
+                  :desc "Beginning at 10th level, you can call on your deity to intervene on your behalf when your need is great.
+Imploring your deity’s aid requires you to use your action. Describe the assistance you seek, and roll percentile dice. If you roll a number equal to or lower than your cleric level, your deity intervenes. The GM chooses the nature of the intervention; the effect of any cleric spell or cleric domain spell would be appropriate.
+If your deity intervenes, you can’t use this feature again for 7 days. Otherwise, you can use it again after you finish a long rest.
+At 20th level, your call for intervention succeeds automatically, no roll required."
+                  :! [[:!add-limited-use
+                       {:id :cleric/divine-intervention#uses
+                        :name "Divine Intervention"
+                        :uses 1
+                        :restore-trigger :long-rest}]]}]}
+
             12 {:+features
                 [:ability-improvement]}
             16 {:+features
@@ -60,6 +105,10 @@
 [:!provide-feature
  {:id :cleric/channel-divinity
   :name "Channel Divinity"
+  :desc "At 2nd level, you gain the ability to channel divine energy directly from your deity, using that energy to fuel magical effects. You start with two such effects: Turn Undead and an effect determined by your domain. Some domains grant you additional effects as you advance in levels, as noted in the domain description.
+When you use your Channel Divinity, you choose which effect to create. You must then finish a short or long rest to use your Channel Divinity again.
+Some Channel Divinity effects require saving throws. When you use such an effect from this class, the DC equals your cleric spell save DC.
+Beginning at 6th level, you can use your Channel Divinity twice between rests, and beginning at 18th level, you can use it three times between rests. When you finish a short or long rest, you regain your expended uses."
   :! [[:!add-limited-use
        {:id :channel-divinity#uses
         :name "Channel Divinity"
@@ -80,6 +129,8 @@
        :cleric/extra-spells
        [:spell/bless :spell/cure-wounds]]
 
+      ; TODO heavy armor proficiency
+
       [:!provide-feature
        {:id :cleric/disciple-of-life
         :name "Disciple of Life"
@@ -88,6 +139,39 @@
         ; TODO can we surface this somehow? that would be VERY fancy...
         }]]
 
-  :&levels {3 {:+! [[:!add-to-list
+  :&levels {2 {:+! [[:!provide-feature
+                     {:id :cleric/channel-preserve-life
+                      :name "Channel Divinity: Preserve Life"
+                      :desc "Starting at 2nd level, you can use your Channel Divinity to heal the badly injured.
+As an action, you present your holy symbol and evoke healing energy that can restore a number of hit points equal to five times your cleric level. Choose any creatures within 30 feet of you, and divide those hit points among them. This feature can restore a creature to no more than half of its hit point maximum. You can’t use this feature on an undead or a construct."}]]}
+
+            3 {:+! [[:!add-to-list
                      :cleric/extra-spells
-                     [:spell/lesser-restoration :spell/spiritual-weapon]]]}}} ]
+                     [:spell/lesser-restoration :spell/spiritual-weapon]]]}
+
+            5 {:+! [[:!add-to-list
+                     :cleric/extra-spells
+                     [:spell/beacon-of-hope :spell/revivify]]]}
+
+            6 {:+! [[:!provide-feature
+                     {:id :cleric/blessed-healer
+                      :name "Blessed Healer"
+                      :desc "Beginning at 6th level, the healing spells you cast on others heal you as well. When you cast a spell of 1st level or higher that restores hit points to a creature other than you, you regain hit points equal to 2 + the spell’s level."}]]}
+
+            7 {:+! [[:!add-to-list
+                     :cleric/extra-spells
+                     [:spell/death-ward :spell/guardian-of-faith]]]}
+
+            8 {:+! [[:!provide-feature
+                     {:id :cleric/divine-strike
+                      :name "Divine Strike"
+                      :desc "At 8th level, you gain the ability to infuse your weapon strikes with divine energy. Once on each of your turns when you hit a creature with a weapon attack, you can cause the attack to deal an extra 1d8 radiant damage to the target. When you reach 14th level, the extra damage increases to 2d8."}]]}
+
+            9 {:+! [[:!add-to-list
+                     :cleric/extra-spells
+                     [:spell/mass-cure-wounds :spell/raise-dead]]]}
+
+            17 {:+! [[:!provide-feature
+                      {:id :cleric/supreme-healing
+                       :name "Supreme Healing"
+                       :desc "Starting at 17th level, when you would normally roll one or more dice to restore hit points with a spell, you instead use the highest number possible for each die. For example, instead of restoring 2d6 hit points to a creature, you restore 12."}]]}}} ]
