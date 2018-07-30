@@ -173,11 +173,106 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                  :name "Ki-Empowered Strikes"
                  :desc "Starting at 6th level, your unarmed strikes count as magical for the purpose of overcoming resistance and immunity to nonmagical attacks and damage."}]}
 
+            7 {:+features
+               [{:id :monk/evasion
+                 :name "Evasion"
+                 :desc "At 7th level, your instinctive agility lets you dodge out of the way of certain area effects, such as a blue dragon’s lightning breath or a _fireball_ spell. When you are subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you instead take no damage if you succeed on the saving throw, and only half damage if you fail."}
+
+                {:id :monk/stillness-mind
+                 :name "Stillness of Mind"
+                 :desc "Starting at 7th level, you can use your action to end one effect on yourself that is causing you to be charmed or frightened."}]}
+
             8 {:+features
                [:ability-improvement]}
+
+            10 {:+features
+                [{:id :monk/purity-body
+                  :name "Purity of Body"
+                  :desc "At 10th level, your mastery of the ki flowing through you makes you immune to disease and poison."
+                  :! [[:!provide-attr
+                       [:resistances :monk/purity-body]
+                       {:desc "You are immune to disease and poison."}]]}]}
+
             12 {:+features
                 [:ability-improvement]}
+
+            13 {:+features
+                [{:id :monk/tongue-sun-moon
+                  :name "Tongue of the Sun and Moon"
+                  :desc "Starting at 13th level, you learn to touch the ki of other minds so that you understand all spoken languages. Moreover, any creature that can understand a language can understand what you say."}]}
+
+            14 {:+features
+                [{:id :monk/diamond-soul
+                  :name "Diamond Soul"
+                  :desc "Beginning at 14th level, your mastery of ki grants you proficiency in all saving throws.
+Additionally, whenever you make a saving throw and fail, you can spend 1 ki point to reroll it and take the second result."
+                  :consumes :monk/ki#uses
+                  ; apply these directly to avoid duplicate features
+                  :! [[:!provide-attr :save-proficiency/str true]
+                      [:!provide-attr :save-proficiency/dex true]
+                      [:!provide-attr :save-proficiency/con true]
+                      [:!provide-attr :save-proficiency/int true]
+                      [:!provide-attr :save-proficiency/wis true]
+                      [:!provide-attr :save-proficiency/cha true]]}
+                 ]}
+
+            15 {:+features
+                [{:id :monk/timeless-body
+                  :name "Timeless Body"
+                  :desc "At 15th level, your ki sustains you so that you suffer none of the frailty of old age, and you can’t be aged magically. You can still die of old age, however. In addition, you no longer need food or water."}]}
             16 {:+features
                 [:ability-improvement]}
+
+            18 {:+features
+                [{:id :monk/empty-body
+                  :name "Empty Body"
+                  :desc "Beginning at 18th level, you can use your action to spend 4 ki points to become invisible for 1 minute. During that time, you also have resistance to all damage but force damage.
+Additionally, you can spend 8 ki points to cast the astral projection spell, without needing material components. When you do so, you can’t take any other creatures with you."
+                  :consumes :monk/ki#uses}]}
+
+
             19 {:+features
-                [:ability-improvement]} }}]
+                [:ability-improvement]}
+
+            20 {:+features
+                [{:id :monk/perfect-self
+                  :name "Perfect Self"
+                  :desc "At 20th level, when you roll for initiative and have no ki points remaining, you regain 4 ki points."}]}
+
+            }}]
+
+[:!provide-options
+ :monk/monastic
+
+ {:id :monk/way-open-hand
+  :name "Way of the Open Hand"
+  :desc "Monks of the Way of the Open Hand are the ultimate masters of martial arts combat, whether armed or unarmed. They learn techniques to push and trip their opponents, manipulate ki to heal damage to their bodies, and practice advanced meditation that can protect them from harm."
+  :! [[:!provide-feature
+       {:id :monk/open-hand-technique
+        :name "Open Hand Technique"
+        :desc "Starting when you choose this tradition at 3rd level, you can manipulate your enemy’s ki when you harness your own. Whenever you hit a creature with one of the attacks granted by your Flurry of Blows, you can impose one of the following effects on that target:
+• It must succeed on a Dexterity saving throw or be knocked prone.
+• It must make a Strength saving throw. If it fails, you can push it up to 15 feet away from you.
+• It can’t take reactions until the end of your next turn."}]]
+
+  :&levels {6 {:+! [[:!provide-feature
+                     {:id :monk/wholeness-body
+                      :name "Wholeness of Body"
+                      :desc "At 6th level, you gain the ability to heal yourself. As an action, you can regain hit points equal to three times your monk level. You must finish a long rest before you can use this feature again."
+                      :! [[:!add-limited-use
+                           {:id :monk/wholeness-body#uses
+                            :name "Wholeness of Body"
+                            :uses 1
+                            :restore-trigger :long-rest}]]}]]}
+
+            11 {:+! [[:!provide-feature
+                      {:id :monk/tranquility
+                       :name "Tranquility"
+                       :desc "Beginning at 11th level, you can enter a special meditation that surrounds you with an aura of peace. At the end of a long rest, you gain the effect of a sanctuary spell that lasts until the start of your next long rest (the spell can end early as normal). The saving throw DC for the spell equals 8 + your Wisdom modifier + your proficiency bonus."}]]}
+
+            17 {:+! [[:!provide-feature
+                      {:id :monk/quivering-palm
+                       :name "Quivering Palm"
+                       :desc "At 17th level, you gain the ability to set up lethal vibrations in someone’s body. When you hit a creature with an unarmed strike, you can spend 3 ki points to start these imperceptible vibrations, which last for a number of days equal to your monk level. The vibrations are harmless unless you use your action to end them. To do so, you and the target must be on the same plane of existence. When you use this action, the creature must make a Constitution saving throw. If it fails, it is reduced to 0 hit points. If it succeeds, it takes 10d10 necrotic damage.
+You can have only one creature under the effect of this feature at a time. You can choose to end the vibrations harmlessly without using an action."
+                       :consumes :monk/ki#uses}]]}}}]
