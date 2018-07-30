@@ -145,9 +145,11 @@
 
   ; when provided, indicates that the user should pick one
   ; or more options.
-  ; can be a number, a fn, or a list of `filter, number` pairs,
-  ; with a special filter `:total` that applies overall.
-  ; providing a number is sugar for `[:total number]`
+  ; can be a number or a fn. If fn accepts `features`, that
+  ; will be a list of all currently selected features, and
+  ; the fn should return True if that's an acceptable selection,
+  ; or False if not. Otherwise, it should return a number indicating,
+  ; based on the state provided, the number value.
   :max-options,
 
   ; if true, a given option can be selected more than once

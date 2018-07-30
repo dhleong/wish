@@ -141,13 +141,14 @@
    [feature-option option selected?]])
 
 (defn limited-select-feature-options
-  [f instance-id]
+  [f instance-id extra-info]
   (let [total-items (count (:values f))
         scrollable? (>= total-items 15)]
     [:div.feature-options {:class (when scrollable?
                                     "scrollable")
                            :field :limited-select
                            :accepted? (:max-options f)
+                           :accepted?-extra extra-info
                            :id instance-id}
      (for [option (:values f)]
        ; being able to use a fn here is only because :limited-select is a
@@ -161,8 +162,8 @@
         option])]))
 
 (defn multi-select-feature-options
-  [f instance-id]
-  (let [max-options (count-max-options f)
+  [f instance-id extra-info]
+  (let [max-options (count-max-options f extra-info)
         base-path (if (:wish/instance-id f)
                     [instance-id :value]
                     [instance-id])]
@@ -181,38 +182,49 @@
                 [:option {:key (:id o)} (:name o)]))))))))
 
 (defn- feature-options
-  [f instance-id ]
+  [f instance-id extra-info-atom]
   (if (:multi? f)
-    (multi-select-feature-options f instance-id)
-    (limited-select-feature-options f instance-id)))
+    (multi-select-feature-options f instance-id @extra-info-atom)
+    (limited-select-feature-options f instance-id extra-info-atom)))
 
-(defn feature-options-selection [sub-vector]
-  (if-let [features (seq (<sub sub-vector))]
-    [:<>
-     (for [[feature-id f] features]
-       (let [instance-id (or (:wish/instance-id f)
-                             feature-id)]
-         ^{:key instance-id}
-         [bind-fields
-          [:div.feature
-           [:h3
-            (:name f)
-            (when-let [n (:wish/instance f)]
-              (str " #" (inc n)))]
+(defn feature-options-selection [sub-vector source-info]
+  ; NOTE: thanks to how reagent-forms completely disregards changed
+  ; inputs on subsequent renders, we have to store changes extra-info
+  ; in an atom and dereference it in limited-select-feature-options
+  ; extra-info, provided by callers, is mostly interesting for :level
+  ; since many things scale by level
+  (let [extra-info-atom (atom nil)]
+    (fn [sub-vector source-info]
+      (if-let [features (seq (<sub sub-vector))]
+        [:<>
+         (for [[feature-id f] features]
+           (let [instance-id (or (:wish/instance-id f)
+                                 feature-id)
+                 extra-info (dissoc source-info :features :limited-uses :&levels)]
+             ; see NOTE above
+             (reset! extra-info-atom extra-info)
 
-           (feature-options f instance-id)]
+             ^{:key instance-id}
+             [bind-fields
+              [:div.feature
+               [:h3
+                (:name f)
+                (when-let [n (:wish/instance f)]
+                  (str " #" (inc n)))]
 
-          {:get #(<sub [:options-> %])
-           :save! (fn [path v]
-                    (>evt [:update-meta [:options]
-                           update
-                           (first path)
-                           expand-val
-                           f path v]))
-           :doc #(<sub [:meta/options])}])) ]
+               (feature-options f instance-id extra-info-atom)]
 
-    ; no features
-    [:p "No features with options available yet."]))
+              {:get #(<sub [:options-> %])
+               :save! (fn [path v]
+                        (>evt [:update-meta [:options]
+                               update
+                               (first path)
+                               expand-val
+                               f path v]))
+               :doc #(<sub [:meta/options])}])) ]
+
+        ; no features
+        [:p "No features with options available yet."]))))
 
 (defn race-page []
   [:div
@@ -230,9 +242,8 @@
               (>evt [:update-meta [:races] (constantly [v])]))}]
 
    ; racial features
-   [feature-options-selection [::subs/race-features-with-options]]
-
-   ])
+   [feature-options-selection [::subs/race-features-with-options]
+    (<sub [:race])] ])
 
 
 ; ======= class management/level-up ========================
@@ -268,7 +279,8 @@
       [:div.meta "Primary class"])]
    [feature-options-selection [::subs/class-features-with-options
                                (:id class-info)
-                               (:primary? class-info)]]
+                               (:primary? class-info)]
+    class-info]
 
    ])
 
@@ -424,13 +436,13 @@
         chosen-background (<sub [:options-> [:background]])]
     [:div {:class (:background styles)}
      [:h1 "Background"]
-     [feature-options-selection [::subs/background (:id primary-class)]]
+     [feature-options-selection [::subs/background (:id primary-class)] nil]
 
      (when (= [:background/custom] chosen-background)
        [:<>
         [:h2 "Custom background"]
         [feature-options-selection
-         [::subs/custom-background (:id primary-class)]]])
+         [::subs/custom-background (:id primary-class) nil]]])
      ]))
 
 

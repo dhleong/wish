@@ -15,7 +15,7 @@
   (->> selections (filter second) (mapv first)))
 
 (defn update-selections-for
-  [selections accepted? key-clicked]
+  [selections accepted? accepted?-extra key-clicked]
   (let [const-max (-> accepted? meta :const)]
     (if (= 1 const-max)
       ; act like a radio button
@@ -23,7 +23,10 @@
 
       (let [updated (update-in selections [key-clicked] not)]
         ; TODO handling filters, esp. for spells?
-        (if (accepted? {:features (selections->options updated)})
+        (if (accepted? (merge
+                         (when accepted?-extra
+                           @accepted?-extra)
+                         {:features (selections->options updated)}))
           ; only return the updated value if it was accepted
           updated
 
@@ -34,16 +37,17 @@
   [attrs]
   (-> attrs
       forms/clean-attrs
-      (dissoc :accepted?)))
+      (dissoc :accepted? :accepted?-extra)))
 
 (defn- group-item
   [[type {:keys [key touch-event disabled] :as attrs} & body]
-   {:keys [save! accepted?]} selections field id]
+   {:keys [save! accepted? accepted?-extra]} selections field id]
   (letfn [(handle-click! []
             (let [old-val @selections
                   new-val (swap! selections
                                  update-selections-for
                                  accepted?
+                                 accepted?-extra
                                  key)]
               (when (not= old-val new-val)
                 (save! id (selections->options new-val)))))]
@@ -97,8 +101,12 @@
                  (map :selector))))))
 
 
+; NOTE: if provided, accepted?-extra must be an ATOM. This is thanks
+; to how reagent-forms disregards any changed inputs on subsequent
+; renders :\
 (defmethod forms/init-field :limited-select
-  [[_ {:keys [accepted?] :as attrs} :as field] {:keys [doc] :as opts}]
+  [[_ {:keys [accepted? accepted?-extra] :as attrs} :as field] {:keys [doc] :as opts}]
   (render-element attrs doc
                   [selection-group field (assoc opts
-                                                :accepted? accepted?)]))
+                                                :accepted? accepted?
+                                                :accepted?-extra accepted?-extra)]))

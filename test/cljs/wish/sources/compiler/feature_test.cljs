@@ -19,7 +19,7 @@
       (is (false? (f features-2)))
       (is (false? (f features-3)))))
 
-  (testing "Compile functional value"
+  (testing "Compile features-based functional value"
     (let [f (compile-max-options
               '(fn [features]
                  (<= (count features) 2)))]
@@ -28,9 +28,11 @@
       (is (true? (f features-2)))
       (is (false? (f features-3)))))
 
-  ;; TODO filter support
-  #_(testing "Compile filter-list value"
-    (is (= 42 ((compile-max-options
-                 [:total 4])
-               character-state)))))
+  (testing "Compile numeric-functional value"
+    (let [f (compile-max-options
+              '(fn [] 2))]
+      (is (true? (f [])))
+      (is (true? (f features-1)))
+      (is (true? (f features-2)))
+      (is (false? (f features-3))))))
 

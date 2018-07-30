@@ -22,10 +22,19 @@
                       (<= (count features) o))
                     {:const o})
 
-      ;; (vector? o) ; TODO support filters list whenever we have it
+      (and (list? o)
+           (= 'fn (first o))
+           (-> o
+               second
+               set
+               (contains? 'features))) (->callable o)
 
       (and (list? o)
-           (= 'fn (first o))) (->callable o)
+           (= 'fn (first o))) (let [f (->callable o)]
+                                (fn [{:keys [features] :as state}]
+                                  (let [max-options (f state)]
+                                    (<= (count features)
+                                        max-options))))
 
       :else #(log/warn "Invalid :max-options " o))))
 
