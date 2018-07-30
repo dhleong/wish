@@ -57,10 +57,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (acid)"}
-       [:!provide-attr
-        [:resistances :acid]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (acid)"}]
+      [:!provide-attr
+       [:resistances :acid]
+       true]]}
 
  {:id :dragonborn/ancestry-blue
   :name "Dragonborn: Blue Dragon Ancestor"
@@ -71,10 +71,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (lightning)"}
-       [:!provide-attr
-        [:resistances :lightning]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (lightning)"}]
+      [:!provide-attr
+       [:resistances :lightning]
+       true]]}
 
  {:id :dragonborn/ancestry-brass
   :name "Dragonborn: Brass Dragon Ancestor"
@@ -85,10 +85,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}
-       [:!provide-attr
-        [:resistances :fire]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}]
+      [:!provide-attr
+       [:resistances :fire]
+       true]]}
 
  {:id :dragonborn/ancestry-bronze
   :name "Dragonborn: Bronze Dragon Ancestor"
@@ -99,10 +99,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (lightning)"}
-       [:!provide-attr
-        [:resistances :lightning]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (lightning)"}]
+      [:!provide-attr
+       [:resistances :lightning]
+       true]]}
 
  {:id :dragonborn/ancestry-copper
   :name "Dragonborn: Copper Dragon Ancestor"
@@ -113,10 +113,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (acid)"}
-       [:!provide-attr
-        [:resistances :acid]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (acid)"}]
+      [:!provide-attr
+       [:resistances :acid]
+       true]]}
 
  {:id :dragonborn/ancestry-gold
   :name "Dragonborn: Gold Dragon Ancestor"
@@ -127,10 +127,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}
-       [:!provide-attr
-        [:resistances :fire]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}]
+      [:!provide-attr
+       [:resistances :fire]
+       true]]}
 
  {:id :dragonborn/ancestry-green
   :name "Dragonborn: Green Dragon Ancestor"
@@ -141,10 +141,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (poison)"}
-       [:!provide-attr
-        [:resistances :poison]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (poison)"}]
+      [:!provide-attr
+       [:resistances :poison]
+       true]]}
 
  {:id :dragonborn/ancestry-red
   :name "Dragonborn: Red Dragon Ancestor"
@@ -155,10 +155,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}
-       [:!provide-attr
-        [:resistances :fire]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (fire)"}]
+      [:!provide-attr
+       [:resistances :fire]
+       true]]}
 
  {:id :dragonborn/ancestry-silver
   :name "Dragonborn: Silver Dragon Ancestor"
@@ -169,10 +169,10 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (cold)"}
-       [:!provide-attr
-        [:resistances :cold]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (cold)"}]
+      [:!provide-attr
+       [:resistances :cold]
+       true]]}
 
  {:id :dragonborn/ancestry-white
   :name "Dragonborn: White Dragon Ancestor"
@@ -183,8 +183,8 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
-        :desc "You have resistance to the damage type associated with your draconic ancestry (cold)"}
-       [:!provide-attr
-        [:resistances :cold]
-        true]]]}
+        :desc "You have resistance to the damage type associated with your draconic ancestry (cold)"}]
+      [:!provide-attr
+       [:resistances :cold]
+       true]]}
  ]
