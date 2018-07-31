@@ -1266,13 +1266,23 @@
          flatten
          set)))
 
+(defn inflate-option-by-id
+  [data-source values option-id]
+  (or (src/find-feature data-source option-id)
+      (src/find-list-entity data-source option-id)
+      (->> values
+           (filter #(= option-id (:id %)))
+           first)))
+
 ; hacks?
 (reg-sub
   ::features-for
   (fn [[_ sub-vec]]
-    [(subscribe sub-vec)
+    [(subscribe [:sheet-source])
+     (subscribe sub-vec)
+     (subscribe [:meta/options])
      (subscribe [::selected-option-ids])])
-  (fn [[sources selected-options]]
+  (fn [[data-source sources options selected-options]]
     (->> sources
          (mapcat (comp vals :features))
          (filter :name)
@@ -1283,6 +1293,17 @@
          (remove #(and (:wish/option? %)
                        (not (contains? selected-options
                                        (:id %)))))
+
+         ; filter out un-selected values
+         (map (fn [f]
+                (if-let [chosen (get options (:id f))]
+                  (assoc f :values
+                         (map
+                           (partial inflate-option-by-id
+                                    data-source (:values f))
+                           chosen))
+
+                  (dissoc f :values))))
 
          (sort-by :name)
          seq)))

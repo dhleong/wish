@@ -258,6 +258,18 @@
      [:.uses {:padding "4px"}]]
     [:.desc metadata]]]
 
+  [:.features-section
+   [:.feature
+    [:.chosen (merge metadata
+                     {:overflow 'hidden
+                      :text-overflow 'ellipsis
+                      :white-space 'nowrap
+                      })]]
+   [:.desc metadata]
+   [:.chosen-details {:padding-bottom "8px"
+                      :align-self 'flex-start}
+    [:h5 {:margin 0}]]]
+
   [:.limited-use-section
    [:.rests flex/center
     [:.button (merge

@@ -332,10 +332,24 @@
 
 (defn feature
   [f]
-  [expandable
-   [:div.feature
-    [:div.name (:name f)]]
-   [formatted-text :div.desc (:desc f)]])
+  (let [values (seq (:values f))]
+    [expandable
+     [:div.feature
+      [:div.name (:name f)]
+      (when values
+        [:div.chosen (->> values
+                          (take 4)
+                          (map :name)
+                          (str/join " · "))])]
+     [:<>
+      [formatted-text :div.desc (:desc f)]
+      (when values
+        [:div.chosen-details
+         [:h5 "Chosen values:"]
+         ; TODO these should probably also be expandable?
+         (for [v values]
+           ^{:key (:id v)}
+           [:div.chosen (:name v)])])]]))
 
 (defn features-section []
   [:<>
@@ -698,6 +712,7 @@
      [combat-section]]
 
     [section "Features"
+     :features-section
      [features-section]]
 
     [section "Limited-use"
