@@ -528,16 +528,21 @@
   (fn [db]
     (:5e/items-filter db nil)))
 
+(defn filter-by-str
+  "Filter's by :name using the given str"
+  [filter-str coll]
+  (if-not (str/blank? filter-str)
+    (->> coll
+         (filter (fn [{n :name}]
+                   (wstr/includes-any-case? n filter-str))))
+    coll))
+
 (reg-sub
   ::all-items
   :<- [:all-items]
   :<- [:5e/items-filter]
   (fn [[items filter-str]]
-    (if-not (str/blank? filter-str)
-      (->> items
-           (filter (fn [{n :name}]
-                     (wstr/includes-any-case? n filter-str))))
-      items)))
+    (filter-by-str filter-str items)))
 
 (reg-sheet-sub
   ::attuned-ids
@@ -822,6 +827,12 @@
 
 ; ======= Spells ===========================================
 
+(reg-sub
+  :5e/spells-filter
+  (fn [db]
+    (:5e/spells-filter db nil)))
+
+
 (defn knowable-spell-counts-for
   [c modifiers]
   (let [{:keys [id level]} c
@@ -996,9 +1007,11 @@
     [(subscribe [:sheet-source])
      (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id the-class)])
-     (subscribe [::highest-spell-level-for-class-id (:id the-class)])])
+     (subscribe [::highest-spell-level-for-class-id (:id the-class)])
+     (subscribe [:5e/spells-filter])])
 
-  (fn [[data-source options prepared-spells highest-spell-level]
+  (fn [[data-source options prepared-spells highest-spell-level
+        filter-str]
        [_ the-class list-id]]
     (let [attrs (-> the-class :attrs :5e/spellcaster)
 
@@ -1039,6 +1052,8 @@
            ; limit visible spells by those actually available
            ; (IE it must be of a level we can prepare)
            (filter #(<= (:spell-level %) highest-spell-level))
+
+           (filter-by-str filter-str)
 
            (map #(if (always-prepared-set (:id %))
                    (assoc % :always-prepared? true)

@@ -540,6 +540,10 @@
       [:div.limit
        "Cantrips " prepared-cantrips-count " / " cantrips-limit]]
 
+     [widgets/search-bar
+      {:filter-key :5e/spells-filter
+       :placeholder "Search for a spell..."}]
+
      #_[:div.stretch
       [virtual-list
        :items spells
