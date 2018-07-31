@@ -1041,12 +1041,16 @@
           source (if acquires-list?
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
+                   ; NOTE: do we need to concat class-provided lists?
                    (expand-list data-source
                                 (:spells attrs)
                                 (get options (:spells attrs) #{}))
 
                    ; normal case:
-                   (expand-list data-source list-id nil))]
+                   (concat
+                     ; include any added by class features (eg: warlock)
+                     (get-in the-class [:lists list-id])
+                     (expand-list data-source list-id nil)))]
 
       (->> source
            ; limit visible spells by those actually available
@@ -1054,6 +1058,9 @@
            (filter #(<= (:spell-level %) highest-spell-level))
 
            (filter-by-str filter-str)
+
+           ; sort by level then name
+           (sort-by (juxt :spell-level :name))
 
            (map #(if (always-prepared-set (:id %))
                    (assoc % :always-prepared? true)
