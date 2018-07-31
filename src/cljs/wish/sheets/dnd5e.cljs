@@ -223,13 +223,34 @@
 
 (defn- attack-block [s & [extra-info]]
   [:div.attack (or extra-info {})
-   [:div.name (:name s)]
+   [:div.name
+    (when (:desc s)
+      {:on-click (click>evt [:toggle-overlay
+                             [#'overlays/info s]])
+       :class "clickable"})
+    (:name s) ]
 
-   [:div.info-group
-    [:div.label
-     "TO HIT"]
-    [:div.to-hit
-     (mod->str (:to-hit s))]]
+   (when-let [use-id (:consumes s)]
+     (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
+       (if (> uses-left 0)
+         [:div.uses.button
+          {:on-click (click>evt [:+use use-id 1])}
+          uses-left " Left"]
+         "(none left)\u00A0")))
+
+   (when-let [to-hit (:to-hit s)]
+     [:div.info-group
+      [:div.label
+       "TO HIT"]
+      [:div.to-hit
+       (mod->str to-hit)]])
+
+   (when-let [save (:save s)]
+     [:div.info-group
+      [:div.label
+       (str/upper-case (name save)) " SAVE"]
+      [:div.save-dc
+       (:save-dc s)]])
 
    [:div.info-group
     [:div.label
@@ -260,7 +281,14 @@
       [:h4 "Spell Attacks"]
       (for [s spell-attacks]
         ^{:key (:id s)}
-        [attack-block s {:class :spell-attack}])])])
+        [attack-block s {:class :spell-attack}])])
+
+   (when-let [attacks (seq (<sub [::subs/other-attacks]))]
+     [:div.other
+      [:h4 "Other Attacks"]
+      (for [a attacks]
+        ^{:key (:id a)}
+        [attack-block a])])])
 
 (defn- action-block
   [a]

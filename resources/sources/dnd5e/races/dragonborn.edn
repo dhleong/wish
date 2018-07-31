@@ -25,7 +25,7 @@ When you use your breath weapon, each creature in the area of the exhalation mus
 After you use your breath weapon, you can’t use it again until you complete a short or long rest."
     :! [[:!add-limited-use
          {:id :dragonborn/breath-weapon#uses
-          :name "Breath Weapon"
+          :name "Dragonborn Breath Weapon"
           :uses 1
           :restore-trigger :short-rest}]
 
@@ -41,7 +41,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
                     (< level 16) "4d6"
                     :else "5d6"))
           :save-dc (fn [modifiers prof-bonus]
-                     (+ 8 (:con modifier) prof-bonus))}]]}
+                     (+ 8 (:con modifiers) prof-bonus))}]]}
 
    ]}]
 

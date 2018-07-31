@@ -99,6 +99,7 @@
 
    [:.space flex/grow]])
 
+;; TODO refactor all of this please
 (defstyle styles
   (at-media
     media-smartphones
@@ -368,6 +369,12 @@
      [:&.e {:background-color color-electrum}]
      [:&.s {:background-color color-silver}]
      [:&.c {:background-color color-copper}]]] ]
+
+  [:.info-overlay overlay
+   [:table.info (merge metadata
+                       {:margin-top "8px"})
+    [:th.header {:text-align 'right}]]
+   [:.desc metadata]]
 
   [:.starting-equipment-overlay overlay
     [:.alternatives {:border "1px solid #333"

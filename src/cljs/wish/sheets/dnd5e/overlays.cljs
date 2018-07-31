@@ -22,6 +22,34 @@
             [wish.views.widgets.fast-numeric]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
+; ======= generic "info" overlay ==========================
+
+(defn info
+  [entity]
+  (let [{:keys [aoe damage]} entity]
+    [:div {:class (:info-overlay styles)}
+     (when-let [n (:name entity)]
+       [:div.name n])
+
+     (when (or aoe damage)
+       [:table.info
+        [:tbody
+         (when aoe
+           [:tr
+            [:th.header "Area of Effect"]
+            [:td aoe]])
+         (when damage
+           [:tr
+            [:th.header "Damage Type"]
+            [:td (str/capitalize
+                   (name damage))]])
+         ]]
+       )
+
+     (when-let [d (:desc entity)]
+       [formatted-text :div.desc d]) ]))
+
+
 ; ======= ability info/tmp mods ============================
 
 (defn ability-tmp

@@ -5,6 +5,7 @@
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
+            [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
@@ -689,6 +690,96 @@
   (fn [m [_ item-id]]
     (->> m item-id :wish/amount)))
 
+
+; ======= combat ==========================================
+
+(reg-sub
+  ::combat-actions
+  :<- [:classes]
+  :<- [:sheet-source]
+  (fn [[classes data-source] [_ filter-type]]
+    (->> classes
+         (mapcat
+           (fn [c]
+             (let [ids (keys (get-in c [:attrs filter-type]))]
+               (map
+                 (fn [id]
+                   (or (get-in c [:features id])
+                       (src/find-feature data-source id)))
+                 ids))))
+         (sort-by :name))))
+
+(def ^:private compile-dice-fn (memoize ->callable))
+(def ^:private compile-save-fn (memoize ->callable))
+(reg-sub
+  ::other-attacks
+  :<- [:sheet-source]
+  :<- [:meta/options]
+  :<- [::ability-modifiers]
+  :<- [::proficiency-bonus]
+  :<- [:total-level]
+  :<- [:races]
+  :<- [:classes]
+  (fn [[data-source options modifiers
+        prof-bonus total-level
+        & entity-lists] _]
+    (->> entity-lists
+         flatten
+         (keep (juxt (comp :attacks :attrs)
+                     identity))
+
+         ; transform from seq of maps of attack-maps into
+         ; a seq of attack-maps, including the :wish/source
+         ; each came from
+         (mapcat (fn [[attacks-map source]]
+                   (when-let [attacks (seq attacks-map)]
+                     ; NOTE: attacks is a sequence of [id attack-map] pairs
+                     (map (fn [[id attack]]
+                            (assoc attack
+                                   :id id
+                                   ; provide :total-level if it doesn't have :level
+                                   :wish/source
+                                   (update source :level #(or % total-level))))
+                          attacks))))
+
+         ; fill out each map, inflating :dice values, etc. and
+         ; merging in &from-options as necessary
+         (map (fn [attack]
+                (let [source-entity (:wish/source attack)
+                      context-feature (or (get-in source-entity [:features (:id attack)])
+                                          (src/find-feature data-source (:id attack)))
+                      attack (if-let [from-option (:&from-option attack)]
+                               ; merge in
+                               (let [opt (->> options
+                                              from-option
+                                              first
+                                              (src/find-feature data-source))]
+                                 (merge
+                                   opt
+
+                                   ; use the context-feature's desc, if possible
+                                   (when context-feature
+                                     (select-keys
+                                       context-feature
+                                       [:desc]))
+
+                                   attack))
+
+                               ; nothing to do
+                               attack)
+
+                      info (assoc source-entity
+                                  :modifiers modifiers
+                                  :prof-bonus prof-bonus)
+                      dice-fn (compile-dice-fn
+                                (:dice attack))
+                      save-fn (compile-save-fn
+                                (:save-dc attack))]
+                  (-> attack
+                      (assoc :dmg (dice-fn info))
+                      (assoc :save-dc (save-fn info)))))))))
+
+
 ; ======= Spells ===========================================
 
 (defn knowable-spell-counts-for
@@ -833,22 +924,6 @@
                 (throw (js/Error.
                          (str "Unknown spell filter-type:" filter-type)))))
             spells)))
-
-(reg-sub
-  ::combat-actions
-  :<- [:classes]
-  :<- [:sheet-source]
-  (fn [[classes data-source] [_ filter-type]]
-    (->> classes
-         (mapcat
-           (fn [c]
-             (let [ids (keys (get-in c [:attrs filter-type]))]
-               (map
-                 (fn [id]
-                   (or (get-in c [:features id])
-                       (src/find-feature data-source id)))
-                 ids))))
-         (sort-by :name))))
 
 ; reduces ::prepared-spells into {:cantrips, :spells},
 ; AND removes ones that are always prepared
