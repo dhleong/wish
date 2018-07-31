@@ -1218,6 +1218,18 @@
 ; ======= builder-specific =================================
 
 (reg-sub
+  ::available-classes
+  :<- [:available-entities :classes]
+  :<- [:classes]
+  (fn [[all-classes selected-classes]]
+    (let [selected-class-ids (->> selected-classes
+                                  (map :id)
+                                  (into #{}))]
+      (->> all-classes
+           (remove (comp selected-class-ids :id))
+           (sort-by :name)))))
+
+(reg-sub
   ::available-races
   :<- [:available-entities :races]
   (fn [all-races]

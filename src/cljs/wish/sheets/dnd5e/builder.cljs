@@ -293,8 +293,7 @@
   [:div.class-picker
    [:h4 "Pick a new class"]
    [:div.feature-options
-    (for [c (->> (<sub [:available-entities :classes])
-                 (remove (comp unavailable-class-ids :id)))]
+    (for [c (<sub [::subs/available-classes])]
       ^{:key (:id c)}
       [:div.feature-option
        {:on-click (fn-click
