@@ -101,14 +101,68 @@ Additionally, when you gain a level in this class, you can choose one of the inv
                   :desc "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th-level spell from the warlock spell list as this arcanum.
 You can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.
 At higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th-level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest."
-                  ; TODO probably separate features whose values are based on
-                  ; the level of spell
+                  :max-options 1
+                  :values [:warlock/spells-list]
+                  :values-filter (fn [spell-level]
+                                   (= 6 spell-level))
+                  :! [[:!add-limited-use
+                       {:id :warlock/mystic-arcanum#uses-6th
+                        :name "Mystic Arcanum - 6th Level"
+                        :uses 1
+                        :restore-trigger :long-rest}]]
                   }]}
 
             12 {:+features
                 [:ability-improvement]}
+
+            13 {:+features
+                [{:id :warlock/mystic-arcanum-7th
+                  :name "Mystic Arcanum - 7th Level"
+                  :desc "At Level 13, you can pick one 7th-level spell as another arcanum."
+                  :max-options 1
+                  :values [:warlock/spells-list]
+                  :values-filter (fn [spell-level]
+                                   (= 7 spell-level))
+                  :! [[:!add-limited-use
+                       {:id :warlock/mystic-arcanum#uses-7th
+                        :name "Mystic Arcanum - 7th Level"
+                        :uses 1
+                        :restore-trigger :long-rest}]]
+                  }]}
+
+            15 {:+features
+                [{:id :warlock/mystic-arcanum-8th
+                  :name "Mystic Arcanum - 8th Level"
+                  :desc "At Level 15, you can pick one 8th-level spell as another arcanum."
+                  :max-options 1
+                  :values [:warlock/spells-list]
+                  :values-filter (fn [spell-level]
+                                   (= 8 spell-level))
+                  :! [[:!add-limited-use
+                       {:id :warlock/mystic-arcanum#uses-8th
+                        :name "Mystic Arcanum - 8th Level"
+                        :uses 1
+                        :restore-trigger :long-rest}]]
+                  }]}
+
             16 {:+features
                 [:ability-improvement]}
+
+            17 {:+features
+                [{:id :warlock/mystic-arcanum-9th
+                  :name "Mystic Arcanum - 9th Level"
+                  :desc "At Level 17, you can pick one 9th-level spell as another arcanum."
+                  :max-options 1
+                  :values [:warlock/spells-list]
+                  :values-filter (fn [spell-level]
+                                   (= 9 spell-level))
+                  :! [[:!add-limited-use
+                       {:id :warlock/mystic-arcanum#uses-9th
+                        :name "Mystic Arcanum - 9th Level"
+                        :uses 1
+                        :restore-trigger :long-rest}]]
+                  }]}
+
             19 {:+features
                 [:ability-improvement]}
             20 {:+features
