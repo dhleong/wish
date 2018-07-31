@@ -48,7 +48,10 @@
    [:.hit-point-setting {:margin "8px"}
     [:.dice-level flex
      [:.level {:width "2em"
-               :text-align 'center}]]]])
+               :text-align 'center}]]]]
+
+  [:.races
+   [:.subrace {:padding-left "1em"}]])
 
 
 ; ======= Pages ============================================
@@ -227,15 +230,17 @@
         [:p "No features with options available yet."]))))
 
 (defn race-page []
-  [:div
+  [:div {:class (:races styles)}
    [:h3 "Race"]
 
    [bind-fields
     [:div.feature-options {:field :single-select
                            :id :races}
-     (for [r (<sub [:available-entities :races])]
-       [:div.feature-option {:key (:id r)}
-        (:name r)])]
+     (for [r (<sub [::subs/available-races])]
+       [:div.feature-option {:key (:id r) }
+        [:div {:class (when (:subrace-of r)
+                        "subrace")}
+         (:name r)]])]
 
     {:get #(first (<sub [:meta/races]))
      :save! (fn [_ v]

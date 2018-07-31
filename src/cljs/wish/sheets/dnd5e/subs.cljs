@@ -1218,6 +1218,17 @@
 ; ======= builder-specific =================================
 
 (reg-sub
+  ::available-races
+  :<- [:available-entities :races]
+  (fn [all-races]
+    (->> all-races
+         (sort-by (fn [e]
+                    [(or (:subrace-of e)
+                         (:id e))
+                     (:subrace-of e)
+                     (:name e)])))))
+
+(reg-sub
   ::primary-class
   :<- [:classes]
   (fn [classes]
