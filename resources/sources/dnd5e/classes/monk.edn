@@ -74,10 +74,11 @@ Certain monasteries use specialized forms of the monk weapons. For example, you 
     :desc "Beginning at 1st level, while you are wearing no armor and not wielding a shield, your AC equals 10 + your Dexterity modifier + your Wisdom modifier."
     :! [[:!provide-attr
          [:5e/ac :monk/unarmored-defense]
-         (fn [modifiers]
-           (+ 10
-              (:dex modifiers)
-              (:wis modifiers)))]]}]
+         (fn [modifiers armor? shield?]
+           (when-not (or armor? shield?)
+             (+ 10
+                (:dex modifiers)
+                (:wis modifiers))))]]}]
 
   :&levels {2 {:+features
                [{:id :monk/ki

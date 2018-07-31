@@ -10,7 +10,7 @@
 
 ; NOTE: figwheel css live-reload doesn't work so well with
 ; the fancy nav
-(def pushy-supported? (and (not js/goog.DEBUG)
+(def pushy-supported? false #_(and (not js/goog.DEBUG)
                            (pushy/supported?)))
 
 (def pushy-prefix "/wish")

@@ -129,6 +129,7 @@
   (export-macro when-let)
   (export-macro when-not)
   (export-macro when-some)
+  (export-macro or)
 
   ; this is required for (cond)
   (export-sym cljs.core/truth_)

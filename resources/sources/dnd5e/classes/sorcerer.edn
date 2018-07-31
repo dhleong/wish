@@ -207,15 +207,15 @@ You can speak, read, and write Draconic. Additionally, whenever you make a Chari
         :name "Draconic Resilience"
         :desc "As magic flows through your body, it causes physical traits of your dragon ancestors to emerge. At 1st level, your hit point maximum increases by 1 and increases by 1 again whenever you gain a level in this class.
 Additionally, parts of your skin are covered by a thin sheen of dragon-like scales. When you aren’t wearing armor, your AC equals 13 + your Dexterity modifier."
-        ; TODO
         :! [[:!provide-attr
              [:buffs :hp-max]
              (fn [level] level)]
 
             [:!provide-attr
              [:5e/ac :sorcerer/draconic-resilience]
-             (fn [modifiers]
-               (+ 13 (:dex modifiers)))]]}]]
+             (fn [modifiers armor?]
+               (when-not armor?
+                 (+ 13 (:dex modifiers))))]]}]]
 
   :&levels {6 {:+! [[:!provide-feature
                      {:id :sorcerer/draconic-elemental-affinity

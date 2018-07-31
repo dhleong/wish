@@ -68,6 +68,13 @@
 (def armor-kinds (memoize
                    #(->kind-maps armor)))
 
+(defn armor? [item]
+  (and (= :armor (:type item))
+       (not= :shield (:kind item))))
+
+(defn shield? [item]
+  (= :shield (:kind item)))
+
 (def ^:private weapons
   {
    ; Simple Melee weapons

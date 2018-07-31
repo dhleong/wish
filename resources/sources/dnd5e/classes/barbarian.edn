@@ -67,10 +67,11 @@ Once you have raged the number of times shown for your barbarian level in the Ra
     :desc "While you are not wearing any armor, your Armor Class equals 10 + your Dexterity modifier + your Constitution modifier. You can use a shield and still gain this benefit."
     :! [[:!provide-attr
          [:5e/ac :barbarian/unarmored-defense]
-         (fn [modifiers]
-           (+ 10
-              (:dex modifiers)
-              (:con modifiers)))]]}
+         (fn [modifiers armor?]
+           (when-not armor?
+             (+ 10
+                (:dex modifiers)
+                (:con modifiers))))]]}
 
    ]
 

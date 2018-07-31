@@ -5,6 +5,7 @@
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
+            [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
             [wish.util :refer [invoke-callable ->map]]))
@@ -415,11 +416,24 @@
 ; ======= combat ===========================================
 
 (reg-sub
+  ::armor-equipped?
+  :<- [:equipped-sorted]
+  (fn [equipped]
+    (some data/armor? equipped)))
+
+(reg-sub
+  ::shield-equipped?
+  :<- [:equipped-sorted]
+  (fn [equipped]
+    (some data/shield? equipped)))
+
+(reg-sub
   ::ac
   :<- [:classes]
   :<- [:equipped-sorted]
   :<- [::ability-modifiers]
-  (fn [[classes equipped modifiers]]
+  :<- [::armor-equipped?]
+  (fn [[classes equipped modifiers armor? shield?]]
     (let [ac-sources (->> (concat classes
                                   equipped)
                           (mapcat (comp vals :5e/ac :attrs)))
@@ -427,7 +441,9 @@
                                equipped)
                        (mapcat (comp vals :ac :buffs :attrs))
                        (apply +))
-          fn-context {:modifiers modifiers}]
+          fn-context {:modifiers modifiers
+                      :armor? armor?
+                      :shield? shield?}]
       (+ ac-buff
 
          (apply max
