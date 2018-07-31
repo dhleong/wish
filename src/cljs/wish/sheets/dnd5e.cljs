@@ -680,9 +680,14 @@
 (defn- item-browser []
   [:<>
    ; TODO search bar with filtering
+   [:div
+    [widgets/search-bar
+     {:filter-key :5e/items-filter
+      :placeholder "Search for an item..."}
+     ]]
    [:div.item-browser.scrollable
     [virtual-list
-     :items (<sub [:all-items])
+     :items (<sub [::subs/all-items])
      :render-item (fn [props item]
                     [:div.item props
                      [item-browser-item item]])]]])

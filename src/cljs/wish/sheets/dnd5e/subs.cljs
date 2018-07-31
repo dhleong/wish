@@ -9,7 +9,8 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
-            [wish.util :refer [invoke-callable ->map]]))
+            [wish.util :refer [invoke-callable ->map]]
+            [wish.util.string :as wstr]))
 
 ; ======= Constants ========================================
 
@@ -521,6 +522,22 @@
 
 
 ; ======= items and equipment ==============================
+
+(reg-sub
+  :5e/items-filter
+  (fn [db]
+    (:5e/items-filter db nil)))
+
+(reg-sub
+  ::all-items
+  :<- [:all-items]
+  :<- [:5e/items-filter]
+  (fn [[items filter-str]]
+    (if-not (str/blank? filter-str)
+      (->> items
+           (filter (fn [{n :name}]
+                     (wstr/includes-any-case? n filter-str))))
+      items)))
 
 (reg-sheet-sub
   ::attuned-ids

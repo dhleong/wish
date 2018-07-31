@@ -2,8 +2,9 @@
       :doc "Shared widgets"}
   wish.views.widgets
   (:require-macros [wish.views.widgets :refer [icon]])
-  (:require [clojure.string :as string]
+  (:require [clojure.string :as str]
             [reagent.core :as r]
+            [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [<sub >evt click>evt click>swap!]]
             [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :refer [pushy-supported? pushy-prefix]]))
@@ -61,6 +62,20 @@
             (if (fn? expanded-fn)
               [expanded-fn]
               expanded-fn)])]))))
+
+(defn search-bar
+  [{:keys [placeholder class filter-key] :as opts}]
+  [:div.search-bar
+   [bind-fields
+    [:input.search {:field :text
+                    :key filter-key
+                    :placeholder placeholder}]
+    {:get #(<sub [filter-key])
+     :save! #(>evt [filter-key %2])}]
+   (when-not (str/blank? (<sub [filter-key]))
+     [:div.clear
+      {:on-click (click>evt [filter-key nil])}
+      (icon :clear)])])
 
 (defn slot-use-block
   "A block of boxes that can be checked and unchecked"

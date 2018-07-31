@@ -34,6 +34,20 @@
     (update-sheet-path cofx [:classes] remove-class class-info)))
 
 
+; ======= search/filter ===================================
+
+(defn- reg-filter-event
+  [k]
+  (reg-event-db
+    k
+    [trim-v]
+    (fn-traced [db [filter-str]]
+      (assoc db k filter-str))))
+
+(reg-filter-event :5e/items-filter)
+(reg-filter-event :5e/spells-filter)
+
+
 ; ======= etc ==============================================
 
 (defn with-range
