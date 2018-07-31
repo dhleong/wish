@@ -679,7 +679,6 @@
 
 (defn- item-browser []
   [:<>
-   ; TODO search bar with filtering
    [:div
     [widgets/search-bar
      {:filter-key :5e/items-filter
