@@ -243,6 +243,26 @@
   ::temp-max-hp
   :temp-max-hp)
 
+(def ^:private compile-hp-buff (memoize ->callable))
+(reg-sub
+  ::max-hp-buffs
+  :<- [:race]
+  :<- [:classes]
+  (fn [entity-lists _]
+    (->> entity-lists
+         flatten
+         (map (juxt (comp vals :hp-max :buffs :attrs)
+                    identity))
+         (mapcat (fn [[hp-max-items entity]]
+                   (when hp-max-items
+                     (keep #(when %
+                              [% entity])
+                           hp-max-items))))
+         (map (fn [[hp-max entity]]
+                ((->callable hp-max)
+                 entity)))
+         (apply +))))
+
 (reg-sub
   ::max-hp
   :<- [::rolled-hp]
@@ -250,7 +270,8 @@
   :<- [::abilities]
   :<- [:total-level]
   :<- [::class->level]
-  (fn [[rolled-hp temp-max abilities total-level class->level]]
+  :<- [::max-hp-buffs]
+  (fn [[rolled-hp temp-max abilities total-level class->level buffs]]
     (apply +
            temp-max
 
@@ -258,6 +279,8 @@
               (->> abilities
                    :con
                    ability->mod))
+
+           buffs
 
            ; if you set a class to level 3, set HP, then go back
            ; to level 2, there will be an orphaned entry in the
