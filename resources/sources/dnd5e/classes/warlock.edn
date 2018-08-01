@@ -263,7 +263,290 @@ If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a
              :warlock/pact-tome-spells>>options]]}]] }
  ]
 
+; TODO we can probably use attrs to modify spells, adding
+; :consumes and :at-will?, etc.
+
 [:!provide-options
  :warlock/eldritch-invocations
- ; TODO
+
+ {:id :warlock/agonizing-blast
+  :name "Agonizing Blast"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ _eldritch blast_ cantrip
+When you cast eldritch blast, add your Charisma modifier to the damage it deals on a hit."
+  ; TODO surface
+  }
+
+ {:id :warlock/armor-shadows
+  :name "Armor of Shadows"
+  :desc "You can cast _mage armor_ on yourself at will, without expending a spell slot or material components."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/mage-armor]]}
+
+ {:id :warlock/ascendant-step
+  :name "Ascendant Step"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 9th level
+You can cast _levitate_ on yourself at will, without expending a spell slot or material components."
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/levitate]]}
+
+ {:id :warlock/beast-speech
+  :name "Beast Speech"
+  :desc "You can cast _speak with animals_ at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/speak-with-animals]]}
+
+ {:id :warlock/beguiling-influence
+  :name "Beguiling Influence"
+  :desc "You gain proficiency in the Deception and Persuasion skills."
+  :! [[:!provide-feature
+       :proficiency/deception
+       :proficiency/persuasion]]}
+
+ {:id :warlock/bewitching-whispers
+  :name "Bewitching Whispers"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 7th level
+You can cast _compulsion_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/compulsion]
+      [:!add-limited-use
+       {:id :warlock/bewitching-whispers#uses
+        :name "Bewitching Whispers"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/book-ancient-secrets
+  :name "Book of Ancient Secrets"
+  :desc "You can now inscribe magical rituals in your Book of Shadows. Choose two 1st-level spells that have the ritual tag from any class’s spell list (the two needn’t be from the same list). The spells appear in the book and don’t count against the number of spells you know. With your Book of Shadows in hand, you can cast the chosen spells as rituals. You can’t cast the spells except as rituals, unless you’ve learned them by some other means. You can also cast a warlock spell you know as a ritual if it has the ritual tag.
+On your adventures, you can add other ritual spells to your Book of Shadows. When you find such a spell, you can add it to the book if the spell’s level is equal to or less than half your warlock level (rounded up) and if you can spare the time to transcribe the spell. For each level of the spell, the transcription process takes 2 hours and costs 50 gp for the rare inks needed to inscribe it."
+  ; TODO oh boy. It's like becoming an :acquires? caster... sort of
+  }
+
+ {:id :warlock/chains-carceri
+  :name "Chains of Carceri"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 15th level, Pact of the Chain feature
+You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental—without expending a spell slot or material components. You must finish a long rest before you can use this invocation on the same creature again."
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/hold-monster]]}
+
+ {:id :warlock/devils-sight
+  :name "Devil's Sight"
+  :desc "You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet."}
+
+ {:id :warlock/dreadful-word
+  :name "Dreadful Word"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 7th level
+You can cast _confusion_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/confusion]
+      [:!add-limited-use
+       {:id :warlock/dreadful-word#uses
+        :name "Dreadful Word"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/eldritch-sight
+  :name "Eldritch Sight"
+  :desc "You can cast _detect magic_ at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/extra-spells
+       :spell/detect-magic]]}
+
+
+ {:id :warlock/eldritch-spear
+  :name "Eldritch Spear"
+  :desc "_Prerequisite:_ _eldritch blast_ cantrip
+When you cast _eldritch blast_, its range is 300 feet."
+  ; TODO surface this?
+  }
+
+ {:id :warlock/eyes-rune-keeper
+  :name "Eyes of the Rune Keeper"
+  :desc "You can read all writing."}
+
+ {:id :warlock/fiendish-vigor
+  :name "Fiendish Vigor"
+  :desc "You can cast _false life_ on yourself at will as a 1st-level spell, without expending a spell slot or material components."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/false-life]]}
+
+ {:id :warlock/gaze-two-minds
+  :name "Gaze of Two Minds"
+  :desc "You can use your action to touch a willing humanoid and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can use your action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. While perceiving through the other creature’s senses, you benefit from any special senses possessed by that creature, and you are blinded and deafened to your own surroundings."}
+
+ {:id :warlock/lifedrinker
+  :name "Lifedrinker"
+  ; TODO prerequisites
+  :desc "_Prerequisite:_ 12th level, _Pact of the Blade_ feature
+When you hit a creature with your pact weapon, the creature takes extra necrotic damage equal to your Charisma modifier (minimum 1)."}
+
+ {:id :warlock/mask-many-faces
+  :name "Mask of Many Faces"
+  :desc "You can cast _disguise self_ at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/disguise-self]]}
+
+ {:id :warlock/master-myriad-forms
+  :name "Master of Myriad Forms"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 15th level
+You can cast alter self at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/alter-self]]}
+
+ {:id :warlock/minions-chaos
+  :name "Minions of Chaos"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 9th level
+You can cast _conjure elemental_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/alter-self]
+      [:!add-limited-use
+       {:id :warlock/minions-chaos#uses
+        :name "Minions of Chaos"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/mire-mind
+  :name "Mire the Mind"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 5th level
+You can cast _slow_ once using a warlock spell slot.
+You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/slow]
+      [:!add-limited-use
+       {:id :warlock/mire-mind#uses
+        :name "Mire the Mind"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/misty-visions
+  :name "Misty Visions"
+  :desc "You can cast _silent image_ at will, without expending a spell slot or material components."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/silent-image]]}
+
+ {:id :warlock/one-with-shadows
+  :name "One with Shadows"
+  :desc "_Prerequisite:_ 5th level
+When you are in an area of dim light or darkness, you can use your action to become invisible until you move or take an action or a reaction."}
+
+ {:id :warlock/otherworldly-leap
+  :name "Otherworldly Leap"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 9th level
+You can cast _jump_ on yourself at will, without expending a spell slot or material components."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/jump]]}
+
+ {:id :warlock/repelling-blast
+  :name "Repelling Blast"
+  ; TODO prerequisite
+  :desc "_Prerequisite: eldritch blast_ cantrip
+When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line."}
+
+ {:id :warlock/sculptor-flesh
+  :name "Sculptor of Flesh"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 7th level
+You can cast _polymorph_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/polymorph]
+      [:!add-limited-use
+       {:id :warlock/sculptor-flesh#uses
+        :name "Sculptor of Flesh"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/sign-ill-omen
+  :name "Sign of Ill Omen"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 5th level
+You can cast _bestow curse_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/bestow-curse]
+      [:!add-limited-use
+       {:id :warlock/sign-ill-omen#uses
+        :name "Sign of Ill Omen"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/thief-five-fates
+  :name "Thief of Five Fates"
+  :desc "You can cast _bane_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/bane]
+      [:!add-limited-use
+       {:id :warlock/thief-five-fates#uses
+        :name "Thief of Five Fates"
+        :uses 1
+        :restore-trigger :long-rest}]]}
+
+ {:id :warlock/thirsting-blade
+  :name "Thirsting Blade"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 5th level, _Pact of the Blade_ feature
+You can attack with your pact weapon twice, instead of once, whenever you take the Attack action on your turn."}
+
+ {:id :warlock/visions-distant-realms
+  :name "Visions of Distant Realms"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 15th level
+You can cast _arcane eye_ at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/arcane-eye]]}
+
+ {:id :warlock/voice-chain-master
+  :name "Voice of the Chain Master"
+  ; TODO prerequisite
+  :desc "_Prerequisite: Pact of the Chain_ feature
+You can communicate telepathically with your familiar and perceive through your familiar’s senses as long as you are on the same plane of existence. Additionally, while perceiving through your familiar’s senses, you can also speak through your familiar in your own voice, even if your familiar is normally incapable of speech."}
+
+ {:id :warlock/whispers-grave
+  :name "Whispers of the Grave"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 9th level
+You can cast _speak with dead_ at will, without expending a spell slot."
+  ; TODO at-will spells list?
+  :! [[:!add-to-list
+       :warlock/spells-list
+       :spell/speak-with-dead]]}
+
+ {:id :warlock/witch-sight
+  :name "Witch Sight"
+  ; TODO prerequisite
+  :desc "_Prerequisite:_ 15th level
+You can see the true form of any shapechanger or creature concealed by illusion or transmutation magic while the creature is within 30 feet of you and within line of sight."}
+
  ]
