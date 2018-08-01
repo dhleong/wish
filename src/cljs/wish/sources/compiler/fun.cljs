@@ -75,6 +75,7 @@
       (expose-fn map)
       (expose-fn mapcat)
       (expose-fn remove)
+      (expose-fn some)
 
       (expose-fn partial)
 

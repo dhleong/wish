@@ -37,7 +37,8 @@
   [attrs]
   (-> attrs
       forms/clean-attrs
-      (dissoc :accepted? :accepted?-extra)))
+      (dissoc :accepted? :accepted?-extra
+              :visible?!)))
 
 (defn- group-item
   [[type {:keys [key touch-event disabled] :as attrs} & body]
@@ -86,7 +87,10 @@
   (let [selection-items (forms/extract-selectors selection-items)
         selections      (r/atom (mk-selections id selection-items opts))
         selectors       (map (fn [item]
-                               {:visible? (:visible? (second item))
+                               ; I'm not sure why :visible? gets stripped
+                               ; before we get here, but it does...
+                               {:visible? (or (:visible? (second item))
+                                              (:visible?! (second item)))
                                 :selector [(group-item item opts selections field id)]})
                              selection-items)]
     (fn []

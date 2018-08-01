@@ -204,7 +204,8 @@
                  (map (fn [f]
                         (with-meta
                           f
-                          {:container-id (:id container)}))
+                          {:wish/container-id (:id container)
+                           :wish/container container}))
                       (:features container))))
 
        ; remove features that only the primary class should have
@@ -216,7 +217,7 @@
        (mapcat (fn [[id f :as entry]]
                  (if (:instanced? f)
                    (let [total-instances (inc (:wish/instances f))
-                         {:keys [container-id]} (meta entry)]
+                         {:wish/keys [container-id]} (meta entry)]
                      (map
                        (fn [n]
                          (-> entry
@@ -257,7 +258,7 @@
                   [f])
 
                 (when-let [options-src-id (lists/unpack-options-key
-                                        opt-or-id)]
+                                            opt-or-id)]
                   ; this was eg: :wizard/spells-list>>options
                   ; inflate the chosen :values from the given feature-id
                   (inflate-option-values
@@ -273,26 +274,58 @@
             [opt-or-id]))
         values)))
 
+(defn- filter-available
+  "Updates all options, evaluating :available? 'in place'
+   if provided, or setting to `true` if not. What we would
+   prefer to do is actually (filter) the elements, but because
+   reagent-forms doesn't handle a dynamically changing set of
+   options for a :list, we set this flag so it can be later
+   queried from a :visible? function"
+  [available-map values]
+  ;; (filter
+  ;;   (fn [v]
+  ;;     (if-let [available? (:available? v)]
+  ;;       (available? available-map)
+  ;;
+  ;;       ; if not provided, it's always available
+  ;;       true))
+  ;;   values)
+  (map
+    (fn [v]
+      (assoc v :available?
+             (if-let [available? (:available? v)]
+               (available? available-map)
+
+               ; if not provided, it's always available
+               true)))
+    values)
+  )
+
 (defn- inflate-feature-options
   [[features options data-source]]
   (->> features
        (filter (comp :max-options second))
        (map (fn [[id v :as entry]]
-              (with-meta
-                [id (-> v
-                        (assoc :wish/raw-values (:values v))
-                        (update :values (partial inflate-option-values
-                                                 data-source
-                                                 options
-                                                 id))
+              (let [container (-> entry meta :wish/container)
+                    available-map (assoc container :options options)]
+                (with-meta
+                  [id (-> v
+                          (assoc :wish/raw-values (:values v))
+                          (update :values (comp
+                                            (partial filter-available
+                                                     available-map)
+                                            (partial inflate-option-values
+                                                     data-source
+                                                     options
+                                                     id)))
 
-                        ; filter values, if a fn was provided
-                        (as-> v
-                          (if-let [filter-fn (:values-filter v)]
-                            (update v :values (partial filter filter-fn))
-                            v))
-                        )]
-                (meta entry))))))
+                          ; filter values, if a fn was provided
+                          (as-> v
+                            (if-let [filter-fn (:values-filter v)]
+                              (update v :values (partial filter filter-fn))
+                              v))
+                          )]
+                  (meta entry)))))))
 
 (reg-sub
   :class-features

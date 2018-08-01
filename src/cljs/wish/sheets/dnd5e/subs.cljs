@@ -1343,6 +1343,22 @@
                   ; normal case
                   entry))))))
 
+(reg-sub
+  ::have-feature-option?
+  (fn [[_ source-sub feature-id option-id]]
+    (subscribe source-sub))
+  (fn [features [_ _ feature-id option-id]]
+    (->> features
+         (filter #(= feature-id (first %)))
+         first  ; first (only) match
+         second ; the feature
+         :values
+
+         (filter #(= option-id (:id %)))
+         first
+
+         :available?)))
+
 
 ; ======= starting equipment ==============================
 

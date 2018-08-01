@@ -144,7 +144,7 @@
    [feature-option option selected?]])
 
 (defn limited-select-feature-options
-  [f instance-id extra-info]
+  [f instance-id sub-vector extra-info]
   (let [total-items (count (:values f))
         scrollable? (>= total-items 15)]
     [:div.feature-options {:class (when scrollable?
@@ -161,11 +161,18 @@
        ; about this usage, though, is that the body is passed through as
        ; a sequence, so we need to destructure it (see above)
        [limited-select-feature-option
-        {:key (:id option)}
+        {:key (:id option)
+         ; NOTE: reagent-forms doesn't properly handle dynamically
+         ; changing option lists for a feature
+         :visible?! #(<sub [::subs/have-feature-option?
+                            sub-vector
+                            (:id f)
+                            (:id option)])
+         }
         option])]))
 
 (defn multi-select-feature-options
-  [f instance-id extra-info]
+  [f instance-id sub-vector extra-info]
   (let [max-options (count-max-options f extra-info)
         base-path (if (:wish/instance-id f)
                     [instance-id :value]
@@ -182,13 +189,18 @@
 
               (for [o (:values f)]
                 ^{:key (:id o)}
-                [:option {:key (:id o)} (:name o)]))))))))
+                [:option {:key (:id o)
+                          :visible? #(<sub [::subs/have-feature-option?
+                                            sub-vector
+                                            (:id f)
+                                            (:id o)])}
+                 (:name o)]))))))))
 
 (defn- feature-options
-  [f instance-id extra-info-atom]
+  [f instance-id sub-vector extra-info-atom]
   (if (:multi? f)
-    (multi-select-feature-options f instance-id @extra-info-atom)
-    (limited-select-feature-options f instance-id extra-info-atom)))
+    (multi-select-feature-options f instance-id sub-vector @extra-info-atom)
+    (limited-select-feature-options f instance-id sub-vector extra-info-atom)))
 
 (defn feature-options-selection [sub-vector source-info]
   ; NOTE: thanks to how reagent-forms completely disregards changed
@@ -200,7 +212,7 @@
     (fn [sub-vector source-info]
       (if-let [features (seq (<sub sub-vector))]
         [:<>
-         (for [[feature-id f] features]
+         (for [[feature-id f :as entry] features]
            (let [instance-id (or (:wish/instance-id f)
                                  feature-id)
                  extra-info (dissoc source-info :features :limited-uses :&levels)]
@@ -215,7 +227,7 @@
                 (when-let [n (:wish/instance f)]
                   (str " #" (inc n)))]
 
-               (feature-options f instance-id extra-info-atom)]
+               (feature-options f instance-id sub-vector extra-info-atom)]
 
               {:get #(<sub [:options-> %])
                :save! (fn [path v]

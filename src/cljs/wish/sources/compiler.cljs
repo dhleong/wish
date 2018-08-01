@@ -22,9 +22,11 @@
 
 (defn compile-option
   [o]
-  (if (contains? o :!)
-    (compile-feature o)
-    o))
+  (update (if (contains? o :!)
+            (compile-feature o)
+            o)
+          :available?
+          ->callable))
 
 ; ======= directives =======================================
 
