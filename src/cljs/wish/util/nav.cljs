@@ -8,9 +8,11 @@
             [pushy.core :as pushy])
   (:import goog.History))
 
+(goog-define ^boolean LOCAL false)
+
 ; NOTE: figwheel css live-reload doesn't work so well with
 ; the fancy nav
-(def pushy-supported? (and (not js/goog.DEBUG)
+(def pushy-supported? (and (not LOCAL)
                            (pushy/supported?)))
 
 (def pushy-prefix "/wish")

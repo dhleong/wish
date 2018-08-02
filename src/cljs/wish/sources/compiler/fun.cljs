@@ -45,6 +45,7 @@
       (expose-fn >=)
       (expose-fn =)
       (expose-fn not=)
+      (expose-fn not)
       (expose-fn min)
       (expose-fn max)
 
@@ -105,11 +106,47 @@
   (or (contains? exposed-fns sym)
       (not (nil? (->special-form sym)))))
 
-(defn ^:export ->fun
-  "Given a raw symbol, return the exposed function"
+(defn- ->and
+  [items]
+  ; a && b  ==  ! (!a || !b)
+  ; this is not strictly correct; (and) returns the last value,
+  ; or the last false-y value if any, but we *probably* don't
+  ; need to do that. If we do, then we can reimpliment like
+  ; the builtin recursive macro
+  `(not
+     (cond
+       ~@(->> items
+            (mapcat (fn [item]
+                      [(list 'not item) nil]))))))
+
+(defn- ->or
+  [items]
+  ; NOTE this isn't super efficient if the args are not just
+  ; variables, but I don't expect too much complicated use of
+  ; (or); if it gets to that, we can just reimplement 'or
+  ; recursively, like the macro does
+  (cons 'cond
+        (->> items
+             (mapcat (fn [item]
+                       [item item])))))
+
+(defn ^:export ->compilable
+  "Given a raw symbol/expr, return something that we
+   can actually compile"
   [sym]
   (or (get exposed-fns sym)
       (->special-form sym)
+
+      ; (or) and (and) don't play nicely for some reason,
+      ; so we convert them into something that works
+      (when (list? sym)
+        (condp = (first sym)
+          'or (->or (rest sym))
+          'and (->and (rest sym))
+
+          ; otherwise, leave it alone
+          sym))
+
       sym))  ; just return unchanged
 
 (when-not js/goog.DEBUG
@@ -129,7 +166,6 @@
   (export-macro when-let)
   (export-macro when-not)
   (export-macro when-some)
-  (export-macro or)
 
   ; this is required for (cond)
   (export-sym cljs.core/truth_)
@@ -177,11 +213,15 @@
                          (ex-message (:error res)))
               ;; (js/console.error (str "Error evaluating: " form))
               ;; (js/console.error (str res))
-              (throw (js/Error. (str "Error evaluating: " form "\n" res) )))))))
+              (throw (ex-info
+                       (str "Error evaluating: " form "\n" res)
+                       {}
+                       (:error res))))))))
 
-(defn- clean-form
+; NOTE: public for TESTING
+(defn clean-form
   [form]
-  (postwalk ->fun form))
+  (postwalk ->compilable form))
 
 (defn- eval-form
   [form]
@@ -213,6 +253,12 @@
         (js/console.error "Error compiling:" (str form),
                           "Cleaned: " (str cleaned-form),
                           e)
+        (when-let [cause (.-cause e)]
+          (js/console.error "Cause: " (.-stack cause))
+          (when-let [cause2 (.-cause cause)]
+            (js/console.error "Cause2: " (.-stack cause2))
+            (when-let [cause3 (.-cause cause2)]
+              (js/console.error "Cause3: " (.-stack cause3)))))
         (throw e)))))
 
 

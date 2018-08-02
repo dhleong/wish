@@ -1,6 +1,6 @@
 (ns wish.sources.compiler.fun-test
   (:require [cljs.test :refer-macros [deftest testing is run-tests]]
-            [wish.sources.compiler.fun :refer [let-args ->callable]]))
+            [wish.sources.compiler.fun :refer [let-args ->callable clean-form]]))
 
 (deftest let-args-test
   (testing "No input"
@@ -65,3 +65,21 @@
       (is (= "1d6+4" (f {:level 8 :modifiers {:str 4
                                               :dex 2}}))))))
 
+(deftest ->compilable-test
+  (testing "or -> cond"
+    (is (= '(when (cond
+                    dolls? dolls?
+                    cows? cows?)
+              :cargo)
+           (clean-form
+             '(when (or dolls? cows?)
+                :cargo)))))
+  (testing "and -> cond"
+    (is (= '(when (not
+                    (cond
+                      (not dolls?) nil
+                      (not cows?) nil))
+              :cargo)
+           (clean-form
+             '(when (and dolls? cows?)
+                :cargo))))))

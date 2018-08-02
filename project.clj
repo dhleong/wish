@@ -95,7 +95,8 @@
                     :preloads             [devtools.preload
                                            day8.re-frame-10x.preload]
                     :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true
-                                           "day8.re_frame.tracing.trace_enabled_QMARK_" true}
+                                           "day8.re_frame.tracing.trace_enabled_QMARK_" true
+                                           wish.util.nav.LOCAL true}
                     :external-config      {:devtools/config {:features-to-install :all}}
                     }}
 
@@ -103,9 +104,27 @@
      :source-paths ["src/cljs" "prod/cljs"]
      :compiler     {:main            wish.core
                     :output-to       "resources/public/js/compiled/app.js"
-                    :closure-defines {goog.DEBUG false}
+                    :closure-defines {goog.DEBUG false
+                                      wish.util.nav.LOCAL false}
                     :optimizations   :advanced
                     :pretty-print    false
+                    :optimize-constants true
+                    :static-fns true
+
+                    :externs ["externs/gapi.js"
+                              "externs/wish.js"]}}
+
+    {:id           "min-debug"
+     :source-paths ["src/cljs" "dev/cljs"]
+     :compiler     {:main            wish.core
+                    :output-to       "resources/public/js/compiled/app.js"
+                    :output-dir      "resources/public/js/compiled/out-min"
+                    :closure-defines {goog.DEBUG false
+                                      wish.util.nav.LOCAL true}
+                    :optimizations   :advanced
+                    ;; :pretty-print    false
+                    :pretty-print    true
+                    :pseudo-names    true
                     :optimize-constants true
                     :static-fns true
 
