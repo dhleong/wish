@@ -193,8 +193,8 @@
                 {:id :feature
                  :max-options 1}]])
           f (get-in s [:features :feature])]
-      (is (= [{:id :feature/opt1}
-              {:id :feature/opt2}]
+      (is (= [{:id :feature/opt1 :available? nil}
+              {:id :feature/opt2 :available? nil}]
              (:values f))))))
 
 (deftest apply-options-test
