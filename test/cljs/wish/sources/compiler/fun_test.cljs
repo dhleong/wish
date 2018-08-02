@@ -75,10 +75,10 @@
              '(when (or dolls? cows?)
                 :cargo)))))
   (testing "and -> cond"
-    (is (= '(when (not
+    (is (= '(when (wish.sources.compiler.fun/exported-not
                     (cond
-                      (not dolls?) nil
-                      (not cows?) nil))
+                      (wish.sources.compiler.fun/exported-not dolls?) nil
+                      (wish.sources.compiler.fun/exported-not cows?) nil))
               :cargo)
            (clean-form
              '(when (and dolls? cows?)

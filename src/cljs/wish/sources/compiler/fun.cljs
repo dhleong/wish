@@ -106,6 +106,8 @@
   (or (contains? exposed-fns sym)
       (not (nil? (->special-form sym)))))
 
+(declare ->compilable)
+
 (defn- ->and
   [items]
   ; a && b  ==  ! (!a || !b)
@@ -113,11 +115,12 @@
   ; or the last false-y value if any, but we *probably* don't
   ; need to do that. If we do, then we can reimpliment like
   ; the builtin recursive macro
-  `(not
-     (cond
-       ~@(->> items
-            (mapcat (fn [item]
-                      [(list 'not item) nil]))))))
+  (let [exported-not (->compilable 'not)]
+    (list exported-not
+          (cons 'cond
+                (->> items
+                     (mapcat (fn [item]
+                               [(list exported-not item) nil])))))))
 
 (defn- ->or
   [items]
