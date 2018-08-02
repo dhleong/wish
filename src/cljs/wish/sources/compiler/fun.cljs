@@ -134,6 +134,15 @@
              (mapcat (fn [item]
                        [item item])))))
 
+(defn- ->kw-get
+  "Under advanced compilation, the function names to invoke
+   a keyword as a function have been munged and are unavailable.
+   We could force people to use (get), but it's nicer to just
+   rewrite it that way ourselves."
+  [kw m & args]
+  (concat (list 'get m kw)
+          args))
+
 (defn ^:export ->compilable
   "Given a raw symbol/expr, return something that we
    can actually compile"
@@ -144,12 +153,16 @@
       ; (or) and (and) don't play nicely for some reason,
       ; so we convert them into something that works
       (when (list? sym)
-        (condp = (first sym)
-          'or (->or (rest sym))
-          'and (->and (rest sym))
+        (let [fn-call (first sym)]
+          (if (keyword? fn-call)
+            (apply ->kw-get sym)
 
-          ; otherwise, leave it alone
-          sym))
+            (condp = fn-call
+              'or (->or (rest sym))
+              'and (->and (rest sym))
+
+              ; otherwise, leave it alone
+              sym))))
 
       sym))  ; just return unchanged
 

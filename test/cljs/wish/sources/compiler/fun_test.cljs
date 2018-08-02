@@ -81,7 +81,13 @@
       (is (= 42 (f {:armor? true :shield? true})))
       (is (= 42 (f {:armor? true :shield? false})))
       (is (= 42 (f {:armor? false :shield? true})))
-      (is (= nil (f {:armor? false :shield? false}))))))
+      (is (= nil (f {:armor? false :shield? false})))))
+
+  (testing "Functions using keywords as functions"
+    (let [f (->callable '(fn [options]
+                           (:my/key options 9001)))]
+      (is (= 42 (f {:options {:my/key 42}})))
+      (is (= 9001 (f {:options {}}))))))
 
 (deftest ->compilable-test
   (testing "or -> cond"
@@ -92,6 +98,7 @@
            (clean-form
              '(when (or dolls? cows?)
                 :cargo)))))
+
   (testing "and -> cond"
     (is (= '(when (wish.sources.compiler.fun/exported-not
                     (cond
@@ -100,4 +107,12 @@
               :cargo)
            (clean-form
              '(when (and dolls? cows?)
-                :cargo))))))
+                :cargo)))))
+
+  (testing "Rewrite using keywords as functions"
+    (is (= '(get options :cargo)
+           (clean-form
+             '(:cargo options))))
+    (is (= '(get options :cargo :-none)
+           (clean-form
+             '(:cargo options :-none))))))
