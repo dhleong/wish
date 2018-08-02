@@ -87,9 +87,19 @@
     (let [f (->callable '(fn [options]
                            (:my/key options 9001)))]
       (is (= 42 (f {:options {:my/key 42}})))
-      (is (= 9001 (f {:options {}}))))))
+      (is (= 9001 (f {:options {}})))))
+
+  (testing "Compiled functions don't have access to js globals"
+    (let [f (->callable '(fn [] js/window))]
+      (is (nil? (f))))
+    (let [f (->callable '(fn [] js/window.location))]
+      (is (nil? (f))))))
 
 (deftest ->compilable-test
+  (testing "nop-out js/ symbols"
+    (is (= nil
+           (clean-form
+             'js/window))))
   (testing "or -> cond"
     (is (= '(when (cond
                     dolls? dolls?

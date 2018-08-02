@@ -157,33 +157,41 @@
   (cons 'wish.sources.compiler.fun/has?
         args))
 
+(def ^:private nil-symbol (symbol "nil"))
+
 (defn ^:export ->compilable
   "Given a raw symbol/expr, return something that we
    can actually compile"
   [sym]
-  (or (get exposed-fns sym)
-      (->special-form sym)
+  (let [result (or (get exposed-fns sym)
+                   (->special-form sym)
 
-      ; (or) and (and) don't play nicely for some reason,
-      ; so we convert them into something that works
-      (when (list? sym)
-        (let [fn-call (first sym)]
-          (if (keyword? fn-call)
-            (apply ->kw-get sym)
+                   (when (and (symbol? sym)
+                              (= "js" (namespace sym)))
+                     nil-symbol)
 
-            (condp = fn-call
-              'or (->or (rest sym))
-              'and (->and (rest sym))
+                   ; (or) and (and) don't play nicely for some reason,
+                   ; so we convert them into something that works
+                   (when (list? sym)
+                     (let [fn-call (first sym)]
+                       (if (keyword? fn-call)
+                         (apply ->kw-get sym)
 
-              'wish.sources.compiler.fun/exported-some
-              (if (set? (second sym))
-                (->has? (rest sym))
-                sym)
+                         (condp = fn-call
+                           'or (->or (rest sym))
+                           'and (->and (rest sym))
 
-              ; otherwise, leave it alone
-              sym))))
+                           'wish.sources.compiler.fun/exported-some
+                           (when (set? (second sym))
+                             (->has? (rest sym)))
 
-      sym))  ; just return unchanged
+                           ; otherwise, leave it alone
+                           sym))))
+
+                   ; just return unchanged
+                   sym)]
+    (when-not (identical? nil-symbol result)
+      result)))
 
 (when-not js/goog.DEBUG
   (export-macro ->)
