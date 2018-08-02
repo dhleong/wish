@@ -63,7 +63,25 @@
       (is (= "1d4+2" (f {:level 4 :modifiers {:str 1
                                               :dex 2}})))
       (is (= "1d6+4" (f {:level 8 :modifiers {:str 4
-                                              :dex 2}}))))))
+                                              :dex 2}})))))
+
+  (testing "Functions with (and)"
+    (let [f (->callable '(fn [armor? shield?]
+                           (when (and armor? shield?)
+                             42)))]
+      (is (= 42 (f {:armor? true :shield? true})))
+      (is (= nil (f {:armor? true :shield? false})))
+      (is (= nil (f {:armor? false :shield? true})))
+      (is (= nil (f {:armor? false :shield? false})))))
+
+  (testing "Functions with (or)"
+    (let [f (->callable '(fn [armor? shield?]
+                           (when (or armor? shield?)
+                             42)))]
+      (is (= 42 (f {:armor? true :shield? true})))
+      (is (= 42 (f {:armor? true :shield? false})))
+      (is (= 42 (f {:armor? false :shield? true})))
+      (is (= nil (f {:armor? false :shield? false}))))))
 
 (deftest ->compilable-test
   (testing "or -> cond"
@@ -77,8 +95,8 @@
   (testing "and -> cond"
     (is (= '(when (wish.sources.compiler.fun/exported-not
                     (cond
-                      (wish.sources.compiler.fun/exported-not dolls?) nil
-                      (wish.sources.compiler.fun/exported-not cows?) nil))
+                      (wish.sources.compiler.fun/exported-not dolls?) true
+                      (wish.sources.compiler.fun/exported-not cows?) true))
               :cargo)
            (clean-form
              '(when (and dolls? cows?)

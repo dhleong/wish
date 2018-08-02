@@ -120,7 +120,7 @@
           (cons 'cond
                 (->> items
                      (mapcat (fn [item]
-                               [(list exported-not item) nil])))))))
+                               [(list exported-not item) true])))))))
 
 (defn- ->or
   [items]
