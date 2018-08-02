@@ -110,9 +110,19 @@
                 :cargo)))))
 
   (testing "Rewrite using keywords as functions"
-    (is (= '(get options :cargo)
+    (is (= '(wish.sources.compiler.fun/exported-get options :cargo)
            (clean-form
              '(:cargo options))))
-    (is (= '(get options :cargo :-none)
+    (is (= '(wish.sources.compiler.fun/exported-get options :cargo :-none)
            (clean-form
-             '(:cargo options :-none))))))
+             '(:cargo options :-none)))))
+
+  (testing "Rewrite using `(some)` with a set"
+    (is (= '(wish.sources.compiler.fun/has? #{:geisha-dolls} coll)
+           (clean-form
+             '(some #{:geisha-dolls} coll))))
+
+    ; but DON'T rewrite other uses of has
+    (is (= '(wish.sources.compiler.fun/exported-some map? coll)
+           (clean-form
+             '(some map? coll))))))

@@ -338,7 +338,8 @@ On your adventures, you can add other ritual spells to your Book of Shadows. Whe
   :name "Chains of Carceri"
   :available? (fn [level options]
                 (and (>= level 15)
-                     (= [:warlock/pact-chain] (:warlock/pact-boon options))))
+                     (= [:warlock/pact-chain]
+                        (:warlock/pact-boon options))))
   :desc "_Prerequisite:_ 15th level, Pact of the Chain feature
 You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental—without expending a spell slot or material components. You must finish a long rest before you can use this invocation on the same creature again."
   :! [[:!add-to-list

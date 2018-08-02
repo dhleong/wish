@@ -24,12 +24,21 @@
   [args]
   (map ->number args))
 
+(defn ^:export has?
+  "Alias for (some) that can handle sets in production"
+  [vals-set coll]
+  (some
+    (fn [item]
+      (contains? vals-set item))
+    coll))
+
 ; NOTE anything exposed below also needs to get added to the :refer
 
 (def exposed-fns
   (-> { ; these alias directly to JS functions
        'ceil 'js/Math.ceil
-       'floor 'js/Math.floor }
+       'floor 'js/Math.floor
+       'has? 'wish.sources.compiler.fun/has?}
 
       ;;
       ;; Expose!
@@ -140,8 +149,13 @@
    We could force people to use (get), but it's nicer to just
    rewrite it that way ourselves."
   [kw m & args]
-  (concat (list 'get m kw)
+  (concat (list 'wish.sources.compiler.fun/exported-get m kw)
           args))
+
+(defn- ->has?
+  [args]
+  (cons 'wish.sources.compiler.fun/has?
+        args))
 
 (defn ^:export ->compilable
   "Given a raw symbol/expr, return something that we
@@ -160,6 +174,11 @@
             (condp = fn-call
               'or (->or (rest sym))
               'and (->and (rest sym))
+
+              'wish.sources.compiler.fun/exported-some
+              (if (set? (second sym))
+                (->has? (rest sym))
+                sym)
 
               ; otherwise, leave it alone
               sym))))
@@ -321,8 +340,16 @@
       (seq? form) (let [[_fn args & body] form]
                     (if (and (= "fn" (str _fn))
                              (vector? args))
-                      (let [fn-form (fn-ify form)]
-                        (eval-form fn-form))
+                      (let [fn-form (fn-ify form)
+                            compiled (eval-form fn-form)]
+                        (fn [wish-fn-input]
+                          (try
+                            (compiled wish-fn-input)
+                            (catch :default e
+                              (js/console.error "Error executing compiled fn:\n"
+                                                (str (clean-form form))
+                                                "\nError:" e)
+                              (throw e)))))
 
                       (->constant-callable form)))
       :else (->constant-callable form))))
