@@ -42,10 +42,18 @@ gapi.ClientRequest = function() {};
 gapi.ClientRequest.prototype.execute = function() {};
 
 /** @constructor */
+gapi.auth2.BasicProfile = function() {};
+gapi.auth2.BasicProfile.prototype.getName = function() {};
+gapi.auth2.BasicProfile.prototype.getEmail = function() {};
+
+/** @constructor */
 gapi.auth2.GoogleUser = function() {};
 
 /** @return {gapi.auth2.AuthResponse} */
 gapi.auth2.GoogleUser.prototype.getAuthResponse = function() {};
+
+/** @return {gapi.auth2.BasicProfile} */
+gapi.auth2.GoogleUser.prototype.getBasicProfile = function() {};
 
 /** @constructor */
 gapi.auth2.AuthResponse = function() {};
