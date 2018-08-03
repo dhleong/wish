@@ -12,10 +12,10 @@
 
 ; NOTE: figwheel css live-reload doesn't work so well with
 ; the fancy nav
-(def pushy-supported? (and (not LOCAL)
-                           (pushy/supported?)))
+(def ^:private pushy-supported? (and (not LOCAL)
+                                     (pushy/supported?)))
 
-(def pushy-prefix "/wish")
+(def ^:private pushy-prefix "/wish")
 
 (defn init! []
   (secretary/set-config! :prefix (if pushy-supported?
@@ -44,13 +44,18 @@
           (secretary/dispatch! (.-token event))))
       (.setEnabled true))))
 
+(defn prefix
+  "Prefix a link as necessary for :href-based navigation to work"
+  [raw-link]
+  (if pushy-supported?
+    (str pushy-prefix raw-link)
+    (str "#" raw-link)))
+
 (defn replace!
   "Wrapper around js/window.location.replace"
   [new-location]
-  (let [new-location (if pushy-supported?
-                       new-location
-                       (str "#" new-location))]
-    (js/window.location.replace new-location)))
+  (js/window.location.replace
+    (prefix new-location)))
 
 (defn sheet-url
   "Generate the url to a sheet, optionally with
