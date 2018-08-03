@@ -374,10 +374,12 @@
       (when values
         [:div.chosen-details
          [:h5 "Chosen values:"]
-         ; TODO these should probably also be expandable?
          (for [v values]
            ^{:key (:id v)}
-           [:div.chosen (:name v)])])]]))
+           [:div.chosen.clickable
+            {:on-click (click>evt [:toggle-overlay
+                                   [#'overlays/info v]])}
+            (:name v)])])]]))
 
 (defn features-section []
   [:<>
