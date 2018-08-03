@@ -17,7 +17,7 @@
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the damage (both initial and later) increases by 1d4 for each slot level above 2nd."
    :comp [:vs "powdered rhubarb leaf and an adder’s stomach"]
    :attack :ranged
-   :dam-type :acid
+   :damage :acid
    :dice (fn [spell-level]
     (str (+ 2 spell-level) "d4"))
    }
@@ -33,7 +33,7 @@
 This spell’s damage increases by 1d6 when you reach 5th level (2d6), 11th level (3d6), and 17th level (4d6)."
    :comp :vs
    :save :dex
-   :dam-type :acid
+   :damage :acid
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -236,7 +236,7 @@ When you cast the spell and as a bonus action on your subsequent turns, you can 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the damage from the clenched fist option increases by 2d8 and the damage from the grasping hand increases by 2d6 for each slot level above 5th."
    :comp [:vs "an eggshell and a snakeskin glove"]
    :con? true
-   :dam-type :force
+   :damage :force
    }
 
   {:spell-level 2
@@ -262,7 +262,7 @@ While affected by this spell, the object is more difficult to break or force ope
 When the sword appears, you make a melee spell attack against a target of your choice within 5 feet of the sword. On a hit, the target takes 3d10 force damage. Until the spell ends, you can use a bonus action on each of your turns to move the sword up to 20 feet to a spot you can see and repeat this attack against the same target or a different one."
    :comp [:vs "a miniature platinum sword with a grip and pommel of copper and zinc, worth 250 gp"]
    :con? true
-   :dam-type :force
+   :damage :force
    :dice "3d10"
    }
 
@@ -394,7 +394,7 @@ A _remove curse _spell ends this effect. At the GM’s option, you may choose an
    :comp :vs
    :con? true
    :save :wis
-   :dam-type :necrotic
+   :damage :necrotic
    :dice "1d8"
    }
 
@@ -411,7 +411,7 @@ A creature restrained by the tentacles can use its action to make a Strength or 
    :comp [:vs "a piece of tentacle from a giant octopus or a giant squid"]
    :con? true
    :save :dex
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice "3d6"
    }
 
@@ -427,7 +427,7 @@ When a creature enters the wall’s area for the first time on a turn or starts 
    :comp :vs
    :con? true
    :save :dex
-   :dam-type :slashing
+   :damage :slashing
    :dice "6d10"
    }
 
@@ -457,7 +457,7 @@ If you target a nonmagical plant that isn’t a creature, such as a tree or shru
 **_At Higher Levels. _**When you cast this spell using a spell slot of 5th level or higher, the damage increases by 1d8 for each slot level above 4th."
    :comp :vs
    :save :con
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn [spell-level]
     (str (+ 4 spell-level) "d8"))
    }
@@ -510,7 +510,7 @@ While on the Ethereal Plane, you can see and hear the plane you originated from,
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the extra damage increases by 1d6 for each slot level above 2nd."
    :comp :v
    :con? true
-   :dam-type :radiant
+   :damage :radiant
    :dice (fn [spell-level]
     (str spell-level "d6"))
    }
@@ -527,7 +527,7 @@ The fire ignites any flammable objects in the area that aren’t being worn or c
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st."
    :comp :vs
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str (+ 2 spell-level) "d6"))
    }
@@ -546,7 +546,7 @@ If you are outdoors in stormy conditions when you cast this spell, the spell giv
    :comp :vs
    :con? true
    :save :dex
-   :dam-type :lightning
+   :damage :lightning
    :dice (fn [spell-level]
     (str spell-level "d10"))
    }
@@ -578,7 +578,7 @@ A target must make a Dexterity saving throw. The target takes 10d8 lightning dam
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, one additional bolt leaps from the first target to another target for each slot level above 6th."
    :comp [:vs "a bit of fur; a piece of amber, glass, or a crystal rod; and three silver pins"]
    :save :dex
-   :dam-type :lightning
+   :damage :lightning
    :dice "10d8"
    }
 
@@ -607,7 +607,7 @@ If you hit an undead target, it also has disadvantage on attack rolls against yo
 This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
    :attack :ranged
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -628,7 +628,7 @@ This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th leve
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage increases by 2d6 for each slot level above 6th."
    :comp [:vs "the powder of a crushed black pearl worth at least 500 gp"]
    :save :con
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn [spell-level]
     (str (+ 8 (* 2 (- spell-level 6))) "d6"))
    }
@@ -673,7 +673,7 @@ The fog moves 10 feet away from you at the start of each of your turns, rolling 
    :comp :vs
    :con? true
    :save :con
-   :dam-type :poison
+   :damage :poison
    :dice (fn [spell-level]
     (str spell-level "d8"))
    }
@@ -783,7 +783,7 @@ A creature killed by this spell becomes a frozen statue until it thaws.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the damage increases by 1d8 for each slot level above 5th."
    :comp [:vs "a small crystal or glass cone"]
    :save :con
-   :dam-type :cold
+   :damage :cold
    :dice (fn [spell-level]
     (str (+ 3 spell-level) "d8"))
    }
@@ -921,7 +921,7 @@ spell cast on you ends this effect.
 On a successful save, you can ask the entity up to five questions. You must ask your questions before the spell ends. The GM answers each question with one word, such as “yes,” “no,” “maybe,” “never,” “irrelevant,” or “unclear” (if the entity doesn’t know the answer to the question). If a one-word answer would be misleading, the GM might instead offer a short phrase as an answer."
    :comp :v
    :rit? true
-   :dam-type :psychic
+   :damage :psychic
    :dice "6d6"
    }
 
@@ -989,7 +989,7 @@ When a creature enters the vortex for the first time on a turn or starts its tur
 The first time each turn that an object enters the vortex, the object takes 2d8 bludgeoning damage; this damage occurs each round it remains in the vortex."
    :comp [:vs "a drop of water and a pinch of dust"]
    :con? true
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice "2d8"
    }
 
@@ -1246,7 +1246,7 @@ Once you detect the presence of a creature in this way, you can read its thought
 You can bring along objects as long as their weight doesn’t exceed what you can carry. You can also bring one willing creature of your size or smaller who is carrying gear up to its carrying capacity. The creature must be within 5 feet of you when you cast this spell.
 If you would arrive in a place already occupied by an object or a creature, you and any creature traveling with you each take 4d6 force damage, and the spell fails to teleport you."
    :comp :v
-   :dam-type :force
+   :damage :force
    :dice "4d6"
    }
 
@@ -1277,7 +1277,7 @@ This spell automatically disintegrates a Large or smaller nonmagical object or a
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage increases by 3d6 for each slot level above 6th."
    :comp [:vs "a lodestone and a pinch of dust"]
    :save :dex
-   :dam-type :force
+   :damage :force
    :dice (fn [spell-level]
     (str (+ 10 (* 3 (- spell-level 6))) "d6"))
    }
@@ -1334,7 +1334,7 @@ If you cast the spell two or more times before finishing your next long rest, th
    :desc "Your prayer empowers you with divine radiance. Until the spell ends, your weapon attacks deal an extra 1d4 radiant damage on a hit."
    :comp :vs
    :con? true
-   :dam-type :radiant
+   :damage :radiant
    :dice "1d4"
    }
 
@@ -1419,7 +1419,7 @@ You can make the messenger appear monstrous and terrifying to the target. If you
 If you have a body part, lock of hair, clipping from a nail, or similar portion of the target’s body, the target makes its saving throw with disadvantage."
    :comp [:vs "a handful of sand, a dab of ink, and a writing quill plucked from a sleeping bird"]
    :save :wis
-   :dam-type :psychic
+   :damage :psychic
    :dice "3d6"
    }
 
@@ -1455,7 +1455,7 @@ A fissure that opens beneath a structure causes it to automatically collapse (se
    :comp [:vs "a pinch of dirt, a piece of rock, and a lump of clay"]
    :con? true
    :save :con
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice "5d6"
    }
 
@@ -1470,7 +1470,7 @@ A fissure that opens beneath a structure causes it to automatically collapse (se
 The spell creates more than one beam when you reach higher levels: two beams at 5th level, three beams at 11th level, and four beams at 17th level. You can direct the beams at the same target or at different ones. Make a separate attack roll for each beam."
    :comp :vs
    :attack :ranged
-   :dam-type :force
+   :damage :force
    :dice "1d10"
    }
 
@@ -1507,7 +1507,7 @@ If the target is a creature, everything it is wearing and carrying changes size 
    :comp [:vs "a pinch of powdered iron"]
    :con? true
    :save :con
-   :dam-type :less
+   :damage :less
    :dice "1d4"
    }
 
@@ -1618,7 +1618,7 @@ Any attack roll against an affected creature or object has advantage if the atta
 The hound is invisible to all creatures except you and can’t be harmed. When a Small or larger creature comes within 30 feet of it without first speaking the password that you specify when you cast this spell, the hound starts barking loudly. The hound sees invisible creatures and can see into the Ethereal Plane. It ignores illusions.
 At the start of each of your turns, the hound attempts to bite one creature within 5 feet of it that is hostile to you. The hound’s attack bonus is equal to your spellcasting ability modifier + your proficiency bonus. On a hit, it deals 4d8 piercing damage."
    :comp [:vs "a tiny silver whistle, a piece of bone, and a thread"]
-   :dam-type :piercing
+   :damage :piercing
    :dice "4d8"
    }
 
@@ -1671,7 +1671,7 @@ On a failed save, the creature’s Intelligence and Charisma scores become 1. Th
 At the end of every 30 days, the creature can repeat its saving throw against this spell. If it succeeds on its saving throw, the spell ends.
 The spell can also be ended by _greater restoration, heal,_ or _wish._"
    :comp [:vs "a handful of clay, crystal, glass, or mineral spheres"]
-   :dam-type :psychic
+   :damage :psychic
    :dice "4d6"
    }
 
@@ -1744,7 +1744,7 @@ This spell merely reveals that a trap is present. You don’t learn the location
 A humanoid killed by this spell rises at the start of your next turn as a zombie that is permanently under your command, following your verbal orders to the best of its ability."
    :comp :vs
    :save :con
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn []
     (str "7d8"))
    }
@@ -1761,7 +1761,7 @@ The fire spreads around corners. It ignites flammable objects in the area that a
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp [:vs "a tiny ball of bat guano and sulfur"]
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str (+ 5 spell-level) "d6"))
    }
@@ -1777,7 +1777,7 @@ The fire spreads around corners. It ignites flammable objects in the area that a
 This spell's damage increases by 1d10 when you reach 5th level (2d10), 11th level (3d10), and 17th level (4d10)."
    :comp :vs
    :attack :ranged
-   :dam-type :fire
+   :damage :fire
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -1798,7 +1798,7 @@ This spell's damage increases by 1d10 when you reach 5th level (2d10), 11th leve
 The flames provide you with a warm shield or a chill shield, as you choose. The warm shield grants you resistance to cold damage, and the chill shield grants you resistance to fire damage.
 In addition, whenever a creature within 5 feet of you hits you with a melee attack, the shield erupts with flame. The attacker takes 2d8 fire damage from a warm shield, or 2d8 cold damage from a cold shield."
    :comp [:vs "a bit of phosphorus or a firefly"]
-   :dam-type :fire
+   :damage :fire
    :dice "2d8"
    }
 
@@ -1813,7 +1813,7 @@ In addition, whenever a creature within 5 feet of you hits you with a melee atta
 The fire damages objects in the area and ignites flammable objects that aren’t being worn or carried. If you choose, plant life in the area is unaffected by this spell."
    :comp :vs
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice "7d10"
    }
 
@@ -1830,7 +1830,7 @@ The flaming blade sheds bright light in a 10-foot radius and dim light for an ad
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for every two slot levels above 2nd."
    :comp [:vs "leaf of sumac"]
    :con? true
-   :dam-type :fire
+   :damage :fire
    :dice "3d6"
    }
 
@@ -1845,7 +1845,7 @@ The flaming blade sheds bright light in a 10-foot radius and dim light for an ad
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the fire damage or the radiant damage (your choice) increases by 1d6 for each slot level above 5th."
    :comp [:vs "pinch of sulfur"]
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str (+ -1 spell-level) "d6"))
    }
@@ -1864,7 +1864,7 @@ When you move the sphere, you can direct it over barriers up to 5 feet tall and 
    :comp [:vs "a bit of tallow, a pinch of brimstone, and a dusting of powdered iron"]
    :con? true
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str spell-level "d6"))
    }
@@ -1994,7 +1994,7 @@ You can refrain from firing the globe after completing the spell, if you wish. A
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage increases by 1d6 for each slot level above 6th."
    :comp [:vs "a small crystal sphere"]
    :save :con
-   :dam-type :cold
+   :damage :cold
    :dice (fn [spell-level]
     (str (+ 4 spell-level) "d6"))
    }
@@ -2041,7 +2041,7 @@ You can end the spell early by using an action to dismiss it. A _remove curse, g
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th or 8th level, the duration is 1 year. When you cast this spell using a spell slot of 9th level, the spell lasts until it is ended by one of the spells mentioned above."
    :comp :v
    :save :wis
-   :dam-type :psychic
+   :damage :psychic
    :dice "5d10"
    }
 
@@ -2229,7 +2229,7 @@ You can create a permanently guarded and warded structure by casting this spell 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st."
    :comp :vs
    :attack :ranged
-   :dam-type :radiant
+   :damage :radiant
    :dice (fn [spell-level]
     (str (+ 3 spell-level) "d6"))
    }
@@ -2295,7 +2295,7 @@ The tactile characteristics of the terrain are unchanged, so creatures entering 
    :desc "You unleash a virulent disease on a creature that you can see within range. The target must make a Constitution saving throw. On a failed save, it takes 14d6 necrotic damage, or half as much damage on a successful save. The damage can’t reduce the target’s hit points below 1. If the target fails the saving throw, its hit point maximum is reduced for 1 hour by an amount equal to the necrotic damage it took. Any effect that removes a disease allows a creature’s hit point maximum to return to normal before that time passes."
    :comp :vs
    :save :con
-   :dam-type :necrotic
+   :damage :necrotic
    :dice "14d6"
    }
 
@@ -2353,7 +2353,7 @@ If a creature is holding or wearing the object and takes the damage from it, the
    :comp [:vs "a piece of iron and a flame"]
    :con? true
    :save :con
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str spell-level "d8"))
    }
@@ -2369,7 +2369,7 @@ If a creature is holding or wearing the object and takes the damage from it, the
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d10 for each slot level above 1st."
    :comp :vs
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d10"))
    }
@@ -2493,7 +2493,7 @@ Hailstones turn the storm’s area of effect into difficult terrain until the en
 **_At Higher Levels. _**When you cast this spell using a spell slot of 5th level or higher, the bludgeoning damage increases by 1d8 for each slot level above 4th."
    :comp [:vs "a pinch of dust and a few drops of water"]
    :save :dex
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice (fn [spell-level]
     (str (+ -2 spell-level) "d8"))
    }
@@ -2564,7 +2564,7 @@ The cloud moves 10 feet directly away from you in a direction that you choose at
    :comp :vs
    :con? true
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice "10d8"
    }
 
@@ -2578,7 +2578,7 @@ The cloud moves 10 feet directly away from you in a direction that you choose at
    :desc "Make a melee spell attack against a creature you can reach. On a hit, the target takes 3d10 necrotic damage.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d10 for each slot level above 1st."
    :comp :vs
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn [spell-level]
     (str (+ 2 spell-level) "d10"))
    }
@@ -2596,7 +2596,7 @@ When the area appears, each creature in it must make a Constitution saving throw
    :comp [:vs "a few grains of sugar, some kernels of grain, and a smear of fat"]
    :con? true
    :save :con
-   :dam-type :piercing
+   :damage :piercing
    :dice (fn [spell-level]
     (str (+ -1 spell-level) "d10"))
    }
@@ -2730,7 +2730,7 @@ The lightning ignites flammable objects in the area that aren’t being worn or 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp [:vs "a bit of fur and a rod of amber, crystal, or glass"]
    :save :dex
-   :dam-type :lightning
+   :damage :lightning
    :dice (fn [spell-level]
     (str (+ 5 spell-level) "d6"))
    }
@@ -2857,7 +2857,7 @@ When the spell ends, the container is destroyed."
    :desc "You create three glowing darts of magical force. Each dart hits a creature of your choice that you can see within range. A dart deals 1d4 + 1 force damage to its target. The darts all strike simultaneously, and you can direct them to hit one creature or several.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the spell creates one more dart for each slot level above 1st."
    :comp :vs
-   :dam-type :force
+   :damage :force
    :dice (fn []
     (str "1d4"))
    }
@@ -2995,7 +2995,7 @@ While merged with the stone, you can’t see what occurs outside it, and any Wis
 Minor physical damage to the stone doesn’t harm you, but its partial destruction or a change in its shape (to the extent that you no longer fit within it) expels you and deals 6d6 bludgeoning damage to you. The stone’s complete destruction (or transmutation into a different substance) expels you and deals 50 bludgeoning damage to you. If expelled, you fall prone in an unoccupied space closest to where you first entered."
    :comp :vs
    :rit? true
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice "6d6"
    }
 
@@ -3034,7 +3034,7 @@ You can cast this spell through solid objects if you are familiar with the targe
 The spell damages objects in the area and ignites flammable objects that aren’t being worn or carried."
    :comp :vs
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice "20d6"
    }
 
@@ -3150,7 +3150,7 @@ On each of your turns after you cast this spell, you can use an action to move t
    :comp [:vs "several seeds of any moonseed plant and a piece of opalescent feldspar"]
    :con? true
    :save :con
-   :dam-type :radiant
+   :damage :radiant
    :dice (fn [spell-level]
     (str spell-level "d10"))
    }
@@ -3216,7 +3216,7 @@ Similarly, this spell doesn’t directly affect plant growth. The moved earth ca
    :comp :vs
    :con? true
    :save :wis
-   :dam-type :psychic
+   :damage :psychic
    :dice (fn [spell-level]
     (str spell-level "d10"))
    }
@@ -3303,7 +3303,7 @@ If you cast this spell over 8 hours, you enrich the land. All plants in a half-m
 This spell's damage increases by 1d12 when you reach 5th level (2d12), 11th level (3d12), and 17th level (4d12)."
    :comp :vs
    :save :con
-   :dam-type :poison
+   :damage :poison
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -3404,7 +3404,7 @@ If you cast this spell multiple times, you can have up to three of its non-insta
 **_8. Special. _**The target is struck by two rays. Roll twice more, rerolling any 8."
    :comp :vs
    :save :dex
-   :dam-type :cold
+   :damage :cold
    :dice "10d6"
    }
 
@@ -3429,7 +3429,7 @@ While this layer is in place, spells can’t be cast through the wall. The layer
 **_7. Violet. _**On a failed save, the creature is blinded. It must then make a Wisdom saving throw at the start of your next turn. A successful save ends the blindness. If it fails that save, the creature is transported to another plane of the GM’s choosing and is no longer blinded. (Typically, a creature that is on a plane that isn’t its home plane is banished home, while other creatures are usually cast into the Astral or Ethereal planes.) This layer is destroyed by a _dispel magic _spell or a similar spell of equal or higher level that can end spells and magical effects."
    :comp :vs
    :save :con
-   :dam-type :cold
+   :damage :cold
    :dice "10d6"
    }
 
@@ -3465,7 +3465,7 @@ You can also attack with the flame, although doing so ends the spell. When you c
 This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
    :attack :ranged
-   :dam-type :fire
+   :damage :fire
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -3590,7 +3590,7 @@ At the end of each of the target’s turns, it can make a Constitution saving th
 The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
    :attack :ranged
-   :dam-type :cold
+   :damage :cold
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -3732,7 +3732,7 @@ Anything inside the extradimensional space drops out when the spell ends."
 The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
    :save :dex
-   :dam-type :radiant
+   :damage :radiant
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -3767,7 +3767,7 @@ Make a ranged spell attack for each ray. On a hit, the target takes 2d6 fire dam
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, you create one additional ray for each slot level above 2nd."
    :comp :vs
    :attack :ranged
-   :dam-type :fire
+   :damage :fire
    :dice "2d6"
    }
 
@@ -3877,7 +3877,7 @@ A nonmagical object that isn’t being worn or carried also takes the damage if 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the damage increases by 1d8 for each slot level above 2nd."
    :comp [:vs "a chip of mica"]
    :save :con
-   :dam-type :thunder
+   :damage :thunder
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d8"))
    }
@@ -3926,7 +3926,7 @@ A nonmagical object that isn’t being worn or carried also takes the damage if 
    :desc "Lightning springs from your hand to deliver a shock to a creature you try to touch. Make a melee spell attack against the target. You have advantage on the attack roll if the target is wearing armor made of metal. On a hit, the target takes 1d8 lightning damage, and it can’t take reactions until the start of its next turn.
 The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
-   :dam-type :lightning
+   :damage :lightning
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -4091,7 +4091,7 @@ This spell can cause the plants created by the _entangle _spell to release a res
 The transformation of the ground is camouflaged to look natural. Any creature that can’t see the area at the time the spell is cast must make a Wisdom (Perception) check against your spell save DC to recognize the terrain as hazardous before entering it."
    :comp [:vs "seven sharp thorns or seven small twigs, each sharpened to a point"]
    :con? true
-   :dam-type :piercing
+   :damage :piercing
    :dice "2d4"
    }
 
@@ -4108,7 +4108,7 @@ When you cast this spell, you can designate any number of creatures you can see 
    :comp [:vs "a holy symbol"]
    :con? true
    :save :wis
-   :dam-type :radiant
+   :damage :radiant
    :dice (fn [spell-level]
     (str spell-level "d8"))
    }
@@ -4181,7 +4181,7 @@ Each round you maintain concentration on this spell, the storm produces addition
    :comp :vs
    :con? true
    :save :con
-   :dam-type :cold
+   :damage :cold
    :dice "1d6"
    }
 
@@ -4214,7 +4214,7 @@ For the duration, a mote of brilliant radiance shines in your hand. It sheds bri
    :comp [:vs "a magnifying glass"]
    :con? true
    :save :con
-   :dam-type :radiant
+   :damage :radiant
    :dice "6d8"
    }
 
@@ -4230,7 +4230,7 @@ A creature blinded by this spell makes another Constitution saving throw at the 
 This spell dispels any darkness in its area that was created by a spell."
    :comp [:vs "fire and a piece of sunstone"]
    :save :con
-   :dam-type :radiant
+   :damage :radiant
    :dice "12d6"
    }
 
@@ -4256,7 +4256,7 @@ When you inscribe the glyph, choose one of the options below for its effect. Onc
 **_Stunning. _**Each target must make a Wisdom saving throw and becomes stunned for 1 minute on a failed save."
    :comp [:vs "mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes"]
    :save :con
-   :dam-type :necrotic
+   :damage :necrotic
    :dice "10d10"
    }
 
@@ -4346,7 +4346,7 @@ In addition, unsecured objects that are completely within the area of effect are
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d8 for each slot level above 1st."
    :comp :vs
    :save :con
-   :dam-type :thunder
+   :damage :thunder
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d8"))
    }
@@ -4495,7 +4495,7 @@ If you command the servant to perform a task that would move it more than 60 fee
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp :vs
    :con? true
-   :dam-type :necrotic
+   :damage :necrotic
    :dice (fn [spell-level]
     (str spell-level "d6"))
    }
@@ -4511,7 +4511,7 @@ If you command the servant to perform a task that would move it more than 60 fee
 This spell's damage increases by 1d4 when you reach 5th level (2d4), 11th level (3d4), and 17th level (4d4)."
    :comp :v
    :save :wis
-   :dam-type :psychic
+   :damage :psychic
    :dice (fn [total-level]
     (str (cond
     (< total-level 5) 1
@@ -4535,7 +4535,7 @@ One side of the wall, selected by you when you cast this spell, deals 5d8 fire d
    :comp [:vs "a small piece of phosphorus"]
    :con? true
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d8"))
    }
@@ -4567,7 +4567,7 @@ The wall is an object that can be damaged and thus breached. It has AC 12 and 30
    :comp [:vs "a small piece of quartz"]
    :con? true
    :save :dex
-   :dam-type :cold
+   :damage :cold
    :dice "5d6"
    }
 
@@ -4603,7 +4603,7 @@ A creature can move through the wall, albeit slowly and painfully. For every 1 f
    :comp [:vs "a handful of thorns"]
    :con? true
    :save :dex
-   :dam-type :slashing
+   :damage :slashing
    :dice "7d8"
    }
 
@@ -4659,7 +4659,7 @@ The webs are flammable. Any 5-foot cube of webs exposed to fire burns away in 1 
    :comp [:vs "a bit of spiderweb"]
    :con? true
    :save :dex
-   :dam-type :fire
+   :damage :fire
    :dice "2d4"
    }
 
@@ -4674,7 +4674,7 @@ The webs are flammable. Any 5-foot cube of webs exposed to fire burns away in 1 
    :comp :vs
    :con? true
    :save :wis
-   :dam-type :psychic
+   :damage :psychic
    :dice "4d10"
    }
 
@@ -4702,7 +4702,7 @@ When the wall appears, each creature within its area must make a Strength saving
 The strong wind keeps fog, smoke, and other gases at bay. Small or smaller flying creatures or objects can’t pass through the wall. Loose, lightweight materials brought into the wall fly upward. Arrows, bolts, and other ordinary projectiles launched at targets behind the wall are deflected upward and automatically miss. (Boulders hurled by giants or siege engines, and similar projectiles, are unaffected.) Creatures in gaseous form can’t pass through it."
    :comp [:vs "a tiny fan and a feather of exotic origin"]
    :con? true
-   :dam-type :bludgeoning
+   :damage :bludgeoning
    :dice "3d8"
    }
 
@@ -4724,7 +4724,7 @@ Alternatively, you can create one of the following effects of your choice:
 You might be able to achieve something beyond the scope of the above examples. State your wish to the GM as precisely as possible. The GM has great latitude in ruling what occurs in such an instance; the greater the wish, the greater the likelihood that something goes wrong. This spell might simply fail, the effect you desire might only be partly achieved, or you might suffer some unforeseen consequence as a result of how you worded the wish. For example, wishing that a villain were dead might propel you forward in time to a period when that villain is no longer alive, effectively removing you from the game. Similarly, wishing for a legendary magic item or artifact might instantly transport you to the presence of the item’s current owner.
 The stress of casting this spell to produce any effect other than duplicating another spell weakens you. After enduring that stress, each time you cast a spell until you finish a long rest, you take 1d10 necrotic damage per level of that spell. This damage can’t be reduced or prevented in any way. In addition, your Strength drops to 3, if it isn’t 3 or lower already, for 2d4 days. For each of those days that you spend resting and doing nothing more than light activity, your remaining recovery time decreases by 2 days. Finally, there is a 33 percent chance that you are unable to cast _wish _ever again if you suffer this stress."
    :comp :v
-   :dam-type :necrotic
+   :damage :necrotic
    :dice "1d10"
    }
 
