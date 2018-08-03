@@ -49,10 +49,13 @@
             [:th.header "Area of Effect"]
             [:td aoe]])
 
-         (when-let [[near far] range]
+         (when range
            [:tr
             [:th.header "Range"]
-            [:td near " / " far " ft."]])
+            (if (string? range)
+              [:td range]
+              (let [[near far] range]
+                [:td near " / " far " ft."]))])
 
          (when-let [flags (->> properties
                                keys
