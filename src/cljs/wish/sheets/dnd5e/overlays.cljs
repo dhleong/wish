@@ -24,9 +24,19 @@
 
 ; ======= generic "info" overlay ==========================
 
+(def ^:private properties
+  {:finesse? "Finesse"
+   :heavy? "Heavy"
+   :light? "Light"
+   :reach? "Reach"
+   :special? "Special"
+   :two-handed? "Two-handed"
+   :uses-ammunition? "Uses Ammunition"
+   :versatile "Versatile"})
+
 (defn info
   [entity]
-  (let [{:keys [aoe damage]} entity]
+  (let [{:keys [aoe damage range]} entity]
     [:div {:class (:info-overlay styles)}
      (when-let [n (:name entity)]
        [:div.name n])
@@ -38,6 +48,21 @@
            [:tr
             [:th.header "Area of Effect"]
             [:td aoe]])
+
+         (when-let [[near far] range]
+           [:tr
+            [:th.header "Range"]
+            [:td near " / " far " ft."]])
+
+         (when-let [flags (->> properties
+                               keys
+                               (filter entity)
+                               (map properties)
+                               seq)]
+           [:tr
+            [:th.header "Properties"]
+            [:td (str/join "; " flags)]])
+
          (when damage
            [:tr
             [:th.header "Damage Type"]
