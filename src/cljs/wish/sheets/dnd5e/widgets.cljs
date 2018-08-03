@@ -9,7 +9,7 @@
              :refer-macros [icon]
              :refer [formatted-text]]))
 
-(defn- stringify-components
+(defn stringify-components
   [{components :comp}]
   (letfn [(vs-parts [k]
             (case k
@@ -86,6 +86,12 @@
      [:tr
       [:th.header "Range"]
       [:td (:range s)]]
+
+     (when-let [aoe (:aoe s)]
+       [:tr
+        [:th.header "Area of Effect"]
+        [:td aoe]])
+
      [:tr
       [:th.header "Components"]
       [:td (stringify-components s)]]
@@ -94,10 +100,10 @@
       [:td (:duration s)]]
 
      (when-let [dice (:dice s)]
-       (let [{:keys [dam-type]} s]
+       (let [{:keys [damage]} s]
          [:tr
           [:th.header
-           (if dam-type
+           (if damage
              "Damage"
              "Healing")]
 
@@ -107,7 +113,7 @@
               (update s :spell-mod #(or % "(spell mod)"))
               :dice)]
 
-           (if-let [dam-type (stringify-dam-type dam-type)]
+           (if-let [dam-type (stringify-dam-type damage)]
              (str " " dam-type)
              " HP")]]))
 

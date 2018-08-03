@@ -34,48 +34,61 @@
    :uses-ammunition? "Uses Ammunition"
    :versatile "Versatile"})
 
-(defn info
+(defn- generic-info
   [entity]
   (let [{:keys [aoe damage range]} entity]
-    [:div {:class (:info-overlay styles)}
-     (when-let [n (:name entity)]
-       [:div.name n])
+    (when (or aoe damage range)
+      [:table.info
+       [:tbody
+        (when-let [cast-time (:time entity)]
+          [:tr
+           [:th.header "Cast Time"]
+           [:td cast-time]])
 
-     (when (or aoe damage)
-       [:table.info
-        [:tbody
-         (when aoe
-           [:tr
-            [:th.header "Area of Effect"]
-            [:td aoe]])
+        (when range
+          [:tr
+           [:th.header "Range"]
+           (if (string? range)
+             [:td range]
+             (let [[near far] range]
+               [:td near " / " far " ft."]))])
 
-         (when range
-           [:tr
-            [:th.header "Range"]
-            (if (string? range)
-              [:td range]
-              (let [[near far] range]
-                [:td near " / " far " ft."]))])
+        (when aoe
+          [:tr
+           [:th.header "Area of Effect"]
+           [:td aoe]])
 
-         (when-let [flags (->> properties
-                               keys
-                               (filter entity)
-                               (map properties)
-                               seq)]
-           [:tr
-            [:th.header "Properties"]
-            [:td (str/join "; " flags)]])
+        (when-let [flags (->> properties
+                              keys
+                              (filter entity)
+                              (map properties)
+                              seq)]
+          [:tr
+           [:th.header "Properties"]
+           [:td (str/join "; " flags)]])
 
-         (when damage
-           [:tr
-            [:th.header "Damage Type"]
-            [:td (str/capitalize
-                   (name damage))]])
-         ]]
-       )
+        (when damage
+          [:tr
+           [:th.header "Damage Type"]
+           [:td (str/capitalize
+                  (name damage))]])
+        ]]
+      )))
 
-     (when-let [d (:desc entity)]
-       [formatted-text :div.desc d]) ]))
+(defn info
+  [entity]
+  [:div {:class (:info-overlay styles)}
+   (when-let [n (:name entity)]
+     [:div.name n])
+
+   (if (:spell-level entity)
+     [spell-card entity]
+
+     [:<>
+      (generic-info entity)
+
+      (when-let [d (:desc entity)]
+        [formatted-text :div.desc d])]) ])
 
 
 ; ======= ability info/tmp mods ============================
