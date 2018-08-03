@@ -263,9 +263,6 @@ If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a
              :warlock/pact-tome-spells>>options]]}]] }
  ]
 
-; TODO we can probably use attrs to modify spells, adding
-; :consumes and :at-will?, etc.
-
 [:!provide-options
  :warlock/eldritch-invocations
 
@@ -282,10 +279,13 @@ When you cast eldritch blast, add your Charisma modifier to the damage it deals 
  {:id :warlock/armor-shadows
   :name "Armor of Shadows"
   :desc "You can cast _mage armor_ on yourself at will, without expending a spell slot or material components."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/extra-spells
-       :spell/mage-armor]]}
+       :spell/mage-armor]
+
+      [:!provide-attr
+       [:spells :warlock :spell/mage-armor]
+       {:at-will? true}]]}
 
  {:id :warlock/ascendant-step
   :name "Ascendant Step"
@@ -295,15 +295,22 @@ When you cast eldritch blast, add your Charisma modifier to the damage it deals 
 You can cast _levitate_ on yourself at will, without expending a spell slot or material components."
   :! [[:!add-to-list
        :warlock/extra-spells
-       :spell/levitate]]}
+       :spell/levitate]
+
+      [:!provide-attr
+       [:spells :warlock :spell/levitate]
+       {:at-will true}]]}
 
  {:id :warlock/beast-speech
   :name "Beast Speech"
   :desc "You can cast _speak with animals_ at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/extra-spells
-       :spell/speak-with-animals]]}
+       :spell/speak-with-animals]
+
+      [:!provide-attr
+       [:spells :warlock :spell/speak-with-animals]
+       {:at-will true}]]}
 
  {:id :warlock/beguiling-influence
   :name "Beguiling Influence"
@@ -321,6 +328,11 @@ You can cast _compulsion_ once using a warlock spell slot. You can’t do so aga
   :! [[:!add-to-list
        :warlock/extra-spells
        :spell/compulsion]
+
+      [:!provide-attr
+       [:spells :warlock :spell/compulsion]
+       {:consumes :warlock/bewitching-whispers#uses}]
+
       [:!add-limited-use
        {:id :warlock/bewitching-whispers#uses
         :name "Bewitching Whispers"
@@ -344,7 +356,11 @@ On your adventures, you can add other ritual spells to your Book of Shadows. Whe
 You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental—without expending a spell slot or material components. You must finish a long rest before you can use this invocation on the same creature again."
   :! [[:!add-to-list
        :warlock/extra-spells
-       :spell/hold-monster]]}
+       :spell/hold-monster]
+
+      [:!provide-attr
+       [:spells :warlock :spell/hold-monster]
+       {:at-will true}]]}
 
  {:id :warlock/devils-sight
   :name "Devil's Sight"
@@ -359,6 +375,11 @@ You can cast _confusion_ once using a warlock spell slot. You can’t do so agai
   :! [[:!add-to-list
        :warlock/extra-spells
        :spell/confusion]
+
+      [:!provide-attr
+       [:spells :warlock :spell/confusion]
+       {:consumes :warlock/dreadful-word#uses}]
+
       [:!add-limited-use
        {:id :warlock/dreadful-word#uses
         :name "Dreadful Word"
@@ -368,10 +389,13 @@ You can cast _confusion_ once using a warlock spell slot. You can’t do so agai
  {:id :warlock/eldritch-sight
   :name "Eldritch Sight"
   :desc "You can cast _detect magic_ at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/extra-spells
-       :spell/detect-magic]]}
+       :spell/detect-magic]
+
+      [:!provide-attr
+       [:spells :warlock :spell/detect-magic]
+       {:at-will true}]]}
 
  {:id :warlock/eldritch-spear
   :name "Eldritch Spear"
@@ -390,10 +414,14 @@ When you cast _eldritch blast_, its range is 300 feet."
  {:id :warlock/fiendish-vigor
   :name "Fiendish Vigor"
   :desc "You can cast _false life_ on yourself at will as a 1st-level spell, without expending a spell slot or material components."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/false-life]]}
+       :spell/false-life]
+
+      [:!provide-attr
+       [:spells :warlock :spell/false-life]
+       {:at-will true
+        :upcast? false}]]}
 
  {:id :warlock/gaze-two-minds
   :name "Gaze of Two Minds"
@@ -410,10 +438,13 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
  {:id :warlock/mask-many-faces
   :name "Mask of Many Faces"
   :desc "You can cast _disguise self_ at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/disguise-self]]}
+       :spell/disguise-self]
+
+      [:!provide-attr
+       [:spells :warlock :spell/disguise-self]
+       {:at-will true}]]}
 
  {:id :warlock/master-myriad-forms
   :name "Master of Myriad Forms"
@@ -421,10 +452,13 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
                 (>= level 15))
   :desc "_Prerequisite:_ 15th level
 You can cast alter self at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/alter-self]]}
+       :spell/alter-self]
+
+      [:!provide-attr
+       [:spells :warlock :spell/alter-self]
+       {:at-will true}]]}
 
  {:id :warlock/minions-chaos
   :name "Minions of Chaos"
@@ -435,6 +469,11 @@ You can cast _conjure elemental_ once using a warlock spell slot. You can’t do
   :! [[:!add-to-list
        :warlock/spells-list
        :spell/alter-self]
+
+      [:!provide-attr
+       [:spells :warlock :spell/alter-self]
+       {:consumes :warlock/minions-chaos#uses}]
+
       [:!add-limited-use
        {:id :warlock/minions-chaos#uses
         :name "Minions of Chaos"
@@ -451,6 +490,11 @@ You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
        :warlock/spells-list
        :spell/slow]
+
+      [:!provide-attr
+       [:spells :warlock :spell/slow]
+       {:consumes :warlock/mire-mind#uses}]
+
       [:!add-limited-use
        {:id :warlock/mire-mind#uses
         :name "Mire the Mind"
@@ -460,10 +504,13 @@ You can’t do so again until you finish a long rest."
  {:id :warlock/misty-visions
   :name "Misty Visions"
   :desc "You can cast _silent image_ at will, without expending a spell slot or material components."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/silent-image]]}
+       :spell/silent-image]
+
+      [:!provide-attr
+       [:spells :warlock :spell/silent-image]
+       {:at-will true}]]}
 
  {:id :warlock/one-with-shadows
   :name "One with Shadows"
@@ -478,10 +525,13 @@ When you are in an area of dim light or darkness, you can use your action to bec
                 (>= level 9))
   :desc "_Prerequisite:_ 9th level
 You can cast _jump_ on yourself at will, without expending a spell slot or material components."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/jump]]}
+       :spell/jump]
+
+      [:!provide-attr
+       [:spells :warlock :spell/jump]
+       {:at-will true}]]}
 
  {:id :warlock/repelling-blast
   :name "Repelling Blast"
@@ -500,6 +550,11 @@ You can cast _polymorph_ once using a warlock spell slot. You can’t do so agai
   :! [[:!add-to-list
        :warlock/spells-list
        :spell/polymorph]
+
+      [:!provide-attr
+       [:spells :warlock :spell/polymorph]
+       {:consumes :warlock/sculptor-flesh#uses}]
+
       [:!add-limited-use
        {:id :warlock/sculptor-flesh#uses
         :name "Sculptor of Flesh"
@@ -515,6 +570,11 @@ You can cast _bestow curse_ once using a warlock spell slot. You can’t do so a
   :! [[:!add-to-list
        :warlock/spells-list
        :spell/bestow-curse]
+
+      [:!provide-attr
+       [:spells :warlock :spell/bestow-curse]
+       {:consumes :warlock/sign-ill-omen#uses}]
+
       [:!add-limited-use
        {:id :warlock/sign-ill-omen#uses
         :name "Sign of Ill Omen"
@@ -527,6 +587,11 @@ You can cast _bestow curse_ once using a warlock spell slot. You can’t do so a
   :! [[:!add-to-list
        :warlock/spells-list
        :spell/bane]
+
+      [:!provide-attr
+       [:spells :warlock :spell/bane]
+       {:consumes :warlock/thief-five-fates#uses}]
+
       [:!add-limited-use
        {:id :warlock/thief-five-fates#uses
         :name "Thief of Five Fates"
@@ -547,10 +612,13 @@ You can attack with your pact weapon twice, instead of once, whenever you take t
                 (>= level 15))
   :desc "_Prerequisite:_ 15th level
 You can cast _arcane eye_ at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/arcane-eye]]}
+       :spell/arcane-eye]
+
+      [:!provide-attr
+       [:spells :warlock :spell/arcane-eye]
+       {:at-will true}]]}
 
  {:id :warlock/voice-chain-master
   :name "Voice of the Chain Master"
@@ -565,10 +633,13 @@ You can communicate telepathically with your familiar and perceive through your 
                 (>= level 9))
   :desc "_Prerequisite:_ 9th level
 You can cast _speak with dead_ at will, without expending a spell slot."
-  ; TODO at-will spells list?
   :! [[:!add-to-list
        :warlock/spells-list
-       :spell/speak-with-dead]]}
+       :spell/speak-with-dead]
+
+      [:!provide-attr
+       [:spells :warlock :spell/speak-with-dead]
+       {:at-will true}]]}
 
  {:id :warlock/witch-sight
   :name "Witch Sight"

@@ -899,6 +899,11 @@
                 spells-list (:spells attrs)
                 extra-spells-list (:extra-spells attrs)
 
+                ; NOTE: we namespace spell mods by the class/race id in case
+                ; we ever want to combine all :attrs of a character into
+                ; a single map.
+                spell-mods (get-in c [:attrs :spells (:id c)])
+
                 ; if we acquire spells, the source list is still the same,
                 ; but the we use the :acquires?-spells option-list to
                 ; determine which are actually prepared (the normal :spells
@@ -938,16 +943,18 @@
                                   (or (get options spells-option)
                                       [])))
 
-                   (map #(assoc %
-                                ::source (:id c)
-                                :spell-mod (get modifiers (:id c))
-                                :save-label (when-let [k (:save %)]
-                                              (str/upper-case
-                                                (name k)))
+                   (map #(-> %
+                             (assoc
+                               ::source (:id c)
+                               :spell-mod (get modifiers (:id c))
+                               :save-label (when-let [k (:save %)]
+                                             (str/upper-case
+                                               (name k)))
 
-                                ; save dc is attack modifier + 8
-                                :save-dc (+ (get attack-bonuses (:id c))
-                                            8)))
+                               ; save dc is attack modifier + 8
+                               :save-dc (+ (get attack-bonuses (:id c))
+                                           8))
+                             (merge (get spell-mods (:id %)))))
 
                    ; sort by level, then name
                    (sort-by (juxt :spell-level :name))))))

@@ -44,7 +44,12 @@
                         :uses 1
                         :restore-trigger :long-rest}]
 
-                      ; TODO this is cast at level 2...
+                      [:!provide-attr
+                       [:spells :tiefling :spell/hellish-rebuke]
+                       {:spell-level 2
+                        :upcast? false
+                        :consumes :tiefling/infernal-legacy#rebuke-uses}]
+
                       [:!add-to-list
                        :tiefling/extra-spells
                        :spell/hellish-rebuke]]}
