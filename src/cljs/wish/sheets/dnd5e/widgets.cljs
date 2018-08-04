@@ -74,6 +74,22 @@
         copper
         [:span.currency.c "C"]])]))
 
+(defn spell-aoe
+  "Renders the AOE of a spell"
+  [[kind l w]]
+  [:span
+   (case kind
+     :cylinder (str l "-foot-radius, " w " ft. tall cylinder")
+
+     :circle (str l "-foot-radius circle")
+     :cone (str l " ft. cone")
+     :sphere (str l "-foot-radius sphere")
+
+     :cube (str l " ft. cube")
+     :line (str l " ft. long, " w " ft. wide line")
+     :square (str l " ft. square"))
+   ])
+
 (defn spell-card
   "Spell info card widget"
   [s]
@@ -90,7 +106,7 @@
      (when-let [aoe (:aoe s)]
        [:tr
         [:th.header "Area of Effect"]
-        [:td aoe]])
+        [:td [spell-aoe aoe]]])
 
      [:tr
       [:th.header "Components"]

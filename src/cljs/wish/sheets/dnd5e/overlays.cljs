@@ -12,7 +12,7 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :refer [styles]]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
-            [wish.sheets.dnd5e.widgets :refer [spell-card]]
+            [wish.sheets.dnd5e.widgets :refer [spell-aoe spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts click>swap!
                                dec-dissoc toggle-in]]
             [wish.views.util :refer [dispatch-change-from-keyup]]
@@ -56,7 +56,7 @@
         (when aoe
           [:tr
            [:th.header "Area of Effect"]
-           [:td aoe]])
+           [:td [spell-aoe aoe]]])
 
         (when-let [flags (->> properties
                               keys

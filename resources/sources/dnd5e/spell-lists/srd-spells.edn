@@ -67,6 +67,7 @@ A mental alarm alerts you with a ping in your mind if you are within 1 mile of t
 An audible alarm produces the sound of a hand bell for 10 seconds within 60 feet."
    :comp [:vs "a tiny bell and a piece of fine silver wire"]
    :rit? true
+   :aoe [:cube 20, 20]
    }
 
   {:spell-level 2
@@ -202,6 +203,7 @@ If the target damages or otherwise harms an affected creature, the affected crea
 A creature that successfully saves against this effect is immune to it for 1 minute, after which time it can be affected again."
    :comp [:vs "V, S, M ("]
    :save :wis
+   :aoe [:cube 200, 200]
    }
 
   {:spell-level 4
@@ -411,6 +413,7 @@ A creature restrained by the tentacles can use its action to make a Strength or 
    :comp [:vs "a piece of tentacle from a giant octopus or a giant squid"]
    :con? true
    :save :dex
+   :aoe [:square 20, 20]
    :damage :bludgeoning
    :dice "3d6"
    }
@@ -527,6 +530,7 @@ The fire ignites any flammable objects in the area that aren’t being worn or c
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d6 for each slot level above 1st."
    :comp :vs
    :save :dex
+   :aoe [:cone 15]
    :damage :fire
    :dice (fn [spell-level]
     (str (+ 2 spell-level) "d6"))
@@ -564,6 +568,7 @@ Alternatively, you can make a target indifferent about creatures of your choice 
    :comp :vs
    :con? true
    :save :cha
+   :aoe [:sphere 20]
    }
 
   {:spell-level 6
@@ -628,6 +633,7 @@ This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th leve
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage increases by 2d6 for each slot level above 6th."
    :comp [:vs "the powder of a crushed black pearl worth at least 500 gp"]
    :save :con
+   :aoe [:sphere 60]
    :damage :necrotic
    :dice (fn [spell-level]
     (str (+ 8 (* 2 (- spell-level 6))) "d6"))
@@ -673,6 +679,7 @@ The fog moves 10 feet away from you at the start of each of your turns, rolling 
    :comp :vs
    :con? true
    :save :con
+   :aoe [:sphere 20]
    :damage :poison
    :dice (fn [spell-level]
     (str spell-level "d8"))
@@ -689,6 +696,7 @@ The fog moves 10 feet away from you at the start of each of your turns, rolling 
 Starting with the creature that has the lowest current hit points, each creature affected by this spell is blinded until the spell ends. Subtract each creature’s hit points from the total before moving on to the creature with the next lowest hit points. A creature’s hit points must be equal to or less than the remaining total for that creature to be affected.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, roll an additional 2d10 for each slot level above 1st."
    :comp [:vs "a pinch of powder or sand that is colored red, yellow, and blue"]
+   :aoe [:cone 15]
    }
 
   {:spell-level 1
@@ -783,6 +791,7 @@ A creature killed by this spell becomes a frozen statue until it thaws.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the damage increases by 1d8 for each slot level above 5th."
    :comp [:vs "a small crystal or glass cone"]
    :save :con
+   :aoe [:cone 60]
    :damage :cold
    :dice (fn [spell-level]
     (str (+ 3 spell-level) "d8"))
@@ -800,6 +809,7 @@ An affected target can’t take reactions and must roll a d10 at the start of ea
    :comp [:vs "three nut shells"]
    :con? true
    :save :wis
+   :aoe [:sphere 10]
    }
 
   {:spell-level 3
@@ -851,6 +861,7 @@ The GM has the elemental’s statistics.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the challenge rating increases by 1 for each slot level above 5th."
    :comp [:vs "burning incense for air, soft clay for earth, sulfur and phosphorus for fire, or water and sand for water"]
    :con? true
+   :aoe [:cube 10, 10]
    }
 
   {:spell-level 6
@@ -1042,6 +1053,7 @@ When you change the weather conditions, find a current condition on the followin
 **_Destroy Water. _**You destroy up to 10 gallons of water in an open container within range. Alternatively, you destroy fog in a 30-foot cube within range.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, you create or destroy 10 additional gallons of water, or the size of the cube increases by 5 feet, for each slot level above 1st."
    :comp [:vs "a drop of water if creating water or a few grains of sand if destroying it"]
+   :aoe [:cube 30, 30]
    }
 
   {:spell-level 6
@@ -1068,6 +1080,7 @@ The creature is under your control for 24 hours, after which it stops obeying an
    :desc "You pull wisps of shadow material from the Shadowfell to create a nonliving object of vegetable matter within range: soft goods, rope, wood, or something similar. You can also use this spell to create mineral objects such as stone, crystal, or metal. The object created must be no larger than a 5-foot cube, and the object must be of a form and material that you have seen before.
 The duration depends on the object’s material. If the object is composed of multiple materials, use the shortest duration."
    :comp [:vs "a tiny piece of matter of the same type of the item you plan to create"]
+   :aoe [:cube 5, 5]
    }
 
   {:spell-level 1
@@ -1109,6 +1122,7 @@ If the point you choose is on an object you are holding or one that isn’t bein
 If any of this spell’s area overlaps with an area of light created by a spell of 2nd level or lower, the spell that created the light is dispelled."
    :comp [:v "bat fur and a drop of pitch or piece of coal"]
    :con? true
+   :aoe [:sphere 15]
    }
 
   {:spell-level 2
@@ -1133,6 +1147,7 @@ If any of this spell’s area overlaps with an area of light created by a spell 
 If you chose a point on an object you are holding or one that isn’t being worn or carried, the light shines from the object and moves with it. Completely covering the affected object with an opaque object, such as a bowl or a helm, blocks the light.
 If any of this spell’s area overlaps with an area of darkness created by a spell of 3rd level or lower, the spell that created the darkness is dispelled."
    :comp :vs
+   :aoe [:sphere 60]
    }
 
   {:spell-level 4
@@ -1163,6 +1178,7 @@ The fire damages objects in the area and ignites flammable objects that aren’t
    :comp [:vs "a tiny ball of bat guano and sulfur"]
    :con? true
    :save :dex
+   :aoe [:sphere 20]
    }
 
   {:spell-level 8
@@ -1436,6 +1452,7 @@ If you have a body part, lock of hair, clipping from a nail, or similar portion 
 • You create an instantaneous, harmless sensory effect, such as falling leaves, a puff of wind, the sound of a small animal, or the faint odor of skunk. The effect must fit in a 5-foot cube.
 • You instantly light or snuff out a candle, a torch, or a small campfire."
    :comp :vs
+   :aoe [:cube 5, 5]
    }
 
   {:spell-level 8
@@ -1455,6 +1472,7 @@ A fissure that opens beneath a structure causes it to automatically collapse (se
    :comp [:vs "a pinch of dirt, a piece of rock, and a lump of clay"]
    :con? true
    :save :con
+   :aoe [:circle 100]
    :damage :bludgeoning
    :dice "5d6"
    }
@@ -1523,6 +1541,7 @@ A creature in the area when you cast the spell must succeed on a Strength saving
 When the spell ends, the conjured plants wilt away."
    :comp :vs
    :con? true
+   :aoe [:square 20, 20]
    }
 
   {:spell-level 2
@@ -1592,6 +1611,7 @@ This spell has no effect if you cast it while you are on the Ethereal Plane or a
 Choose raw materials that you can see within range. You can fabricate a Large or smaller object (contained within a 10-foot cube, or eight connected 5-foot cubes), given a sufficient quantity of raw material. If you are working with metal, stone, or another mineral substance, however, the fabricated object can be no larger than Medium (contained within a single 5-foot cube). The quality of objects made by the spell is commensurate with the quality of the raw materials.
 Creatures or magic items can’t be created or transmuted by this spell. You also can’t use it to create items that ordinarily require a high degree of craftsmanship, such as jewelry, weapons, glass, or armor, unless you have proficiency with the type of artisan’s tools used to craft such objects."
    :comp :vs
+   :aoe [:cube 10, 10]
    }
 
   {:spell-level 1
@@ -1605,6 +1625,7 @@ Creatures or magic items can’t be created or transmuted by this spell. You als
 Any attack roll against an affected creature or object has advantage if the attacker can see it, and the affected creature or object can’t benefit from being invisible."
    :comp :v
    :con? true
+   :aoe [:cube 20, 20]
    }
 
   {:spell-level 4
@@ -1646,6 +1667,7 @@ While frightened by this spell, a creature must take the Dash action and move aw
    :comp [:vs "a white feather or the heart of a hen"]
    :con? true
    :save :wis
+   :aoe [:cone 30]
    }
 
   {:spell-level 1
@@ -1761,6 +1783,7 @@ The fire spreads around corners. It ignites flammable objects in the area that a
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp [:vs "a tiny ball of bat guano and sulfur"]
    :save :dex
+   :aoe [:sphere 20]
    :damage :fire
    :dice (fn [spell-level]
     (str (+ 5 spell-level) "d6"))
@@ -1923,6 +1946,7 @@ If you move more than 100 feet from the disk (typically because it can’t move 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the radius of the fog increases by 20 feet for each slot level above 1st."
    :comp :vs
    :con? true
+   :aoe [:sphere 20]
    }
 
   {:spell-level 6
@@ -1994,6 +2018,7 @@ You can refrain from firing the globe after completing the spell, if you wish. A
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the damage increases by 1d6 for each slot level above 6th."
    :comp [:vs "a small crystal sphere"]
    :save :con
+   :aoe [:sphere 60]
    :damage :cold
    :dice (fn [spell-level]
     (str (+ 4 spell-level) "d6"))
@@ -2115,6 +2140,7 @@ When you inscribe the glyph, choose _explosive runes _or a _spell glyph._
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage of an _explosive runes _glyph increases by 1d8 for each slot level above 3rd. If you create a _spell glyph,_ you can store any spell of up to the same level as the slot you use for the _glyph of warding._"
    :comp [:vs "incense and powdered diamond worth at least 200 gp, which the spell consumes"]
    :save :dex
+   :aoe [:sphere 20]
    }
 
   {:spell-level 1
@@ -2140,6 +2166,7 @@ The berries lose their potency if they have not been consumed within 24 hours of
 When the grease appears, each creature standing in its area must succeed on a Dexterity saving throw or fall prone. A creature that enters the area or ends its turn there must also succeed on a Dexterity saving throw or fall prone."
    :comp [:vs "a bit of pork rind or butter"]
    :save :dex
+   :aoe [:square 10, 10]
    }
 
   {:spell-level 4
@@ -2247,6 +2274,7 @@ The gust disperses gas or vapor, and it extinguishes candles, torches, and simil
 As a bonus action on each of your turns before the spell ends, you can change the direction in which the line blasts from you."
    :comp [:vs "a legume seed"]
    :con? true
+   :aoe [:line 60, 10]
    }
 
   {:spell-level 5
@@ -2283,6 +2311,7 @@ Second, you can bind an extra effect to the area. Choose the effect from the fol
    :desc "You make natural terrain in a 150-foot cube in range look, sound, and smell like some other sort of natural terrain. Thus, open fields or a road can be made to resemble a swamp, hill, crevasse, or some other difficult or impassable terrain. A pond can be made to seem like a grassy meadow, a precipice like a gentle slope, or a rock-strewn gully like a wide and smooth road. Manufactured structures, equipment, and creatures within the area aren’t changed in appearance.
 The tactile characteristics of the terrain are unchanged, so creatures entering the area are likely to see through the illusion. If the difference isn’t obvious by touch, a creature carefully examining the illusion can attempt an Intelligence (Investigation) check against your spell save DC to disbelieve it. A creature who discerns the illusion for what it is, sees it as a vague image superimposed on the terrain."
    :comp [:vs "a stone, a twig, and a bit of green plant"]
+   :aoe [:cube 150, 150]
    }
 
   {:spell-level 6
@@ -2479,6 +2508,7 @@ The spell ends for an affected creature if it takes any damage or if someone els
    :comp [:s "a glowing stick of incense or a crystal vial filled with phosphorescent material"]
    :con? true
    :save :wis
+   :aoe [:cube 30, 30]
    }
 
   {:spell-level 4
@@ -2564,6 +2594,7 @@ The cloud moves 10 feet directly away from you in a direction that you choose at
    :comp :vs
    :con? true
    :save :dex
+   :aoe [:sphere 20]
    :damage :fire
    :dice "10d8"
    }
@@ -2596,6 +2627,7 @@ When the area appears, each creature in it must make a Constitution saving throw
    :comp [:vs "a few grains of sugar, some kernels of grain, and a smear of fat"]
    :con? true
    :save :con
+   :aoe [:sphere 20]
    :damage :piercing
    :dice (fn [spell-level]
     (str (+ -1 spell-level) "d10"))
@@ -2730,6 +2762,7 @@ The lightning ignites flammable objects in the area that aren’t being worn or 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp [:vs "a bit of fur and a rod of amber, crystal, or glass"]
    :save :dex
+   :aoe [:line 100, 5]
    :damage :lightning
    :dice (fn [spell-level]
     (str (+ 5 spell-level) "d6"))
@@ -2924,6 +2957,7 @@ Physical interaction with the image reveals it to be an illusion, because things
    :desc "A wave of healing energy washes out from a point of your choice within range. Choose up to six creatures in a 30-foot-radius sphere centered on that point. Each target regains hit points equal to 3d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the healing increases by 1d8 for each slot level above 5th."
    :comp :vs
+   :aoe [:sphere 30]
    :dice (fn [spell-level spell-mod]
     (str (+ -2 spell-level) "d8 + " spell-mod))
    }
@@ -3034,6 +3068,7 @@ You can cast this spell through solid objects if you are familiar with the targe
 The spell damages objects in the area and ignites flammable objects that aren’t being worn or carried."
    :comp :vs
    :save :dex
+   :aoe [:sphere 40]
    :damage :fire
    :dice "20d6"
    }
@@ -3061,6 +3096,7 @@ If you create a sound, its volume can range from a whisper to a scream. It can b
 If you create an image of an object—such as a chair, muddy footprints, or a small chest—it must be no larger than a 5-foot cube. The image can’t create sound, light, smell, or any other sensory effect. Physical interaction with the image reveals it to be an illusion, because things can pass through it.
 If a creature uses its action to examine the sound or image, the creature can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the illusion becomes faint to the creature."
    :comp [:s "a bit of fleece"]
+   :aoe [:cube 5, 5]
    }
 
   {:spell-level 7
@@ -3169,6 +3205,7 @@ This spell can’t manipulate natural stone or stone construction. Rocks and str
 Similarly, this spell doesn’t directly affect plant growth. The moved earth carries any plants along with it."
    :comp [:vs "an iron blade and a small bag containing a mixture of soils—clay, loam, and sand"]
    :con? true
+   :aoe [:square 40, 40]
    }
 
   {:spell-level 3
@@ -3404,6 +3441,7 @@ If you cast this spell multiple times, you can have up to three of its non-insta
 **_8. Special. _**The target is struck by two rays. Roll twice more, rerolling any 8."
    :comp :vs
    :save :dex
+   :aoe [:cone 60]
    :damage :cold
    :dice "10d6"
    }
@@ -3487,6 +3525,7 @@ When the condition you specify occurs, the illusion springs into existence and p
 The triggering condition can be as general or as detailed as you like, though it must be based on visual or audible conditions that occur within 30 feet of the area. For example, you could create an illusion of yourself to appear and warn off others who attempt to open a trapped door, or you could set the illusion to trigger only when a creature says the correct word or phrase.
 Physical interaction with the image reveals it to be an illusion, because things can pass through it. A creature that uses its action to examine the image can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the creature can see through the image, and any noise it makes sounds hollow to the creature."
    :comp [:vs "a bit of fleece and jade dust worth at least 25 gp"]
+   :aoe [:cube 30, 30]
    }
 
   {:spell-level 7
@@ -3549,6 +3588,7 @@ The protection grants several benefits. Creatures of those types have disadvanta
    :desc "All nonmagical food and drink within a 5-foot-radius sphere centered on a point of your choice within range is purified and rendered free of poison and disease."
    :comp :vs
    :rit? true
+   :aoe [:sphere 5]
    }
 
   {:spell-level 5
@@ -3694,6 +3734,7 @@ At the end of the duration, affected objects and creatures fall back down."
    :comp [:vs "a lodestone and iron filings"]
    :con? true
    :save :dex
+   :aoe [:cylinder 50, 100]
    }
 
   {:spell-level 3
@@ -3877,6 +3918,7 @@ A nonmagical object that isn’t being worn or carried also takes the damage if 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the damage increases by 1d8 for each slot level above 2nd."
    :comp [:vs "a chip of mica"]
    :save :con
+   :aoe [:sphere 10]
    :damage :thunder
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d8"))
@@ -3947,6 +3989,7 @@ The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level
    :comp :vs
    :rit? true
    :con? true
+   :aoe [:sphere 20]
    }
 
   {:spell-level 1
@@ -3961,6 +4004,7 @@ You can use your action to cause the image to move to any spot within range. As 
 Physical interaction with the image reveals it to be an illusion, because things can pass through it. A creature that uses its action to examine the image can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the creature can see through the image."
    :comp [:vs "a bit of fleece"]
    :con? true
+   :aoe [:cube 15, 15]
    }
 
   {:spell-level 7
@@ -4140,6 +4184,7 @@ A moderate wind (at least 10 miles per hour) disperses the cloud after 4 rounds.
    :comp [:vs "a rotten egg or several skunk cabbage leaves"]
    :con? true
    :save :con
+   :aoe [:sphere 20]
    }
 
   {:spell-level 4
@@ -4256,6 +4301,7 @@ When you inscribe the glyph, choose one of the options below for its effect. Onc
 **_Stunning. _**Each target must make a Wisdom saving throw and becomes stunned for 1 minute on a failed save."
    :comp [:vs "mercury, phosphorus, and powdered diamond and opal with a total value of at least 1,000 gp, which the spell consumes"]
    :save :con
+   :aoe [:sphere 60]
    :damage :necrotic
    :dice "10d10"
    }
@@ -4301,6 +4347,7 @@ Until the spell ends, the targets can communicate telepathically through the bon
 or carried by an unwilling creature.
 The destination you choose must be known to you, and it must be on the same plane of existence as you. Your familiarity with the destination determines whether you arrive there successfully. The GM rolls d100 and consults the table."
    :comp :v
+   :aoe [:cube 10, 10]
    }
 
   {:spell-level 5
@@ -4346,6 +4393,7 @@ In addition, unsecured objects that are completely within the area of effect are
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d8 for each slot level above 1st."
    :comp :vs
    :save :con
+   :aoe [:cube 15, 15]
    :damage :thunder
    :dice (fn [spell-level]
     (str (+ 1 spell-level) "d8"))
@@ -4659,6 +4707,7 @@ The webs are flammable. Any 5-foot cube of webs exposed to fire burns away in 1 
    :comp [:vs "a bit of spiderweb"]
    :con? true
    :save :dex
+   :aoe [:cube 20, 20]
    :damage :fire
    :dice "2d4"
    }
@@ -4674,6 +4723,7 @@ The webs are flammable. Any 5-foot cube of webs exposed to fire burns away in 1 
    :comp :vs
    :con? true
    :save :wis
+   :aoe [:sphere 30]
    :damage :psychic
    :dice "4d10"
    }
@@ -4751,6 +4801,7 @@ You must designate a sanctuary by casting this spell within a location, such as 
 An affected creature is aware of the spell and can thus avoid answering questions to which it would normally respond with a lie. Such a creature can be evasive in its answers as long as it remains within the boundaries of the truth."
    :comp :vs
    :save :cha
+   :aoe [:sphere 15]
    }
  ]
 ]

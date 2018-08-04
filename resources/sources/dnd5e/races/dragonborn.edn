@@ -53,7 +53,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Acid damage"
   :save :dex
   :damage :acid
-  :aoe "5 by 30 ft. line"
+  :aoe [:line 30, 5]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -67,7 +67,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Lightning damage"
   :save :dex
   :damage :lightning
-  :aoe "5 by 30 ft. line"
+  :aoe [:line 30, 5]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -81,7 +81,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Fire damage"
   :save :dex
   :damage :fire
-  :aoe "5 by 30 ft. line"
+  :aoe [:line 30, 5]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -95,7 +95,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Lightning damage"
   :save :dex
   :damage :lightning
-  :aoe "5 by 30 ft. line"
+  :aoe [:line 30, 5]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -109,7 +109,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Acid damage"
   :save :dex
   :damage :acid
-  :aoe "5 by 30 ft. line"
+  :aoe [:line 30, 5]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -123,7 +123,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Fire damage"
   :save :dex
   :damage :fire
-  :aoe "15 ft. cone"
+  :aoe [:cone 15]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -137,7 +137,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Poison damage"
   :save :con
   :damage :poison
-  :aoe "15 ft. cone"
+  :aoe [:cone 15]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -151,7 +151,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Fire damage"
   :save :dex
   :damage :fire
-  :aoe "15 ft. cone"
+  :aoe [:cone 15]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -165,7 +165,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Cold damage"
   :save :con
   :damage :cold
-  :aoe "15 ft. cone"
+  :aoe [:cone 15]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
@@ -179,7 +179,7 @@ After you use your breath weapon, you can’t use it again until you complete a 
   :desc "Your breath weapon does Cold damage"
   :save :con
   :damage :cold
-  :aoe "15 ft. cone"
+  :aoe [:cone 15]
   :! [[:!provide-feature
        {:id :dragonborn/damage-resistance
         :name "Damage Resistance"
