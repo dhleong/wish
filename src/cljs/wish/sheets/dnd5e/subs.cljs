@@ -340,22 +340,51 @@
          (mapcat (comp vals :saves :buffs :attrs))
          (apply +))))
 
+(def ^:private static-resistances
+  #{:acid :cold :fire :lightning :poison})
 
 ; returns a collection of features
 (reg-sub
-  ::save-extras
+  ::ability-extras
+  :<- [:sheet-source]
   :<- [:races]
   :<- [:classes]
   :<- [:equipped-sorted]
-  (fn [entity-lists _]
+  (fn [[data-source & entity-lists] _]
     (->> entity-lists
          flatten
-         (mapcat (comp :saves :attrs))
+         (mapcat (comp
+                   (partial apply concat)
+                   (juxt (comp :saves :attrs)
+                         (comp :immunities :attrs)
+                         (comp :resistances :attrs))))
+
+         ; TODO include the source?
          (map (fn [[id extra]]
-                (if (:id extra)
+                (cond
+                  (true? extra)
+                  (if (contains? static-resistances id)
+                    ; static
+                    {:id id
+                     :desc (str "You are resistant to "
+                                (str/capitalize (name id))
+                                " damage.")}
+
+                    ; not static? okay, it could be a feature
+                    (if-let [f (util/find-feature data-source entity-lists id)]
+                      ; got it!
+                      f
+
+                      ; halp
+                      {:id id
+                       :desc (str "Unknown: " id " / " extra)}))
+
+                  ; full feature
+                  (:id extra)
                   extra
 
-                  ; shorthand:
+                  ; shorthand (eg: just {:desc}):
+                  :else
                   (assoc extra :id id)))))))
 
 

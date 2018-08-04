@@ -127,7 +127,7 @@
 
 (defn abilities-section []
   (let [abilities (<sub [::subs/ability-info])
-        save-extras (<sub [::subs/save-extras])]
+        save-extras (<sub [::subs/ability-extras])]
     [:<>
      (for [[id label] labeled-abilities]
        (let [{:keys [score modifier save

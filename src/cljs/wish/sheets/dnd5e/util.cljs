@@ -4,6 +4,7 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [wish.sheets.dnd5e.data :as data]
+            [wish.sources.core :as src]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.fun :refer [->callable]]))
 
@@ -32,6 +33,18 @@
   (if (>= modifier 0)
     (str "+" (or modifier 0))
     (str "−" (Math/abs modifier))))
+
+
+; ======= feature-related =================================
+
+(defn find-feature
+  "Given a data source and a seq of entity lists,
+   find the given feature by id"
+  [data-source entity-lists feature-id]
+  (or (src/find-feature data-source feature-id)
+      (some (fn [source]
+              (get-in source [:features feature-id]))
+            (flatten entity-lists))))
 
 
 ; ======= item-related =====================================
