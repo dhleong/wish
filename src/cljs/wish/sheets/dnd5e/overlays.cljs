@@ -787,7 +787,8 @@
           [:input {:field :text
                    :id :name
                    :placeholder "Name"
-                   :autoComplete "off"}]
+                   :auto-focus true
+                   :auto-complete "off"}]
           [:div.error {:field :alert
                        :id :errors.name}]]
 
