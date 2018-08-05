@@ -92,15 +92,15 @@
 
 (defn spell-tags
   "Render a series of 'tags' indicating things like whether
-   the spell is a Ritual, or requires Concentration.
-   NOTE: Renders as a fragment!"
-  [s]
-  [:span {:class (:spell-tags styles)}
-   (when (:con? s)
-     [:span.tag "C"])
-   (when (:rit? s)
-     [:span.tag "R"])
-   ])
+   the spell is a Ritual, or requires Concentration."
+  [{:keys [con? rit?]}]
+  (when (or con? rit?)
+    [:span {:class (:spell-tags styles)}
+     (when con?
+       [:span.tag "C"])
+     (when rit?
+       [:span.tag "R"])
+     ]))
 
 (defn spell-card
   "Spell info card widget"
@@ -126,6 +126,11 @@
      [:tr
       [:th.header "Duration"]
       [:td (:duration s)]]
+
+     (when-let [tags (spell-tags s)]
+       [:tr
+        [:th.header "Properties"]
+        [:td tags]])
 
      (when-let [dice (:dice s)]
        (let [{:keys [damage]} s]
