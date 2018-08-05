@@ -106,6 +106,14 @@
     [:.notes-overlay
      [:textarea.notes {:height "80vh"}]])
 
+  [:.spell-tags
+   [:.tag {:margin "0 4px"
+           :padding "0 4px"
+           :color "#fff"
+           :font-size "80%"
+           :border-radius "12px"
+           :background-color "#333"}]]
+
   [:.ability-tmp-overlay overlay
    [:.number {:font-size "110%"
               :margin-left "8px"
@@ -181,13 +189,7 @@
     [:.header flex]
     [:.meta metadata]
     [:.info (merge flex/grow
-                   button)
-     [:.tag {:margin "0 4px"
-             :padding "0 4px"
-             :color "#fff"
-             :font-size "80%"
-             :border-radius "12px"
-             :background-color "#333"}]]
+                   button) ]
     [:.prepare (merge button
                       text-center
                       {:min-width "5em"})

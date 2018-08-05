@@ -90,6 +90,18 @@
      :square (str l " ft. square"))
    ])
 
+(defn spell-tags
+  "Render a series of 'tags' indicating things like whether
+   the spell is a Ritual, or requires Concentration.
+   NOTE: Renders as a fragment!"
+  [s]
+  [:span {:class (:spell-tags styles)}
+   (when (:con? s)
+     [:span.tag "C"])
+   (when (:rit? s)
+     [:span.tag "R"])
+   ])
+
 (defn spell-card
   "Spell info card widget"
   [s]

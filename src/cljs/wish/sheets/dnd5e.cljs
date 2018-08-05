@@ -14,7 +14,8 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
-            [wish.sheets.dnd5e.widgets :refer [currency-preview spell-card]]
+            [wish.sheets.dnd5e.widgets :refer [currency-preview spell-card
+                                               spell-tags]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]
@@ -493,10 +494,11 @@
       [:div.spell-info
        [:div.name (:name s)]
 
-       ; TODO concentration? ritual?
        [:div.meta (if (= 0 level)
                     "Cantrip"
-                    (str "Level " level))]]
+                    (str "Level " level))
+        ; concentration? ritual?
+        [spell-tags s]]]
 
       (cond
         (:dice s)
