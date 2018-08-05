@@ -33,6 +33,14 @@
       (reduce #(rec-merge %1 %2) v vs)
       v)))
 
+(defn inc-or
+  "Like (inc), but instead of defaulting to 1 when
+   the existing value is nil, returns `default`"
+  [v default]
+  (if v
+    (inc v)
+    default))
+
 (defn toggle-in
   "Like assoc-in, but if the existing value at the given path
    matches the provided value, it is set to nil instead"

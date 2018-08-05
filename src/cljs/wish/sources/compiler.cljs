@@ -11,7 +11,7 @@
             [wish.sources.compiler.lists :refer [add-to-list inflate-items install-deferred-lists]]
             [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
             [wish.sources.core :refer [find-feature]]
-            [wish.util :refer [deep-merge ->map process-map]]))
+            [wish.util :refer [deep-merge inc-or ->map process-map]]))
 
 ; ======= constants ========================================
 
@@ -122,7 +122,13 @@
                            (partial merge-with
                                     (fn [a b]
                                       (if a
-                                        (update a :wish/instances inc)
+                                        (update
+                                          a :wish/instances
+                                          ; a existing means there's at least 1
+                                          ; instance, so now there are at least 2
+                                          inc-or 2)
+
+                                        ; just use the newer
                                         b)))
                            features-map)]
 

@@ -216,7 +216,7 @@
        ; expand multi-instanced features
        (mapcat (fn [[id f :as entry]]
                  (if (:instanced? f)
-                   (let [total-instances (inc (:wish/instances f))
+                   (let [total-instances (:wish/instances f 1)
                          {:wish/keys [container-id]} (meta entry)]
                      (map
                        (fn [n]

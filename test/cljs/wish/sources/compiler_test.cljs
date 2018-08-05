@@ -391,9 +391,7 @@
         (let [applied-3 (inflate class-def ds opts3)]
           (is (= {:buffs {:dex 3}}
                  (:attrs applied-3)))
-          ; FIXME right now the feature is applied instances + 1 times in this
-          ; case.... So it works as expected, but :wish/instances is off by 1
-          (is (= 2 (-> applied-3 :features :ability/dex :wish/instances))))))
+          (is (= 3 (-> applied-3 :features :ability/dex :wish/instances))))))
 
     (testing "Replace levels"
       ; This is a contrived example, but...
