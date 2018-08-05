@@ -16,9 +16,9 @@
    {:id :dwarf/dwarven-resilience
     :name "Dwarven Resilience"
     :desc "You have advantage on saving throws against poison, and you have resistance against poison damage."
-    :! [[:!provide-attr [:saves :dwarf/dwarven-resilience]
+    :! [[:!provide-attr [:saves :dwarf/dwarven-resilience-saves]
          {:desc "You have advantage on saving throws against poison."}]
-        [:!provide-attr [:resistances :dwarf/dwarven-resilience]
+        [:!provide-attr [:resistances :dwarf/dwarven-resilience-resistances]
          {:desc "You have resistance against poison damage."}]]}
 
    {:id :dwarf/dwarven-combat-training
