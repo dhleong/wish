@@ -304,7 +304,6 @@
 (defn- inflate-feature-options
   [[features options data-source]]
   (->> features
-       (filter (comp :max-options second))
        (map (fn [[id v :as entry]]
               (let [container (-> entry meta :wish/container)
                     available-map (assoc container :options options)]
@@ -327,18 +326,35 @@
                           )]
                   (meta entry)))))))
 
+(defn- only-feature-options
+  [[features options data-source]]
+  (inflate-feature-options
+    [(filter (comp :max-options second) features)
+     options
+     data-source]))
+
 (reg-sub
   :class-features
   :<- [:classes]
   get-features)
 
 (reg-sub
-  :class-features-with-options
+  :inflated-class-features
   (fn [[_ entity-id primary?]]
     [(subscribe [:class-features entity-id primary?])
      (subscribe [:meta/options])
      (subscribe [:sheet-source])])
   inflate-feature-options)
+
+; like :inflated-class-features but removing features
+; that don't accept options
+(reg-sub
+  :class-features-with-options
+  (fn [[_ entity-id primary?]]
+    [(subscribe [:class-features entity-id primary?])
+     (subscribe [:meta/options])
+     (subscribe [:sheet-source])])
+  only-feature-options)
 
 (reg-sub
   :race-features
@@ -346,11 +362,18 @@
   get-features)
 
 (reg-sub
-  :race-features-with-options
+  :inflated-race-features
   :<- [:race-features]
   :<- [:meta/options]
   :<- [:sheet-source]
   inflate-feature-options)
+
+(reg-sub
+  :race-features-with-options
+  :<- [:race-features]
+  :<- [:meta/options]
+  :<- [:sheet-source]
+  only-feature-options)
 
 ; semantic convenience for single-race systems
 (reg-sub

@@ -1512,9 +1512,17 @@
      (subscribe [::selected-option-ids])])
   (fn [[data-source sources options selected-options]]
     (->> sources
-         (mapcat (comp vals :features))
+         ; the sub-vec :class-features or :race-features
+         ; returns a seq of map entries; we just want the values
+         (map second)
+
          (filter :name)
          (remove :implicit?)
+
+         (map (fn [f]
+                (if-let [inst-id (:wish/instance-id f)]
+                  (assoc f :id inst-id)
+                  f)))
 
          ; if the feature is an option, we only want it
          ; if it was actually selected
@@ -1525,11 +1533,13 @@
          ; filter out un-selected values
          (map (fn [f]
                 (if-let [chosen (get options (:id f))]
-                  (assoc f :values
-                         (map
-                           (partial inflate-option-by-id
-                                    data-source (:values f))
-                           chosen))
+                  (let [chosen (if (map? chosen)
+                                 ; instanced feature
+                                 (:value chosen)
+                                 chosen)]
+                    (update f :values
+                            (partial filter
+                                     #(some #{(:id %)} chosen))))
 
                   (dissoc f :values))))
 

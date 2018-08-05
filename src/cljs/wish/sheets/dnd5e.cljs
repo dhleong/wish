@@ -383,14 +383,14 @@
 
 (defn features-section []
   [:<>
-   (when-let [fs (<sub [::subs/features-for [:classes]])]
+   (when-let [fs (<sub [::subs/features-for [:inflated-class-features]])]
       [:div.features-category
        [:h3 "Class features"]
        (for [f fs]
          ^{:key (:id f)}
          [feature f])])
 
-    (when-let [fs (<sub [::subs/features-for [:races]])]
+    (when-let [fs (<sub [::subs/features-for [:inflated-race-features]])]
       [:div.features-category
        [:h3 "Racial Traits"]
        (for [f fs]
