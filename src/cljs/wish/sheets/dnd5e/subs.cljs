@@ -134,7 +134,6 @@
   :<- [::abilities-base]
   :<- [:meta/sheet]
   (fn [[base sheet]]
-    ; TODO temp mods
     (merge-with +
                 base
                 (:ability-tmp sheet))))
@@ -408,7 +407,6 @@
   ::skill-expertise
   :<- [:classes]
   (fn [classes _]
-    ; TODO use this
     (->> classes
          (mapcat :attrs)
          (filter (fn [[k v]]
