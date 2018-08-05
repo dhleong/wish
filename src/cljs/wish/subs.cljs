@@ -239,8 +239,9 @@
 (defn inflate-option-values
   [data-source options feature-id values]
   (or (when-let [feature-values
-                 (:values
-                   (src/find-feature data-source feature-id))]
+                 (when data-source
+                   (:values
+                     (src/find-feature data-source feature-id)))]
         (when-not (and (= feature-values values)
                        (some keyword? values))
           ; inflated values from a feature
@@ -311,6 +312,9 @@
                   [id (-> v
                           (assoc :wish/raw-values (:values v))
                           (update :values (comp
+                                            (partial map
+                                                     (fn [v]
+                                                       (assoc v :level (:level container))))
                                             (partial filter-available
                                                      available-map)
                                             (partial inflate-option-values
