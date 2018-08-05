@@ -543,7 +543,9 @@
                                   (:acquired-label attrs)))
 
         spells-limit (:spells limits)
-        cantrips-limit (:cantrips limits)
+        cantrips-limit (when-not (and acquires?
+                                      (= :default mode))
+                         (:cantrips limits))
 
         available-list (if (and
                              acquires?
@@ -578,8 +580,9 @@
       (when spells-limit
         [:div.limit
          "Spells " prepared-spells-count " / " spells-limit])
-      [:div.limit
-       "Cantrips " prepared-cantrips-count " / " cantrips-limit]]
+      (when cantrips-limit
+        [:div.limit
+         "Cantrips " prepared-cantrips-count " / " cantrips-limit])]
 
      [widgets/search-bar
       {:filter-key :5e/spells-filter

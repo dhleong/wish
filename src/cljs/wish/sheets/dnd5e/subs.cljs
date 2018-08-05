@@ -938,6 +938,7 @@
                 spells-option (if acquires?
                                 (:acquires?-spells attrs)
                                 spells-list)
+
                 ; FIXME it should actually be the intersection of acquired
                 ; and prepared, in case they un-learn a spell but forget
                 ; to un-prepare it. This is an edge case, but we should
@@ -955,20 +956,35 @@
                                           src/find-list-entity
                                           data-source)
                                         extra-spells-list)))
+
+                ; extra spells are always prepared
+                extra-spells (->> extra-spells
+                                  (map #(assoc % :always-prepared? true)))
+
+                ; only selected spells from the main list
+                selected-spells (expand-list data-source spells-list
+                                             (or (get options spells-option)
+                                                 []))
+
+                ; for :acquires? spellcasters, their acquired
+                ; cantrips are always prepared
+                selected-spells (if acquires?
+                                  (->> (expand-list data-source spells-list
+                                                    (get options spells-list))
+                                       (filter #(= 0 (:spell-level %)))
+                                       (map #(assoc % :always-prepared? true))
+
+                                       ; plus manually prepared spells
+                                       (concat selected-spells))
+
+                                  selected-spells)
                 ]
 
-            ; TODO for :acquires? spellcasters, their
-            ; cantrips are always prepared
             (assoc
               m (:id c)
               (->> (concat
-                     (->> extra-spells
-                          (map #(assoc % :always-prepared? true)))
-
-                     ; only selected spells from the main list
-                     (expand-list data-source spells-list
-                                  (or (get options spells-option)
-                                      [])))
+                     extra-spells
+                     selected-spells)
 
                    (map #(-> %
                              (assoc
@@ -1066,8 +1082,15 @@
                               (map :id)
                               set))
 
-          ; TODO for an acquires? spellcaster, their cantrips are "always prepared"
-          always-prepared-set (->> prepared-spells
+          ; for an acquires? spellcaster, their cantrips are "always prepared,"
+          ; but we should be able to un-acquire them in case of mis-clicks, etc.
+          always-prepared-set (->> (if acquire-mode?
+                                     (->> prepared-spells
+                                          (remove #(= 0 (:spell-level %))))
+
+                                     ; not acquire-mode; all :always-prepared?
+                                     ; go into the set
+                                     prepared-spells)
                                    (filter :always-prepared?)
                                    (map :id)
                                    set)
