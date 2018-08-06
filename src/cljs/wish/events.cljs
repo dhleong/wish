@@ -221,8 +221,12 @@
 
         ; else (no use-obj):
         (do
+          ; NOTE: we *could* just dissoc the use-id, but it's only a few
+          ; bytes, and it's possible that the user has accidentally gotten
+          ; into a state where the use-obj is missing, and will later
+          ; get out of that state (IE: restore a dropped class). Let's
+          ; avoid accidentally munging potentially-useful data.
           (js/console.warn "Found unrelated limited-use " use-id " !!")
-          ; TODO should we just dissoc the use-id?
           m)))
     limited-used-map
     limited-used-map))
