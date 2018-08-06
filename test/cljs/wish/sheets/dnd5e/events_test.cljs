@@ -96,8 +96,20 @@
                [:sheet])))))
 
   (testing "Don't affect temp-hp when healing"
-    ; TODO
-    ))
+    (let [updated (update-hp
+                    (cofx
+                      {:limited-uses {:hp#uses 10}
+                       :sheet {:temp-hp 5}})
+                    5 ; heal amt
+                    20)] ; max hp
+      (is (= {:hp#uses 5}
+             (get-in-sheet
+               updated
+               [:limited-uses])))
+      (is (= {:temp-hp 5}
+             (get-in-sheet
+               updated
+               [:sheet]))))))
 
 (deftest update-hp-rolled-test
   (testing "Existing vector + index"

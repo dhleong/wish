@@ -22,7 +22,6 @@
       {key-clicked true}
 
       (let [updated (update-in selections [key-clicked] not)]
-        ; TODO handling filters, esp. for spells?
         (if (accepted? (merge
                          (when accepted?-extra
                            @accepted?-extra)
