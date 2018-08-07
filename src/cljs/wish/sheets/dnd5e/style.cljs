@@ -16,6 +16,8 @@
 
 (def media-smartphones {:screen :only
                         :max-width "479px"})
+(def media-tiny {:screen :only
+                 :max-width "375px"})
 
 (def button {:cursor 'pointer})
 
@@ -59,6 +61,12 @@
                   :border-top "1px solid #fff"
                   :overflow 'hidden}]
       [:.max {:font-size "60%"}]]])
+
+  (at-media
+    media-tiny
+    [:.header {:font-size "80%"}
+     [:.side {:padding "0 !important"}]])
+
   [:.header (merge flex
                    flex/wrap
                    {:background "#666666"
