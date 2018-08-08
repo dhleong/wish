@@ -18,6 +18,7 @@
 
                  ; sheet-specific inline css
                  [cljs-css-modules "0.2.1"]
+                 [garden "1.3.5"] ; override older version in cljs-css-modules
 
                  ; ::inject/sub cofx (for subscriptions in event handlers)
                  [re-frame-utils "0.1.0"]]
