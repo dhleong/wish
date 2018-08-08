@@ -10,7 +10,7 @@
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
-            [wish.sheets.dnd5e.style :as styles :refer [styles]]
+            [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
@@ -61,7 +61,7 @@
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div {:class (:header styles/header)}
+    [:div styles/header
      [:div.left.side
       [:div.col
        [widgets/save-state]]
@@ -726,9 +726,8 @@
   ([title content]
    (section title nil content))
   ([title section-style content]
-   (let [opts (if section-style
-                {:class (section-style styles)}
-                {})]
+   (let [opts (or section-style
+                  {})]
      [:div.section opts
       [:h1 title]
       content])))
@@ -738,26 +737,26 @@
    [header]
    [:div.sections
     [section "Abilities"
-     :abilities
+     styles/abilities-section
      [abilities-section]]
     [section "Skills"
-     :skills
+     styles/skills-section
      [skills-section]]
     [section "Combat"
-     :combat
+     styles/combat-section
      [combat-section]]
 
     [section "Features"
-     :features-section
+     styles/features-section
      [features-section]]
 
     [section "Limited-use"
-     :limited-use-section
+     styles/limited-use-section
      [limited-use-section]]
 
     (when-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))]
       [section "Spells"
-       :spells-section
+       styles/spells-section
        [spells-section spell-classes]])
 
     [section [:<>
@@ -766,5 +765,5 @@
                {:class "clickable"
                 :on-click (click>evt [:toggle-overlay [#'overlays/currency-manager]])}
                [currency-preview]]]
-     :inventory-section
+     styles/inventory-section
      [inventory-section]]]])

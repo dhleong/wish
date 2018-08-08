@@ -10,7 +10,7 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
-            [wish.sheets.dnd5e.style :refer [styles]]
+            [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-aoe spell-card
                                                spell-tags]]
@@ -78,7 +78,7 @@
 
 (defn info
   [entity]
-  [:div {:class (:info-overlay styles)}
+  [:div styles/info-overlay
    (when-let [n (:name entity)]
      [:div.name n])
 
@@ -97,7 +97,7 @@
 (defn ability-tmp
   [id label]
   (let [{{:keys [score modifier]} id} (<sub [::subs/ability-info])]
-    [:div {:class (:ability-tmp-overlay styles)}
+    [:div styles/ability-tmp-overlay
      [:h5 label " " score " (" modifier ")"]
 
      [:form
@@ -195,7 +195,7 @@
                           (- (+ hp heal)
                              damage)))
             death-saves (<sub [::subs/death-saving-throws])]
-        [:div {:class (:hp-overlay styles)}
+        [:div styles/hp-overlay
          (when (= 0 hp)
            [:<>
             [:h4 "Death Saving Throws"]
@@ -313,7 +313,7 @@
 
 (defn- actual-notes-overlay
   [bind-opts]
-  [:div {:class (:notes-overlay styles)}
+  [:div styles/notes-overlay
    [:h5 "Notes"]
    [bind-fields
     [:textarea.notes {:field :textarea
@@ -426,7 +426,7 @@
                                    (+ (* dice-used con-mod)
                                       (:extra current-state)
                                       dice-sum)))))]
-        [:div {:class (:short-rest-overlay styles)}
+        [:div styles/short-rest-overlay
          [:h5 "Short Rest"]
 
          ; SRD description:
@@ -573,7 +573,7 @@
                                            can-select-cantrips?
                                            can-select-spells?)))]
 
-    [:div {:class (:spell-management-overlay styles)}
+    [:div styles/spell-management-overlay
      [:h5 title
       (when spells-limit
         [:div.limit
@@ -600,7 +600,7 @@
 ; ======= spell info =======================================
 
 (defn spell-info [s]
-  [:div {:class (:spell-info-overlay styles)}
+  [:div styles/spell-info-overlay
    [spell-info-header {} s]
    [spell-card s]])
 
@@ -619,7 +619,7 @@
                       (>evt [:toggle-overlay nil]))}
         [:input {:type 'submit
                  :style {:display 'none}}]
-        [:div {:class (:currency-manager-overlay styles)}
+        [:div styles/currency-manager-overlay
          [:h5 "Currency"]
          [:table
           [:tbody
@@ -764,7 +764,7 @@
                     (>evt [:toggle-overlay nil])))]
 
     (fn []
-      [:div {:class (:custom-item-overlay styles)}
+      [:div styles/custom-item-overlay
        [:h5 "Custom Item"]
        [bind-fields
         [:form
@@ -1047,7 +1047,7 @@
              choices :choices
              :as info} (<sub [::subs/starting-eq])
             this-state @state]
-        [:div {:class (:starting-equipment-overlay styles)}
+        [:div styles/starting-equipment-overlay
          [:h5 (:name primary-class) " Starting Equipment"]
 
          (for [[i [kind values]] (map-indexed list choices)]

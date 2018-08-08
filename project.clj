@@ -36,6 +36,7 @@
   :min-lein-version "2.5.3"
 
   :source-paths ["src/clj" "src/cljc"]
+  :test-paths ["test/clj"]
 
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
@@ -59,7 +60,8 @@
                           ["clean"]
                           ["cljsbuild" "once" "min"]
                           ["less" "once"]]
-            "test" ["doo" "chrome-headless" "test" "once"]}
+            "test" ["do" "test"
+                         ["doo" "chrome-headless" "test" "once"]]}
 
   :profiles
   {:dev

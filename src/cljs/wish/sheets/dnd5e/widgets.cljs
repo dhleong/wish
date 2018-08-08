@@ -4,7 +4,7 @@
   (:require [clojure.string :as str]
             [wish.util :refer [<sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as subs]
-            [wish.sheets.dnd5e.style :refer [styles]]
+            [wish.sheets.dnd5e.style :as styles]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [formatted-text]]))
@@ -47,7 +47,7 @@
   (let [{:keys [platinum gold silver electrum copper]} (<sub [::subs/currency])
         any? (> (+ platinum gold silver electrum copper)
                 0)]
-    [:span {:class (:currency-preview styles)}
+    [:span styles/currency-preview
      "Currency"
 
      (when-not any?
@@ -95,7 +95,7 @@
    the spell is a Ritual, or requires Concentration."
   [{:keys [con? rit?]}]
   (when (or con? rit?)
-    [:span {:class (:spell-tags styles)}
+    [:span styles/spell-tags
      (when con?
        [:span.tag "C"])
      (when rit?
@@ -105,7 +105,7 @@
 (defn spell-card
   "Spell info card widget"
   [s]
-  [:div {:class (:spell-card styles)}
+  [:div styles/spell-card
    [:table.info
     [:tbody
      [:tr
