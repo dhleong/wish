@@ -7,6 +7,7 @@
             [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-sheet-with-data]]
             [wish.util :refer [click>evt <sub >evt]]
+            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [link]]))
 
 ; ======= const data =======================================
@@ -131,7 +132,8 @@
         (if-let [sheet-info (get sheets (keyword kind))]
           (if-let [source (<sub [:sheet-source sheet-id])]
             ; sheet is ready; render!
-            (content-fn sheet-info)
+            [error-boundary
+             (content-fn sheet-info)]
 
             (do
               (>evt [:load-sheet-source! sheet-id (:sources sheet)])

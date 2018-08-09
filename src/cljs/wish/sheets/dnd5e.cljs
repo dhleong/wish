@@ -16,6 +16,7 @@
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
             [wish.sheets.dnd5e.widgets :refer [currency-preview spell-card
                                                spell-tags]]
+            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]
@@ -203,21 +204,20 @@
         expertise (<sub [::subs/skill-expertise])
         proficiencies (<sub [::subs/skill-proficiencies])
         prof-bonus (<sub [::subs/proficiency-bonus])]
-    (vec (cons
-           :div.sections
-           (map
-             (fn [col]
-               [:div.skill-col
-                (for [[ability skill-id label] col]
-                  (let [expert? (contains? expertise skill-id)
-                        proficient? (contains? proficiencies skill-id)
-                        total-modifier (+ (ability->mod (get abilities ability))
-                                          (cond
-                                            expert? (* 2 prof-bonus)
-                                            proficient?  prof-bonus))]
-                    ^{:key skill-id}
-                    [skill-box ability label total-modifier expert? proficient?]))])
-             skills-table)))))
+    (->> skills-table
+         (map
+           (fn [col]
+             [:div.skill-col
+              (for [[ability skill-id label] col]
+                (let [expert? (contains? expertise skill-id)
+                      proficient? (contains? proficiencies skill-id)
+                      total-modifier (+ (ability->mod (get abilities ability))
+                                        (cond
+                                          expert? (* 2 prof-bonus)
+                                          proficient?  prof-bonus))]
+                  ^{:key skill-id}
+                  [skill-box ability label total-modifier expert? proficient?]))]))
+         (into [:div.sections]))))
 
 
 ; ======= Combat ===========================================
@@ -730,11 +730,13 @@
                   {})]
      [:div.section opts
       [:h1 title]
-      content])))
+      [error-boundary
+       content]])))
 
 (defn sheet []
   [:<>
-   [header]
+   [error-boundary
+    [header]]
    [:div.sections
     [section "Abilities"
      styles/abilities-section
