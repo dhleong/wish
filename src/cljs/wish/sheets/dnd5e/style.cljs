@@ -15,6 +15,7 @@
 (def color-silver "#a6a4a0")
 (def color-copper "#a77c65")
 
+(def media-not-smartphones {:min-width "480px"})
 (def media-smartphones {:screen :only
                         :max-width "479px"})
 (def media-tiny {:screen :only
@@ -47,30 +48,46 @@
 ;; 35/65 layout
 ;;
 
+(defstyled container
+  (merge flex/vertical
+         {:height "100%"}))
+
 (defstyled layout
   (at-media
     media-smartphones
-    [:.left {:width "90% !important"}]
-    [:.right {:width "90% !important"}])
+    flex/justify-center
+    [:.side {:width "90% !important"}])
+
+  (at-media
+    media-not-smartphones
+    [:.side {:height "100%"
+             :overflow-y 'auto}])
 
   (merge flex
          flex/wrap
-         flex/justify-center)
+         flex/grow
+         {:justify-content 'space-around
+          :height "100%"})
 
-  [:.nav flex
+  [:.nav (merge flex
+                {:overflow-x 'auto})
    [:.section (merge button
                      {:padding "0 4px"})
     [:&.selected {:cursor 'default
                   :color "#fbc02d"}]]]
 
+  [:.side {:padding "0 1%"}]
   [:.left {:width "35%"
            :max-width "400px"}]
-  [:.right {:min-width "60%"}])
+  [:.right {:width "61%"}])
 
 
 ;;
 ;; The header bar
 ;;
+
+(defstyled header-container
+  {:display 'block})
 
 (defstyled header
   (at-media

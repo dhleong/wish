@@ -63,59 +63,60 @@
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div styles/header
-     [:div.left.side
-      [:div.col
-       [widgets/save-state]]
+    [:div styles/header-container
+     [:div styles/header
+      [:div.left.side
+       [:div.col
+        [widgets/save-state]]
 
-      [:div.col.left
-       [:div.name [link {:href "/sheets"}
-                   (:name common)]]
-       [:div.meta
-        [:div.race (:name (<sub [:race]))]
-        [:div.classes (->> classes
-                           (map (fn [c]
-                                  (str (-> c :name) " " (:level c))))
-                           (str/join " / "))]]]
+       [:div.col.left
+        [:div.name [link {:href "/sheets"}
+                    (:name common)]]
+        [:div.meta
+         [:div.race (:name (<sub [:race]))]
+         [:div.classes (->> classes
+                            (map (fn [c]
+                                   (str (-> c :name) " " (:level c))))
+                            (str/join " / "))]]]
 
-      [:div.col
-       [link {:href "#"
-              :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
-        (icon :description)]]]
+       [:div.col
+        [link {:href "#"
+               :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
+         (icon :description)]]]
 
-     [:div.space]
+      [:div.space]
 
-     [:div.settings.side
-      [:div.col
-       (let [sheet-id (<sub [:active-sheet-id])]
-         [link {:href (sheet-url sheet-id :builder :class)}
-          (icon :settings)])]]
+      [:div.settings.side
+       [:div.col
+        (let [sheet-id (<sub [:active-sheet-id])]
+          [link {:href (sheet-url sheet-id :builder :class)}
+           (icon :settings)])]]
 
-     [:div.right.side
-      [:div.col
-       [:div.stat (mod->str
-                    (<sub [::subs/proficiency-bonus]))]
-       [:div.label "Proficiency"]]
+      [:div.right.side
+       [:div.col
+        [:div.stat (mod->str
+                     (<sub [::subs/proficiency-bonus]))]
+        [:div.label "Proficiency"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/ac])]
-       [:div.label "AC"]]
+       [:div.col
+        [:div.stat (<sub [::subs/ac])]
+        [:div.label "AC"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
-       [:div.label "Speed"]]
+       [:div.col
+        [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
+        [:div.label "Speed"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/passive-perception])]
-       [:div.label "Pass. Perc."]]
+       [:div.col
+        [:div.stat (<sub [::subs/passive-perception])]
+        [:div.label "Pass. Perc."]]
 
-      [:div.col
-       [:div.stat (mod->str
-                    (<sub [::subs/initiative]))]
-       [:div.label "Initiative"]]
+       [:div.col
+        [:div.stat (mod->str
+                     (<sub [::subs/initiative]))]
+        [:div.label "Initiative"]]
 
-      [:div.col
-       [hp]] ] ]))
+       [:div.col
+        [hp]] ]] ]))
 
 
 ; ======= abilities ========================================
@@ -793,13 +794,13 @@
        [inventory-section]]] ]))
 
 (defn sheet []
-  [:<>
+  [:div styles/container
    [error-boundary
     [header]]
 
    [:div styles/layout
     [error-boundary
-     [:div.left
+     [:div.left.side
       [section "Abilities"
        styles/abilities-section
        [abilities-section]]
@@ -808,5 +809,5 @@
        styles/skills-section
        [skills-section]] ]]
 
-    [:div.right
+    [:div.right.side
      [sheet-right-page]]]])
