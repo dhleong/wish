@@ -44,6 +44,31 @@
     {:color color-expert}]])
 
 ;;
+;; 35/65 layout
+;;
+
+(defstyled layout
+  (at-media
+    media-smartphones
+    [:.left {:width "90% !important"}]
+    [:.right {:width "90% !important"}])
+
+  (merge flex
+         flex/wrap
+         flex/justify-center)
+
+  [:.nav flex
+   [:.section (merge button
+                     {:padding "0 4px"})
+    [:&.selected {:cursor 'default
+                  :color "#fbc02d"}]]]
+
+  [:.left {:width "35%"
+           :max-width "400px"}]
+  [:.right {:min-width "60%"}])
+
+
+;;
 ;; The header bar
 ;;
 

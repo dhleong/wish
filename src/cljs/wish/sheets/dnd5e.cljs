@@ -6,7 +6,8 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
-            [wish.util :refer [>evt <sub click>evt invoke-callable]]
+            [wish.util :refer [>evt <sub click>evt click>reset!
+                               invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -699,6 +700,12 @@
 
 (defn inventory-section []
   [:<>
+   [:span.clickable
+    {:class "clickable"
+     :on-click (click>evt [:toggle-overlay
+                           [#'overlays/currency-manager]])}
+    [currency-preview]]
+
    (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
      (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
                           3)]
@@ -735,39 +742,71 @@
       [error-boundary
        content]])))
 
+(defn- nav-link
+  [atm id label]
+  [:h1.section
+   {:class (when (= id @atm)
+             "selected")
+    :on-click (click>reset! atm id)}
+   label])
+
+(defn- main-section
+  [atm id opts content]
+  (when (= @atm id)
+    [:div.section opts
+     content]))
+
+(defn- sheet-right-page []
+  (r/with-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
+               page (r/atom :actions)]
+    [:<>
+     [:div.nav
+      [nav-link page :actions "Actions"]
+      [nav-link page :features "Features"]
+      [nav-link page :limited-use "Limited-use"]
+      (when spell-classes
+        [nav-link page :spells "Spells"])
+      [nav-link page :inventory "Inventory"]]
+
+     ; actual sections
+     [error-boundary
+
+      [main-section page :actions
+       styles/actions-section
+       [actions-section]]
+
+      [main-section page :features
+       styles/features-section
+       [features-section]]
+
+      [main-section page :limited-use
+       styles/limited-use-section
+       [limited-use-section]]
+
+      (when spell-classes
+        [main-section page :spells
+         styles/spells-section
+         [spells-section spell-classes]])
+
+      [main-section page :inventory
+       styles/inventory-section
+       [inventory-section]]] ]))
+
 (defn sheet []
   [:<>
    [error-boundary
     [header]]
-   [:div.sections
-    [section "Abilities"
-     styles/abilities-section
-     [abilities-section]]
-    [section "Skills"
-     styles/skills-section
-     [skills-section]]
-    [section "Actions"
-     styles/actions-section
-     [actions-section]]
 
-    [section "Features"
-     styles/features-section
-     [features-section]]
+   [:div styles/layout
+    [error-boundary
+     [:div.left
+      [section "Abilities"
+       styles/abilities-section
+       [abilities-section]]
 
-    [section "Limited-use"
-     styles/limited-use-section
-     [limited-use-section]]
+      [section "Skills"
+       styles/skills-section
+       [skills-section]] ]]
 
-    (when-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))]
-      [section "Spells"
-       styles/spells-section
-       [spells-section spell-classes]])
-
-    [section [:<>
-              "Inventory"
-              [:span.clickable
-               {:class "clickable"
-                :on-click (click>evt [:toggle-overlay [#'overlays/currency-manager]])}
-               [currency-preview]]]
-     styles/inventory-section
-     [inventory-section]]]])
+    [:div.right
+     [sheet-right-page]]]])
