@@ -7,6 +7,7 @@
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
             [wish.providers :as providers]
+            [wish.sheets :as sheets]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as sources :refer [IDataSource ->DataSource id]]
             [wish.util :refer [>evt]]))
@@ -15,7 +16,7 @@
 (defonce ^:private loaded-sources (atom {}))
 
 (defn- compile-raw-source
-  [id raw]
+  [{:keys [kind] :as sheet} id raw]
   (loop [reader (string-push-back-reader raw)
          directives []]
     (if-let [d (edn/read reader)]
@@ -24,12 +25,13 @@
 
       (->DataSource
         id
-        (compile-directives
-          directives)))))
+        (->> directives
+             (compile-directives)
+             (sheets/post-compile kind))))))
 
 (defn- load-source!
   "Returns a channel that signals with [err] or [nil source] when done"
-  [source-id]
+  [sheet source-id]
   (go (if-let [existing (get @loaded-sources source-id)]
         [nil existing]
 
@@ -39,7 +41,7 @@
             [err]
 
             (try
-              (let [compiled (compile-raw-source source-id raw)]
+              (let [compiled (compile-raw-source sheet source-id raw)]
                 ; cache the compiled source for for later
                 (swap! loaded-sources assoc source-id compiled)
                 (log "Compiled " source-id compiled)
@@ -60,13 +62,14 @@
          (sources/composite sheet-id sources)]))
 
 (defn load!
-  [sheet-id sources]
+  "Load the sources for the given sheet"
+  [{sheet-id :id :as sheet} sources]
   (let [existing @loaded-sources]
     (if (every? existing sources)
       (combine-sources! sheet-id
                         (map existing sources))
 
-      (let [source-chs (map load-source! sources)
+      (let [source-chs (map (partial load-source! sheet) sources)
             total-count (count sources)]
         (log/info "load " sources)
         (go-loop [source-chs source-chs
@@ -83,7 +86,7 @@
                 (>evt [:put-sheet-error!
                        sheet-id
                        {:err err
-                        :retry-evt [:load-sheet-source! sheet-id sources]}]))
+                        :retry-evt [:load-sheet-source! sheet sources]}]))
 
               ; DONE!
               (= total-count (count new-resolved))

@@ -32,13 +32,24 @@
 ; ======= Public interface =================================
 
 (defn post-process
-  "Apply sheet-kind-specific post-processing to an entity"
+  "Apply sheet-kind-specific post-processing to an entity
+   (happens each time a subscription changes)"
   [entity sheet-kind data-source entity-kind]
   (if-let [processor (get-in sheets [sheet-kind :post-process])]
     (processor entity data-source entity-kind)
 
     ; no processor for this sheet; pass through
     entity))
+
+(defn post-compile
+  "Apply sheet-kind-specific post-processing to a data source map
+   (happens once, when assembling the DataSource"
+  [sheet-kind data]
+  (if-let [processor (get-in sheets [sheet-kind :post-compile])]
+    (processor data)
+
+    ; no processor for this sheet; pass through
+    data))
 
 (defn stub-sheet
   "Create the initial data for a new sheet"
@@ -136,7 +147,7 @@
              (content-fn sheet-info)]
 
             (do
-              (>evt [:load-sheet-source! sheet-id (:sources sheet)])
+              (>evt [:load-sheet-source! sheet (:sources sheet)])
               [sources-loader sheet]))
 
           ; unknown sheet kind

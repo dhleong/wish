@@ -41,6 +41,15 @@
     (inc v)
     default))
 
+(defn update-each-value
+  "Applies f to the value of each key in m"
+  [m f]
+  (reduce-kv
+    (fn [m k v]
+      (assoc m k (f v)))
+    m
+    m))
+
 (defn toggle-in
   "Like assoc-in, but if the existing value at the given path
    matches the provided value, it is set to nil instead"

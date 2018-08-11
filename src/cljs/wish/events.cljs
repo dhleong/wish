@@ -163,13 +163,14 @@
 (reg-event-fx
   :load-sheet-source!
   [trim-v]
-  (fn-traced [{:keys [db]} [sheet-id sources]]
+  (fn-traced [{:keys [db]} [sheet sources]]
     ; no dup loads, pls
-    (let [source (get-in db [:sheet-sources sheet-id])]
+    (let [sheet-id (:id sheet)
+          source (get-in db [:sheet-sources sheet-id])]
       (when (or (:err source)
                 (not source))
         {:db (assoc-in db [:sheet-sources sheet-id] {})
-         :load-sheet-source! [sheet-id sources]}))))
+         :load-sheet-source! [sheet sources]}))))
 
 (reg-event-db
   :put-sheet-source!

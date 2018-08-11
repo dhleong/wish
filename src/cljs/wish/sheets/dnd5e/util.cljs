@@ -6,7 +6,8 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sources.core :as src]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
-            [wish.sources.compiler.fun :refer [->callable]]))
+            [wish.sources.compiler.fun :refer [->callable]]
+            [wish.util :refer [update-each-value]]))
 
 ; ======= Shared utils =====================================
 
@@ -106,19 +107,16 @@
       ; no spellcasting
       :else entity)))
 
-; TODO it'd be better to do this once at the datasource level
+;; NOTE some classes provide this as a feature, so we can't
+;; do this as part of the post-compile step
 (def compile-ac-source (memoize ->callable))
 (defn- compile-ac-sources
   [entity]
   (cond
     (get-in entity [:attrs :5e/ac])
     (update-in entity [:attrs :5e/ac]
-               (fn [ac-sources-map]
-                 (reduce-kv
-                   (fn [m k v]
-                     (assoc m k (compile-ac-source v)))
-                   {}
-                   ac-sources-map)))
+               update-each-value
+               compile-ac-source)
 
     ; armor AC, etc. based on a builtin type
     (= :armor (:type entity))

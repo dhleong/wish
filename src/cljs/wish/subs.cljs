@@ -85,7 +85,8 @@
   :provided-sheet
   :<- [:sheets]
   (fn [sheets [_ sheet-id]]
-    (get sheets sheet-id)))
+    (assoc (get sheets sheet-id)
+           :id sheet-id)))
 
 (reg-sub
   :known-sheets

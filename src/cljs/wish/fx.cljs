@@ -26,8 +26,8 @@
 
 (reg-fx :load-sheet! load-sheet!)
 (reg-fx :load-sheet-source!
-        (fn [[sheet-id sources]]
-          (sources/load! sheet-id sources)))
+        (fn [[sheet sources]]
+          (sources/load! sheet sources)))
 
 
 ; ======= Sheet persistence ================================
