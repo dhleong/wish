@@ -169,7 +169,10 @@ You choose additional favored terrain types at 6th and 10th level."
 
                 {:id :ranger/primeval-awareness
                  :name "Primeval Awareness"
-                 :desc "You can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn’t reveal the creatures’ location or number."}
+                 :desc "You can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn’t reveal the creatures’ location or number."
+                 :! [[:!provide-attr
+                      [:action :ranger/primeval-awareness]
+                      true]]}
                 ]}
 
             4 {:+features
@@ -323,10 +326,16 @@ You are also aware of the location of any invisible creature within 30 feet of y
                        :max-options 1
                        :values [{:id :ranger/volley
                                  :name "Volley"
-                                 :desc "You can use your action to make a ranged attack against any number of creatures within 10 feet of a point you can see within your weapon’s range. You must have ammunition for each target, as normal, and you make a separate attack roll for each target."}
+                                 :desc "You can use your action to make a ranged attack against any number of creatures within 10 feet of a point you can see within your weapon’s range. You must have ammunition for each target, as normal, and you make a separate attack roll for each target."
+                                 :! [[:!provide-attr
+                                      [:action :ranger/volley]
+                                      true]]}
                                 {:id :ranger/whirlwind-attack
                                  :name "Whirlwind Attack"
-                                 :desc "You can use your action to make a melee attack against any number of creatures within 5 feet of you, with a separate attack roll for each target."}]}]]}
+                                 :desc "You can use your action to make a melee attack against any number of creatures within 5 feet of you, with a separate attack roll for each target."
+                                 :! [[:!provide-attr
+                                      [:action :ranger/whirlwind-attack]
+                                      true]]}]}]]}
 
             15 {:+! [[:!provide-feature
                       {:id :ranger/superior-hunters-defense

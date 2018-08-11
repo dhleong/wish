@@ -53,7 +53,10 @@
                 {:id :cleric/channel-turn-undead
                  :name "Channel Divinity: Turn Undead"
                  :desc "As an action, you present your holy symbol and speak a prayer censuring the undead. Each undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes any damage.
-A turned creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there’s nowhere to move, the creature can use the Dodge action."}]}
+A turned creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there’s nowhere to move, the creature can use the Dodge action."
+                 :! [[:!provide-attr
+                      [:action :cleric/channel-turn-undead]
+                      true]]}]}
 
             4 {:+features
                [:ability-improvement]}
@@ -93,7 +96,10 @@ At 20th level, your call for intervention succeeds automatically, no roll requir
                        {:id :cleric/divine-intervention#uses
                         :name "Divine Intervention"
                         :uses 1
-                        :restore-trigger :long-rest}]]}]}
+                        :restore-trigger :long-rest}]
+                      [:!provide-attr
+                       [:action :cleric/divine-intervention]
+                       true]]}]}
 
             12 {:+features
                 [:ability-improvement]}
@@ -143,7 +149,10 @@ Beginning at 6th level, you can use your Channel Divinity twice between rests, a
                      {:id :cleric/channel-preserve-life
                       :name "Channel Divinity: Preserve Life"
                       :desc "Starting at 2nd level, you can use your Channel Divinity to heal the badly injured.
-As an action, you present your holy symbol and evoke healing energy that can restore a number of hit points equal to five times your cleric level. Choose any creatures within 30 feet of you, and divide those hit points among them. This feature can restore a creature to no more than half of its hit point maximum. You can’t use this feature on an undead or a construct."}]]}
+As an action, you present your holy symbol and evoke healing energy that can restore a number of hit points equal to five times your cleric level. Choose any creatures within 30 feet of you, and divide those hit points among them. This feature can restore a creature to no more than half of its hit point maximum. You can’t use this feature on an undead or a construct."
+                      :! [[:!provide-attr
+                           [:action :cleric/channel-preserve-life]
+                           true]]}]]}
 
             3 {:+! [[:!add-to-list
                      :cleric/extra-spells

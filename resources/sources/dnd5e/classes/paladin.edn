@@ -50,12 +50,16 @@
     :name "Divine Sense"
     :desc "The presence of strong evil registers on your senses like a noxious odor, and powerful good rings like heavenly music in your ears. As an action, you can open your awareness to detect such forces. Until the end of your next turn, you know the location of any celestial, fiend, or undead within 60 feet of you that is not behind total cover. You know the type (celestial, fiend, or undead) of any being whose presence you sense, but not its identity (the vampire Count Strahd von Zarovich, for instance). Within the same radius, you also detect the presence of any place or object that has been consecrated or desecrated, as with the hallow spell.
 You can use this feature a number of times equal to 1 + your Charisma modifier. When you finish a long rest, you regain all expended uses."
+    :consumes :paladin/divine-sense#uses
     :! [[:!add-limited-use
          {:id :paladin/divine-sense#uses
           :name "Divine Sense"
           :restore-trigger :long-rest
           :uses (fn [modifiers]
-                  (inc (:cha modifiers)))}]]}
+                  (inc (:cha modifiers)))}]
+        [:!provide-attr
+         [:action :paladin/divine-sense]
+         true]]}
 
    {:id :paladin/lay-on-hands
     :name "Lay on Hands"
@@ -63,12 +67,16 @@ You can use this feature a number of times equal to 1 + your Charisma modifier. 
 As an action, you can touch a creature and draw power from the pool to restore a number of hit points to that creature, up to the maximum amount remaining in your pool.
 Alternatively, you can expend 5 hit points from your pool of healing to cure the target of one disease or neutralize one poison affecting it. You can cure multiple diseases and neutralize multiple poisons with a single use of Lay on Hands, expending hit points separately for each one.
 This feature has no effect on undead and constructs."
+    :consumes :paladin/lay-on-hands#uses
     :! [[:!add-limited-use
          {:id :paladin/lay-on-hands#uses
           :name "Lay on Hands"
           :restore-trigger :long-rest
           :uses (fn [level]
-                  (* 5 level))}]]}
+                  (* 5 level))}]
+        [:!provide-attr
+         [:action :paladin/lay-on-hands]
+         true]]}
    ]
 
   :&levels {2 {:+features
@@ -135,12 +143,16 @@ At 18th level, the range of this aura increases to 30 feet."}]}
                   :name "Cleansing Touch"
                   :desc "Beginning at 14th level, you can use your action to end one spell on yourself or on one willing creature that you touch.
 You can use this feature a number of times equal to your Charisma modifier (a minimum of once). You regain expended uses when you finish a long rest."
+                  :consumes :paladin/cleansing-touch#uses
                   :! [[:!add-limited-use
                        {:id :paladin/cleansing-touch#uses
                         :name "Cleansing Touch"
                         :restore-trigger :long-rest
                         :uses (fn [modifiers]
-                                (max 1 (:cha modifiers)))}]]}]}
+                                (max 1 (:cha modifiers)))}]
+                      [:!provide-attr
+                       [:action :paladin/cleansing-touch]
+                       true]]}]}
 
             16 {:+features
                 [:ability-improvement]}
@@ -167,11 +179,15 @@ You can end this effect on your turn as part of any other action. If you are no 
 
 **_Turn the Unholy._** As an action, you present your holy symbol and speak a prayer censuring fiends and undead, using your Channel Divinity. Each fiend or undead that can see or hear you within 30 feet of you must make a Wisdom saving throw. If the creature fails its saving throw, it is turned for 1 minute or until it takes damage.
 A turned creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If there’s nowhere to move, the creature can use the Dodge action."
+        :consumes :paladin/channel-divinity-devotion#uses
         :! [[:!add-limited-use
              {:id :paladin/channel-divinity-devotion#uses
               :name "Channel Divinity"
               :restore-trigger :short-rest
-              :uses 1}]]}
+              :uses 1}]
+            [:!provide-attr
+             [:action :paladin/channel-divinity-devotion]
+             true]]}
        ]]
 
   :&levels {5 {:+! [[:!add-to-list
@@ -209,10 +225,14 @@ A turned creature must spend its turns trying to move as far away from you as it
 Whenever an enemy creature starts its turn in the bright light, the creature takes 10 radiant damage.
 In addition, for the duration, you have advantage on saving throws against spells cast by fiends or undead.
 Once you use this feature, you can’t use it again until you finish a long rest."
+                       :consumes :paladin/holy-nimbus#uses
                        :! [[:!add-limited-use
                             {:id :paladin/holy-nimbus#uses
                              :name "Holy Nimbus"
                              :restore-trigger :long-rest
-                             :uses 1}]]}
+                             :uses 1}]
+                           [:!provide-attr
+                            [:action :paladin/holy-nimbus]
+                            true]]}
 
                       ]]}}}]

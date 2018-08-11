@@ -181,7 +181,10 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
 
                 {:id :monk/stillness-mind
                  :name "Stillness of Mind"
-                 :desc "Starting at 7th level, you can use your action to end one effect on yourself that is causing you to be charmed or frightened."}]}
+                 :desc "Starting at 7th level, you can use your action to end one effect on yourself that is causing you to be charmed or frightened."
+                 :! [[:!provide-attr
+                      [:action :monk/stillness-mind]
+                      true]]}]}
 
             8 {:+features
                [:ability-improvement]}
@@ -229,8 +232,10 @@ Additionally, whenever you make a saving throw and fail, you can spend 1 ki poin
                   :name "Empty Body"
                   :desc "Beginning at 18th level, you can use your action to spend 4 ki points to become invisible for 1 minute. During that time, you also have resistance to all damage but force damage.
 Additionally, you can spend 8 ki points to cast the astral projection spell, without needing material components. When you do so, you can’t take any other creatures with you."
-                  :consumes :monk/ki#uses}]}
-
+                  :consumes :monk/ki#uses
+                  :! [[:!provide-attr
+                       [:action :monk/empty-body]
+                       true]]}]}
 
             19 {:+features
                 [:ability-improvement]}
@@ -260,11 +265,15 @@ Additionally, you can spend 8 ki points to cast the astral projection spell, wit
                      {:id :monk/wholeness-body
                       :name "Wholeness of Body"
                       :desc "At 6th level, you gain the ability to heal yourself. As an action, you can regain hit points equal to three times your monk level. You must finish a long rest before you can use this feature again."
+                      :consumes :monk/wholeness-body#uses
                       :! [[:!add-limited-use
                            {:id :monk/wholeness-body#uses
                             :name "Wholeness of Body"
                             :uses 1
-                            :restore-trigger :long-rest}]]}]]}
+                            :restore-trigger :long-rest}]
+                          [:!provide-attr
+                           [:action :monk/wholeness-body]
+                           true]]}]]}
 
             11 {:+! [[:!provide-feature
                       {:id :monk/tranquility
