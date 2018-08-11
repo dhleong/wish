@@ -220,7 +220,7 @@
          (into [:div.sections]))))
 
 
-; ======= Combat ===========================================
+; ======= Actions ==========================================
 
 (defn- attack-block [s & [extra-info]]
   [:div.attack (or extra-info {})
@@ -263,7 +263,7 @@
       [:div.dmg.alt
        "(" alt-dice ")"])]])
 
-(defn- combat-home []
+(defn- actions-combat []
   [:<>
 
    (when-let [s (<sub [::subs/unarmed-strike])]
@@ -306,7 +306,7 @@
            "Use 1"])]))
    [formatted-text :div.desc (:desc a)]])
 
-(defn- combat-actions [filter-type]
+(defn- actions-for-type [filter-type]
   (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
         actions (seq (<sub [::subs/combat-actions filter-type]))]
     (if (or spells actions)
@@ -342,19 +342,21 @@
                         (reset! page id))}
         label])]))
 
-(defn combat-section []
-  (let [page (r/atom :home)]
+(defn actions-section []
+  (let [page (r/atom :combat)]
     (fn []
       [:<>
        [:div.filters
-        [combat-page-link page :home "Home"]
+        [combat-page-link page :combat "Combat"]
+        [combat-page-link page :actions "Actions"]
         [combat-page-link page :bonuses "Bonuses"]
         [combat-page-link page :reactions "Reactions"]]
 
        (case @page
-         :home [combat-home]
-         :bonuses [combat-actions :bonus]
-         :reactions [combat-actions :reaction])])))
+         :combat [actions-combat]
+         :actions [actions-for-type :action]
+         :bonuses [actions-for-type :bonus]
+         :reactions [actions-for-type :reaction])])))
 
 
 ; ======= Features =========================================
@@ -744,9 +746,9 @@
     [section "Skills"
      styles/skills-section
      [skills-section]]
-    [section "Combat"
-     styles/combat-section
-     [combat-section]]
+    [section "Actions"
+     styles/actions-section
+     [actions-section]]
 
     [section "Features"
      styles/features-section

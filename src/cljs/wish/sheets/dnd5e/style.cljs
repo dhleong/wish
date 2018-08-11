@@ -326,21 +326,7 @@
            :padding-right "12px"}]
    proficiency-style] )
 
-(defstyled skills-section
-  [:.skill-col (merge
-                 flex/vertical
-                 flex/grow)
-   [:.skill (merge flex
-                   flex/wrap
-                   {:padding "2px 0"})
-    [:.base-ability (merge metadata
-                           {:width "100%"})]
-    [:.label flex/grow]
-    [:.score {:padding "0 4px"}]
-
-    proficiency-style]] )
-
-(defstyled combat-section
+(defstyled actions-section
   [:.filters (merge flex
                     {:border-bottom "1px solid #333"
                      :margin-bottom "8px"})
@@ -354,7 +340,8 @@
     [:.dmg.alt {:font-size "65%"}]]]
 
   [:.spells (merge flex/center
-                   {:margin-bottom "8px"})
+                   flex/wrap
+                   {:margin-bottom "12px"})
    [:.section-label {:font-size "90%"
                      :font-weight 'bold}]
    [:.spell-name {:font-size "80%"
@@ -370,6 +357,20 @@
                          :padding "8px 8px 0 8px"})
     [:.uses {:padding "4px"}]]
    [:.desc metadata]])
+
+(defstyled skills-section
+  [:.skill-col (merge
+                 flex/vertical
+                 flex/grow)
+   [:.skill (merge flex
+                   flex/wrap
+                   {:padding "2px 0"})
+    [:.base-ability (merge metadata
+                           {:width "100%"})]
+    [:.label flex/grow]
+    [:.score {:padding "0 4px"}]
+
+    proficiency-style]] )
 
 (defstyled features-section
   [:.feature

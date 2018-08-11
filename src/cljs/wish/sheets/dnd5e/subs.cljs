@@ -1016,6 +1016,9 @@
   :<- [::all-prepared-spells]
   (fn [spells [_ filter-type]]
     (filter (case filter-type
+              :action (fn [s]
+                        (and (not (util/bonus-action? s))
+                             (not (util/reaction? s))))
               :bonus util/bonus-action?
               :reaction util/reaction?
 
