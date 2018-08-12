@@ -33,10 +33,11 @@
 (def overlay (merge base-overlay
                     {:width "300px"}))
 
-(def proficiency-style
+(defn proficiency-style [& {:as extra}]
+  (println "extra" extra)
   [:.proficiency
-   {:color color-proficient
-    :padding-right "12px"}
+   (merge {:color color-proficient }
+          extra)
    [:&::before
     {:content "'●'"
      :visibility 'hidden}]
@@ -357,24 +358,46 @@
 ;;
 
 (defstyled abilities-section
-  [:.ability (merge flex
+  ; make the mod a bit more prominent if we have room
+  (at-media
+    {:min-width "1000px"}
+    [:.abilities>.ability>.mod {:font-size "2em"}])
+
+  {:margin-top "1em"}
+
+  [:.abilities (merge flex
+                      {:justify-content 'space-around})]
+
+  [:&>.info (merge metadata
+                   text-center)]
+
+  [:.ability (merge flex/vertical
+                    flex/center
                     flex/align-center
-                    button
-                    {:height "1.7em"})
+                    text-center
+                    button)
    [:&.buffed
     [:.score {:color "#0d0"}]
     [:.mod {:color "#0d0"}]]
    [:&.nerfed
     [:.score {:color "#d00"}]
     [:.mod {:color "#d00"}]]
-   [:.score {:font-size "1.1em"
-             :width "1.9em"} ]
-   [:.label flex/grow]
+
+   [:.label (merge flex/grow
+                   {:font-size "0.7em"})]
+   [:.mod {:font-size "1.5em"}]
+   [:.score {:font-size "0.9em"
+             :margin-bottom "8px"} ] ]
+
+  [:.save flex/center
+   [:.label {:font-size "0.4em"
+             :transform "rotate(90)"}]
    [:.info (merge metadata
                   {:padding "0 4px"})]
-   [:.mod {:font-size "1.1em"
-           :padding-right "12px"}]
-   proficiency-style] )
+   [:.mod {:font-size "1.05em"}]
+   (proficiency-style)]
+
+  [:.extras metadata])
 
 (defstyled actions-section
   [:.filters (merge flex
@@ -421,7 +444,8 @@
     [:.label flex/grow]
     [:.score {:padding "0 4px"}]
 
-    proficiency-style]] )
+    (proficiency-style
+      :padding-right "12px")]])
 
 (defstyled features-section
   [:.feature

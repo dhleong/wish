@@ -121,44 +121,59 @@
 
 ; ======= abilities ========================================
 
+;; (def labeled-abilities
+;;   [[:str "Strength"]
+;;    [:dex "Dexterity"]
+;;    [:con "Constitution"]
+;;    [:int "Intelligence"]
+;;    [:wis "Wisdom"]
+;;    [:cha "Charisma"]])
+
 (def labeled-abilities
-  [[:str "Strength"]
-   [:dex "Dexterity"]
-   [:con "Constitution"]
-   [:int "Intelligence"]
-   [:wis "Wisdom"]
-   [:cha "Charisma"]])
+  [[:str "STR"]
+   [:dex "DEX"]
+   [:con "CON"]
+   [:int "INT"]
+   [:wis "WIS"]
+   [:cha "CHA"]])
 
 (defn abilities-section []
   (let [abilities (<sub [::subs/ability-info])
         save-extras (<sub [::subs/ability-extras])]
-    [:<>
-     (for [[id label] labeled-abilities]
-       (let [{:keys [score modifier save
-                     mod proficient?]} (get abilities id)]
-         ^{:key id}
-         [:div.ability {:class (when mod
-                                 (case mod
-                                   :buff "buffed"
-                                   :nerf "nerfed"))
-                        :on-click (click>evt [:toggle-overlay
-                                              [#'overlays/ability-tmp
-                                               id
-                                               label]])}
-          [:div.score score]
-          [:div.label label]
-          [:div.info "mod"]
-          [:div.mod modifier]
-          [:div.info "save"]
-          [:div.mod save]
-          [:div.proficiency
-           {:class (when proficient?
-                     "proficient")}]]))
+    [:div styles/abilities-section
+     [:div.abilities
+      (for [[id label] labeled-abilities]
+        (let [{:keys [score modifier mod]} (get abilities id)]
+          ^{:key id}
+          [:div.ability {:class (when mod
+                                  (case mod
+                                    :buff "buffed"
+                                    :nerf "nerfed"))
+                         :on-click (click>evt [:toggle-overlay
+                                               [#'overlays/ability-tmp
+                                                id
+                                                label]])}
+           [:div.label label]
+           [:div.mod modifier]
+           [:div.score "(" score ")"]
+           ]))]
+
+     [:div.info "Saves"]
+
+     [:div.abilities
+      (for [[id label] labeled-abilities]
+        (let [{:keys [save proficient?]} (get abilities id)]
+          ^{:key id}
+          [:span.save
+           [:div.mod save]
+           [:div.proficiency
+            {:class (when proficient?
+                      "proficient")}]]))]
 
      ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
      (when save-extras
-       [:ul
+       [:ul.extras
         (for [item save-extras]
           ^{:key (:id item)}
           [:li (:desc item)])])]))
@@ -799,9 +814,7 @@
    [:div styles/layout
     [error-boundary
      [:div.left.side
-      [section "Abilities"
-       styles/abilities-section
-       [abilities-section]]
+      [abilities-section]
 
       [section "Skills"
        styles/skills-section
