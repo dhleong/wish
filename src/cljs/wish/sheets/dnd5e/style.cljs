@@ -318,9 +318,12 @@
 ;; Widgets
 ;;
 
-(defstyled currency-preview
+(defclass currency-preview
   (merge flex/center
          {:font-size "10pt"})
+
+  [:&.large {:font-size "1.2em"
+             :padding "12px"}]
 
   [:.pair {:margin "0 4px"}
    [:.currency {:margin "0 4px"

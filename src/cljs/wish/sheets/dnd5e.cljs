@@ -708,7 +708,7 @@
     {:class "clickable"
      :on-click (click>evt [:toggle-overlay
                            [#'overlays/currency-manager]])}
-    [currency-preview]]
+    [currency-preview :large]]
 
    (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
      (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
