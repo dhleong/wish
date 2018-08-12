@@ -473,7 +473,12 @@
   [:.item-browser {:height "300px"
                    :padding "4px"
                    :margin "8px 0 4em 0"}]
-  [:.item flex/center
+  [:.expandable>.button {:background 'none
+                         :border-top "1px solid #333"
+                         :color "#000"
+                         :padding "4px 8px"}]
+  [:.item (merge flex/center
+                 {:font-size "80%"})
    [:.info flex/grow
     [:.notes-preview {:overflow 'hidden
                       :font-size "10px"
