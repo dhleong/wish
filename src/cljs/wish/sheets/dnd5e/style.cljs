@@ -18,6 +18,7 @@
 (def media-not-smartphones {:min-width "480px"})
 (def media-smartphones {:screen :only
                         :max-width "479px"})
+(def media-tablets {:max-width "1024px"})
 (def media-tiny {:screen :only
                  :max-width "375px"})
 
@@ -57,6 +58,10 @@
     media-smartphones
     flex/justify-center
     [:.side {:width "90% !important"}])
+
+  (at-media
+    media-tablets
+    [:.nav>.section {:font-size "1.5em"}])
 
   (at-media
     media-not-smartphones
@@ -371,7 +376,8 @@
 (defstyled actions-section
   [:.filters (merge flex
                     {:border-bottom "1px solid #333"
-                     :margin-bottom "8px"})
+                     :margin-bottom "8px"
+                     :overflow-x 'auto})
    [:.filter {:padding "4px"}]]
   [:.attack flex/center
    [:.name flex/grow]

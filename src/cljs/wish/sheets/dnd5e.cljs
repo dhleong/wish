@@ -344,6 +344,7 @@
                         (reset! page id))}
         label])]))
 
+(declare limited-use-section)
 (defn actions-section []
   (let [page (r/atom :combat)]
     (fn []
@@ -352,13 +353,15 @@
         [combat-page-link page :combat "Combat"]
         [combat-page-link page :actions "Actions"]
         [combat-page-link page :bonuses "Bonuses"]
-        [combat-page-link page :reactions "Reactions"]]
+        [combat-page-link page :reactions "Reactions"]
+        [combat-page-link page :limited-use "Limited Use"]]
 
        (case @page
          :combat [actions-combat]
          :actions [actions-for-type :action]
          :bonuses [actions-for-type :bonus]
-         :reactions [actions-for-type :reaction])])))
+         :reactions [actions-for-type :reaction]
+         :limited-use [limited-use-section])])))
 
 
 ; ======= Features =========================================
@@ -460,7 +463,7 @@
 (defn limited-use-section []
   (let [items (<sub [::subs/limited-uses])
         used (<sub [:limited-used])]
-    [:<>
+    [:div styles/limited-use-section
      [:div.rests
       [:div.button.short
        {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
@@ -764,7 +767,6 @@
      [:div.nav
       [nav-link page :actions "Actions"]
       [nav-link page :features "Features"]
-      [nav-link page :limited-use "Limited-use"]
       (when spell-classes
         [nav-link page :spells "Spells"])
       [nav-link page :inventory "Inventory"]]
@@ -779,10 +781,6 @@
       [main-section page :features
        styles/features-section
        [features-section]]
-
-      [main-section page :limited-use
-       styles/limited-use-section
-       [limited-use-section]]
 
       (when spell-classes
         [main-section page :spells
