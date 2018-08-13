@@ -353,6 +353,16 @@
           :border-radius "12px"
           :background-color "#333"}])
 
+; in dnd5e.cljs, not widgets:
+(defstyled rest-buttons
+  (merge flex/center
+         {:margin "8px 0"})
+
+  [:.button (merge
+              flex/grow
+              button
+              text-center)])
+
 ;;
 ;; Sections
 ;;
@@ -467,11 +477,6 @@
    [:h5 {:margin 0}]])
 
 (defstyled limited-use-section
-  [:.rests flex/center
-   [:.button (merge
-               flex/grow
-               button
-               text-center)]]
   [:.limited-use (merge
                    flex/center
                    {:padding "4px"})

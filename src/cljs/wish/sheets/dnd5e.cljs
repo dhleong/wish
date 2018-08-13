@@ -23,6 +23,17 @@
              :refer [expandable formatted-text link]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
+(defn rest-buttons []
+  [:div styles/rest-buttons
+   [:div.button.short
+    {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
+    "Short Rest"]
+   [:div.button.long
+    {:on-click (click>evt [:trigger-limited-use-restore
+                           [:short-rest :long-rest]])}
+    "Long Rest"]])
+
+
 ; ======= Top bar ==========================================
 
 (defn- hp-normal [hp max-hp]
@@ -479,15 +490,6 @@
   (let [items (<sub [::subs/limited-uses])
         used (<sub [:limited-used])]
     [:div styles/limited-use-section
-     [:div.rests
-      [:div.button.short
-       {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
-       "Short Rest"]
-      [:div.button.long
-       {:on-click (click>evt [:trigger-limited-use-restore
-                              [:short-rest :long-rest]])}
-       "Long Rest"]]
-
      (if-not (empty? items)
        (for [item items]
          (let [uses (:uses item)
@@ -815,6 +817,8 @@
     [error-boundary
      [:div.left.side
       [abilities-section]
+
+      [rest-buttons]
 
       [section "Skills"
        styles/skills-section
