@@ -433,6 +433,13 @@
    [:.desc metadata]])
 
 (defstyled skills-section
+  ; collapse into a single row on smaller devices
+  ; that can't fit two columns of Skills
+  (at-media
+    media-tablets
+    [:.base-ability
+     {:width "3em !important"}])
+
   [:.skill-col (merge
                  flex/vertical
                  flex/grow)
