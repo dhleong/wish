@@ -287,11 +287,17 @@
            ; rolled-hp vector. We could remove that entry when
            ; changing the level, but accounting for it here means
            ; that an accidental level-down doesn't lose your data
+           ; Also, if you've removed a class that you once rolled HP
+           ; for, we don't care about that class's old, rolled hp
            (reduce-kv
              (fn [all-entries class-id class-rolled-hp]
-               (concat all-entries
-                       (take (class->level class-id)
-                             class-rolled-hp)))
+               (if-let [class-level (class->level class-id)]
+                 (concat all-entries
+                         (take class-level
+                               class-rolled-hp))
+
+                 ; no change
+                 all-entries))
              nil
              rolled-hp))))
 
