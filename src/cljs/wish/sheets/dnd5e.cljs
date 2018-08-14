@@ -698,27 +698,6 @@
        (icon :delete-forever)
        " Delete" (when stacks? " all") " from inventory"]]]) )
 
-(defn- item-browser-item [item]
-  [:<>
-   [:div.name (:name item)]
-   [:div.add.button
-    {:on-click (click>evt [:inventory-add item])}
-    "Add"]])
-
-(defn- item-browser []
-  [:<>
-   [:div
-    [widgets/search-bar
-     {:filter-key :5e/items-filter
-      :placeholder "Search for an item..."}
-     ]]
-   [:div.item-browser.scrollable
-    [virtual-list
-     :items (<sub [::subs/all-items])
-     :render-item (fn [props item]
-                    [:div.item props
-                     [item-browser-item item]])]]])
-
 (defn inventory-section []
   [:<>
    [:span.clickable
@@ -727,27 +706,30 @@
                            [#'overlays/currency-manager]])}
     [currency-preview :large]]
 
+   [:div.add
+    [:b.label "Add:"]
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/item-adder]])}
+     "Item"]
+
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/custom-item-creator]])}
+     "Custom"]
+
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/starting-equipment-adder]])}
+     "Starting Gear"] ]
+
    (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
      (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
                           3)]
        (for [item inventory]
          ^{:key (:id item)}
          [inventory-entry item can-attune?])))
-
-   [:h4 "Add Items"]
-
-   [:div.sections.special
-    [:a {:href "#"
-         :on-click (click>evt [:toggle-overlay
-                               [#'overlays/custom-item-creator]])}
-     "Create a custom item"]
-
-    [:a {:href "#"
-         :on-click (click>evt [:toggle-overlay
-                               [#'overlays/starting-equipment-adder]])}
-     "Starting Equipment"]]
-
-   [item-browser]])
+   ])
 
 
 ; ======= Main interface ===================================

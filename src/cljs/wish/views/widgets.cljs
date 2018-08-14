@@ -59,12 +59,13 @@
               expanded-fn)])]))))
 
 (defn search-bar
-  [{:keys [placeholder class filter-key] :as opts}]
+  [{:keys [placeholder class filter-key auto-focus] :as opts}]
   [:div.search-bar
    [bind-fields
     [:input.search {:field :text
                     :key filter-key
-                    :placeholder placeholder}]
+                    :placeholder placeholder
+                    :auto-focus auto-focus}]
     {:get #(<sub [filter-key])
      :save! #(>evt [filter-key %2])}]
    (when-not (str/blank? (<sub [filter-key]))

@@ -243,6 +243,27 @@
    [:th.header {:text-align 'right}]]
   [:.desc metadata])
 
+(defstyled item-adder-overlay
+  (at-media media-smartphones
+            [:.item-browser {:height "70vh !important"}])
+
+  overlay
+
+  [:.search-bar {:margin-bottom "8px"}]
+  [:.item-browser {:height "250px"
+                   :padding "4px"}]
+  [:.item (merge flex/center
+                 {:font-size "80%"
+                  :min-height "2.3em"})
+   [:.name flex/grow]
+   [:.button {:font-size "60%"}
+    [:&.disabled {:font-style 'italic
+                  :color "rgba(1,1,1, 0.25) !important"
+                  :cursor 'default}]
+    [:&:hover {:background-color "#f0f0f0"
+               :color "#333"}
+     [:&.disabled {:background-color "#ccc"}]]]] )
+
 (defstyled notes-overlay
   (at-media
     media-smartphones
@@ -505,10 +526,9 @@
                   {:align-self 'center})]] )
 
 (defstyled inventory-section
-  [:.special {:justify-content 'space-between}]
-  [:.item-browser {:height "300px"
-                   :padding "4px"
-                   :margin "8px 0 4em 0"}]
+  [:.add {:padding "12px 8px"}
+   [:.link {:padding "8px"}]]
+
   [:.expandable>.button {:background 'none
                          :border-top "1px solid #333"
                          :color "#000"
