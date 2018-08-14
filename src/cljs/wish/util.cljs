@@ -113,12 +113,16 @@
    used as the context instead of the entity itself
    "
   [entity k & extra-kvs]
-  (try
-    (let [context (or (:wish/context entity)
-                      entity)]
-      ((k entity) (apply assoc context extra-kvs)))
-    (catch js/Error e
-      (throw (js/Error. (str "Error invoking " k " on " entity "\n\nOriginal " e))))))
+  (let [context (or (:wish/context entity)
+                    entity)]
+    (try
+      ((k entity) (apply assoc context extra-kvs))
+      (catch js/Error e
+        (throw (js/Error. (str "Error invoking " k " on "
+                               (or (when-let [id (:id context)]
+                                     (str "{:id " id " ...}"))
+                                   context)
+                               "\n\nOriginal " e)))))))
 
 (defn ->map
   "Given a seq of entities, return a map of :id -> entity"
