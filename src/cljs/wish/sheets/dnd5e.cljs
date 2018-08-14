@@ -746,22 +746,22 @@
        content]])))
 
 (defn- nav-link
-  [atm id label]
+  [page id label]
   [:h1.section
-   {:class (when (= id @atm)
+   {:class (when (= id page)
              "selected")
-    :on-click (click>reset! atm id)}
+    :on-click (click>evt [::events/page! id])}
    label])
 
 (defn- main-section
-  [atm id opts content]
-  (when (= @atm id)
+  [page id opts content]
+  (when (= page id)
     [:div.section opts
      content]))
 
 (defn- sheet-right-page []
-  (r/with-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
-               page (r/atom :actions)]
+  (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
+        page (<sub [::subs/page :actions])]
     [:<>
      [:div.nav
       [nav-link page :actions "Actions"]

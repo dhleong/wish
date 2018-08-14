@@ -96,6 +96,14 @@
       (getter sheet))))
 
 
+; ======= 5e-specific nav =================================
+
+(reg-sub
+  ::page
+  (fn [db [_ default]]
+    (:5e/page db default)))
+
+
 ; ======= class and level ==================================
 
 (reg-sub
