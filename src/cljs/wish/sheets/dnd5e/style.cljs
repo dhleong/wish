@@ -486,14 +486,19 @@
       :padding-right "12px")]])
 
 (defstyled features-section
-  [:.feature
-   [:.chosen (merge metadata
-                    {:overflow 'hidden
-                     :text-overflow 'ellipsis
-                     :white-space 'nowrap
-                     })]]
-  [:.desc metadata]
-  [:.chosen-details {:padding-bottom "8px"
+  [:.features-category>h3 {:border-bottom "1px solid #000"}]
+  [:.feature {:margin-bottom "1em"}
+   [:.name {:font-weight 'bold}]
+   [:.chosen {:font-size "1em"
+              :overflow 'hidden
+              :text-overflow 'ellipsis
+              :white-space 'nowrap
+              }]]
+  [:.desc (merge metadata
+                 {:margin "0 8px"})
+   [:p:first-child {:margin-top "0"}]
+   [:p:last-child {:margin-bottom "0"}]]
+  [:.chosen-details {:margin "4px 16px"
                      :align-self 'flex-start}
    [:h5 {:margin 0}]])
 

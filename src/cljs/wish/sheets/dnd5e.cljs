@@ -392,28 +392,27 @@
 
 ; ======= Features =========================================
 
-(defn feature
-  [f]
+(defn feature [f]
   (let [values (seq (:values f))]
-    [expandable
-     [:div.feature
-      [:div.name (:name f)]
-      (when values
-        [:div.chosen (->> values
-                          (take 4)
-                          (map :name)
-                          (str/join " · "))])]
-     [:<>
-      [formatted-text :div.desc (:desc f)]
-      (when values
-        [:div.chosen-details
-         [:h5 "Chosen values:"]
-         (for [v values]
-           ^{:key (:id v)}
-           [:div.chosen.clickable
-            {:on-click (click>evt [:toggle-overlay
-                                   [#'overlays/info v]])}
-            (:name v)])])]]))
+    [:div.feature
+     [:div.name (:name f)]
+     ;; (when values
+     ;;   [:div.chosen (->> values
+     ;;                     (take 4)
+     ;;                     (map :name)
+     ;;                     (str/join " · "))])
+
+     [formatted-text :div.desc (:desc f)]
+
+     (when values
+       [:div.chosen-details
+        [:h5 "Chosen values:"]
+        (for [v values]
+          ^{:key (:id v)}
+          [:div.chosen.clickable
+           {:on-click (click>evt [:toggle-overlay
+                                  [#'overlays/info v]])}
+           (:name v)])])]))
 
 (defn features-section []
   [:<>
@@ -765,10 +764,10 @@
     [:<>
      [:div.nav
       [nav-link page :actions "Actions"]
-      [nav-link page :features "Features"]
       (when spell-classes
         [nav-link page :spells "Spells"])
-      [nav-link page :inventory "Inventory"]]
+      [nav-link page :inventory "Inventory"]
+      [nav-link page :features "Features"]]
 
      ; actual sections
      [error-boundary
