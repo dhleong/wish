@@ -43,12 +43,15 @@
         str/capitalize
         (str/replace "-" " "))))
 
-(defn currency-preview []
+(defn currency-preview [& [large?]]
   (let [{:keys [platinum gold silver electrum copper]} (<sub [::subs/currency])
         any? (> (+ platinum gold silver electrum copper)
                 0)]
-    [:span styles/currency-preview
-     "Currency"
+    [:span {:class [(when large?
+                      "large")
+                    styles/currency-preview]}
+
+     [:div.label "Currency:"]
 
      (when-not any?
        " (just some lint)")

@@ -881,6 +881,39 @@
             (update doc :errors dissoc (first id))))]])))
 
 
+; ======= item adder ======================================
+
+(defn- item-browser-item [item]
+  [:<>
+   [:div.name (:name item)]
+   [:div.add.button
+    {:on-click (click>evts [:inventory-add item]
+                           [:toggle-overlay nil]
+                           [:5e/items-filter ""])}
+    "Add"]])
+
+(defn- item-browser []
+  [:<>
+   [widgets/search-bar
+    {:filter-key :5e/items-filter
+     :placeholder "Search for an item..."
+     :auto-focus true}]
+
+   [:div.item-browser.scrollable
+    [virtual-list
+     :items (<sub [::subs/all-items])
+     :render-item (fn [props item]
+                    [:div.item props
+                     [item-browser-item item]])]]])
+
+(defn item-adder []
+  [:div styles/item-adder-overlay
+   [:h4 "Add Items"]
+
+   [item-browser]
+   ])
+
+
 ; ======= starting equipment ==============================
 
 (defn- direct-click?

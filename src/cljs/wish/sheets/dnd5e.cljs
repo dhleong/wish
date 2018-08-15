@@ -6,7 +6,8 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
-            [wish.util :refer [>evt <sub click>evt invoke-callable]]
+            [wish.util :refer [>evt <sub click>evt click>reset!
+                               invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -21,6 +22,17 @@
              :refer-macros [icon]
              :refer [expandable formatted-text link]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
+
+(defn rest-buttons []
+  [:div styles/rest-buttons
+   [:div.button.short
+    {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
+    "Short Rest"]
+   [:div.button.long
+    {:on-click (click>evt [:trigger-limited-use-restore
+                           [:short-rest :long-rest]])}
+    "Long Rest"]])
+
 
 ; ======= Top bar ==========================================
 
@@ -62,101 +74,117 @@
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div styles/header
-     [:div.left.side
-      [:div.col
-       [widgets/save-state]]
+    [:div styles/header-container
+     [:div styles/header
+      [:div.left.side
+       [:div.col
+        [widgets/save-state]]
 
-      [:div.col.left
-       [:div.name [link {:href "/sheets"}
-                   (:name common)]]
-       [:div.meta
-        [:div.race (:name (<sub [:race]))]
-        [:div.classes (->> classes
-                           (map (fn [c]
-                                  (str (-> c :name) " " (:level c))))
-                           (str/join " / "))]]]
+       [:div.col.left
+        [:div.name [link {:href "/sheets"}
+                    (:name common)]]
+        [:div.meta
+         [:div.race (:name (<sub [:race]))]
+         [:div.classes (->> classes
+                            (map (fn [c]
+                                   (str (-> c :name) " " (:level c))))
+                            (str/join " / "))]]]
 
-      [:div.col
-       [link {:href "#"
-              :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
-        (icon :description)]]]
+       [:div.col
+        [link {:href "#"
+               :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
+         (icon :description)]]]
 
-     [:div.space]
+      [:div.space]
 
-     [:div.settings.side
-      [:div.col
-       (let [sheet-id (<sub [:active-sheet-id])]
-         [link {:href (sheet-url sheet-id :builder :class)}
-          (icon :settings)])]]
+      [:div.settings.side
+       [:div.col
+        (let [sheet-id (<sub [:active-sheet-id])]
+          [link {:href (sheet-url sheet-id :builder :class)}
+           (icon :settings)])]]
 
-     [:div.right.side
-      [:div.col
-       [:div.stat (mod->str
-                    (<sub [::subs/proficiency-bonus]))]
-       [:div.label "Proficiency"]]
+      [:div.right.side
+       [:div.col
+        [:div.stat (mod->str
+                     (<sub [::subs/proficiency-bonus]))]
+        [:div.label "Proficiency"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/ac])]
-       [:div.label "AC"]]
+       [:div.col
+        [:div.stat (<sub [::subs/ac])]
+        [:div.label "AC"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
-       [:div.label "Speed"]]
+       [:div.col
+        [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
+        [:div.label "Speed"]]
 
-      [:div.col
-       [:div.stat (<sub [::subs/passive-perception])]
-       [:div.label "Pass. Perc."]]
+       [:div.col
+        [:div.stat (<sub [::subs/passive-perception])]
+        [:div.label "Pass. Perc."]]
 
-      [:div.col
-       [:div.stat (mod->str
-                    (<sub [::subs/initiative]))]
-       [:div.label "Initiative"]]
+       [:div.col
+        [:div.stat (mod->str
+                     (<sub [::subs/initiative]))]
+        [:div.label "Initiative"]]
 
-      [:div.col
-       [hp]] ] ]))
+       [:div.col
+        [hp]] ]] ]))
 
 
 ; ======= abilities ========================================
 
+;; (def labeled-abilities
+;;   [[:str "Strength"]
+;;    [:dex "Dexterity"]
+;;    [:con "Constitution"]
+;;    [:int "Intelligence"]
+;;    [:wis "Wisdom"]
+;;    [:cha "Charisma"]])
+
 (def labeled-abilities
-  [[:str "Strength"]
-   [:dex "Dexterity"]
-   [:con "Constitution"]
-   [:int "Intelligence"]
-   [:wis "Wisdom"]
-   [:cha "Charisma"]])
+  [[:str "STR"]
+   [:dex "DEX"]
+   [:con "CON"]
+   [:int "INT"]
+   [:wis "WIS"]
+   [:cha "CHA"]])
 
 (defn abilities-section []
   (let [abilities (<sub [::subs/ability-info])
         save-extras (<sub [::subs/ability-extras])]
-    [:<>
-     (for [[id label] labeled-abilities]
-       (let [{:keys [score modifier save
-                     mod proficient?]} (get abilities id)]
-         ^{:key id}
-         [:div.ability {:class (when mod
-                                 (case mod
-                                   :buff "buffed"
-                                   :nerf "nerfed"))
-                        :on-click (click>evt [:toggle-overlay
-                                              [#'overlays/ability-tmp
-                                               id
-                                               label]])}
-          [:div.score score]
-          [:div.label label]
-          [:div.info "mod"]
-          [:div.mod modifier]
-          [:div.info "save"]
-          [:div.mod save]
-          [:div.proficiency
-           {:class (when proficient?
-                     "proficient")}]]))
+    [:div styles/abilities-section
+     [:div.abilities
+      (for [[id label] labeled-abilities]
+        (let [{:keys [score modifier mod]} (get abilities id)]
+          ^{:key id}
+          [:div.ability {:class (when mod
+                                  (case mod
+                                    :buff "buffed"
+                                    :nerf "nerfed"))
+                         :on-click (click>evt [:toggle-overlay
+                                               [#'overlays/ability-tmp
+                                                id
+                                                label]])}
+           [:div.label label]
+           [:div.mod modifier]
+           [:div.score "(" score ")"]
+           ]))]
+
+     [:div.info "Saves"]
+
+     [:div.abilities
+      (for [[id label] labeled-abilities]
+        (let [{:keys [save proficient?]} (get abilities id)]
+          ^{:key id}
+          [:span.save
+           [:div.mod save]
+           [:div.proficiency
+            {:class (when proficient?
+                      "proficient")}]]))]
 
      ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
      (when save-extras
-       [:ul
+       [:ul.extras
         (for [item save-extras]
           ^{:key (:id item)}
           [:li (:desc item)])])]))
@@ -342,6 +370,7 @@
                         (reset! page id))}
         label])]))
 
+(declare limited-use-section)
 (defn actions-section []
   (let [page (r/atom :combat)]
     (fn []
@@ -350,39 +379,40 @@
         [combat-page-link page :combat "Combat"]
         [combat-page-link page :actions "Actions"]
         [combat-page-link page :bonuses "Bonuses"]
-        [combat-page-link page :reactions "Reactions"]]
+        [combat-page-link page :reactions "Reactions"]
+        [combat-page-link page :limited-use "Limited Use"]]
 
        (case @page
          :combat [actions-combat]
          :actions [actions-for-type :action]
          :bonuses [actions-for-type :bonus]
-         :reactions [actions-for-type :reaction])])))
+         :reactions [actions-for-type :reaction]
+         :limited-use [limited-use-section])])))
 
 
 ; ======= Features =========================================
 
-(defn feature
-  [f]
+(defn feature [f]
   (let [values (seq (:values f))]
-    [expandable
-     [:div.feature
-      [:div.name (:name f)]
-      (when values
-        [:div.chosen (->> values
-                          (take 4)
-                          (map :name)
-                          (str/join " · "))])]
-     [:<>
-      [formatted-text :div.desc (:desc f)]
-      (when values
-        [:div.chosen-details
-         [:h5 "Chosen values:"]
-         (for [v values]
-           ^{:key (:id v)}
-           [:div.chosen.clickable
-            {:on-click (click>evt [:toggle-overlay
-                                   [#'overlays/info v]])}
-            (:name v)])])]]))
+    [:div.feature
+     [:div.name (:name f)]
+     ;; (when values
+     ;;   [:div.chosen (->> values
+     ;;                     (take 4)
+     ;;                     (map :name)
+     ;;                     (str/join " · "))])
+
+     [formatted-text :div.desc (:desc f)]
+
+     (when values
+       [:div.chosen-details
+        [:h5 "Chosen values:"]
+        (for [v values]
+          ^{:key (:id v)}
+          [:div.chosen.clickable
+           {:on-click (click>evt [:toggle-overlay
+                                  [#'overlays/info v]])}
+           (:name v)])])]))
 
 (defn features-section []
   [:<>
@@ -458,16 +488,7 @@
 (defn limited-use-section []
   (let [items (<sub [::subs/limited-uses])
         used (<sub [:limited-used])]
-    [:<>
-     [:div.rests
-      [:div.button.short
-       {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
-       "Short Rest"]
-      [:div.button.long
-       {:on-click (click>evt [:trigger-limited-use-restore
-                              [:short-rest :long-rest]])}
-       "Long Rest"]]
-
+    [:div styles/limited-use-section
      (if-not (empty? items)
        (for [item items]
          (let [uses (:uses item)
@@ -676,50 +697,38 @@
        (icon :delete-forever)
        " Delete" (when stacks? " all") " from inventory"]]]) )
 
-(defn- item-browser-item [item]
-  [:<>
-   [:div.name (:name item)]
-   [:div.add.button
-    {:on-click (click>evt [:inventory-add item])}
-    "Add"]])
-
-(defn- item-browser []
-  [:<>
-   [:div
-    [widgets/search-bar
-     {:filter-key :5e/items-filter
-      :placeholder "Search for an item..."}
-     ]]
-   [:div.item-browser.scrollable
-    [virtual-list
-     :items (<sub [::subs/all-items])
-     :render-item (fn [props item]
-                    [:div.item props
-                     [item-browser-item item]])]]])
-
 (defn inventory-section []
   [:<>
+   [:span.clickable
+    {:class "clickable"
+     :on-click (click>evt [:toggle-overlay
+                           [#'overlays/currency-manager]])}
+    [currency-preview :large]]
+
+   [:div.add
+    [:b.label "Add:"]
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/item-adder]])}
+     "Item"]
+
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/custom-item-creator]])}
+     "Custom"]
+
+    [:a.link {:href "#"
+              :on-click (click>evt [:toggle-overlay
+                                    [#'overlays/starting-equipment-adder]])}
+     "Starting Gear"] ]
+
    (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
      (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
                           3)]
        (for [item inventory]
          ^{:key (:id item)}
          [inventory-entry item can-attune?])))
-
-   [:h4 "Add Items"]
-
-   [:div.sections.special
-    [:a {:href "#"
-         :on-click (click>evt [:toggle-overlay
-                               [#'overlays/custom-item-creator]])}
-     "Create a custom item"]
-
-    [:a {:href "#"
-         :on-click (click>evt [:toggle-overlay
-                               [#'overlays/starting-equipment-adder]])}
-     "Starting Equipment"]]
-
-   [item-browser]])
+   ])
 
 
 ; ======= Main interface ===================================
@@ -735,39 +744,66 @@
       [error-boundary
        content]])))
 
+(defn- nav-link
+  [page id label]
+  [:h1.section
+   {:class (when (= id page)
+             "selected")
+    :on-click (click>evt [::events/page! id])}
+   label])
+
+(defn- main-section
+  [page id opts content]
+  (when (= page id)
+    [:div.section opts
+     content]))
+
+(defn- sheet-right-page []
+  (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
+        page (<sub [::subs/page :actions])]
+    [:<>
+     [:div.nav
+      [nav-link page :actions "Actions"]
+      (when spell-classes
+        [nav-link page :spells "Spells"])
+      [nav-link page :inventory "Inventory"]
+      [nav-link page :features "Features"]]
+
+     ; actual sections
+     [error-boundary
+
+      [main-section page :actions
+       styles/actions-section
+       [actions-section]]
+
+      [main-section page :features
+       styles/features-section
+       [features-section]]
+
+      (when spell-classes
+        [main-section page :spells
+         styles/spells-section
+         [spells-section spell-classes]])
+
+      [main-section page :inventory
+       styles/inventory-section
+       [inventory-section]]] ]))
+
 (defn sheet []
-  [:<>
+  [:div styles/container
    [error-boundary
     [header]]
-   [:div.sections
-    [section "Abilities"
-     styles/abilities-section
-     [abilities-section]]
-    [section "Skills"
-     styles/skills-section
-     [skills-section]]
-    [section "Actions"
-     styles/actions-section
-     [actions-section]]
 
-    [section "Features"
-     styles/features-section
-     [features-section]]
+   [:div styles/layout
+    [error-boundary
+     [:div.left.side
+      [abilities-section]
 
-    [section "Limited-use"
-     styles/limited-use-section
-     [limited-use-section]]
+      [rest-buttons]
 
-    (when-let [spell-classes (seq (<sub [::subs/spellcaster-classes]))]
-      [section "Spells"
-       styles/spells-section
-       [spells-section spell-classes]])
+      [section "Skills"
+       styles/skills-section
+       [skills-section]] ]]
 
-    [section [:<>
-              "Inventory"
-              [:span.clickable
-               {:class "clickable"
-                :on-click (click>evt [:toggle-overlay [#'overlays/currency-manager]])}
-               [currency-preview]]]
-     styles/inventory-section
-     [inventory-section]]]])
+    [:div.right.side
+     [sheet-right-page]]]])

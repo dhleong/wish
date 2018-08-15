@@ -81,6 +81,13 @@
     (when-not propagate?
       (.stopPropagation e))))
 
+(defn click>reset!
+  "Returns an on-click handler that performs (reset!) with
+   the given arguments"
+  [a v]
+  (fn-click
+    (reset! a v)))
+
 (defn click>swap!
   "Returns an on-click handler that performs (swap!) with the
    given arguments"

@@ -15,8 +15,10 @@
 (def color-silver "#a6a4a0")
 (def color-copper "#a77c65")
 
+(def media-not-smartphones {:min-width "480px"})
 (def media-smartphones {:screen :only
                         :max-width "479px"})
+(def media-tablets {:max-width "1024px"})
 (def media-tiny {:screen :only
                  :max-width "375px"})
 
@@ -31,10 +33,11 @@
 (def overlay (merge base-overlay
                     {:width "300px"}))
 
-(def proficiency-style
+(defn proficiency-style [& {:as extra}]
+  (println "extra" extra)
   [:.proficiency
-   {:color color-proficient
-    :padding-right "12px"}
+   (merge {:color color-proficient }
+          extra)
    [:&::before
     {:content "'●'"
      :visibility 'hidden}]
@@ -44,8 +47,53 @@
     {:color color-expert}]])
 
 ;;
+;; 35/65 layout
+;;
+
+(defstyled container
+  (merge flex/vertical
+         {:height "100%"}))
+
+(defstyled layout
+  (at-media
+    media-smartphones
+    flex/justify-center
+    [:.side {:width "90% !important"}])
+
+  (at-media
+    media-tablets
+    [:.nav>.section {:font-size "1.5em"}])
+
+  (at-media
+    media-not-smartphones
+    [:.side {:height "100%"
+             :overflow-y 'auto}])
+
+  (merge flex
+         flex/wrap
+         flex/grow
+         {:justify-content 'space-around
+          :height "100%"})
+
+  [:.nav (merge flex
+                {:overflow-x 'auto})
+   [:.section (merge button
+                     {:padding "0 4px"})
+    [:&.selected {:cursor 'default
+                  :color "#fbc02d"}]]]
+
+  [:.side {:padding "0 1%"}]
+  [:.left {:width "35%"
+           :max-width "400px"}]
+  [:.right {:width "61%"}])
+
+
+;;
 ;; The header bar
 ;;
+
+(defstyled header-container
+  {:display 'block})
 
 (defstyled header
   (at-media
@@ -195,6 +243,27 @@
    [:th.header {:text-align 'right}]]
   [:.desc metadata])
 
+(defstyled item-adder-overlay
+  (at-media media-smartphones
+            [:.item-browser {:height "70vh !important"}])
+
+  overlay
+
+  [:.search-bar {:margin-bottom "8px"}]
+  [:.item-browser {:height "250px"
+                   :padding "4px"}]
+  [:.item (merge flex/center
+                 {:font-size "80%"
+                  :min-height "2.3em"})
+   [:.name flex/grow]
+   [:.button {:font-size "60%"}
+    [:&.disabled {:font-style 'italic
+                  :color "rgba(1,1,1, 0.25) !important"
+                  :cursor 'default}]
+    [:&:hover {:background-color "#f0f0f0"
+               :color "#333"}
+     [:&.disabled {:background-color "#ccc"}]]]] )
+
 (defstyled notes-overlay
   (at-media
     media-smartphones
@@ -271,9 +340,12 @@
 ;; Widgets
 ;;
 
-(defstyled currency-preview
+(defclass currency-preview
   (merge flex/center
          {:font-size "10pt"})
+
+  [:&.large {:font-size "1.2em"
+             :padding "12px"}]
 
   [:.pair {:margin "0 4px"}
    [:.currency {:margin "0 4px"
@@ -302,34 +374,67 @@
           :border-radius "12px"
           :background-color "#333"}])
 
+; in dnd5e.cljs, not widgets:
+(defstyled rest-buttons
+  (merge flex/center
+         {:margin "8px 0"})
+
+  [:.button (merge
+              flex/grow
+              button
+              text-center)])
+
 ;;
 ;; Sections
 ;;
 
 (defstyled abilities-section
-  [:.ability (merge flex
+  ; make the mod a bit more prominent if we have room
+  (at-media
+    {:min-width "1000px"}
+    [:.abilities>.ability>.mod {:font-size "2em"}])
+
+  {:margin-top "1em"}
+
+  [:.abilities (merge flex
+                      {:justify-content 'space-around})]
+
+  [:&>.info (merge metadata
+                   text-center)]
+
+  [:.ability (merge flex/vertical
+                    flex/center
                     flex/align-center
-                    button
-                    {:height "1.7em"})
+                    text-center
+                    button)
    [:&.buffed
     [:.score {:color "#0d0"}]
     [:.mod {:color "#0d0"}]]
    [:&.nerfed
     [:.score {:color "#d00"}]
     [:.mod {:color "#d00"}]]
-   [:.score {:font-size "1.1em"
-             :width "1.9em"} ]
-   [:.label flex/grow]
+
+   [:.label (merge flex/grow
+                   {:font-size "0.7em"})]
+   [:.mod {:font-size "1.5em"}]
+   [:.score {:font-size "0.9em"
+             :margin-bottom "8px"} ] ]
+
+  [:.save flex/center
+   [:.label {:font-size "0.4em"
+             :transform "rotate(90)"}]
    [:.info (merge metadata
                   {:padding "0 4px"})]
-   [:.mod {:font-size "1.1em"
-           :padding-right "12px"}]
-   proficiency-style] )
+   [:.mod {:font-size "1.05em"}]
+   (proficiency-style)]
+
+  [:.extras metadata])
 
 (defstyled actions-section
   [:.filters (merge flex
                     {:border-bottom "1px solid #333"
-                     :margin-bottom "8px"})
+                     :margin-bottom "8px"
+                     :overflow-x 'auto})
    [:.filter {:padding "4px"}]]
   [:.attack flex/center
    [:.name flex/grow]
@@ -359,6 +464,13 @@
    [:.desc metadata]])
 
 (defstyled skills-section
+  ; collapse into a single row on smaller devices
+  ; that can't fit two columns of Skills
+  (at-media
+    media-tablets
+    [:.base-ability
+     {:width "3em !important"}])
+
   [:.skill-col (merge
                  flex/vertical
                  flex/grow)
@@ -370,26 +482,27 @@
     [:.label flex/grow]
     [:.score {:padding "0 4px"}]
 
-    proficiency-style]] )
+    (proficiency-style
+      :padding-right "12px")]])
 
 (defstyled features-section
-  [:.feature
-   [:.chosen (merge metadata
-                    {:overflow 'hidden
-                     :text-overflow 'ellipsis
-                     :white-space 'nowrap
-                     })]]
-  [:.desc metadata]
-  [:.chosen-details {:padding-bottom "8px"
+  [:.features-category>h3 {:border-bottom "1px solid #000"}]
+  [:.feature {:margin-bottom "1em"}
+   [:.name {:font-weight 'bold}]
+   [:.chosen {:font-size "1em"
+              :overflow 'hidden
+              :text-overflow 'ellipsis
+              :white-space 'nowrap
+              }]]
+  [:.desc (merge metadata
+                 {:margin "0 8px"})
+   [:p:first-child {:margin-top "0"}]
+   [:p:last-child {:margin-bottom "0"}]]
+  [:.chosen-details {:margin "4px 16px"
                      :align-self 'flex-start}
    [:h5 {:margin 0}]])
 
 (defstyled limited-use-section
-  [:.rests flex/center
-   [:.button (merge
-               flex/grow
-               button
-               text-center)]]
   [:.limited-use (merge
                    flex/center
                    {:padding "4px"})
@@ -418,11 +531,15 @@
                   {:align-self 'center})]] )
 
 (defstyled inventory-section
-  [:.special {:justify-content 'space-between}]
-  [:.item-browser {:height "300px"
-                   :padding "4px"
-                   :margin "8px 0 4em 0"}]
-  [:.item flex/center
+  [:.add {:padding "12px 8px"}
+   [:.link {:padding "8px"}]]
+
+  [:.expandable>.button {:background 'none
+                         :border-top "1px solid #333"
+                         :color "#000"
+                         :padding "4px 8px"}]
+  [:.item (merge flex/center
+                 {:font-size "80%"})
    [:.info flex/grow
     [:.notes-preview {:overflow 'hidden
                       :font-size "10px"

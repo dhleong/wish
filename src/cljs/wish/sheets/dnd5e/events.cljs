@@ -10,6 +10,16 @@
                                       update-sheet-path]]
             [wish.util :refer [process-map]]))
 
+
+; ======= 5e-specific nav =================================
+
+(reg-event-db
+  ::page!
+  [trim-v]
+  (fn [db [new-page]]
+    (assoc db :5e/page new-page)))
+
+
 ; ======= builder-specific =================================
 
 (defn remove-class
