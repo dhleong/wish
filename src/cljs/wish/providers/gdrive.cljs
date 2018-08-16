@@ -1,15 +1,15 @@
 (ns ^{:author "Daniel Leong"
-      :doc "Google-drive powered Provider"}
+      :doc "Google Drive powered Provider"}
   wish.providers.gdrive
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
+  (:require [clojure.core.async :refer [chan put! <! >!]]
             [clojure.string :as str]
             [wish.providers.core :refer [IProvider load-raw]]
+            [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
-            [wish.util :refer [>evt]]
-            [wish.util.async :refer [promise->chan]]))
+            [wish.util :refer [>evt]]))
 
 
 ;;
@@ -41,83 +41,66 @@
 ;; Internal util
 ;;
 
-(defn- ->id
-  [gapi-id]
-  (keyword "gdrive" gapi-id))
+(defn- refresh-auth []
+  (call-with-cb->chan
+    (js/gapi.auth.authorize
+      #js {:client_id client-id
+           :scope scopes
+           :immediate true})))
 
-(defn- ->clj [v]
-  (js->clj v :keywordize-keys true))
+(defn- do-with-retry
+  [f & args]
+  (go (let [[error resp] (<! (apply f args))]
+        (cond
+          (and error
+               (= 401 (.-code error)))
+          ; refresh creds and retry
+          (let [_ (log/info "Refreshing auth before retrying " f "...")
+                [refresh-err refresh-resp] (<! (refresh-auth))]
+            (if refresh-err
+              (do
+                (log/warn "Auth refresh failed:" refresh-resp)
+                [refresh-err nil])
+
+              (let [_ (log/info "Auth refreshed! Retrying...")
+                    [retry-err retry-resp] (<! (apply f args))]
+                (if retry-err
+                  (do
+                    (log/err "Even after auth refresh, " f " failed: " resp)
+                    [retry-err nil])
+
+                  ; upload retry succeeded!
+                  [nil retry-resp]))))
+
+          ; unexpected error:
+          error (do
+                  (log/err f " ERROR:" error)
+                  [error nil])
+
+          ; no problem; pass it along
+          :else [nil resp]))))
+
+(defn- reliably
+  "Given a function `f`, return a new function that
+   applies its arguments to `f`, and auto-retries on
+   auth failure"
+  [f]
+  (partial do-with-retry f))
 
 ;;
 ;; gapi wrappers
 ;;
 
-(defn- query-files
-  [q & {page-size :max
-        :keys [on-error on-success]
-        :or {page-size 50
-             on-error (fn [e]
-                        (log/err "ERROR listing files" e))}}]
-
-  (-> js/gapi.client.drive.files
-      (.list #js {:q q
-                  :pageSize page-size
-                  :spaces "drive,appDataFolder"
-                  :fields "nextPageToken, files(id, name)"})
-      (.then (fn [response]
-               (log "FILES LIST:" response)
-               (on-success
-                 (->> response
-                      ->clj
-                      :result
-                      :files
-                      (map
-                        (fn [raw-file]
-                          [(make-id :gdrive (:id raw-file))
-                           (select-keys raw-file
-                                        [:name])])))))
-             on-error)))
-
-(defn- get-file
-  ([file-id]
-   (get-file file-id nil))
-  ([file-id alt]
-   (-> js/gapi.client.drive.files
-       (.get (if alt
-               #js {:fileId file-id
-                    :alt alt}
-               #js {:fileId file-id
-                    :fields "id, name, mimeType, description, appProperties"}))
-       (promise->chan 1 (map (fn [[err resp :as r]]
-                               (if (and resp
-                                        (not alt))
-                                 ; if we have a response, and we wanted the file
-                                 ; metadata; clojure-ify it
-                                 [err (->> resp
-                                           ->clj
-                                           :result)]
-
-                                 ; just return as-is
-                                 r)))))))
-
-(defn- update-meta
-  "Update the metadata on a file. Useful for eg:
-   (update-meta
-     :new-source
-     {:appProperties {:wish-type \"data-source\"}})"
-  [file-id metadata]
-  (-> js/gapi.client.drive.files
-      (.update (clj->js
-                 (assoc metadata
-                        :fileId file-id)))
-      promise->chan))
+(def ^:private get-file (reliably api/get-file))
+(def ^:private query-files (reliably api/query-files))
+(def ^:private upload-data (reliably api/upload-data))
 
 (defn- ensure-meta
   ([file-id metadata]
    (ensure-meta file-id metadata false))
   ([file-id metadata force?]
    (go (if force?
-         (<! (update-meta file-id metadata))
+         (<! (api/update-meta file-id metadata))
 
          (let [[err resp] (<! (get-file file-id))]
            (when (or err
@@ -126,7 +109,21 @@
                              (keys metadata))
                            metadata))
              (log "Updating " file-id "metadata <- " metadata)
-             (update-meta file-id metadata)))))))
+             (api/update-meta file-id metadata)))))))
+
+(defn- do-query-files
+  "Convenience wrapper around query-files that provides a
+   callback-style interface"
+  [q & {:keys [on-error on-success]
+        :or {on-error (fn [e]
+                        (log/err "ERROR listing files" e))}
+        :as opts}]
+  (go (let [[err resp] (<! (apply query-files
+                                  q
+                                  (dissoc opts :on-error :on-success)))]
+        (if err
+          (on-error err)
+          (on-success resp)))))
 
 ;;
 ;; State management and API interactions
@@ -175,7 +172,7 @@
                                         :signed-out)])
   (when signed-in?
     (>evt [:mark-provider-listing! :gdrive true])
-    (query-files
+    (do-query-files
       "appProperties has { key='wish-type' and value='wish-sheet' }"
       :on-success (fn on-files-list [files]
                     (log/info "Found: " files)
@@ -208,8 +205,7 @@
 
 ;;
 ;; NOTE: Exposed to index.html
-(defn ^:export handle-client-load
-  []
+(defn ^:export handle-client-load []
   (log "load")
   (js/gapi.load "client:auth2", init-client!))
 
@@ -233,84 +229,6 @@
     {:name (.getName profile)
      :email (.getEmail profile)}))
 
-
-(defn upload-data
-  "The GAPI client doesn't provide proper support for
-   file uploads out-of-the-box, so let's roll our own.
-
-   Returns a channel that emits [err, res], where err
-   is non-nil on error, and res is non-nil on success."
-  [upload-type metadata content]
-  {:pre [(contains? #{:create :update} upload-type)
-         (string? (:mimeType metadata))
-         (not (nil? content))]}
-  (let [base (case upload-type
-               :create {:path "/upload/drive/v3/files"
-                        :method "POST"}
-               :update {:path (str "/upload/drive/v3/files/"
-                                   (:fileId metadata))
-                        :method "PATCH"})
-        boundary "-------314159265358979323846"
-        delimiter (str "\r\n--" boundary "\r\n")
-        close-delim (str "\r\n--" boundary "--")
-        body (str delimiter
-                  "Content-Type: application/json\r\n\r\n"
-                  (js/JSON.stringify (clj->js metadata))
-                  delimiter
-                  "Content-Type: " (:mimeType metadata) "\r\n\r\n"
-                  content
-                  close-delim)
-        request (assoc base
-                       :params {:uploadType "multipart"}
-                       :headers
-                       {:Content-Type
-                        (str "multipart/related; boundary=\"" boundary "\"")}
-                       :body body)]
-    (call-with-cb->chan
-      (.execute
-        (js/gapi.client.request
-          (clj->js request))))))
-
-(defn- refresh-auth []
-  (call-with-cb->chan
-    (js/gapi.auth.authorize
-      #js {:client_id client-id
-           :scope scopes
-           :immediate true})))
-
-(defn upload-data-with-retry
-  [upload-type metadata content]
-  (go (let [[error resp] (<! (upload-data
-                               upload-type metadata content))]
-        (cond
-          (and error
-               (= 401 (.-code error)))
-          ; refresh creds and retry
-          (let [_ (log/info "Refreshing auth before retrying upload...")
-                [refresh-err refresh-resp] (<! (refresh-auth))]
-            (if refresh-err
-              (do
-                (log/warn "Auth refresh failed:" refresh-resp)
-                [refresh-err nil])
-
-              (let [_ (log/info "Auth refreshed! Retrying upload...")
-                    [retry-err retry-resp] (<! (upload-data
-                                                 upload-type metadata content))]
-                (if retry-err
-                  (do
-                    (log/err "Even after auth refresh, upload failed: " resp)
-                    [retry-err nil])
-
-                  ; upload retry succeeded!
-                  [nil retry-resp]))))
-
-          ; unexpected error:
-          error (do
-                  (log/err "upload-data ERROR:" error)
-                  [error nil])
-
-          ; no problem; pass it along
-          :else [nil resp]))))
 
 ; ======= file picker ======================================
 
@@ -387,7 +305,7 @@
 
   (create-sheet [this file-name data]
     (log/info "Create sheet " file-name)
-    (go (let [[err resp] (<! (upload-data-with-retry
+    (go (let [[err resp] (<! (upload-data
                                :create
                                {:name file-name
                                 :description sheet-desc
@@ -437,7 +355,7 @@
 
   (query-data-sources [this]
     ; TODO indicate query state?
-    (query-files
+    (do-query-files
       "appProperties has { key='wish-type' and value='data-source' }"
       :on-success (fn [files]
                     (log "Found data sources: " files)
@@ -454,7 +372,7 @@
 
   (save-sheet [this file-id data]
     (log/info "Save " file-id data)
-    (upload-data-with-retry
+    (upload-data
       :update
       {:fileId file-id
        :mimeType sheet-mime
