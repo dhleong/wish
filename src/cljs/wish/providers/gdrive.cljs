@@ -26,9 +26,7 @@
 ;; included, separated by spaces.
 (def ^:private scopes (str/join
                         " "
-                        ["https://www.googleapis.com/auth/drive.appfolder"
-                         "https://www.googleapis.com/auth/drive.appdata"
-                         "https://www.googleapis.com/auth/drive.file"]))
+                        ["https://www.googleapis.com/auth/drive.file"]))
 
 (def ^:private sheet-desc "WISH Character Sheet")
 (def ^:private sheet-mime "application/edn")
