@@ -14,7 +14,7 @@
 (defn- ->srcsets
   [base-name]
   {:src (asset (str base-name ".png"))
-   :srcset (->> src-set-kinds
+   :srcSet (->> src-set-kinds
                 (map (fn [[suffix ratio]]
                        (asset (str base-name suffix ".png " ratio))))
                 (str/join ", "))})
