@@ -3,6 +3,7 @@
   wish.views.router
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
+            [wish.config :refer [server-root]]
             [wish.util :refer [<sub >evt]]))
 
 (defn- pick-page-title []
@@ -14,14 +15,33 @@
       ; default:
       :else "WISH")))
 
+(defn- has-footer? [page]
+  (not (contains? #{:sheet}
+                  page)))
+
+(defn footer []
+  [:footer.footer
+   [:a {:href (str server-root "/privacy.html")
+        :target '_blank}
+    "Privacy Policy"]])
+
 (defn router
   "Renders the current page, given a map
    of page-id to page render fn."
   [routes-map]
-  (let [[page args] (<sub [:page])]
+  (let [[page args] (<sub [:page])
+        page-form [(get routes-map page) args]]
     (>evt [:title! (pick-page-title)])
-
     (println "[router]" page args)
-    [(get routes-map page) args]))
+
+    (if (has-footer? page)
+      ; we have to do a bit of wrapping to render the footer nicely
+      [:div#footer-container
+       [:div.content
+        page-form]
+       [footer]]
+
+      ; no footer; just render the page directly
+      page-form)))
 
 

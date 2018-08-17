@@ -1,4 +1,7 @@
 
+@import "flex.less";
+@import "media.less";
+
 @link-color: #fbc02d;
 
 body {
@@ -20,8 +23,33 @@ a {
     height: 100vh;
 }
 
-@import "flex.less";
-@import "media.less";
+#footer-container {
+    .flex();
+    .flex-direction(column);
+    height: 100vh;
+
+    & > .content {
+        .flex-shrt(1 0 auto);
+    }
+
+    & > .footer {
+        .flex-shrink(0);
+
+        background-color: #eee;
+        font-size: 80%;
+        margin-top: 12px;
+        padding: 16px;
+
+        a {
+            color: #333;
+
+            &:hover {
+                color: #999;
+            }
+        }
+    }
+}
+
 
 //
 // Other mixins

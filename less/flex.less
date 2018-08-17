@@ -11,6 +11,17 @@
     }
 }
 
+// shorthand; `flex: @values`
+.flex-shrt(@values) {
+    -ms-flex: @values;
+    flex: @values;
+}
+
+.flex-shrink(@shrink) {
+    -ms-flex-shrink: @shrink;
+    flex-shrink: @shrink;
+}
+
 .flex-direction(@direction) {
     -webkit-flex-direction: @direction;
     -ms-flex-direction: @direction;
