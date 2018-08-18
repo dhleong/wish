@@ -25,6 +25,7 @@
   [:hit-dice/d6
    :hp
    :unarmed-strike
+   :feats
 
    ; save proficiencies
    :save-proficiency/con
@@ -41,6 +42,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Sorcerer Proficiencies"
     :values [:proficiency/arcana :proficiency/deception :proficiency/insight :proficiency/intimidation :proficiency/persuasion :proficiency/religion]}
 
    {:id :sorcerer/origin

@@ -21,7 +21,7 @@
                             (count ">>options")))))))
 
 (defn- find-entity
-  "Always returns a collection `id` could point to a feature,
+  "Always returns a collection. `id` could point to a feature,
    a list, or an element in a list"
   [s id]
   (or (when-let [f (get-in s [:features id])]
@@ -61,7 +61,7 @@
                              (inflate-items s))
 
                         ; just find
-                        (find-entity s item))
+                        (inflate-items s spec (find-entity s item)))
       (coll? item) (mapcat (partial inflate-item s spec) item)
       :else (throw (js/Error. (str "Unexpected list item: " (type item) item ))))
     (catch :default e

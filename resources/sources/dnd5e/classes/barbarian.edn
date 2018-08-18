@@ -17,6 +17,7 @@
   [:hit-dice/d12
    :hp
    :unarmed-strike
+   :feats
 
    :save-proficiency/str
    :save-proficiency/con
@@ -34,6 +35,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Barbarian Proficiencies"
     :values [:proficiency/animal-handling :proficiency/athletics :proficiency/intimidation
              :proficiency/nature :proficiency/perception :proficiency/survival]}
 

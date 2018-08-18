@@ -12,6 +12,7 @@
   :features
   [:hit-dice/d8
    :hp
+   :feats
 
    ; save proficiencies
    :save-proficiency/str
@@ -27,6 +28,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Monk Proficiencies"
     :values [:proficiency/acrobatics :proficiency/athletics :proficiency/history :proficiency/insight :proficiency/religion :proficiency/stealth]}
 
    {:id :monk/martial-arts

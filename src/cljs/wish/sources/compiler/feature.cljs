@@ -10,7 +10,17 @@
 (defn compile-max-options
   ":max-options compiles to an acceptor function that
    expects `{:features []}`, where :features is the list of
-   features to be limited."
+   features to be limited. The spec can take a few forms:
+   - number: If a number is applied, the compiled function
+             accepts the input iff (<= (count features) number)
+   - (fn [features]): If one of the arguments is named `features`,
+                      the function is expected to return a truthy
+                      value when the provided features collection
+                      is valid, and falsey otherwise
+   - (fn []): If `features` is not one of the arguments, the function
+              is expected to return a number based on the provided
+              state, which is then treated the same as the `number`
+              case above."
   [o]
   (when o
     (cond
@@ -45,6 +55,7 @@
   (-> fm
       (update :max-options compile-max-options)
       (update :values-filter ->callable)
+      (update :available? ->callable)
       compile-entity))
 
 (defn- ->feature [state f]

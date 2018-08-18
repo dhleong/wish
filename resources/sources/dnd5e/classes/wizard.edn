@@ -25,6 +25,7 @@
   [:hit-dice/d6
    :hp
    :unarmed-strike
+   :feats
 
    ; save proficiencies
    :save-proficiency/int
@@ -41,6 +42,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Wizard Proficiencies"
     :values [:proficiency/arcana :proficiency/history :proficiency/insight :proficiency/investigation :proficiency/medicine :proficiency/religion]}
 
    {:id :wizard/arcane-recovery

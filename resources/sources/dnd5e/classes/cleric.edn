@@ -23,6 +23,7 @@
   [:hit-dice/d8
    :hp
    :unarmed-strike
+   :feats
 
    ; save proficiencies
    :save-proficiency/wis
@@ -40,6 +41,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Cleric Proficiencies"
     :values [:proficiency/history :proficiency/insight
              :proficiency/medicine :proficiency/persuasion
              :proficiency/religion]

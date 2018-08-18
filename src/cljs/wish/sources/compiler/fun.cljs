@@ -62,6 +62,7 @@
       (expose-fn dec)
 
       (expose-fn keyword)
+      (expose-fn namespace)
       (expose-fn name)
       (expose-fn str)
       (expose-fn symbol)
@@ -79,6 +80,7 @@
       (expose-fn get)
       (expose-fn get-in)
 
+      (expose-fn comp)
       (expose-fn filter)
       (expose-fn keep)
       (expose-fn map)

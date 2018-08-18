@@ -34,7 +34,6 @@
                     {:width "300px"}))
 
 (defn proficiency-style [& {:as extra}]
-  (println "extra" extra)
   [:.proficiency
    (merge {:color color-proficient }
           extra)

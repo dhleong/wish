@@ -33,6 +33,7 @@
   [:hit-dice/d10
    :hp
    :unarmed-strike
+   :feats
 
    :save-proficiency/wis
    :save-proficiency/cha
@@ -49,6 +50,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Paladin Proficiencies"
     :values [:proficiency/athletics :proficiency/insight :proficiency/intimidation :proficiency/medicine :proficiency/persuasion :proficiency/religion]}
 
    {:id :paladin/divine-sense

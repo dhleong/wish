@@ -304,11 +304,13 @@
   )
 
 (defn- inflate-feature-options
-  [[features options data-source]]
+  [[features options sheet data-source]]
   (->> features
        (map (fn [[id v :as entry]]
               (let [container (-> entry meta :wish/container)
-                    available-map (assoc container :options options)]
+                    available-map (assoc container
+                                         :options options
+                                         :sheet sheet)]
                 (with-meta
                   [id (-> v
                           (assoc :wish/raw-values (:values v))
@@ -332,10 +334,11 @@
                   (meta entry)))))))
 
 (defn- only-feature-options
-  [[features options data-source]]
+  [[features options sheet data-source]]
   (inflate-feature-options
     [(filter (comp :max-options second) features)
      options
+     sheet
      data-source]))
 
 (reg-sub
@@ -348,6 +351,7 @@
   (fn [[_ entity-id primary?]]
     [(subscribe [:class-features entity-id primary?])
      (subscribe [:meta/options])
+     (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
   inflate-feature-options)
 
@@ -358,6 +362,7 @@
   (fn [[_ entity-id primary?]]
     [(subscribe [:class-features entity-id primary?])
      (subscribe [:meta/options])
+     (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
   only-feature-options)
 
@@ -370,6 +375,7 @@
   :inflated-race-features
   :<- [:race-features]
   :<- [:meta/options]
+  :<- [:meta/sheet]
   :<- [:sheet-source]
   inflate-feature-options)
 
@@ -377,6 +383,7 @@
   :race-features-with-options
   :<- [:race-features]
   :<- [:meta/options]
+  :<- [:meta/sheet]
   :<- [:sheet-source]
   only-feature-options)
 

@@ -44,6 +44,7 @@
   [:hit-dice/d8
    :hp
    :unarmed-strike
+   :feats
 
    ; save proficiencies
    :save-proficiency/wis
@@ -59,6 +60,7 @@
     :implicit? true
     :primary-only? true
     :max-options 2
+    :name "Warlock Proficiencies"
     :values [:proficiency/arcana :proficiency/deception
              :proficiency/history :proficiency/intimidation
              :proficiency/investigation :proficiency/nature

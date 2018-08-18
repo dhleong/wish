@@ -31,6 +31,7 @@
   [:hit-dice/d10
    :hp
    :unarmed-strike
+   :feats
 
    ; save proficiencies
    :save-proficiency/str
@@ -49,6 +50,7 @@
     :implicit? true
     :primary-only? true
     :max-options 3
+    :name "Ranger Proficiencies"
     :values [:proficiency/animal-handling :proficiency/athletics
              :proficiency/insight :proficiency/investigation
              :proficiency/nature :proficiency/perception
