@@ -7,10 +7,10 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
-            [cljs-css-modules.macro :refer-macros [defstyle]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.util :refer [<sub >evt click>swap!]]
+            [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [data-source-manager router
@@ -21,37 +21,42 @@
 
 ; ======= CSS ==============================================
 
-(defstyle styles
-  [:.abilities (merge flex/vertical
-                      flex/align-center)
-   [:table {:width "100%"
-            :table-layout 'fixed}
-    [:tbody {:text-align 'center}
-     [:th {:font-size "9pt"
-           :width "20%"}]
-     [:td {:padding "4px"}
-      [:input {:width "100%"
-               :font-size "14pt"
-               :text-align 'center}]]]]]
+(defstyled abilities-style
+  (merge flex/vertical
+         flex/align-center)
 
-  [:.classes
-   [:.meta style/metadata]
+  [:table {:width "100%"
+           :table-layout 'fixed}
+   [:tbody {:text-align 'center}
+    [:th {:font-size "9pt"
+          :width "20%"}]
+    [:td {:padding "4px"}
+     [:input {:width "100%"
+              :font-size "14pt"
+              :text-align 'center}]]]])
 
-   [:.class-header (merge flex/vertical
-                          {:margin "1.5em 0"})
-    [:.name {:font-size "1.5em"
-             :font-weight "bold"}]
-    [:.row (merge flex
-                  flex/align-center)
-     [:select.level {:margin-left "12px"}]]]
+(defstyled classes-style
+  [:.meta style/metadata]
 
-   [:.hit-point-setting {:margin "8px"}
-    [:.dice-level flex
-     [:.level {:width "2em"
-               :text-align 'center}]]]]
+  [:.class-header (merge flex/vertical
+                         {:margin "1.5em 0"})
+   [:.name {:font-size "1.5em"
+            :font-weight "bold"}]
+   [:.row (merge flex
+                 flex/align-center)
+    [:select.level {:margin-left "12px"}]]]
 
-  [:.races
-   [:.subrace {:padding-left "1em"}]])
+  [:.hit-point-setting {:margin "8px"}
+   [:.dice-level flex
+    [:.level {:width "2em"
+              :text-align 'center}]]])
+
+(defstyled feature-options-style
+  [:.feature>.content {:padding "0 12px"}
+   [:.desc style/metadata]])
+
+(defstyled races-style
+  [:.subrace {:padding-left "1em"}])
 
 
 ; ======= Pages ============================================
@@ -211,7 +216,7 @@
   (let [extra-info-atom (atom nil)]
     (fn [sub-vector source-info]
       (if-let [features (seq (<sub sub-vector))]
-        [:<>
+        [:div feature-options-style
          (for [[feature-id f :as entry] features]
            (let [instance-id (or (:wish/instance-id f)
                                  feature-id)
@@ -227,7 +232,11 @@
                 (when-let [n (:wish/instance f)]
                   (str " #" (inc n)))]
 
-               (feature-options f instance-id sub-vector extra-info-atom)]
+               [:div.content
+                (when-let [desc (:desc f)]
+                  [formatted-text :div.desc desc])
+
+                (feature-options f instance-id sub-vector extra-info-atom)]]
 
               {:get #(<sub [:options-> %])
                :save! (fn [path v]
@@ -242,7 +251,7 @@
         [:p "No features with options available yet."]))))
 
 (defn race-page []
-  [:div {:class (:races styles)}
+  [:div races-style
    [:h3 "Race"]
 
    [bind-fields
@@ -368,7 +377,7 @@
     (fn []
       (let [existing-classes (<sub [:classes])]
 
-        [:div {:class (:classes styles)}
+        [:div classes-style
          [:h1 "Level Up"]
 
          ; hit points
@@ -410,7 +419,7 @@
                      :int nil
                      :wis nil
                      :cha nil})]
-    [:div {:class (:abilities styles)}
+    [:div abilities-style
      [:h3 "Abilities"]
      [bind-fields
       [:table
@@ -450,7 +459,7 @@
 (defn background-page []
   (let [primary-class (<sub [::subs/primary-class])
         chosen-background (<sub [:options-> [:background]])]
-    [:div {:class (:background styles)}
+    [:div
      [:h1 "Background"]
      [feature-options-selection [::subs/background (:id primary-class)] nil]
 
