@@ -3,6 +3,10 @@
             [wish.sources.compiler.lists :refer [inflate-items
                                                  unpack-options-key]]))
 
+(defn- ->just-ids
+  [coll]
+  (map #(select-keys % [:id]) coll))
+
 (def state {:features {:crazy-ivan {:id :crazy-ivan}}
             :list-entities {:bobble-head-geisha {:id :bobble-head-geisha}}})
 
@@ -23,7 +27,7 @@
 (deftest inflate-items-test
   (testing "Pass through maps"
     (is (= [{:id :mreynolds}]
-           (map #(select-keys % [:id])
+           (->just-ids
                 (inflate-items
                   state
                   nil
@@ -31,15 +35,17 @@
   (testing "Inflate ids"
     (is (= [{:id :crazy-ivan}
             {:id :bobble-head-geisha}]
-           (inflate-items
-             state
-             nil
-             [:crazy-ivan :bobble-head-geisha]))))
+           (->just-ids
+             (inflate-items
+               state
+               nil
+               [:crazy-ivan :bobble-head-geisha])))))
   (testing "Inflate a list of ids"
     (is (= [{:id :crazy-ivan}
             {:id :bobble-head-geisha}]
-           (inflate-items
-             state
-             nil
-             [[:crazy-ivan :bobble-head-geisha]])))))
+           (->just-ids
+             (inflate-items
+               state
+               nil
+               [[:crazy-ivan :bobble-head-geisha]]))))))
 
