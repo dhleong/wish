@@ -31,6 +31,11 @@
    ; weapon proficiencies
    :proficiency/simple-weapons
 
+   ; armor proficiencies
+   :proficiency/light-armor
+   :proficiency/medium-armor
+   :proficiency/shields
+
    {:id :cleric/skill-proficiencies
     :implicit? true
     :primary-only? true
@@ -135,9 +140,12 @@ Beginning at 6th level, you can use your Channel Divinity twice between rests, a
        :cleric/extra-spells
        [:spell/bless :spell/cure-wounds]]
 
-      ; TODO heavy armor proficiency
-
       [:!provide-feature
+       {:id :cleric/bonus-proficiency
+        :name "Bonus Proficiency"
+        :desc "When you choose this domain at 1st level, you gain proficiency with heavy armor."}
+       :proficiency/heavy-armor
+
        {:id :cleric/disciple-of-life
         :name "Disciple of Life"
         :desc "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell’s level."

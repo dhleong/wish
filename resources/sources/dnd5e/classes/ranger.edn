@@ -32,12 +32,18 @@
    :hp
    :unarmed-strike
 
+   ; save proficiencies
    :save-proficiency/str
    :save-proficiency/dex
 
    ; weapon proficiencies
    :proficiency/simple-weapons
    :proficiency/martial-weapons
+
+   ; armor proficiencies
+   :proficiency/light-armor
+   :proficiency/medium-armor
+   :proficiency/shields
 
    {:id :ranger/skill-proficiencies
     :implicit? true

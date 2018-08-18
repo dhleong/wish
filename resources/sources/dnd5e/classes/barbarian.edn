@@ -25,6 +25,11 @@
    :proficiency/simple-weapons
    :proficiency/martial-weapons
 
+   ; armor proficiencies
+   :proficiency/light-armor
+   :proficiency/medium-armor
+   :proficiency/shields
+
    {:id :barbarian/skill-proficiencies
     :implicit? true
     :primary-only? true

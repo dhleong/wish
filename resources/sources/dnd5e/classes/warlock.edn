@@ -52,6 +52,9 @@
    ; weapon proficiencies
    :proficiency/simple-weapons
 
+   ; armor proficiencies
+   :proficiency/light-armor
+
    {:id :warlock/skill-proficiencies
     :implicit? true
     :primary-only? true

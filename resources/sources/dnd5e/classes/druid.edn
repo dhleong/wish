@@ -40,6 +40,11 @@
    :proficiency/sling
    :proficiency/spear
 
+   ; armor proficiencies
+   :proficiency/light-armor
+   :proficiency/medium-armor
+   :proficiency/shields
+
    {:id :druid/skill-proficiencies
     :implicit? true
     :primary-only? true

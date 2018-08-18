@@ -331,6 +331,9 @@
   :implicit? true
   :! [[:!provide-attr :proficiency/woodcarvers-tools true]]}]
 
+
+; ======= Weapon proficiencies ============================
+
 [:!add-to-list
  {:id :weapon-kind-proficiencies
   :type :feature}
@@ -448,6 +451,7 @@
   :! [[:!provide-attr [:weapon-categories :simple] true]
       [:!provide-attr :proficiency/simple-weapons true]]}
  ]
+
 [:!add-to-list
  {:id :weapon-category-proficiencies
   :type :feature}
@@ -462,4 +466,34 @@
   :implicit? true
   :! [[:!provide-attr [:weapon-categories :simple] true]
       [:!provide-attr :proficiency/simple-weapons true]]}
+ ]
+
+
+; ======= Armor proficiencies =============================
+
+[:!add-to-list
+ {:id :armor-category-proficiencies
+  :type :feature}
+
+ {:id :proficiency/all-armor
+  :name "All Armor"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/all-armor true]]}
+
+ {:id :proficiency/light-armor
+  :name "Light Armor"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/light-armor true]]}
+ {:id :proficiency/medium-armor
+  :name "Medium Armor"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/medium-armor true]]}
+ {:id :proficiency/heavy-armor
+  :name "Heavy Armor"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/heavy-armor true]]}
+ {:id :proficiency/shields
+  :name "Shields"
+  :implicit? true
+  :! [[:!provide-attr :proficiency/shields true]]}
  ]

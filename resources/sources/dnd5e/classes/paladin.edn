@@ -37,8 +37,13 @@
    :save-proficiency/wis
    :save-proficiency/cha
 
+   ; weapon proficiencies
    :proficiency/simple-weapons
    :proficiency/martial-weapons
+
+   ; armor proficiencies
+   :proficiency/all-armor
+   :proficiency/shields
 
    {:id :paladin/skill-proficiencies
     :implicit? true

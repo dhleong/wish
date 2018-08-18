@@ -17,6 +17,7 @@
    :hp
    :unarmed-strike
 
+   ; save proficiencies
    :save-proficiency/str
    :save-proficiency/con
 
@@ -26,6 +27,9 @@
    :proficiency/longsword
    :proficiency/rapier
    :proficiency/shortsword
+
+   ; armor proficiencies
+   :proficiency/light-armor
 
    {:id :rogue/skill-proficiencies
     :implicit? true

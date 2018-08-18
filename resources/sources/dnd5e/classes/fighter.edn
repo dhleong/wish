@@ -26,12 +26,17 @@
    :hp
    :unarmed-strike
 
+   ; save proficiencies
    :save-proficiency/str
    :save-proficiency/con
 
    ; weapon proficiencies
    :proficiency/simple-weapons
    :proficiency/martial-weapons
+
+   ; armor proficiencies
+   :proficiency/all-armor
+   :proficiency/shields
 
    {:id :fighter/skill-proficiencies
     :implicit? true

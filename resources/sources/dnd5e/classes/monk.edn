@@ -13,12 +13,15 @@
   [:hit-dice/d8
    :hp
 
+   ; save proficiencies
    :save-proficiency/str
    :save-proficiency/dex
 
    ; weapon proficiencies
    :proficiency/simple-weapons
    :proficiency/shortsword
+
+   ; armor proficiencies (none)
 
    {:id :monk/skill-proficiencies
     :implicit? true

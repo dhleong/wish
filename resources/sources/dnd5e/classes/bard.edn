@@ -36,6 +36,9 @@
    :proficiency/rapier
    :proficiency/shortsword
 
+   ; armor proficiencies
+   :proficiency/light-armor
+
    {:id :bard/skill-proficiencies
     :implicit? true
     :primary-only? true
