@@ -404,3 +404,24 @@ Finishing a long rest reduces a creature's exhaustion level by 1, provided that 
                  vals
                  (sort-by :name))))
 
+
+; ======= skills ==========================================
+
+(def skill-feature-ids #{:proficiency/acrobatics
+                         :proficiency/animal-handling
+                         :proficiency/arcana
+                         :proficiency/athletics
+                         :proficiency/deception
+                         :proficiency/history
+                         :proficiency/insight
+                         :proficiency/intimidation
+                         :proficiency/investigation
+                         :proficiency/medicine
+                         :proficiency/nature
+                         :proficiency/perception
+                         :proficiency/performance
+                         :proficiency/persuasion
+                         :proficiency/religion
+                         :proficiency/sleight-of-hand
+                         :proficiency/stealth
+                         :proficiency/survival})

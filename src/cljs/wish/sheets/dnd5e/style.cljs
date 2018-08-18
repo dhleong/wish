@@ -485,6 +485,14 @@
     (proficiency-style
       :padding-right "12px")]])
 
+(defstyled proficiencies-section
+  [:.section {:padding "0 8px"
+              :margin-bottom "16px"}]
+  [:.item (merge metadata
+                 {:display 'inline-block})
+   ["&:not(:last-child)" {:padding-right "0.5em"}
+    [:&:after {:content "','"}]]])
+
 (defstyled features-section
   [:.features-category>h3 {:border-bottom "1px solid #000"}]
   [:.feature {:margin-bottom "1em"}

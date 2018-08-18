@@ -338,83 +338,100 @@
  {:id :proficiency/club
   :name "Club"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :club] true]]}
+  :! [[:!provide-attr [:weapon-kinds :club] true]
+      [:!provide-attr :proficiency/club true]]}
 
  {:id :proficiency/dagger
   :name "Dagger"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :dagger] true]]}
+  :! [[:!provide-attr [:weapon-kinds :dagger] true]
+      [:!provide-attr :proficiency/dagger true]]}
  {:id :proficiency/dart
   :name "Dart"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :dart] true]]}
+  :! [[:!provide-attr [:weapon-kinds :dart] true]
+      [:!provide-attr :proficiency/dart true]]}
 
  {:id :proficiency/javelin
   :name "Javelin"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :javelin] true]]}
+  :! [[:!provide-attr [:weapon-kinds :javelin] true]
+      [:!provide-attr :proficiency/javelin true]]}
 
  {:id :proficiency/hand-crossbow
   :name "Hand Crossbow"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :hand-crossbow] true]]}
+  :! [[:!provide-attr [:weapon-kinds :hand-crossbow] true]
+      [:!provide-attr :proficiency/hand-crossbow true]]}
  {:id :proficiency/light-crossbow
   :name "Light Crossbow"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :light-crossbow] true]]}
+  :! [[:!provide-attr [:weapon-kinds :light-crossbow] true]
+      [:!provide-attr :proficiency/light-crossbow true]]}
 
  {:id :proficiency/longbow
   :name "Longbow"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :longbow] true]]}
+  :! [[:!provide-attr [:weapon-kinds :longbow] true]
+      [:!provide-attr :proficiency/longbow true]]}
  {:id :proficiency/longsword
   :name "Longsword"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :longsword] true]]}
+  :! [[:!provide-attr [:weapon-kinds :longsword] true]
+      [:!provide-attr :proficiency/longsword true]]}
 
  {:id :proficiency/mace
   :name "Mace"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :mace] true]]}
+  :! [[:!provide-attr [:weapon-kinds :mace] true]
+      [:!provide-attr :proficiency/mace true]]}
 
  {:id :proficiency/shortbow
   :name "Shortbow"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :shortbow] true]]}
+  :! [[:!provide-attr [:weapon-kinds :shortbow] true]
+      [:!provide-attr :proficiency/shortbow true]]}
  {:id :proficiency/shortsword
   :name "Shortsword"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :shortsword] true]]}
+  :! [[:!provide-attr [:weapon-kinds :shortsword] true]
+      [:!provide-attr :proficiency/shortsword true]]}
 
  {:id :proficiency/rapier
   :name "Rapier"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :rapier] true]]}
+  :! [[:!provide-attr [:weapon-kinds :rapier] true]
+      [:!provide-attr :proficiency/rapier true]]}
 
  {:id :proficiency/scimitar
   :name "Scimitar"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :scimitar] true]]}
+  :! [[:!provide-attr [:weapon-kinds :scimitar] true]
+      [:!provide-attr :proficiency/scimitar true]]}
 
  {:id :proficiency/sickle
   :name "Sickle"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :sickle] true]]}
+  :! [[:!provide-attr [:weapon-kinds :sickle] true]
+      [:!provide-attr :proficiency/sickle true]]}
 
  {:id :proficiency/sling
   :name "Sling"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :sling] true]]}
+  :! [[:!provide-attr [:weapon-kinds :sling] true]
+      [:!provide-attr :proficiency/sling true]]}
 
  {:id :proficiency/spear
   :name "Spear"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :spear] true]]}
+  :! [[:!provide-attr [:weapon-kinds :spear] true]
+      [:!provide-attr :proficiency/spear true]]}
 
  {:id :proficiency/quarterstaff
   :name "Quarterstaff"
   :implicit? true
-  :! [[:!provide-attr [:weapon-kinds :quarterstaff] true]]}]
+  :! [[:!provide-attr [:weapon-kinds :quarterstaff] true]
+      [:!provide-attr :proficiency/quarterstaff true]]}]
 
 [:!add-to-list
  {:id :weapon-category-proficiencies
@@ -423,9 +440,26 @@
  {:id :proficiency/martial-weapons
   :name "Martial Weapons"
   :implicit? true
-  :! [[:!provide-attr [:weapon-categories :martial] true]]}
+  :! [[:!provide-attr [:weapon-categories :martial] true]
+      [:!provide-attr :proficiency/martial-weapons true]]}
  {:id :proficiency/simple-weapons
   :name "Simple Weapons"
   :implicit? true
-  :! [[:!provide-attr [:weapon-categories :simple] true]]}
+  :! [[:!provide-attr [:weapon-categories :simple] true]
+      [:!provide-attr :proficiency/simple-weapons true]]}
+ ]
+[:!add-to-list
+ {:id :weapon-category-proficiencies
+  :type :feature}
+
+ {:id :proficiency/martial-weapons
+  :name "Martial Weapons"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-categories :martial] true]
+      [:!provide-attr :proficiency/martial-weapons true]]}
+ {:id :proficiency/simple-weapons
+  :name "Simple Weapons"
+  :implicit? true
+  :! [[:!provide-attr [:weapon-categories :simple] true]
+      [:!provide-attr :proficiency/simple-weapons true]]}
  ]

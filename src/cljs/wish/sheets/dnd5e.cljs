@@ -248,6 +248,21 @@
          (into [:div.sections]))))
 
 
+; ======= Proficiencies ===================================
+
+(defn proficiencies-section []
+  (when-let [proficiencies (seq (<sub [::subs/other-proficiencies]))]
+    [:div styles/proficiencies-section
+     [:h3 "Proficiencies"]
+
+     ; TODO organize by type
+     [:div.section
+      (for [f proficiencies]
+        ^{:key (:id f)}
+        [:div.item
+         (:name f)])]]))
+
+
 ; ======= Actions ==========================================
 
 (defn- attack-block [s & [extra-info]]
@@ -803,7 +818,9 @@
 
       [section "Skills"
        styles/skills-section
-       [skills-section]] ]]
+       [skills-section]]
+
+      [proficiencies-section]]]
 
     [:div.right.side
      [sheet-right-page]]]])

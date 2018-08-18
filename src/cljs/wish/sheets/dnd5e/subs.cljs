@@ -400,20 +400,29 @@
                   :else
                   (assoc extra :id id)))))))
 
-
-; returns a set of skill ids
+; returns a collection of feature ids
 (reg-sub
-  ::skill-proficiencies
+  ::all-proficiencies
   :<- [:races]
   :<- [:classes]
   (fn [entity-lists _]
     (->> entity-lists
          flatten
          (mapcat :attrs)
-         (filter (fn [[k v]]
-                   (when (= v true)
-                     (= "proficiency" (namespace k)))))
-         (map (comp keyword name first))
+         (keep (fn [[k v]]
+                 (when (and v
+                            (= "proficiency" (namespace k)))
+                   k)))
+         (into #{}))))
+
+; returns a set of skill ids
+(reg-sub
+  ::skill-proficiencies
+  :<- [::all-proficiencies]
+  (fn [feature-ids _]
+    (->> feature-ids
+         (filter data/skill-feature-ids)
+         (map (comp keyword name))
          (into #{}))))
 
 ; returns a set of skill ids
@@ -444,6 +453,17 @@
   :<- [:total-level]
   (fn [total-level _]
     (level->proficiency-bonus total-level)))
+
+(reg-sub
+  ::other-proficiencies
+  :<- [:sheet-source]
+  :<- [::all-proficiencies]
+  (fn [[data-source feature-ids] _]
+    (->> feature-ids
+         (remove data/skill-feature-ids)
+         (keep (partial src/find-feature data-source))
+         (sort-by :name))))
+
 
 ; ======= general stats for header =========================
 
