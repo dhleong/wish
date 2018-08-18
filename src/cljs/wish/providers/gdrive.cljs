@@ -6,6 +6,7 @@
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan put! <! >!]]
             [clojure.string :as str]
+            [wish.config :refer [gdrive-client-id]]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
@@ -15,9 +16,6 @@
 ;;
 ;; Constants
 ;;
-
-;; Client ID and API key from the Developer Console
-(def ^:private client-id "661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com")
 
 ;; Array of API discovery doc URLs for APIs used by the quickstart
 (def ^:private discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
@@ -42,7 +40,7 @@
 (defn- refresh-auth []
   (call-with-cb->chan
     (js/gapi.auth.authorize
-      #js {:client_id client-id
+      #js {:client_id gdrive-client-id
            :scope scopes
            :immediate true})))
 
@@ -197,7 +195,7 @@
   []
   (-> (js/gapi.client.init
         #js {:discoveryDocs discovery-docs
-             :clientId client-id
+             :clientId gdrive-client-id
              :scope scopes})
       (.then on-client-init)))
 
@@ -244,7 +242,7 @@
                           js/google.picker.ViewId.DOCS)
                     (.setMimeTypes "application/edn,application/json,text/plain")))
         (.addView (js/google.picker.DocsUploadView.))
-        (.setAppId client-id)
+        (.setAppId gdrive-client-id)
         (.setOAuthToken (access-token))
         (.setCallback
           (fn [result]
