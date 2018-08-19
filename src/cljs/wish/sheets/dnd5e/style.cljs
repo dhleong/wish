@@ -357,6 +357,14 @@
     [:&.s {:background-color color-silver}]
     [:&.c {:background-color color-copper}]]])
 
+(defstyled inventory-quantity
+  (merge flex/center
+         flex/justify-center)
+
+  [:input.quantity {:font-size "120%"
+                    :width "3em"
+                    :text-align 'center}])
+
 (defstyled spell-card
   {:max-width "300px"}
 
@@ -441,6 +449,12 @@
                         {:padding "4px"})
     [:.label {:font-size "60%"}]
     [:.dmg.alt {:font-size "65%"}]]]
+  [:.ammo (merge metadata
+                 flex/center
+                 button
+                 {:margin-left "16px"})
+   [:.amount {:padding "0 12px"}]
+   [:.consume {:padding "4px"}]]
 
   [:.spells (merge flex/center
                    flex/wrap
@@ -564,11 +578,6 @@
   [:.item-info {:padding "0 12px"
                 :font-size "90%"
                 :text-align 'justify}
-   [:div.quantity (merge flex/center
-                         flex/justify-center)
-    [:input.quantity {:font-size "120%"
-                      :width "3em"
-                      :text-align 'center}]]
    [:.delete (merge flex/center
                     flex/justify-center
                     {:align-self 'center

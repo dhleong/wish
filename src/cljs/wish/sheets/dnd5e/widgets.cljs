@@ -2,7 +2,8 @@
       :doc "Shared widgets for dnd5e sheet "}
   wish.sheets.dnd5e.widgets
   (:require [clojure.string :as str]
-            [wish.util :refer [<sub click>evt invoke-callable]]
+            [reagent-forms.core :refer [bind-fields]]
+            [wish.util :refer [>evt <sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
             [wish.views.widgets :as widgets
@@ -76,6 +77,26 @@
        [:div.pair
         copper
         [:span.currency.c "C"]])]))
+
+(defn item-quantity-manager [item]
+  [:div styles/inventory-quantity
+   [:a.modify {:href "#"
+               :on-click (click>evt [:inventory-subtract item 1])}
+    (icon :remove-circle)]
+
+   [bind-fields
+
+    [:input.quantity {:field :numeric
+                      :id :quantity
+                      :min 0}]
+
+    {:get #(<sub [::subs/item-quantity (:id item)])
+     :save! (fn [path v]
+              (>evt [:inventory-set-amount item v]))}]
+
+   [:a.modify {:href "#"
+               :on-click (click>evt [:inventory-add item 1])}
+    (icon :add-circle)] ])
 
 (defn spell-aoe
   "Renders the AOE of a spell"

@@ -585,6 +585,13 @@
 
          first)))
 
+(reg-sub
+  ::ammunition-for
+  :<- [::inventory-sorted]
+  (fn [items [_ weapon]]
+    (->> items
+         (filter (comp (partial = :ammunition) :type))
+         seq)))
 
 ; ======= items and equipment ==============================
 

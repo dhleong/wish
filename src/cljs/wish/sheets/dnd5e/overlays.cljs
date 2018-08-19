@@ -12,7 +12,9 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
-            [wish.sheets.dnd5e.widgets :refer [spell-aoe spell-card
+            [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
+                                               spell-aoe
+                                               spell-card
                                                spell-tags]]
             [wish.util :refer [<sub >evt click>evt click>evts click>swap!
                                dec-dissoc toggle-in]]
@@ -89,7 +91,10 @@
       (generic-info entity)
 
       (when-let [d (:desc entity)]
-        [formatted-text :div.desc d])]) ])
+        [formatted-text :div.desc d])
+
+      (when (inv/stacks? entity)
+        [item-quantity-manager entity])]) ])
 
 
 ; ======= ability info/tmp mods ============================

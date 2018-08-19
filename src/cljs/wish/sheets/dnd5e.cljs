@@ -15,7 +15,9 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
-            [wish.sheets.dnd5e.widgets :refer [currency-preview spell-card
+            [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
+                                               currency-preview
+                                               spell-card
                                                spell-tags]]
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets
@@ -306,6 +308,23 @@
       [:div.dmg.alt
        "(" alt-dice ")"])]])
 
+(defn- ammunition-block-for [w]
+  (if-let [ammo (<sub [::subs/ammunition-for w])]
+    [:<>
+     (for [a ammo]
+       ^{:key (:id a)}
+       [:div.ammo {:on-click (click>evt [:toggle-overlay
+                                         [#'overlays/info a]])}
+        [:div.name (:name a)]
+        [:div.amount (:wish/amount a) " Left"]
+        (when (> (:wish/amount a) 0)
+          [:div.consume.button
+           {:on-click (click>evt [:inventory-subtract a]
+                                 :propagate? false)}
+           "Consume 1"])])]
+
+    [:div.ammo "(no ammunition)"]))
+
 (defn- actions-combat []
   [:<>
 
@@ -318,7 +337,10 @@
       [:h4 "Weapons"]
       (for [w weapons]
         ^{:key (:id w)}
-        [attack-block w])])
+        [:<>
+         [attack-block w]
+         (when (:uses-ammunition? w)
+           [ammunition-block-for w])])])
 
    (when-let [spell-attacks (seq (<sub [::subs/spell-attacks]))]
      [:div.spell-attacks
@@ -629,26 +651,6 @@
 
 
 ; ======= inventory ========================================
-
-(defn- item-quantity-manager [item]
-  [:div.quantity
-   [:a.modify {:href "#"
-               :on-click (click>evt [:inventory-subtract item 1])}
-    (icon :remove-circle)]
-
-   [bind-fields
-
-    [:input.quantity {:field :numeric
-                      :id :quantity
-                      :min 0}]
-
-    {:get #(<sub [::subs/item-quantity (:id item)])
-     :save! (fn [path v]
-              (>evt [:inventory-set-amount item v]))}]
-
-   [:a.modify {:href "#"
-               :on-click (click>evt [:inventory-add item 1])}
-    (icon :add-circle)] ])
 
 (defn- inventory-entry
   [item can-attune?]
