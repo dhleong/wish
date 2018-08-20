@@ -339,8 +339,7 @@
      [:div.weapons
       [:h4 "Weapons"]
       (for [w weapons]
-        ^{:key (:id w)}
-        [:<>
+        [:<> {:key (:id w)}
          [attack-block w]
          (when (:uses-ammunition? w)
            [ammunition-block-for w])])])
