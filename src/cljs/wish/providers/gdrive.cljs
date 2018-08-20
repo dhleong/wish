@@ -88,6 +88,7 @@
 ;;
 
 (def ^:private get-file (reliably api/get-file))
+(def ^:private get-meta (reliably api/get-meta))
 (def ^:private query-files (reliably api/query-files))
 (def ^:private upload-data (reliably api/upload-data))
 
@@ -98,7 +99,7 @@
    (go (if force?
          (<! (api/update-meta file-id metadata))
 
-         (let [[err resp] (<! (get-file file-id))]
+         (let [[err resp] (<! (get-meta file-id))]
            (when (or err
                      (not= (select-keys
                              resp
@@ -331,7 +332,7 @@
     (go (let [_ (when-let [ch @gapi-available?]
                   (<! ch))
 
-              [err resp] (<! (get-file id "media"))]
+              [err resp :as r] (<! (get-file id))]
           (if err
             (let [status (.-status err)]
               (log/err "ERROR loading " id err)
@@ -346,8 +347,8 @@
                 ; some other error
                 [err nil]))
 
-            ; success:
-            [nil (.-body resp)]))))
+            ; success; return unchanged
+            r))))
 
   (query-data-sources [this]
     ; TODO indicate query state?

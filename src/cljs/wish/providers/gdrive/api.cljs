@@ -3,7 +3,8 @@
   wish.providers.gdrive.api
   (:require-macros [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan]]
+  (:require [clojure.string :as str]
+            [clojure.core.async :refer [chan]]
             [wish.sheets.util :refer [make-id]]
             [wish.util.async :refer [promise->chan]]))
 
@@ -41,29 +42,55 @@
                                 ; err; return as-is
                                 r)))))))
 
-(defn get-file
-  "Fetch the metadata of a file or, alternately, download an `alt`,
-   if provided. Returns the usual style of channel."
-  ([file-id]
-   (get-file file-id nil))
-  ([file-id alt]
-   (-> js/gapi.client.drive.files
-       (.get (if alt
-               #js {:fileId file-id
-                    :alt alt}
-               #js {:fileId file-id
-                    :fields "id, name, mimeType, description, appProperties"}))
-       (promise->chan 1 (map (fn [[err resp :as r]]
-                               (if (and resp
-                                        (not alt))
-                                 ; if we have a response, and we wanted the file
-                                 ; metadata; clojure-ify it
-                                 [err (->> resp
-                                           ->clj
-                                           :result)]
+(defn get-meta
+  "Fetch the metadata on a file.
+   Returns the usual style of channel."
+  [file-id]
+  (-> js/gapi.client.drive.files
+      (.get #js {:fileId file-id
+                 :fields "id, name, mimeType, description, appProperties"})
+      (promise->chan 1 (map (fn [[err resp :as r]]
+                              (if resp
+                                [err (->> resp
+                                          ->clj
+                                          :result)]
 
-                                 ; just return as-is
-                                 r)))))))
+                                ; just return as-is
+                                r))))) )
+
+; NOTE: public for testing
+(defn fix-unicode [s]
+  ; due to a bug in how the JS client (and builtin browser
+  ; base64 decode fn `btoa` work) work, the body string as-is
+  ; can munge unicode characters such as the emdash.
+  ; see: https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
+  ; and: https://issuetracker.google.com/issues/36759232
+  ; and: https://github.com/google/google-api-javascript-client/issues/221
+  ; and: https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
+  (->> s
+       (map (fn [c]
+              (str "%"
+                   (.slice
+                     (str "00"
+                          (-> c
+                              (.charCodeAt 0)
+                              (.toString 16)))
+                     -2))))
+       (str/join)
+       js/decodeURIComponent))
+
+(defn get-file
+  "Download the contents of a file.
+   Returns the usual style of channel."
+  [file-id]
+  (-> js/gapi.client.drive.files
+      (.get #js {:fileId file-id
+                 :alt "media"})
+      (promise->chan 1 (map (fn [[err resp]]
+                              (if err
+                                [err nil]
+                                [err (fix-unicode
+                                       (.-body resp))]))))))
 
 (defn update-meta
   "Update the metadata on a file. Useful for eg:

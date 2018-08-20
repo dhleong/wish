@@ -2,6 +2,7 @@
   (:require [doo.runner :refer-macros [doo-tests]]
             [wish.events-test]
             [wish.inventory-test]
+            [wish.providers.gdrive.api-test]
             [wish.sheets.dnd5e.builder-test]
             [wish.sheets.dnd5e.data-test]
             [wish.sheets.dnd5e.events-test]
@@ -14,12 +15,14 @@
             [wish.sources.compiler.fun-test]
             [wish.sources.compiler.limited-use-test]
             [wish.sources.compiler.lists-test]
+            [wish.subs-test]
             [wish.util-test]
             [wish.util.formatted-test]
             [wish.views.sheet-builder-util-test]))
 
 (doo-tests 'wish.events-test
            'wish.inventory-test
+           'wish.providers.gdrive.api-test
            'wish.sheets.dnd5e.builder-test
            'wish.sheets.dnd5e.data-test
            'wish.sheets.dnd5e.events-test
@@ -32,6 +35,7 @@
            'wish.sources.compiler.fun-test
            'wish.sources.compiler.limited-use-test
            'wish.sources.compiler.lists-test
+           'wish.subs-test
            'wish.util-test
            'wish.util.formatted-test
            'wish.views.sheet-builder-util-test
