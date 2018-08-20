@@ -267,10 +267,13 @@
 
 ; ======= Actions ==========================================
 
+(defn- show-info-for? [s]
+  (some s [:aoe :desc :range]))
+
 (defn- attack-block [s & [extra-info]]
   [:div.attack (or extra-info {})
    [:div.name
-    (when (:desc s)
+    (when (show-info-for? s)
       {:on-click (click>evt [:toggle-overlay
                              [#'overlays/info s]])
        :class "clickable"})
