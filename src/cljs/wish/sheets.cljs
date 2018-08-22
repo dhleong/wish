@@ -86,16 +86,6 @@
 
 ; ======= Views ============================================
 
-; TODO move to the provider
-#_(defn- sheet-error-resolver
-  [err data]
-  (cond
-    (:permissions? data)
-    ; is there something we can do about this?
-    [:div
-     [:h4 "You may not have permission to view this file"]
-     [error-resolver-view data]]))
-
 (defn- sheet-error-widget [what]
   (when-let [{:keys [err retry-evt]} (<sub [:sheet-error-info])]
     [:div.sheet.error
