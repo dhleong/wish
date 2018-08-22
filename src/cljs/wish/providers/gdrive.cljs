@@ -340,7 +340,9 @@
                 ; possibly caused by permissions
                 [(ex-info
                    (ex-message err)
-                   {:permissions? true}
+                   {:permissions? true
+                    :provider :gdrive
+                    :id id}
                    err)
                  nil]
 

@@ -5,10 +5,11 @@
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
-            [wish.providers :refer [create-sheet-with-data]]
+            [wish.providers :refer [create-sheet-with-data
+                                    error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
             [wish.views.error-boundary :refer [error-boundary]]
-            [wish.views.widgets :refer [link]]))
+            [wish.views.widgets :as widgets :refer [link]]))
 
 ; ======= const data =======================================
 
@@ -85,13 +86,15 @@
 
 ; ======= Views ============================================
 
-(defn- sheet-error-resolver
+; TODO move to the provider
+#_(defn- sheet-error-resolver
   [err data]
-  (when (:permissions? data)
+  (cond
+    (:permissions? data)
     ; is there something we can do about this?
-    ; TODO for gdrive, it's possible that we could launch a
-    ; Picker to open it, thus effectively granting permission...
-    [:div "You may not have permission to view this file"]))
+    [:div
+     [:h4 "You may not have permission to view this file"]
+     [error-resolver-view data]]))
 
 (defn- sheet-error-widget [what]
   (when-let [{:keys [err retry-evt]} (<sub [:sheet-error-info])]
@@ -99,11 +102,10 @@
      [:p "Error loading " what]
 
      (if-let [data (ex-data err)]
-       [sheet-error-resolver err data]
+       [error-resolver-view data]
 
        ; unknown error; something went wrong
-       [:div "Info for nerds: "
-        [:p.error-info (ex-message err)]])
+       [widgets/error-box err])
 
      [:div
       [:a {:href "#"

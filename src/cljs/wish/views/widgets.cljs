@@ -9,6 +9,12 @@
             [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :as nav]))
 
+(defn error-box [e]
+  [:div "Info for nerds: "
+   ; NOTE: ex-message returns nil for non-errors
+   [:p.error-info (or (ex-message e)
+                      (str e))]])
+
 (defn formatted-text
   [container-spec text]
   (vec
