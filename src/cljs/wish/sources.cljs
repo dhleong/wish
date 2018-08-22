@@ -50,7 +50,7 @@
 
               (catch :default e
                 ; error parsing raw source
-                (log/err "Error parsing source:" source-id raw)
+                (log/err "Error parsing source:" source-id "\n" (js/JSON.stringify raw))
                 [e])))))))
 
 (defn- combine-sources!

@@ -67,15 +67,23 @@
   ; and: https://issuetracker.google.com/issues/36759232
   ; and: https://github.com/google/google-api-javascript-client/issues/221
   ; and: https://developer.mozilla.org/en-US/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
-  (->> s
+  (->> (str/replace s "\\n" "\n")
        (map (fn [c]
-              (str "%"
-                   (.slice
-                     (str "00"
-                          (-> c
-                              (.charCodeAt 0)
-                              (.toString 16)))
-                     -2))))
+              (let [hex (-> c
+                            (.charCodeAt 0)
+                            (.toString 16))]
+                (if (<= (count hex) 2)
+                  ; fix base64 decoding issue
+                  (str "%"
+                       (.slice
+                         (str "00" hex)
+                         -2))
+
+                  ; don't break a successfully decoded character
+                  ; for example, `•` gets decoded without problem,
+                  ; but in a URI component it needs to be more than
+                  ; one %## thing
+                  (js/encodeURIComponent c)))))
        (str/join)
        js/decodeURIComponent))
 
