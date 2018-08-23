@@ -58,6 +58,7 @@
 
 (reg-sub :page :page)
 (reg-sub :sheets :sheets)
+(reg-sub :my-sheets :my-sheets)
 (reg-sub :sheet-sources :sheet-sources)
 
 (reg-meta-sub :meta/sheet :sheet)
@@ -85,10 +86,10 @@
 (reg-sub
   :sharable-sheet-id
   :<- [:active-sheet-id]
-  :<- [:sheets]
-  (fn [[sheet-id sheets] _]
+  :<- [:my-sheets]
+  (fn [[sheet-id my-sheets] _]
     ; first, only if it's ours
-    (when (:mine? (get sheets sheet-id))
+    (when (contains? my-sheets sheet-id)
       ; then, the provider must be able to share it
       (when (providers/sharable? sheet-id)
         ; good to go
@@ -104,10 +105,21 @@
 (reg-sub
   :known-sheets
   :<- [:sheets]
-  (fn [sheets _]
+  :<- [:my-sheets]
+  (fn [[sheets my-sheets] _]
+    ; NOTE: on initial insert with add-sheets,
+    ; :mine? is populated directly on the sheet, and
+    ; we use that to populate :my-sheets. However,
+    ; subsequent writes to :sheets might overwrite that,
+    ; so we always use :my-sheets as the source of truth.
+    ; Sure, we could copy over the value, but it's simpler
+    ; if the value of a sheet's entry in :sheets when loaded
+    ; is exactly the value in the provider.
     (->> sheets
          (map (fn [[id v]]
-                (assoc v :id id)))
+                (assoc v
+                       :id id
+                       :mine? (contains? my-sheets id))))
          (filter :name)
          (sort-by :name))))
 
