@@ -143,6 +143,15 @@
   (fn-traced [db [sheet-id info]]
     (assoc-in db [:sheet-sources sheet-id] info)))
 
+(reg-event-fx
+  :retry-current-sheet!
+  [trim-v
+   (inject-cofx ::inject/sub [:sheet-error-info])]
+  (fn-traced [{:keys [sheet-error-info]} _]
+    (when-let [retry-evt (:retry-evt sheet-error-info)]
+      (log "Retrying sheet: " retry-evt)
+      {:dispatch retry-evt})))
+
 (reg-event-db
   :add-sheets
   [trim-v]

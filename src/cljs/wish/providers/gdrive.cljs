@@ -10,7 +10,8 @@
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
-            [wish.util :refer [>evt]]))
+            [wish.util :refer [>evt]]
+            [wish.util.async :refer [promise->chan]]))
 
 
 ;;
@@ -19,6 +20,11 @@
 
 ;; Array of API discovery doc URLs for APIs used by the quickstart
 (def ^:private discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
+
+(def ^:private drive-read-scope
+  "https://www.googleapis.com/auth/drive.readonly")
+(def ^:private drive-full-scope
+  "https://www.googleapis.com/auth/drive")
 
 ;; Authorization scopes required by the API; multiple scopes can be
 ;; included, separated by spaces.
@@ -192,13 +198,27 @@
         (.-isSignedIn)
         (.get))))
 
-(defn init-client!
-  []
+(defn init-client!  []
   (-> (js/gapi.client.init
         #js {:discoveryDocs discovery-docs
              :clientId gdrive-client-id
              :scope scopes})
       (.then on-client-init)))
+
+(defn request-read!
+  "Starts the flow to request readonly scope. Returns a channel"
+  []
+  (some-> (current-user)
+          (.grant #js {:scope drive-read-scope})
+          (promise->chan)))
+
+(defn has-global-read?
+  "Returns truthy if the active user should have read access
+   to any file shared with them, else nil"
+  []
+  (when-let [user (current-user)]
+    (or (.hasGrantedScopes user drive-read-scope)
+        (.hasGrantedScopes user drive-full-scope))))
 
 ;;
 ;; NOTE: Exposed to index.html
