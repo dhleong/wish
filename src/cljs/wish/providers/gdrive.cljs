@@ -210,15 +210,14 @@
 ;; Public API
 ;;
 
-(defn signin!
-  []
+(defn signin! []
   (-> (auth-instance)
       (.signIn)))
 
-(defn signout!
-  []
-  (-> (auth-instance)
-      (.signOut)))
+(defn signout! []
+  (doto (auth-instance)
+    (.disconnect)
+    (.signOut)))
 
 (defn active-user []
   (when-let [profile (some-> (current-user)
