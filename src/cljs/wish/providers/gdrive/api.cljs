@@ -33,7 +33,7 @@
     (-> js/gapi.client.drive.files
       (.list #js {:q q
                   :pageSize page-size
-                  :spaces "drive,appDataFolder"
+                  :spaces "drive"
                   :fields "nextPageToken, files(id, name, ownedByMe)"})
       (promise->chan 1 (map (fn [[err resp :as r]]
                               (if resp
