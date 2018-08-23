@@ -149,3 +149,11 @@
       (.execute
         (js/gapi.client.request
           (clj->js request))))))
+
+(defn view-file-link
+  "Generates an URL that can be used to 'view' a file
+   and request access to it"
+  [id]
+  (str "https://drive.google.com/file/d/"
+       id
+       "/view"))
