@@ -1,15 +1,29 @@
 (ns ^{:author "Daniel Leong"
       :doc "Google Drive API wrappers"}
   wish.providers.gdrive.api
-  (:require-macros [wish.util.async :refer [call-with-cb->chan]]
+  (:require-macros [cljs.core.async :refer [go]]
+                   [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.string :as str]
-            [clojure.core.async :refer [chan]]
+  (:require [clojure.core.async :refer [chan <! >!]]
+            [clojure.string :as str]
             [wish.sheets.util :refer [make-id]]
             [wish.util.async :refer [promise->chan]]))
 
+; ======= Public utils ====================================
+
 (defn ->clj [v]
   (js->clj v :keywordize-keys true))
+
+(defn view-file-link
+  "Generates an URL that can be used to 'view' a file
+   and request access to it"
+  [id]
+  (str "https://drive.google.com/file/d/"
+       id
+       "/view"))
+
+
+; ======= Main API wrappers ===============================
 
 (defn query-files
   "List files matching the given query `q`. Accepts optional
@@ -150,10 +164,34 @@
         (js/gapi.client.request
           (clj->js request))))))
 
-(defn view-file-link
-  "Generates an URL that can be used to 'view' a file
-   and request access to it"
-  [id]
-  (str "https://drive.google.com/file/d/"
-       id
-       "/view"))
+
+; ======= API loading =====================================
+
+(defonce ^:private loaded-apis (atom #{}))
+
+(defn when-loaded
+  "Returns a fn that passes its arguments to `f` when
+   `api-name` is loaded, performing the load if necessary.
+   `f` should return nil or a channel that emits one item;
+   if the return from `f` is non-nil, the resulting fn will
+   return a channel that emits that item."
+  [api-name f]
+  (fn [& args]
+    (if (contains? loaded-apis api-name)
+      ; loaded!
+      (apply f args)
+
+      ; load first
+      (let [ch (chan)]
+        (log "Loading " api-name " API")
+        (js/gapi.load api-name
+                      (fn []
+                        (log "Loaded" api-name "! Waiting for result")
+                        (swap! loaded-apis conj api-name)
+                        (go (if-let [in (apply f args)]
+                              (>! ch
+                                  (<! in))
+
+                              ; no channel; just emit "success"
+                              (>! ch [nil])))))
+        ch))))

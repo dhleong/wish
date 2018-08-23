@@ -248,8 +248,6 @@
 
 ; ======= file picker ======================================
 
-(defonce ^:private picker-api-loaded (atom false))
-
 (defn- do-pick-file
   [{:keys [mimeType description props]}]
   ; NOTE: I don't love using camel case in my clojure code,
@@ -296,22 +294,22 @@
     ; return the channel
     ch))
 
-(defn pick-file [opts]
-  (if @picker-api-loaded
-    ; loaded! do it now
-    (do-pick-file opts)
+(def pick-file (api/when-loaded "picker" do-pick-file))
 
-    ; load first
-    (let [ch (chan)]
-      (log "Loading picker API")
-      (js/gapi.load "picker"
-                    (fn []
-                      (log "Loaded picker! Waiting for result")
-                      (reset! picker-api-loaded true)
-                      (go (>!
-                            ch
-                            (<! (do-pick-file opts))))))
-      ch)))
+
+; ======= Share dialog ====================================
+
+(defn- do-share-file [id]
+  (doto (js/gapi.drive.share.ShareClient.)
+    (.setOAuthToken (access-token))
+    (.setItemIds #js [id])
+    (.showSettingsDialog))
+
+  ; make sure we return nil
+  nil)
+
+(def share-file (api/when-loaded "drive-share" do-share-file))
+
 
 ; ======= Provider def =====================================
 
