@@ -308,7 +308,7 @@
   ; make sure we return nil
   nil)
 
-(def share-file (api/when-loaded "drive-share" do-share-file))
+(def share! (api/when-loaded "drive-share" do-share-file))
 
 
 ; ======= Provider def =====================================

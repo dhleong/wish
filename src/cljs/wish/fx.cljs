@@ -92,3 +92,9 @@
                  (>evt [::save-sheet! sheet-id]))
                throttled-save-timeout)))))
 
+; ======= Sheet misc ======================================
+
+(reg-fx
+  :share-sheet!
+  (fn [sheet-id]
+    (providers/share! sheet-id)))

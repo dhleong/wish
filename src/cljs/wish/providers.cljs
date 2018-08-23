@@ -21,6 +21,7 @@
     :name "Google Drive"
     :config #'gdrive-config/view
     :error-resolver #'gdrive-errors/view
+    :share! #'gdrive/share!
     :inst (gdrive/create-provider)}
 
    :wish
@@ -62,6 +63,10 @@
   (doseq [provider (vals providers)]
     (when-let [inst (:inst provider)]
       (provider/init! inst))))
+
+(defn sharable? [sheet-id]
+  (let [[provider-id _] (unpack-id sheet-id)]
+    (provider-key provider-id :share!)))
 
 (defn create-sheet-with-data
   "Returns a channel that emits [err sheet-id] on success"
@@ -140,4 +145,14 @@
             (on-done err)))
 
       (on-done (js/Error. (str "No provider instance for " sheet-id
+                               "(" provider-id " / " pro-sheet-id ")"))))))
+
+(defn share!
+  [sheet-id]
+  ; TODO should this be a provider method?
+  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
+    (if-let [share! (provider-key provider-id :share!)]
+      (share! pro-sheet-id)
+
+      (throw (js/Error. (str "No provider instance for " sheet-id
                                "(" provider-id " / " pro-sheet-id ")"))))))

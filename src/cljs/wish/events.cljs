@@ -197,6 +197,11 @@
     ; fetch the sheet data and forward it to the ::save-sheet! fx handler
     {::fx/save-sheet! [sheet-id (get-in db [:sheets sheet-id])]}))
 
+(reg-event-fx
+  :share-sheet!
+  [trim-v]
+  (fn-traced [_ [sheet-id]]
+    {:share-sheet! sheet-id}))
 
 ; ======= Limited-use handling =============================
 

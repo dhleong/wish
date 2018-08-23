@@ -4,6 +4,7 @@
             [re-frame.core :refer [reg-sub subscribe]]
             [wish.db :as db]
             [wish.inventory :as inv]
+            [wish.providers :as providers]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-directives inflate]]
@@ -80,6 +81,18 @@
   :<- [:page]
   (fn [page-vec _]
     (active-sheet-id nil page-vec)))
+
+(reg-sub
+  :sharable-sheet-id
+  :<- [:active-sheet-id]
+  :<- [:sheets]
+  (fn [[sheet-id sheets] _]
+    ; first, only if it's ours
+    (when (:mine? (get sheets sheet-id))
+      ; then, the provider must be able to share it
+      (when (providers/sharable? sheet-id)
+        ; good to go
+        sheet-id))))
 
 (reg-sub
   :provided-sheet
