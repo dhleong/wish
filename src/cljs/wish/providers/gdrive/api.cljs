@@ -26,14 +26,15 @@
                  (map
                    (fn [raw-file]
                      [(make-id :gdrive (:id raw-file))
-                      (select-keys raw-file
-                                   [:name])]))))]
+                      (-> raw-file
+                          (select-keys [:name])
+                          (assoc :mine? (:ownedByMe raw-file)))]))))]
 
     (-> js/gapi.client.drive.files
       (.list #js {:q q
                   :pageSize page-size
                   :spaces "drive,appDataFolder"
-                  :fields "nextPageToken, files(id, name)"})
+                  :fields "nextPageToken, files(id, name, ownedByMe)"})
       (promise->chan 1 (map (fn [[err resp :as r]]
                               (if resp
                                 ; success!

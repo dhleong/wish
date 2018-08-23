@@ -98,6 +98,21 @@
          (filter :name)
          (sort-by :name))))
 
+(reg-sub
+  :my-known-sheets
+  :<- [:known-sheets]
+  (fn [sheets _]
+    (->> sheets
+         (filter :mine?))))
+
+(reg-sub
+  :shared-known-sheets
+  :<- [:known-sheets]
+  (fn [sheets _]
+    (->> sheets
+         (remove :mine?))))
+
+
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id
 (reg-sub
