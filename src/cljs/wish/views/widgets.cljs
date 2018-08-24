@@ -19,19 +19,17 @@
 
 (defn formatted-text
   [container-spec text]
-  (vec
-    (cons
-      container-spec
-      (map
-        (fn [p]
-          [:p p])
-        (->hiccup text)))))
+  (into [container-spec]
+        (map
+          (fn [p]
+            [:p p])
+          (->hiccup text))))
 
 (defn link
   "Drop-in replacement for :a that inserts the # in links if necessary"
   [attrs & contents]
-  (vec (concat [:a (update attrs :href nav/prefix)]
-               contents)))
+  (into [:a (update attrs :href nav/prefix)]
+        contents))
 
 (defn save-state
   []

@@ -182,12 +182,9 @@
         base-path (if (:wish/instance-id f)
                     [instance-id :value]
                     [instance-id])]
-    (vec
-      (cons
-        :div.multi-feature-options
-        (for [i (range max-options)]
-          (vec
-            (concat
+    (into [:div.multi-feature-options]
+          (for [i (range max-options)]
+            (into
               [:select {:field :multi-limited-select
                         :id (concat base-path [i])}
                [:option {:key :-none} "—Select One—"]]
@@ -199,7 +196,7 @@
                                             sub-vector
                                             (:id f)
                                             (:id o)])}
-                 (:name o)]))))))))
+                 (:name o)]))))))
 
 (defn- feature-options
   [f instance-id sub-vector extra-info-atom]

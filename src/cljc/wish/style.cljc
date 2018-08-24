@@ -25,7 +25,7 @@
 
         ; normal styles
         (when (seq styles)
-          [(vec (cons root-key styles))])))))
+          [(into [root-key] styles)])))))
 
 (defn- prepare-style
   [style-id [fst :as style]]

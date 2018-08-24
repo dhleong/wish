@@ -19,4 +19,4 @@
                            [:h1 "Oops! Something went wrong"]
                            [:div (str err)]]
 
-                          (vec (cons :<> children))))})))
+                          (into [:<>] children)))})))

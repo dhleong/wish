@@ -20,9 +20,8 @@
         (apply conj parts)
 
         ; wrap
-        (vec
-          (cons :span
-                parts))))))
+        (into [:span]
+              parts)))))
 
 (defn- collapse-into
   "If `parts` is a container like :span, collapse

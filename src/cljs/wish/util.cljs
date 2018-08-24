@@ -147,7 +147,7 @@
 
 (defn navigate!
   [& args]
-  (let [evt (vec (cons :navigate! args))]
+  (let [evt (into [:navigate!] args)]
     (if (is-ios?)
       ; NOTE: on iOS we do some whacky shit to prevent awful flashes
       ;  when swiping back. hopefully there's a more efficient way
