@@ -1,13 +1,21 @@
 (ns ^{:author "Daniel Leong"
       :doc "Shared widgets"}
   wish.views.widgets
-  (:require-macros [wish.views.widgets :refer [icon]])
+  (:require-macros [wish.util :refer [fn-click]]
+                   [wish.util.log :as log :refer [log]]
+                   [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [<sub >evt click>evt click>swap!]]
             [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :as nav]))
+
+(defn error-box [e]
+  [:div "Info for nerds: "
+   ; NOTE: ex-message returns nil for non-errors
+   [:p.error-info (or (ex-message e)
+                      (str e))]])
 
 (defn formatted-text
   [container-spec text]
@@ -72,6 +80,14 @@
      [:div.clear
       {:on-click (click>evt [filter-key nil])}
       (icon :clear)])])
+
+(defn share-button []
+  (when-let [sheet-id (<sub [:sharable-sheet-id])]
+    [:a {:href "#"
+         :on-click (fn-click
+                     (log "Sharing " sheet-id)
+                     (>evt [:share-sheet! sheet-id]))}
+     (icon :share)]))
 
 (defn slot-use-block
   "A block of boxes that can be checked and unchecked"

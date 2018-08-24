@@ -143,22 +143,43 @@
   (fn-traced [db [sheet-id info]]
     (assoc-in db [:sheet-sources sheet-id] info)))
 
+(reg-event-fx
+  :retry-current-sheet!
+  [trim-v
+   (inject-cofx ::inject/sub [:sheet-error-info])]
+  (fn-traced [{:keys [sheet-error-info]} _]
+    (when-let [retry-evt (:retry-evt sheet-error-info)]
+      (log "Retrying sheet: " retry-evt)
+      {:dispatch retry-evt})))
+
 (reg-event-db
   :add-sheets
   [trim-v]
   (fn-traced [db [sheet-id-pairs]]
-    (update db :sheets
-            (fn [sheets sheet-id-pairs]
-              (reduce
-                (fn [m [id data]]
-                  (if-not (get m id)
-                    (assoc m id data)
+    (-> db
+        ; NOTE: since the value in :sheets will be overwritten
+        ; later, we copy special values like :mine? into their
+        ; own things. See the discussion in the :known-sheets sub.
+        (update :my-sheets
+                #(apply conj %
+                        (keep
+                          (fn [[sheet-id data]]
+                            (when (:mine? data)
+                              sheet-id))
+                          sheet-id-pairs)))
 
-                    ; we've already loaded this sheet; don't delete it
-                    m))
-                sheets
-                sheet-id-pairs))
-            sheet-id-pairs)))
+        (update :sheets
+                (fn [sheets sheet-id-pairs]
+                  (reduce
+                    (fn [m [id data]]
+                      (if-not (get m id)
+                        (assoc m id data)
+
+                        ; we've already loaded this sheet; don't delete it
+                        m))
+                    sheets
+                    sheet-id-pairs))
+                sheet-id-pairs))))
 
 (reg-event-fx
   :load-sheet-source!
@@ -188,6 +209,11 @@
     ; fetch the sheet data and forward it to the ::save-sheet! fx handler
     {::fx/save-sheet! [sheet-id (get-in db [:sheets sheet-id])]}))
 
+(reg-event-fx
+  :share-sheet!
+  [trim-v]
+  (fn-traced [_ [sheet-id]]
+    {:share-sheet! sheet-id}))
 
 ; ======= Limited-use handling =============================
 

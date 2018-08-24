@@ -99,6 +99,10 @@
 
       [:div.space]
 
+      [:div.share.side
+       [:div.col
+        [widgets/share-button]]]
+
       [:div.settings.side
        [:div.col
         (let [sheet-id (<sub [:active-sheet-id])]

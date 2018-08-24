@@ -4,9 +4,12 @@ var gapi = {
     auth2: {},
     client: {
         drive: {
-            files: {}
-        }
-    }
+            files: {},
+        },
+    },
+    drive: {
+        share: {},
+    },
 };
 
 gapi.load = function() {};
@@ -49,17 +52,29 @@ gapi.auth2.BasicProfile.prototype.getEmail = function() {};
 /** @constructor */
 gapi.auth2.GoogleUser = function() {};
 
+gapi.auth2.GoogleUser.prototype.grant = function() {};
+
 /** @return {gapi.auth2.AuthResponse} */
 gapi.auth2.GoogleUser.prototype.getAuthResponse = function() {};
 
 /** @return {gapi.auth2.BasicProfile} */
 gapi.auth2.GoogleUser.prototype.getBasicProfile = function() {};
 
+/** @return {boolean} */
+gapi.auth2.GoogleUser.prototype.hasGrantedScopes = function() {};
+
 /** @constructor */
 gapi.auth2.AuthResponse = function() {};
 
 /** @type {string} */
 gapi.auth2.AuthResponse.access_token;
+
+
+/** @constructor */
+gapi.drive.share.ShareClient = function() {};
+gapi.drive.share.ShareClient.prototype.setOAuthToken = function() {};
+gapi.drive.share.ShareClient.prototype.setItemIds = function() {};
+gapi.drive.share.ShareClient.prototype.showSettingsDialog = function() {};
 
 
 var google = {
