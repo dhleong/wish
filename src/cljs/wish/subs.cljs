@@ -59,6 +59,7 @@
 (reg-sub :page :page)
 (reg-sub :sheets :sheets)
 (reg-sub :my-sheets :my-sheets)
+(reg-sub :sheets-filters :sheets-filters)
 (reg-sub :sheet-sources :sheet-sources)
 
 (reg-meta-sub :meta/sheet :sheet)
@@ -124,19 +125,20 @@
          (sort-by :name))))
 
 (reg-sub
-  :my-known-sheets
+  :filtered-known-sheets
   :<- [:known-sheets]
-  (fn [sheets _]
-    (->> sheets
-         (filter :mine?))))
+  :<- [:sheets-filters]
+  (fn [[sheets filters] _]
+    (cond
+      (and (:mine? filters)
+           (:shared? filters))
+      sheets
 
-(reg-sub
-  :shared-known-sheets
-  :<- [:known-sheets]
-  (fn [sheets _]
-    (->> sheets
-         (remove :mine?))))
+      (:mine? filters)
+      (filter :mine? sheets)
 
+      (:shared? filters)
+      (remove :mine? sheets))))
 
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id

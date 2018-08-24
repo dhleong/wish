@@ -10,6 +10,10 @@
    :sheets {}
    :my-sheets #{}
 
+   ; persistent state of sheet filters for browser
+   :sheets-filters {:mine? true
+                    :shared? false}
+
    ; set of provider ids that are in the process of fetching
    ; their lists of available character sheets
    :providers-listing #{}

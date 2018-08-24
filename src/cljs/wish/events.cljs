@@ -2,6 +2,7 @@
   (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.string :as str]
             [re-frame.core :refer [dispatch reg-event-db reg-event-fx
+                                   path
                                    inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
@@ -214,6 +215,27 @@
   [trim-v]
   (fn-traced [_ [sheet-id]]
     {:share-sheet! sheet-id}))
+
+
+; ======= Sheet browsing ==================================
+
+(reg-event-db
+  :filter-sheets
+  [trim-v (path :sheets-filters)]
+  (fn-traced [filters [filter-key active?]]
+    (let [{:keys [mine? shared?]
+           :as new-filters}
+          (assoc filters filter-key active?)]
+      (if-not (or mine? shared?)
+        ; if neither is checked, auto-check the "other"
+        ; one after unchecking the last
+        (case filter-key
+          :mine? (assoc new-filters :shared? true)
+          :shared? (assoc new-filters :mine? true))
+
+        ; leave as-is
+        new-filters))))
+
 
 ; ======= Limited-use handling =============================
 
