@@ -307,7 +307,7 @@ You can cast _levitate_ on yourself at will, without expending a spell slot or m
 
       [:!provide-attr
        [:spells :warlock :spell/levitate]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/beast-speech
   :name "Beast Speech"
@@ -318,7 +318,7 @@ You can cast _levitate_ on yourself at will, without expending a spell slot or m
 
       [:!provide-attr
        [:spells :warlock :spell/speak-with-animals]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/beguiling-influence
   :name "Beguiling Influence"
@@ -386,7 +386,7 @@ You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental
 
       [:!provide-attr
        [:spells :warlock :spell/hold-monster]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/devils-sight
   :name "Devil's Sight"
@@ -421,7 +421,7 @@ You can cast _confusion_ once using a warlock spell slot. You can’t do so agai
 
       [:!provide-attr
        [:spells :warlock :spell/detect-magic]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/eldritch-spear
   :name "Eldritch Spear"
@@ -446,7 +446,7 @@ When you cast _eldritch blast_, its range is 300 feet."
 
       [:!provide-attr
        [:spells :warlock :spell/false-life]
-       {:at-will true
+       {:at-will? true
         :upcast? false}]]}
 
  {:id :warlock/gaze-two-minds
@@ -473,7 +473,7 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
 
       [:!provide-attr
        [:spells :warlock :spell/disguise-self]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/master-myriad-forms
   :name "Master of Myriad Forms"
@@ -487,7 +487,7 @@ You can cast alter self at will, without expending a spell slot."
 
       [:!provide-attr
        [:spells :warlock :spell/alter-self]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/minions-chaos
   :name "Minions of Chaos"
@@ -539,7 +539,7 @@ You can’t do so again until you finish a long rest."
 
       [:!provide-attr
        [:spells :warlock :spell/silent-image]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/one-with-shadows
   :name "One with Shadows"
@@ -563,7 +563,7 @@ You can cast _jump_ on yourself at will, without expending a spell slot or mater
 
       [:!provide-attr
        [:spells :warlock :spell/jump]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/repelling-blast
   :name "Repelling Blast"
@@ -650,7 +650,7 @@ You can cast _arcane eye_ at will, without expending a spell slot."
 
       [:!provide-attr
        [:spells :warlock :spell/arcane-eye]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/voice-chain-master
   :name "Voice of the Chain Master"
@@ -671,7 +671,7 @@ You can cast _speak with dead_ at will, without expending a spell slot."
 
       [:!provide-attr
        [:spells :warlock :spell/speak-with-dead]
-       {:at-will true}]]}
+       {:at-will? true}]]}
 
  {:id :warlock/witch-sight
   :name "Witch Sight"
