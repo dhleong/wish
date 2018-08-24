@@ -59,6 +59,12 @@
                         :name "Tiefling: Darkness"
                         :uses 1
                         :restore-trigger :long-rest}]
+
+                      [:!provide-attr
+                       [:spells :tiefling :spell/darkness]
+                       {:upcast? false
+                        :consumes :tiefling/infernal-legacy#darkness-uses}]
+
                       [:!add-to-list
                        :tiefling/extra-spells
                        :spell/darkness]]}}}] }]
