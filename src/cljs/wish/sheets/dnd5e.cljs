@@ -645,19 +645,13 @@
                                          :scrollable? true])}
                (str "Manage " (:acquired-label attrs))]])]
 
-          (if fixed-list?
+          (when-not fixed-list?
+            [:div.list-info (str (str/capitalize prepared-label) " Spells")
+             [:span.count "(" (count prepared-spells) ")"]])
+
+          (if any-prepared?
             [spells-list prepared-spells]
-
-            [expandable
-             [:b (str (str/capitalize prepared-label) " Spells")
-              [:span.count "(" (count prepared-spells) ")"]]
-
-             (if any-prepared?
-               [spells-list prepared-spells]
-               [:div (str "You don't have any " prepared-label " spells")])
-
-             ; auto-expand to show the "nothing prepared" explanation
-             {:start-expanded? (not any-prepared?)}])]))]))
+            [:div (str "You don't have any " prepared-label " spells")])]))]))
 
 
 ; ======= inventory ========================================
