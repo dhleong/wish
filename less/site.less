@@ -259,9 +259,21 @@ a {
 
     &:hover {
         background: #ccc;
+
+        // nested buttons that are disabled should have their
+        // backgrounds overwritten to match ours
+        & .button.disabled {
+            background: #ccc;
+        }
     }
     &:active {
         background: #666666;
+
+        // nested buttons that are disabled should have their
+        // backgrounds overwritten to match ours
+        & .button.disabled {
+            background: #666666;
+        }
     }
 }
 

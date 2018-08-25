@@ -149,14 +149,21 @@
                 (when upcast?
                   "upcast")]
         :on-click (fn-click [e]
-                    (.stopPropagation e)
                     (when has-uses?
-                      (log "CAST " s " AT " castable-level)
-                      (>evt [::events/use-spell-slot
-                             slot-kind slot-level slot-total])))}
+                      (.stopPropagation e)
+                      (if use-id
+                        (do
+                          (log "Consume " s " VIA " use-id)
+                          (>evt [:+use use-id 1]))
+                        (do
+                          (log "Cast " s " AT " castable-level)
+                          (>evt [::events/use-spell-slot
+                                 slot-kind slot-level slot-total])))))}
 
        ; div content:
-       "Cast"
+       (if use-id
+         "Use"
+         "Cast")
 
        (when upcast?
          [:span.upcast-level " @" castable-level])

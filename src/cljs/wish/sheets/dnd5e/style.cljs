@@ -373,7 +373,7 @@
   [:&.button
    [:&.disabled {:font-style 'italic
                  :color "rgba(1,1,1, 0.25) !important"
-                 :cursor 'default}]
+                 :cursor 'default} ]
    [:&:hover {:background-color "#f0f0f0"
               :color "#333"}
     [:&.disabled {:background-color "#ccc"}]]])
