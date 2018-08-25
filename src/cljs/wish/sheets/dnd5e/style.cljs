@@ -365,6 +365,19 @@
                     :width "3em"
                     :text-align 'center}])
 
+(defclass cast-spell
+  (merge text-center
+         {:width "3.5em"
+          :padding "4px"
+          :margin "0 8px 0 0"})
+  [:&.button
+   [:&.disabled {:font-style 'italic
+                 :color "rgba(1,1,1, 0.25) !important"
+                 :cursor 'default}]
+   [:&:hover {:background-color "#f0f0f0"
+              :color "#333"}
+    [:&.disabled {:background-color "#ccc"}]]])
+
 (defstyled spell-card
   {:max-width "300px"}
 

@@ -8,7 +8,7 @@
   [& directives]
   (->DataSource
     :src
-    (compile-directives directives))  )
+    (compile-directives directives)))
 
 (defn inflate-option-values->ids
   [data-source options feature-id values]

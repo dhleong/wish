@@ -129,6 +129,7 @@
   ::use-spell-slot
   [trim-v]
   (fn-traced [cofx [kind level max-slots]]
+    ; TODO use ::inject/sub not have to supply max-slots
     (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] inc)))
 
 (reg-event-fx

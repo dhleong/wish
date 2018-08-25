@@ -16,6 +16,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
+                                               cast-button
                                                currency-preview
                                                spell-card
                                                spell-tags]]
@@ -554,13 +555,16 @@
 
 (defn spell-block
   [s]
-  (let [level (:spell-level s)]
+  (let [level (:spell-level s)
+        cantrip? (= 0 level)]
     [expandable
      [:div.spell
+      [cast-button s]
+
       [:div.spell-info
        [:div.name (:name s)]
 
-       [:div.meta (if (= 0 level)
+       [:div.meta (if cantrip?
                     "Cantrip"
                     (str "Level " level))
         ; concentration? ritual?

@@ -1,9 +1,12 @@
 (ns ^{:author "Daniel Leong"
       :doc "Shared widgets for dnd5e sheet "}
   wish.sheets.dnd5e.widgets
+  (:require-macros [wish.util :refer [fn-click]]
+                   [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt invoke-callable]]
+            [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
             [wish.views.widgets :as widgets
@@ -97,6 +100,67 @@
    [:a.modify {:href "#"
                :on-click (click>evt [:inventory-add item 1])}
     (icon :add-circle)] ])
+
+
+; ======= Spells-related ==================================
+
+(defn cast-button
+  "Renders a button to cast the given spell at its current level.
+   Renders a box with 'At Will' if the spell is a cantrip"
+  [s]
+  (let [cantrip? (= 0 (:spell-level s))
+        at-will? (or cantrip?
+                     (:at-will? s))
+
+        use-id (:consumes s)
+
+        ; if it's not at-will (or consumes a limited-use)
+        ; try to figure out what slot we can use
+        {slot-level :level
+         slot-kind :kind
+         slot-total :total} (when-not (or use-id at-will?)
+                              (<sub [::subs/usable-slot-for s]))
+
+        castable-level (if cantrip?
+                         0  ; always
+                         slot-level)
+
+        has-uses? (or cantrip?
+                      (if use-id
+                        (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
+                          (> uses-left 0))
+
+                        ; normal spell; if there's a castable-level for it,
+                        ; we're good to go
+                        (not (nil? castable-level))))
+
+        upcast? (when has-uses?
+                  (> castable-level (:spell-level s)))]
+
+    (if at-will?
+      ; easy case; at-will spells don't need a "cast" button
+      [:div {:class styles/cast-spell}
+       "At Will"]
+
+      [:div.button
+       {:class [styles/cast-spell
+                (when-not has-uses?
+                  "disabled")
+                (when upcast?
+                  "upcast")]
+        :on-click (fn-click [e]
+                    (.stopPropagation e)
+                    (when has-uses?
+                      (log "CAST " s " AT " castable-level)
+                      (>evt [::events/use-spell-slot
+                             slot-kind slot-level slot-total])))}
+
+       ; div content:
+       "Cast"
+
+       (when upcast?
+         [:span.upcast-level " @" castable-level])
+       ])))
 
 (defn spell-aoe
   "Renders the AOE of a spell"
