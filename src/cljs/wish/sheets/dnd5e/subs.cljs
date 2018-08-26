@@ -1012,14 +1012,13 @@
 
                 ; only selected spells from the main list
                 selected-spells (expand-list data-source spells-list
-                                             (or (get options spells-option)
-                                                 []))
+                                             (get options spells-option []))
 
                 ; for :acquires? spellcasters, their acquired
                 ; cantrips are always prepared
                 selected-spells (if acquires?
                                   (->> (expand-list data-source spells-list
-                                                    (get options spells-list))
+                                                    (get options spells-list []))
                                        (filter #(= 0 (:spell-level %)))
                                        (map #(assoc % :always-prepared? true))
 
