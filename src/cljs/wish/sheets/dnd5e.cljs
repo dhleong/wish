@@ -16,6 +16,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
+                                               cast-button
                                                currency-preview
                                                spell-card
                                                spell-tags]]
@@ -554,13 +555,16 @@
 
 (defn spell-block
   [s]
-  (let [level (:spell-level s)]
+  (let [level (:spell-level s)
+        cantrip? (= 0 level)]
     [expandable
      [:div.spell
+      [cast-button s]
+
       [:div.spell-info
        [:div.name (:name s)]
 
-       [:div.meta (if (= 0 level)
+       [:div.meta (if cantrip?
                     "Cantrip"
                     (str "Level " level))
         ; concentration? ritual?
@@ -641,19 +645,13 @@
                                          :scrollable? true])}
                (str "Manage " (:acquired-label attrs))]])]
 
-          (if fixed-list?
+          (when-not fixed-list?
+            [:div.list-info (str (str/capitalize prepared-label) " Spells")
+             [:span.count "(" (count prepared-spells) ")"]])
+
+          (if any-prepared?
             [spells-list prepared-spells]
-
-            [expandable
-             [:b (str (str/capitalize prepared-label) " Spells")
-              [:span.count "(" (count prepared-spells) ")"]]
-
-             (if any-prepared?
-               [spells-list prepared-spells]
-               [:div (str "You don't have any " prepared-label " spells")])
-
-             ; auto-expand to show the "nothing prepared" explanation
-             {:start-expanded? (not any-prepared?)}])]))]))
+            [:div (str "You don't have any " prepared-label " spells")])]))]))
 
 
 ; ======= inventory ========================================

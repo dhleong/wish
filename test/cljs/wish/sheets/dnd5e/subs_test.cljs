@@ -2,9 +2,11 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.sheets.dnd5e.subs :refer [knowable-spell-counts-for
                                             level->proficiency-bonus
+                                            available-slots
                                             spell-slots
                                             calculate-weapon
-                                            unpack-eq-choices]]
+                                            unpack-eq-choices
+                                            usable-slot-for]]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as src :refer [->DataSource]]))
 
@@ -326,3 +328,64 @@
                source
                packs
                '([:dagger :thieves-tools] :lute)))))))
+
+(deftest available-slots-test
+  (testing "Default slots"
+    (is (= [{:kind :default
+             :level 2
+             :total 4
+             :unused 2}]
+           (available-slots
+             {:default {:slots {1 4, 2 4}}}
+             {:default {1 4, 2 2}}))))
+
+  (testing "Mixed slots"
+    (is (= [{:kind :default
+             :level 1
+             :total 4
+             :unused 1}
+            {:kind :pact-magic
+             :level 1
+             :total 2
+             :unused 1}]
+           (available-slots
+             {:default {:slots {1 4}}
+              :pact-magic {:slots {1 2}}}
+             {:default {1 3}
+              :pact-magic {1 1}})))))
+
+(deftest usable-slot-for-test
+  (testing "No downcasting"
+    (is (nil? (usable-slot-for
+                [{:kind :default
+                  :level 1
+                  :total 4
+                  :unused 1}]
+                {:spell-level 2}))))
+
+  (testing "Same level"
+    (is (= {:kind :default
+            :level 1
+            :total 4
+            :unused 1}
+
+           (usable-slot-for
+             [{:kind :default
+               :level 1
+               :total 4
+               :unused 1}]
+             {:spell-level 1}))))
+
+  (testing "Upcast"
+    (is (= {:kind :default
+            :level 2
+            :total 4
+            :unused 1}
+
+           (usable-slot-for
+             [{:kind :default
+               :level 2
+               :total 4
+               :unused 1}]
+             {:spell-level 1})))
+    ))

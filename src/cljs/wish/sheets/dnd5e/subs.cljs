@@ -1358,6 +1358,48 @@
       {}
       used)))
 
+(defn available-slots
+  [slots used]
+  (->> slots
+       (map identity) ; convert to [kind, {info}]
+       (mapcat
+         (fn [[kind {levels :slots}]]
+           (keep (fn [[level total]]
+                   (let [unused (- total
+                                   (get-in used [kind level]))]
+                     (when (> unused 0)
+                       {:kind kind
+                        :level level
+                        :total total
+                        :unused unused})))
+                 levels)))
+       (sort-by :level)))
+
+; returns [{:kind,:level,:total,:unused}]
+; sorted in ascending order by :level
+(reg-sub
+  ::available-slots
+  :<- [::spell-slots]
+  :<- [::spell-slots-used]
+  (fn [[slots used] _]
+    (available-slots slots used)))
+
+
+(defn usable-slot-for
+  [slots s]
+  (let [spell-level (:spell-level s)]
+    (->> slots
+         (filter #(>= (:level %)
+                      spell-level))
+         first)))
+
+; returns {:kind, :level} if any
+(reg-sub
+  ::usable-slot-for
+  :<- [::available-slots]
+  (fn [slots [_ s]]
+    (usable-slot-for slots s)))
+
 
 ; ======= builder-specific =================================
 

@@ -1,9 +1,13 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.style"}
   wish.sheets.dnd5e.style
-  (:require [wish.style :refer-macros [defclass defstyled]]
+  (:require [garden.color :as color]
+            [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :refer [metadata]]))
+
+(def color-accent "#fbc02d")
+(def color-accent2 "#6f49b9")
 
 (def color-proficient "#77E731")
 (def color-expert "#E8E154")
@@ -78,7 +82,7 @@
    [:.section (merge button
                      {:padding "0 4px"})
     [:&.selected {:cursor 'default
-                  :color "#fbc02d"}]]]
+                  :color color-accent}]]]
 
   [:.side {:padding "0 1%"}]
   [:.left {:width "35%"
@@ -364,6 +368,33 @@
   [:input.quantity {:font-size "120%"
                     :width "3em"
                     :text-align 'center}])
+
+(defclass cast-spell
+  (merge text-center
+         {:width "3.5em"
+          :padding "4px"
+          :margin "0 8px 0 0"})
+  [:&.upcast {:position 'relative
+              :border (str "2px solid " color-accent2)}
+   [:&:hover>.upcast-level
+    {:background (color/lighten color-accent2 20)}]
+   [:.upcast-level {:position 'absolute
+                    :background color-accent2
+                    :border-radius "2px"
+                    :color "#fff !important"
+                    :padding "0.2em"
+                    :right 0
+                    :bottom "-0.7em"
+                    :font-size "0.5em"
+                    :transform "translate(50%, 0)"}]]
+
+  [:&.button
+   [:&.disabled {:font-style 'italic
+                 :color "rgba(1,1,1, 0.25) !important"
+                 :cursor 'default} ]
+   [:&:hover {:background-color "#f0f0f0"
+              :color "#333"}
+    [:&.disabled {:background-color "#ccc"}]]])
 
 (defstyled spell-card
   {:max-width "300px"}
