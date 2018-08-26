@@ -107,67 +107,72 @@
 (defn cast-button
   "Renders a button to cast the given spell at its current level.
    Renders a box with 'At Will' if the spell is a cantrip"
-  [s]
-  (let [cantrip? (= 0 (:spell-level s))
-        at-will? (or cantrip?
-                     (:at-will? s))
+  ([s] (cast-button nil s))
+  ([{:keys [upcastable?]
+     :or {upcastable? true}} s]
+   (let [cantrip? (= 0 (:spell-level s))
+         at-will? (or cantrip?
+                      (:at-will? s))
 
-        use-id (:consumes s)
+         use-id (:consumes s)
 
-        ; if it's not at-will (or consumes a limited-use)
-        ; try to figure out what slot we can use
-        {slot-level :level
-         slot-kind :kind
-         slot-total :total} (when-not (or use-id at-will?)
-                              (<sub [::subs/usable-slot-for s]))
+         ; if it's not at-will (or consumes a limited-use)
+         ; try to figure out what slot we can use
+         {slot-level :level
+          slot-kind :kind
+          slot-total :total} (when-not (or use-id at-will?)
+                               (<sub [::subs/usable-slot-for s]))
 
-        castable-level (if cantrip?
-                         0  ; always
-                         slot-level)
+         castable-level (if cantrip?
+                          0  ; always
+                          (when (or upcastable?
+                                    (= (:spell-level s)
+                                       slot-level))
+                            slot-level))
 
-        has-uses? (or cantrip?
-                      (if use-id
-                        (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
-                          (> uses-left 0))
+         has-uses? (or cantrip?
+                       (if use-id
+                         (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
+                           (> uses-left 0))
 
-                        ; normal spell; if there's a castable-level for it,
-                        ; we're good to go
-                        (not (nil? castable-level))))
+                         ; normal spell; if there's a castable-level for it,
+                         ; we're good to go
+                         (not (nil? castable-level))))
 
-        upcast? (when has-uses?
-                  (> castable-level (:spell-level s)))]
+         upcast? (when has-uses?
+                   (> castable-level (:spell-level s)))]
 
-    (if at-will?
-      ; easy case; at-will spells don't need a "cast" button
-      [:div {:class styles/cast-spell}
-       "At Will"]
+     (if at-will?
+       ; easy case; at-will spells don't need a "cast" button
+       [:div {:class styles/cast-spell}
+        "At Will"]
 
-      [:div.button
-       {:class [styles/cast-spell
-                (when-not has-uses?
-                  "disabled")
-                (when upcast?
-                  "upcast")]
-        :on-click (fn-click [e]
-                    (when has-uses?
-                      (.stopPropagation e)
-                      (if use-id
-                        (do
-                          (log "Consume " s " VIA " use-id)
-                          (>evt [:+use use-id 1]))
-                        (do
-                          (log "Cast " s " AT " castable-level)
-                          (>evt [::events/use-spell-slot
-                                 slot-kind slot-level slot-total])))))}
+       [:div.button
+        {:class [styles/cast-spell
+                 (when-not has-uses?
+                   "disabled")
+                 (when upcast?
+                   "upcast")]
+         :on-click (fn-click [e]
+                     (when has-uses?
+                       (.stopPropagation e)
+                       (if use-id
+                         (do
+                           (log "Consume " s " VIA " use-id)
+                           (>evt [:+use use-id 1]))
+                         (do
+                           (log "Cast " s " AT " castable-level)
+                           (>evt [::events/use-spell-slot
+                                  slot-kind slot-level slot-total])))))}
 
-       ; div content:
-       (if use-id
-         "Use"
-         "Cast")
+        ; div content:
+        (if use-id
+          "Use"
+          "Cast")
 
-       (when upcast?
-         [:span.upcast-level " @" castable-level])
-       ])))
+        (when upcast?
+          [:span.upcast-level " @" castable-level])
+        ]))))
 
 (defn spell-aoe
   "Renders the AOE of a spell"
