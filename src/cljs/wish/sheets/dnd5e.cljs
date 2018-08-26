@@ -277,6 +277,9 @@
 
 (defn- attack-block [s & [extra-info]]
   [:div.attack (or extra-info {})
+   (when (= :spell-attack (:class extra-info))
+     [cast-button s])
+
    [:div.name
     (when (show-info-for? s)
       {:on-click (click>evt [:toggle-overlay
