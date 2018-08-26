@@ -17,7 +17,8 @@
   ::page!
   [trim-v]
   (fn [db [new-page]]
-    (assoc db :5e/page new-page)))
+    (let [sheet-id (active-sheet-id db)]
+      (assoc-in db [:5e/page sheet-id] new-page))))
 
 
 ; ======= builder-specific =================================
