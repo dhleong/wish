@@ -40,11 +40,22 @@ a {
         margin-top: 12px;
         padding: 16px;
 
-        a {
+        a.link {
             color: #333;
+
+            &:not(:first-child):before {
+                content: '·';
+                display: inline-block;
+                text-align: center;
+                width: 1em;
+            }
 
             &:hover {
                 color: #999;
+
+                &:not(:first-child):before {
+                    color: #333;
+                }
             }
         }
     }
