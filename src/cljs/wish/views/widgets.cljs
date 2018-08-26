@@ -28,8 +28,34 @@
 (defn link
   "Drop-in replacement for :a that inserts the # in links if necessary"
   [attrs & contents]
-  (into [:a (update attrs :href nav/prefix)]
+  (into [:a.nav-link (update attrs :href nav/prefix)]
         contents))
+
+(defn link>evt
+  "Convenience for [:a] elements that don't go anywhere but
+   instead dispatch an event when clicked. `evt-or-opts` can be:
+   - An events vector directly
+   - A map including :on-click
+   - A map including :>, which is an events vector to dispatch"
+  [evt-or-opts & content]
+  (let [base {:href "#"}
+        opts (cond
+               ; events vector
+               (vector? evt-or-opts) (assoc base :on-click (click>evt evt-or-opts))
+
+               ; map with :on-click, the easy case
+               (:on-click evt-or-opts) evt-or-opts
+
+               ; fancy case; merge in all the provided opts, in case they
+               ; provided, eg :class
+               (:> evt-or-opts) (dissoc
+                                  (merge base
+                                         evt-or-opts
+                                         {:on-click (click>evt (:> evt-or-opts))})
+                                  :>)
+               )]
+    (into [:a opts]
+          content)))
 
 (defn save-state
   []

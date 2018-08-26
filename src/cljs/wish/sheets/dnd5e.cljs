@@ -23,7 +23,7 @@
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [expandable formatted-text link]]
+             :refer [expandable formatted-text link link>evt]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 (defn rest-buttons []
@@ -84,7 +84,8 @@
         [widgets/save-state]]
 
        [:div.col.left
-        [:div.name [link {:href "/sheets"}
+        [:div.name [link {:class "inline"
+                          :href "/sheets"}
                     (:name common)]]
         [:div.meta
          [:div.race (:name (<sub [:race]))]
@@ -94,8 +95,7 @@
                             (str/join " / "))]]]
 
        [:div.col
-        [link {:href "#"
-               :on-click (click>evt [:toggle-overlay [#'overlays/notes-overlay]])}
+        [link>evt [:toggle-overlay [#'overlays/notes-overlay]]
          (icon :description)]]]
 
       [:div.space]
@@ -630,19 +630,17 @@
           [:h4 (:name c)
            (when-not fixed-list?
              [:div.manage-link
-              [:a {:href "#"
-                   :on-click (click>evt [:toggle-overlay
-                                         [#'overlays/spell-management c]
-                                         :scrollable? true])}
+              [link>evt [:toggle-overlay
+                         [#'overlays/spell-management c]
+                         :scrollable? true]
                (str "Manage " prepared-label " spells")]])
            (when acquires?
              [:div.manage-link
-              [:a {:href "#"
-                   :on-click (click>evt [:toggle-overlay
-                                         [#'overlays/spell-management
-                                          c
-                                          :mode :acquisition]
-                                         :scrollable? true])}
+              [link>evt [:toggle-overlay
+                         [#'overlays/spell-management
+                          c
+                          :mode :acquisition]
+                         :scrollable? true]
                (str "Manage " (:acquired-label attrs))]])]
 
           (when-not fixed-list?
@@ -670,10 +668,9 @@
 
       (when (inv/instanced? item)
         [:div.notes
-         [link {:href "#"
-                :on-click (click>evt [:toggle-overlay
-                                      [#'overlays/notes-overlay :item item]]
-                                     :propagate? false)}
+         [link>evt [:toggle-overlay
+                    [#'overlays/notes-overlay :item item]]
+          :propagate? false
           (icon :description)]])
 
       (when stacks?
@@ -728,19 +725,19 @@
 
    [:div.add
     [:b.label "Add:"]
-    [:a.link {:href "#"
-              :on-click (click>evt [:toggle-overlay
-                                    [#'overlays/item-adder]])}
+    [link>evt {:class "link"
+               :> [:toggle-overlay
+                   [#'overlays/item-adder]]}
      "Item"]
 
-    [:a.link {:href "#"
-              :on-click (click>evt [:toggle-overlay
-                                    [#'overlays/custom-item-creator]])}
+    [link>evt {:class "link"
+               :> [:toggle-overlay
+                   [#'overlays/custom-item-creator]]}
      "Custom"]
 
-    [:a.link {:href "#"
-              :on-click (click>evt [:toggle-overlay
-                                    [#'overlays/starting-equipment-adder]])}
+    [link>evt {:class "link"
+               :> [:toggle-overlay
+                   [#'overlays/starting-equipment-adder]]}
      "Starting Gear"] ]
 
    (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
