@@ -422,6 +422,7 @@
         level-scaler (partial level-scale-feature
                               (:wish/data-source state)
                               (:level state))
+
         new-installed (when (:features added)
                         (install-features
                           state
@@ -434,7 +435,11 @@
                                       (fn [m]
                                         (reduce-kv
                                           (fn [m f-id f]
-                                            (if (map? f)
+                                            ; NOTE: if (= f-id (last path)),
+                                            ; this is exactly the feature
+                                            ; we just applied mods to
+                                            (if (and (not= f-id (last path))
+                                                     (map? f))
                                               ; level-scale, but not :!; that is
                                               ; handled elsewhere.
                                               ; FIXME This is a terrible hack, but otherwise

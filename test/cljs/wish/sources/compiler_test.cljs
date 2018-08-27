@@ -411,6 +411,29 @@
         (is (= {:proficiency/insight true}
                (:attrs (apply-feature-levels level-3 ds))))))
 
+    (testing "Only scale once"
+      (let [class-def {:id :sorcerer
+                       :features
+                       {:rogue/sneak-attack
+                        {:id :rogue/sneak-attack
+                         :desc ""
+                         :levels {1 {:>>desc "Level 1"}
+                                  2 {:>>desc "Level 2"}
+                                  3 {:>>desc "Level 3"}
+                                  4 {:>>desc "Level 4"}}} }}
+            entity-base (assoc class-def :level 1)
+            level-4 (assoc entity-base :level 4)]
+        (is (= "Level 1"
+               (-> (inflate entity-base ds {})
+                   :features
+                   :rogue/sneak-attack
+                   :desc)))
+        (is (= "Level 4"
+               (-> (inflate level-4 ds {})
+                   :features
+                   :rogue/sneak-attack
+                   :desc)))))
+
     (testing "Apply level scaling to limited-use"
       (let [class-def {:id :sorcerer
                        :&levels
