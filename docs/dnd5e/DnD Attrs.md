@@ -2,7 +2,7 @@ D&D 5e-specific `:attrs`
 ========================
 
 For different value types, such as that used for `:aoe`, see
-[D&D Value Types](./Dnd Values.md).
+[D&D Value Types](./DnD%20Values.md).
 
 ## `:action`
 
