@@ -58,27 +58,29 @@ At 6th level, you can choose two more of your proficiencies (in skills or with t
     :desc "You know how to strike subtly and exploit a foe’s distraction. Once per turn, you can deal an extra 1d6 damage to one creature you hit with an attack if you have advantage on the attack roll. The attack must use a finesse or a ranged weapon.
 You don’t need advantage on the attack roll if another enemy of the target is within 5 feet of it, that enemy isn’t incapacitated, and you don’t have disadvantage on the attack roll.
 The amount of the extra damage increases as you gain levels in this class, as shown in the Sneak Attack column of the Rogue table."
-    ; TODO surface sneak attack damage somewhere?
-    :levels {1 {:>>desc "\nAt 1st level, your sneak attack damage is 1d6"}
-             2 {:>>desc "\nAt 2nd level, your sneak attack damage is 1d6"}
-             3 {:>>desc "\nAt 3rd level, your sneak attack damage is 2d6"}
-             4 {:>>desc "\nAt 4th level, your sneak attack damage is 2d6"}
-             5 {:>>desc "\nAt 5rd level, your sneak attack damage is 3d6"}
-             6 {:>>desc "\nAt 6th level, your sneak attack damage is 3d6"}
-             7 {:>>desc "\nAt 7rd level, your sneak attack damage is 4d6"}
-             8 {:>>desc "\nAt 8th level, your sneak attack damage is 4d6"}
-             9 {:>>desc "\nAt 9rd level, your sneak attack damage is 5d6"}
-             10 {:>>desc "\nAt 10th level, your sneak attack damage is 5d6"}
-             11 {:>>desc "\nAt 11th level, your sneak attack damage is 6d6"}
-             12 {:>>desc "\nAt 12th level, your sneak attack damage is 6d6"}
-             13 {:>>desc "\nAt 13th level, your sneak attack damage is 7d6"}
-             14 {:>>desc "\nAt 14th level, your sneak attack damage is 7d6"}
-             15 {:>>desc "\nAt 15th level, your sneak attack damage is 8d6"}
-             16 {:>>desc "\nAt 16th level, your sneak attack damage is 8d6"}
-             17 {:>>desc "\nAt 17th level, your sneak attack damage is 9d6"}
-             18 {:>>desc "\nAt 18th level, your sneak attack damage is 9d6"}
-             19 {:>>desc "\nAt 19th level, your sneak attack damage is 10d6"}
-             20 {:>>desc "\nAt 20th level, your sneak attack damage is 10d6"}}}
+    :levels {1 {:>>desc "\nAt 1st level, your sneak attack damage is **1d6**"}
+             2 {:>>desc "\nAt 2nd level, your sneak attack damage is **1d6**"}
+             3 {:>>desc "\nAt 3rd level, your sneak attack damage is **2d6**"}
+             4 {:>>desc "\nAt 4th level, your sneak attack damage is **2d6**"}
+             5 {:>>desc "\nAt 5rd level, your sneak attack damage is **3d6**"}
+             6 {:>>desc "\nAt 6th level, your sneak attack damage is **3d6**"}
+             7 {:>>desc "\nAt 7rd level, your sneak attack damage is **4d6**"}
+             8 {:>>desc "\nAt 8th level, your sneak attack damage is **4d6**"}
+             9 {:>>desc "\nAt 9rd level, your sneak attack damage is **5d6**"}
+             10 {:>>desc "\nAt 10th level, your sneak attack damage is **5d6**"}
+             11 {:>>desc "\nAt 11th level, your sneak attack damage is **6d6**"}
+             12 {:>>desc "\nAt 12th level, your sneak attack damage is **6d6**"}
+             13 {:>>desc "\nAt 13th level, your sneak attack damage is **7d6**"}
+             14 {:>>desc "\nAt 14th level, your sneak attack damage is **7d6**"}
+             15 {:>>desc "\nAt 15th level, your sneak attack damage is **8d6**"}
+             16 {:>>desc "\nAt 16th level, your sneak attack damage is **8d6**"}
+             17 {:>>desc "\nAt 17th level, your sneak attack damage is **9d6**"}
+             18 {:>>desc "\nAt 18th level, your sneak attack damage is **9d6**"}
+             19 {:>>desc "\nAt 19th level, your sneak attack damage is **10d6**"}
+             20 {:>>desc "\nAt 20th level, your sneak attack damage is **10d6**"}}
+    :! [[:!provide-attr
+         [:special-action :rogue/sneak-attack]
+         true]]}
 
    {:id :rogue/thieves-cant
     :name "Thieve's Cant"
