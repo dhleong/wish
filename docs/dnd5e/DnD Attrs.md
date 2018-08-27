@@ -235,3 +235,21 @@ Declare that a feature can be used as a "Special Action," such as a Rogue's
 Sneak Attack. Sneak Attack does not consume any time on its own, but is
 used in conjunction with an action.
 See [`:action`](#action) above for format and usage.
+
+## `:spells`
+
+Modify the attributes of a spell. Very commonly used by Warlock Eldritch Invocations, but might also be used by racial traits.
+
+### Format
+
+Map of `class-id -> spell-id -> modifiers` where `class-id` is the ID of the class or race providing the spell (EG: `:tiefling` or `:warlock`), `:spell-id` is the id of the spell to be modified, and `modifiers` is a map that looks like:
+
+```clojure
+{:spell-level 2             ; spell level to cast it at
+ :upcast? false             ; disable other upcasting
+ :consumes :limited-use-id  ; consume a limited-use instead of spell slots
+ :at-will? true             ; make a spell be usable at-will
+ }
+```
+
+All of these keys are optional, and you need only provide those that are necessary to your specific feature.
