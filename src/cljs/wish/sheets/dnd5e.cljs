@@ -408,37 +408,34 @@
 
 (defn- combat-page-link
   [page id label]
-  (let [selected? (= id @page)]
+  (let [selected? (= id page)]
     [:div.filter {:class (when selected?
                            "selected")}
      (if selected?
        [:span.unselectable label]
 
-       [:a {:href "#"
-            :on-click (fn-click
-                        (reset! page id))}
+       [link>evt [::events/actions-page! id]
         label])]))
 
 (declare limited-use-section)
 (defn actions-section []
-  (let [page (r/atom :combat)]
-    (fn []
-      [:<>
-       [:div.filters
-        [combat-page-link page :combat "Combat"]
-        [combat-page-link page :actions "Actions"]
-        [combat-page-link page :bonuses "Bonuses"]
-        [combat-page-link page :reactions "Reactions"]
-        [combat-page-link page :specials "Others"]
-        [combat-page-link page :limited-use "Limited"]]
+  (let [page (<sub [::subs/actions-page :combat])]
+    [:<>
+     [:div.filters
+      [combat-page-link page :combat "Combat"]
+      [combat-page-link page :actions "Actions"]
+      [combat-page-link page :bonuses "Bonuses"]
+      [combat-page-link page :reactions "Reactions"]
+      [combat-page-link page :specials "Others"]
+      [combat-page-link page :limited-use "Limited"]]
 
-       (case @page
-         :combat [actions-combat]
-         :actions [actions-for-type :action]
-         :bonuses [actions-for-type :bonus]
-         :reactions [actions-for-type :reaction]
-         :specials [actions-for-type :special-action]
-         :limited-use [limited-use-section])])))
+     (case page
+       :combat [actions-combat]
+       :actions [actions-for-type :action]
+       :bonuses [actions-for-type :bonus]
+       :reactions [actions-for-type :reaction]
+       :specials [actions-for-type :special-action]
+       :limited-use [limited-use-section])]))
 
 
 ; ======= Features =========================================

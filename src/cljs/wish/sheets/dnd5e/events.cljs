@@ -13,12 +13,21 @@
 
 ; ======= 5e-specific nav =================================
 
+(defn- page-nav [nav-key]
+  "Create the event-db fn that navigates with the given nav-key"
+  (fn [db [new-page]]
+    (let [sheet-id (active-sheet-id db)]
+      (assoc-in db [nav-key sheet-id] new-page))))
+
 (reg-event-db
   ::page!
   [trim-v]
-  (fn [db [new-page]]
-    (let [sheet-id (active-sheet-id db)]
-      (assoc-in db [:5e/page sheet-id] new-page))))
+  (page-nav :5e/page))
+
+(reg-event-db
+  ::actions-page!
+  [trim-v]
+  (page-nav :5e/actions-page))
 
 
 ; ======= builder-specific =================================

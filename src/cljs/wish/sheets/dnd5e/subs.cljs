@@ -99,13 +99,23 @@
 ; ======= 5e-specific nav =================================
 
 (reg-sub :5e/page :5e/page)
+(reg-sub :5e/actions-page :5e/actions-page)
+
+(defn- page-specific-sheet
+  [[sheet->page sheet-id] [_ default]]
+  (get sheet->page sheet-id default))
 
 (reg-sub
   ::page
   :<- [:5e/page]
   :<- [:active-sheet-id]
-  (fn [[sheet->page sheet-id] [_ default]]
-    (get sheet->page sheet-id default)))
+  page-specific-sheet)
+
+(reg-sub
+  ::actions-page
+  :<- [:5e/actions-page]
+  :<- [:active-sheet-id]
+  page-specific-sheet)
 
 
 ; ======= class and level ==================================
