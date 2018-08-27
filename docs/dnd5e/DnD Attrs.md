@@ -196,10 +196,38 @@ EX:
             "d6"))}]
 ```
 
+## `:immunities`
+
+Provide information about special immunities. See [`:resistances`](#resistances).
+
 ## `:reaction`
 
 Declare that a feature can be used as a Reaction. See [`:action`](#action)
 above for format and usage.
+
+## `:resistances`
+
+Provide information about special resistances.
+
+### Format
+
+Map of `id -> {:desc}` where the value of `:desc` should be a string describing the resistance granted, or `id -> true` where `id` is the value of a feature whose
+`:desc` will be used.
+
+EX:
+
+```clojure
+[:!provide-attr [:resistances :dwarf/dwarven-resilience-resistances]
+ {:desc "You have resistance against poison damage."}]
+```
+
+```clojure
+[:!provide-attr [:immunities :paladin/divine-health] true]
+```
+
+## `:saves`
+
+Provide information about special saving throw modifiers. See [`:resistances`](#resistances).
 
 ## `:special-action`
 
