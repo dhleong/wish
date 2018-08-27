@@ -2,13 +2,14 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.sources.compiler.entity-mod :refer [extract-mod-and-key
                                                       apply-entity-mod
+                                                      idempotent-append
                                                       merge-mods]]))
 
 (deftest extract-mod-and-key-test
   (testing "Concat"
     (is (= [concat :spells]
            (extract-mod-and-key :+spells)))
-    (is (= [str :desc]
+    (is (= [idempotent-append :desc]
            (extract-mod-and-key :>>desc))))
   (testing "Merge"
     (is (= [apply-entity-mod :&levels]
@@ -37,6 +38,14 @@
            (apply-entity-mod
              {:spells [:a]}
              {:+spells [:b :c]}))))
+
+  (testing "Idempotent append"
+    (is (= {:desc "+"}
+           (apply-entity-mod
+             (apply-entity-mod
+               {:desc ""}
+               {:>>desc "+"})
+             {:>>desc "+"}))))
 
   (testing "Recursive merge"
     (is (= {:attrs {:5e/ability-score-increase {:dex 2

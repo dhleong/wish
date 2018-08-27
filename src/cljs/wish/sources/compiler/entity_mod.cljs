@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Utilities for data-based entity modification"}
-  wish.sources.compiler.entity-mod)
+  wish.sources.compiler.entity-mod
+  (:require [clojure.string :as str]))
 
 (defn- mod-key
   ([k skip-chars]
@@ -10,6 +11,12 @@
 (declare apply-entity-mod)
 
 (defn- newest-value [a b] b)
+
+(defn idempotent-append
+  [^String a ^String b]
+  (if (str/ends-with? a b)
+    a  ; no change
+    (str a b)))
 
 ; NOTE public for testing
 (defn extract-mod-and-key
@@ -51,9 +58,10 @@
 
              ; normal case
              [concat the-key]))
+
       \> (if (not= \> (second n))
            (throw (js/Error. (str "Invalid mod prefix on key " k)))
-           [str (mod-key k 2)])
+           [idempotent-append (mod-key k 2)])
 
       \& [apply-entity-mod (mod-key k 1)]
 
