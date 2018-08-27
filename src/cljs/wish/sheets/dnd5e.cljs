@@ -340,6 +340,13 @@
 (defn- actions-combat []
   [:<>
 
+   [:div.combat-info
+    (for [info (<sub [::subs/combat-info])]
+      ^{:key (:name info)}
+      [:span.item
+       (:name info) ": " (:value info)])
+    ]
+
    (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike
       [attack-block (assoc s :name "Unarmed Strike")]])

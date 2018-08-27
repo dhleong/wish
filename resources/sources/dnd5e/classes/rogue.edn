@@ -80,7 +80,13 @@ The amount of the extra damage increases as you gain levels in this class, as sh
              20 {:>>desc "\nAt 20th level, your sneak attack damage is **10d6**"}}
     :! [[:!provide-attr
          [:special-action :rogue/sneak-attack]
-         true]]}
+         true]
+        [:!provide-attr
+         [:combat-info :rogue/sneak-attack]
+         {:name "Sneak Attack Damage"
+          :value (fn [level]
+                   (str (ceil (/ level 2))
+                        "d6"))}]]}
 
    {:id :rogue/thieves-cant
     :name "Thieve's Cant"

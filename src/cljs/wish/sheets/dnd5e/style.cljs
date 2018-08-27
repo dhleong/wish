@@ -485,6 +485,16 @@
                      :margin-bottom "8px"
                      :overflow-x 'auto})
    [:.filter {:padding "4px"}]]
+
+  [:.combat-info (merge metadata
+                        {:margin-bottom "8px"})
+   [:.item
+    ["&:not(:first-child)" {:padding-right "0.5em"}
+     [:&:before {:content "'·'"
+                 :display 'inline-block
+                 :text-align 'center
+                 :width "1em"}]]]]
+
   [:.attack flex/center
    [:.name flex/grow]
    [:.info-group (merge flex/center

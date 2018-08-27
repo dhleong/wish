@@ -588,6 +588,51 @@
     ; TODO other initiative mods?
     (:dex abilities)))
 
+(def ^:private compile-attacks-per (memoize ->callable))
+(reg-sub
+  ::attacks-per-action
+  :<- [:classes]
+  (fn [classes _]
+    (or (->> classes
+             (map (juxt (comp vals :attacks-per-action :attrs)
+                        identity))
+             (mapcat (fn [[values entity]]
+                       (map
+                         (fn [v]
+                           (if (number? v)
+                             ; easy case
+                             v
+
+                             ; functional value
+                             ((compile-attacks-per v)
+                               entity)))
+                         values)))
+             (apply max))
+        1)))
+
+(def ^:private compile-combat-info-value (memoize ->callable))
+(reg-sub
+  ::combat-info
+  :<- [::attacks-per-action]
+  :<- [:classes]
+  (fn [[attacks-per-action classes] _]
+    (->> classes
+         (map (juxt (comp vals :combat-info :attrs)
+                    identity))
+         (mapcat (fn [[values entity]]
+                   (map
+                     (fn [v]
+                       (update v :value
+                               (fn [value]
+                                 ((compile-combat-info-value value)
+                                  entity))))
+                     values)))
+         (sort-by :name)
+
+         ; insert attacks
+         (cons {:name "Attacks per action"
+                :value attacks-per-action}))))
+
 (reg-sub
   ::unarmed-strike
   :<- [:classes]

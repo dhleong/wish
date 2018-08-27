@@ -97,9 +97,13 @@ Once you use this feature, you must finish a short or long rest before you can u
                  :name "Extra Attack"
                  :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn.
 The number of attacks increases to three when you reach 11th level in this class and to four when you reach 20th level in this class."
-                 ; TODO surface number of attacks
-                 }
-
+                 :! [[:!provide-attr
+                      [:attacks-per-action :fighter/extra-attack]
+                      (fn [level]
+                        (cond
+                          (< level 11) 2
+                          (< level 20) 3
+                          :else 4))]]}
                 ]}
 
             6 {:+features

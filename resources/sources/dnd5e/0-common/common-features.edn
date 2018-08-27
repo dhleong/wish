@@ -50,6 +50,9 @@ At certain levels, your class gives you the Ability Score Improvement feature. U
 
  {:id :extra-attack
   :name "Extra Attack"
-  :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn."}
+  :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+  :! [[:!provide-attr
+       [:attacks-per-action :extra-attack]
+       2]]}
 
  ]
