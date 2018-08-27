@@ -7,6 +7,7 @@
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt invoke-callable]]
+            [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
@@ -106,11 +107,6 @@
 
 ; ======= Spells-related ==================================
 
-(def ^:private level-suffixed
-  {1 "1st" 2 "2nd" 3 "3rd"
-   4 "4th" 5 "5th" 6 "6th"
-   7 "7th" 8 "8th" 9 "9th"})
-
 (defn cast-button
   "Renders a button to cast the given spell at its current level.
    Renders a box with 'At Will' if the spell is a cantrip"
@@ -181,7 +177,7 @@
 
         (when upcast?
           [:span.upcast-level
-           " @" (get level-suffixed castable-level)])
+           " @" (get data/level-suffixed castable-level)])
         ]))))
 
 (defn spell-aoe

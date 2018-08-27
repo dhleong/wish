@@ -239,6 +239,32 @@
                                       (get used id))))
          first)))
 
+; Takes an entity with :consumes and returns something
+; that can be consumed from it. Usually this delegates to
+; [::limited-use (:consumes a)], but this also supports
+; the special case of consuming a :*spell-slot
+(reg-sub
+  ::consumable
+  (fn [[_ {id :consumes :as entity}]]
+    (if (not= :*spell-slot id)
+      (subscribe [::limited-use id])
+
+      ; special case
+      (subscribe [::usable-slot-for entity])))
+  (fn [input [_ {id :consumes :as info}]]
+    (if (not= :*spell-slot id)
+      ; easy case
+      input
+
+      {:id :*spell-slot
+       :name (str (get data/level-suffixed (:level input))
+                  "-level Spell Slot")
+       :uses-left (:unused input)
+       :slot-kind (:kind input)
+       :slot-level (:level input)
+       :max-slots (:total input)}
+      )))
+
 (reg-sub
   ::rolled-hp
   :<- [:meta/sheet]
@@ -1063,19 +1089,20 @@
   ::prepared-spells-filtered
   :<- [::all-prepared-spells]
   (fn [spells [_ filter-type]]
-    (filter (case filter-type
-              :action (fn [s]
-                        (and (not (util/bonus-action? s))
-                             (not (util/reaction? s))))
-              :bonus util/bonus-action?
-              :reaction util/reaction?
+    (when-not (= :special-action filter-type)
+      (filter (case filter-type
+                :action (fn [s]
+                          (and (not (util/bonus-action? s))
+                               (not (util/reaction? s))))
+                :bonus util/bonus-action?
+                :reaction util/reaction?
 
-              (if (number? filter-type)
-                #(= filter-type (:level %))
+                (if (number? filter-type)
+                  #(= filter-type (:level %))
 
-                (throw (js/Error.
-                         (str "Unknown spell filter-type:" filter-type)))))
-            spells)))
+                  (throw (js/Error.
+                           (str "Unknown spell filter-type:" filter-type)))))
+              spells))))
 
 ; reduces ::prepared-spells into {:cantrips, :spells},
 ; AND removes ones that are always prepared

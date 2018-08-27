@@ -288,10 +288,11 @@
     (:name s) ]
 
    (when-let [use-id (:consumes s)]
-     (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
+     (when-let [{:keys [uses-left] :as info}
+                (<sub [::subs/consumable s])]
        (if (> uses-left 0)
          [:div.uses.button
-          {:on-click (click>evt [:+use use-id 1])}
+          {:on-click (click>evt [::events/+use info 1])}
           uses-left " Left"]
          "(none left)\u00A0")))
 
@@ -371,13 +372,14 @@
   [:div.action
    [:div.name (:name a)]
    (when-let [use-id (:consumes a)]
-     (when-let [{:keys [name uses-left]} (<sub [::subs/limited-use use-id])]
+     (when-let [{:keys [name uses-left] :as info}
+                (<sub [::subs/consumable a])]
        [:div.consumable
         [:div.name name]
         [:div.uses uses-left " left"]
         (when (> uses-left 0)
           [:div.button
-           {:on-click (click>evt [:+use use-id 1])}
+           {:on-click (click>evt [::events/+use info 1])}
            "Use 1"])]))
    [formatted-text :div.desc (:desc a)]])
 
@@ -427,13 +429,15 @@
         [combat-page-link page :actions "Actions"]
         [combat-page-link page :bonuses "Bonuses"]
         [combat-page-link page :reactions "Reactions"]
-        [combat-page-link page :limited-use "Limited Use"]]
+        [combat-page-link page :specials "Others"]
+        [combat-page-link page :limited-use "Limited"]]
 
        (case @page
          :combat [actions-combat]
          :actions [actions-for-type :action]
          :bonuses [actions-for-type :bonus]
          :reactions [actions-for-type :reaction]
+         :specials [actions-for-type :special-action]
          :limited-use [limited-use-section])])))
 
 

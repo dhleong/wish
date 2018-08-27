@@ -425,3 +425,12 @@ Finishing a long rest reduces a creature's exhaustion level by 1, provided that 
                          :proficiency/sleight-of-hand
                          :proficiency/stealth
                          :proficiency/survival})
+
+
+; ======= spell-related ===================================
+
+(def level-suffixed
+  {1 "1st" 2 "2nd" 3 "3rd"
+   4 "4th" 5 "5th" 6 "6th"
+   7 "7th" 8 "8th" 9 "9th"})
+

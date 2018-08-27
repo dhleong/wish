@@ -127,6 +127,20 @@
     (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] inc)))
 
 (reg-event-fx
+  ::+use
+  [trim-v]
+  (fn-traced [cofx [info]]
+    (if (not= :*spell-slot (:id info))
+      ; easy case
+      {:dispatch [:+use (:id info) 1]}
+
+      ; special case for spells
+      {:dispatch [::use-spell-slot
+                  (:slot-kind info)
+                  (:slot-level info)
+                  (:max-slots info)]})))
+
+(reg-event-fx
   ::restore-spell-slot
   [trim-v]
   (fn-traced [cofx [kind level max-slots]]
