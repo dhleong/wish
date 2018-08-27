@@ -534,8 +534,7 @@
                       (fn [v]
                         (if (number? v)
                           v
-                          (invoke-callable v :fn
-                                           :level level)))
+                          (v {:level level})))
                       values)))))))
 
 

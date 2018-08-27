@@ -79,10 +79,97 @@ the `:dragonborn/ancestry` option, eg:
  :aoe [:line 30, 5]}
 ```
 
+## `:attacks-per-action`
+
+Provide a source of extra attacks.
+
+### Format
+
+A map of `id -> attacks` where `attacks` is a functional number value.
+
+EX:
+
+```clojure
+[:!provide-attr
+ [:attacks-per-action :extra-attack]
+ 2]
+
+[:!provide-attr
+ [:attacks-per-action :fighter/extra-attack]
+ (fn [level]
+   (cond
+     (< level 11) 2
+     (< level 20) 3
+     :else 4))]
+```
+
+
 ## `:bonus`
 
 Declare that a feature can be used as a Bonus Action. See [`:action`](#action)
 above for format and usage.
+
+## `:buffs`
+
+Provide buffs to various properties, like Armor Class or Saving Throws.
+
+### Format
+
+A nested map of `kind(s) -> id -> value` where `kind(s)` is one or more
+keys (see below) and `value` depends on the kinds.
+
+#### Constant buffs
+
+The following kinds expect their `value` to be a constant number:
+
+ - `:ac` Armor Class
+ - `:atk :melee` Melee Attack Rolls
+ - `:atk :ranged` Ranged Attack Rolls
+ - `:saves` Saving Throws
+ - `:checks` Ability Checks
+ - `:spell-atk` Spell Attack Rolls
+ - Abilities, like `:str`, `:dex`, etc.
+
+#### Update buffs
+
+If necessary, you can also functionally buff abilities using `:!update-attr`,
+as follows:
+
+```clojure
+[:!update-attr [:buffs :str] inc]
+```
+
+This is uncomon.
+
+#### Functional Number buffs
+
+The following kinds can accept a functional number `value`:
+
+ - `:hp-max` Max HP
+ - `:speed` Speed, in feet
+
+#### `:dmg :melee` and `:dmg :ranged`
+
+Damage buffs. The value is a map that looks like:
+
+```clojure
+{:dice "1d6"        ; additional dice; can also be a function
+ :type :radiant     ; or fire, etc.
+ :when-two-handed?  ; if provided, the weapon's two-handedness must match
+ :when-versatile    ; as above
+ :+ 2               ; constant bonus
+ }
+```
+
+EX:
+
+```clojure
+[:!provide-attr
+ [:buffs :dmg :melee :fight/dueling-style]
+ {:when-two-handed? false
+  :when-versatile? false
+  :+ 2}]
+```
 
 ## `:combat-info`
 

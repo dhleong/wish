@@ -108,13 +108,13 @@ Some of your ki features require your target to make a saving throw to resist th
 At 9th level, you gain the ability to move along vertical surfaces and across liquids on your turn without falling during the move."
                  :! [[:!provide-attr
                       [:buffs :speed :monk/unarmored-movement]
-                      {:fn (fn [level]
-                             (cond
-                               (< level 6) 10
-                               (< level 10) 15
-                               (< level 14) 20
-                               (< level 18) 25
-                               :else 30))}]]}
+                      (fn [level]
+                        (cond
+                          (< level 6) 10
+                          (< level 10) 15
+                          (< level 14) 20
+                          (< level 18) 25
+                          :else 30))]]}
 
                 {:id :monk/flurry-of-blows
                  :name "Flurry of Blows"

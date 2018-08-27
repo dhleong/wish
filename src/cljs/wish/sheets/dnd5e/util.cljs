@@ -145,8 +145,8 @@
                      (if (number? v)
                        m
 
-                       ; should look like {:fn (fn [level])}
-                       (update-in m [k :fn] compile-speed-buff)))
+                       ; should look like (fn [level])
+                       (update m k compile-speed-buff)))
                    buffs-map
                    buffs-map)))
 
