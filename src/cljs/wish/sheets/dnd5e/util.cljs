@@ -35,6 +35,15 @@
     (str "+" (or modifier 0))
     (str "−" (Math/abs modifier))))
 
+(defn with-range
+  "To be used as, eg:
+     (update m :key with-range [min-val max-val] inc)"
+  [old-val [min-val max-val] f & args]
+  (let [new-val (apply f old-val args)]
+    (min
+      max-val
+      (max min-val new-val))))
+
 
 ; ======= feature-related =================================
 

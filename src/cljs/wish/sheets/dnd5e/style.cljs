@@ -401,7 +401,19 @@
 
   [:table.info metadata
    [:th.header {:text-align 'right}]]
-  [:.desc {:font-size "90%"}])
+  [:.desc {:font-size "90%"}]
+
+  [:.upcast {:color color-accent2}]
+
+  [:.cast-container (merge flex
+                           flex/justify-center)]
+
+  [:.spell-leveling flex/center
+   [:.btn button
+    [:&.disabled {:cursor 'default
+                  :color "#ccc"}]]
+   [:.level {:font-size "140%"
+             :padding "12px"}]])
 
 (defstyled spell-tags
   [:.tag {:margin "0 4px"

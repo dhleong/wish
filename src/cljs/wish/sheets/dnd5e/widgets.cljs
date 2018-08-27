@@ -4,14 +4,16 @@
   (:require-macros [wish.util :refer [fn-click]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
+            [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.util :refer [with-range]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [formatted-text]]))
+             :refer [formatted-text link>evt]]))
 
 (defn stringify-components
   [{components :comp}]
@@ -113,11 +115,13 @@
   "Renders a button to cast the given spell at its current level.
    Renders a box with 'At Will' if the spell is a cantrip"
   ([s] (cast-button nil s))
-  ([{:keys [upcastable?]
+  ([{:keys [base-level upcastable?]
      :or {upcastable? true}} s]
    (let [cantrip? (= 0 (:spell-level s))
          at-will? (or cantrip?
                       (:at-will? s))
+         base-level (or base-level
+                        (:spell-level s))
 
          use-id (:consumes s)
 
@@ -145,14 +149,14 @@
                          (not (nil? castable-level))))
 
          upcast? (when has-uses?
-                   (> castable-level (:spell-level s)))]
+                   (> castable-level base-level))]
 
      (if at-will?
        ; easy case; at-will spells don't need a "cast" button
-       [:div {:class styles/cast-spell}
+       [:div.cast {:class styles/cast-spell}
         "At Will"]
 
-       [:div.button
+       [:div.cast.button
         {:class [styles/cast-spell
                  (when-not has-uses?
                    "disabled")
@@ -208,68 +212,132 @@
        [:span.tag "R"])
      ]))
 
+(defn- the-spell-card
+  [{:keys [update-level! base-level max-level]}
+   {:keys [spell-level] :as s}]
+  (let [upcast? (not= spell-level base-level)
+        upcast-class {:class (when upcast?
+                               "upcast")}
+        cantrip? (= 0 spell-level)]
+    [:div styles/spell-card
+     [:table.info
+      [:tbody
+       [:tr
+        [:th.header "Casting Time"]
+        [:td (:time s)]]
+       [:tr
+        [:th.header "Range"]
+        [:td (:range s)]]
+
+       (when-let [aoe (:aoe s)]
+         [:tr
+          [:th.header "Area of Effect"]
+          [:td [spell-aoe aoe]]])
+
+       [:tr
+        [:th.header "Components"]
+        [:td (stringify-components s)]]
+       [:tr
+        [:th.header "Duration"]
+        [:td (:duration s)]]
+
+       (when-let [tags (spell-tags s)]
+         [:tr
+          [:th.header "Properties"]
+          [:td tags]])
+
+       (when-let [dice (:dice s)]
+         (let [{:keys [damage]} s
+               dice-value (invoke-callable
+                            (update s :spell-mod #(or % "(spell mod)"))
+                            :dice)
+               base-dice (if (not= spell-level base-level)
+                           (invoke-callable
+                             (-> s
+                                 (assoc :spell-level base-level)
+                                 (update :spell-mod #(or % "(spell mod)")))
+                             :dice))
+               upcast-class (when (not= base-dice
+                                        dice-value)
+                              upcast-class)]
+           [:tr
+            [:th.header upcast-class
+             (if damage
+               "Damage"
+               "Healing")]
+
+            [:td
+             [:u.dice upcast-class
+              dice-value]
+
+             (if-let [dam-type (stringify-dam-type damage)]
+               (str " " dam-type)
+               " HP")]]))
+
+       (when-let [save (:save s)]
+         [:tr
+          [:th.header
+           "Saving Throw"]
+          [:td
+           (case save
+             :str "Strength"
+             :dex "Dexterity"
+             :con "Constitution"
+             :int "Intelligence"
+             :wis "Wisdom"
+             :cha "Charisma")
+           (when-let [dc (:save-dc s)]
+             (str " (" dc ")"))]])
+
+       [:tr
+        [:th.header upcast-class
+         "Spell Level"]
+        [:td
+         [:div.spell-leveling
+          (when-not cantrip?
+            [link>evt {:class ["btn"
+                               (when (<= spell-level
+                                         base-level)
+                                 "disabled")]
+                       :on-click (fn-click
+                                   (update-level! dec))}
+             (icon :remove-circle)])
+
+          ; the current level
+          (if cantrip?
+            "Cantrip"
+            [:div.level upcast-class
+             spell-level])
+
+          (when-not cantrip?
+            [link>evt {:class ["btn"
+                               (when (>= spell-level
+                                         max-level)
+                                 "disabled")]
+                       :on-click (fn-click
+                                   (update-level! inc))}
+             (icon :add-circle)])]]]
+       ]]
+
+     [:div.cast-container
+      [cast-button {:base-level base-level} s]]
+
+     [formatted-text :div.desc (:desc s)]]))
+
 (defn spell-card
   "Spell info card widget"
   [s]
-  [:div styles/spell-card
-   [:table.info
-    [:tbody
-     [:tr
-      [:th.header "Casting Time"]
-      [:td (:time s)]]
-     [:tr
-      [:th.header "Range"]
-      [:td (:range s)]]
-
-     (when-let [aoe (:aoe s)]
-       [:tr
-        [:th.header "Area of Effect"]
-        [:td [spell-aoe aoe]]])
-
-     [:tr
-      [:th.header "Components"]
-      [:td (stringify-components s)]]
-     [:tr
-      [:th.header "Duration"]
-      [:td (:duration s)]]
-
-     (when-let [tags (spell-tags s)]
-       [:tr
-        [:th.header "Properties"]
-        [:td tags]])
-
-     (when-let [dice (:dice s)]
-       (let [{:keys [damage]} s]
-         [:tr
-          [:th.header
-           (if damage
-             "Damage"
-             "Healing")]
-
-          [:td
-           [:u
-            (invoke-callable
-              (update s :spell-mod #(or % "(spell mod)"))
-              :dice)]
-
-           (if-let [dam-type (stringify-dam-type damage)]
-             (str " " dam-type)
-             " HP")]]))
-
-     (when-let [save (:save s)]
-       [:tr
-        [:th.header
-         "Saving Throw"]
-        [:td
-         (case save
-           :str "Strength"
-           :dex "Dexterity"
-           :con "Constitution"
-           :int "Intelligence"
-           :wis "Wisdom"
-           :cha "Charisma")
-         (when-let [dc (:save-dc s)]
-           (str " (" dc ")"))]])
-     ]]
-
-   [formatted-text :div.desc (:desc s)]])
+  (r/with-let [base-level (:spell-level s)
+               max-level (<sub [::subs/highest-spell-level])
+               spell-atom (r/atom s)]
+    [the-spell-card
+     {:base-level base-level
+      :max-level max-level
+      :update-level!
+      (fn [f]
+        (swap! spell-atom
+               update
+               :spell-level
+               with-range [base-level max-level]
+               f))}
+     @spell-atom]))

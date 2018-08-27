@@ -1329,6 +1329,15 @@
          (apply max))))
 
 (reg-sub
+  ::highest-spell-level
+  :<- [::spell-slots]
+  (fn [all-slots]
+    (->> all-slots
+         vals
+         (mapcat (comp keys :slots))
+         (apply max))))
+
+(reg-sub
   ::spellcaster-slot-types
   :<- [::spellcaster-classes-with-slots]
   (fn [classes]

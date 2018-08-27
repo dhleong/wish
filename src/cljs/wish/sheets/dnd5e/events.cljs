@@ -5,7 +5,7 @@
                                    trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
             [wish.subs-util :refer [active-sheet-id]]
-            [wish.sheets.dnd5e.util :refer [->slot-kw]]
+            [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
             [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
                                       update-sheet-path]]
             [wish.util :refer [process-map]]))
@@ -60,13 +60,6 @@
 
 
 ; ======= etc ==============================================
-
-(defn with-range
-  [old-val [min-val max-val] f & args]
-  (let [new-val (apply f old-val args)]
-    (min
-      max-val
-      (max min-val new-val))))
 
 (reg-event-fx
   ::temp-hp!
