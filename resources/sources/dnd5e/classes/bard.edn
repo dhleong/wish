@@ -20,6 +20,9 @@
     (:lute {:kind :musical-instrument})
     [:leather-armor :dagger]]}
 
+  :5e/multiclass-reqs
+  {:cha 13}
+
   :features
   [:hit-dice/d8
    :hp

@@ -12,6 +12,9 @@
     [:leather-armor {:id :dagger
                      :count 2} :thieves-tools]]}
 
+  :5e/multiclass-reqs
+  {:dex 13}
+
   :features
   [:hit-dice/d8
    :hp

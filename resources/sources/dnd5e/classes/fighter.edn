@@ -21,6 +21,10 @@
 
     (:dungeoneers-pack :explorers-pack)]}
 
+  :5e/multiclass-reqs
+  ({:str 13}
+   {:dex 13})
+
   :features
   [:hit-dice/d10
    :hp

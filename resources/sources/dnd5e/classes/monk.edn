@@ -9,6 +9,10 @@
     [{:id :dart
       :count 10}]]}
 
+  :5e/multiclass-reqs
+  {:dex 13
+   :wis 13}
+
   :features
   [:hit-dice/d8
    :hp

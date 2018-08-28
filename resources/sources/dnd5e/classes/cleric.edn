@@ -19,6 +19,9 @@
     (:priests-pack :explorers-pack)
     [:shield {:kind :holy-symbol}]]}
 
+  :5e/multiclass-reqs
+  {:wis 13}
+
   :features
   [:hit-dice/d8
    :hp

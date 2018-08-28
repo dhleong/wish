@@ -19,6 +19,9 @@
                 :category :simple})
     [:leather-armor :explorers-pack {:kind :druidic-focus}]]}
 
+  :5e/multiclass-reqs
+  {:wis 13}
+
   :features
   [:hit-dice/d8
    :hp

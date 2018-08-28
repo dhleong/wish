@@ -13,6 +13,9 @@
     [:explorers-pack {:id :javelin
                       :count 4}]]}
 
+  :5e/multiclass-reqs
+  {:str 13}
+
   :features
   [:hit-dice/d12
    :hp
