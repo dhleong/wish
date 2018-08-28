@@ -18,10 +18,10 @@
                          :category :simple})
     (:diplomats-pack :entertainers-pack)
     (:lute {:kind :musical-instrument})
-    [:leather-armor :dagger]]}
+    [:leather-armor :dagger]]
 
-  :5e/multiclass-reqs
-  {:cha 13}
+   :5e/multiclass-reqs
+   {:cha 13}}
 
   :features
   [:hit-dice/d8

@@ -25,11 +25,11 @@
 
     (:dungeoneers-pack :explorers-pack)
 
-    [:longbow :quiver :arrow]]}
+    [:longbow :quiver :arrow]]
 
-  :5e/multiclass-reqs
-  {:dex 13
-   :wis 13}
+   :5e/multiclass-reqs
+   {:dex 13
+    :wis 13}}
 
   :features
   [:hit-dice/d10
