@@ -1496,16 +1496,46 @@
 
 ; ======= builder-specific =================================
 
+(defn- can-multiclass?
+  [c sheet]
+  (let [can? (-> c :attrs :5e/multiclass-reqs)]
+    (can? sheet)))
+
 (reg-sub
   ::available-classes
   :<- [:available-entities :classes]
   :<- [:classes]
-  (fn [[all-classes selected-classes]]
-    (let [selected-class-ids (->> selected-classes
+  :<- [::primary-class]
+  :<- [:sheet-meta]
+  (fn [[all-classes selected-classes primary-class sheet]]
+    (let [primary-can-multiclass? (can-multiclass?
+                                    primary-class
+                                    sheet)
+          selected-class-ids (->> selected-classes
                                   (map :id)
                                   (into #{}))]
       (->> all-classes
            (remove (comp selected-class-ids :id))
+           (map
+             (fn [c]
+               ; TODO include the actual numbers here somewhere
+               (cond
+                 ; if the primary can't multiclass,
+                 ; nobody can!
+                 (not primary-can-multiclass?)
+                 (assoc c :prereqs-failed? true
+                        :prereqs-reason "Starting class does not meet multiclass prerequisites.")
+
+                 ; if primary is good, then this class's reqs must also be satisfied
+                 (not (can-multiclass?
+                        c
+                        sheet))
+                 (assoc c :prereqs-failed? true
+                        :prereqs-reason "Multiclass prerequisites not met")
+
+                 ; good to go!
+                 :else c)
+               ))
            (sort-by :name)))))
 
 (reg-sub
