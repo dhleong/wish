@@ -140,6 +140,9 @@
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
 ; TODO There are also equippable items, but we don't yet support that.
+; TODO when we do handle equippable item buffs here, we need
+; to make sure ::available-classes doesn't use it (only ability
+; score improvements and racial bonuses ...)
 (reg-sub
   ::abilities-base
   :<- [:meta/sheet]
@@ -1497,20 +1500,20 @@
 ; ======= builder-specific =================================
 
 (defn- can-multiclass?
-  [c sheet]
+  [c abilities]
   (let [can? (-> c :attrs :5e/multiclass-reqs)]
-    (can? sheet)))
+    (can? abilities)))
 
 (reg-sub
   ::available-classes
   :<- [:available-entities :classes]
   :<- [:classes]
   :<- [::primary-class]
-  :<- [:sheet-meta]
-  (fn [[all-classes selected-classes primary-class sheet]]
+  :<- [::abilities-base]
+  (fn [[all-classes selected-classes primary-class abilities]]
     (let [primary-can-multiclass? (can-multiclass?
                                     primary-class
-                                    sheet)
+                                    abilities)
           selected-class-ids (->> selected-classes
                                   (map :id)
                                   (into #{}))]
@@ -1529,7 +1532,7 @@
                  ; if primary is good, then this class's reqs must also be satisfied
                  (not (can-multiclass?
                         c
-                        sheet))
+                        abilities))
                  (assoc c :prereqs-failed? true
                         :prereqs-reason "Multiclass prerequisites not met")
 

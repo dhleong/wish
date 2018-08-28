@@ -173,7 +173,7 @@
 ; ======= post-compile ====================================
 
 (defn- compile-multiclass-and [reqs]
-  (fn [{{abilities :abilities} :sheet}]
+  (fn [abilities]
     (not (some (fn [[stat min-value]]
                  (< (get abilities stat 1)
                     min-value))

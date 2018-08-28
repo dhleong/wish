@@ -4,15 +4,13 @@
                                             post-process]]))
 
 (defn ->abilities [abilities-partial]
-  {:sheet
-   {:abilities
-    (merge {:str 1
-            :dex 1
-            :con 1
-            :int 1
-            :wis 1
-            :cha 1}
-           abilities-partial)}})
+  (merge {:str 1
+          :dex 1
+          :con 1
+          :int 1
+          :wis 1
+          :cha 1}
+         abilities-partial))
 
 (deftest compile-multiclass-reqs-test
   (testing "Single stat"
