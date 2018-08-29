@@ -174,10 +174,15 @@
 
 (defn- compile-multiclass-and [reqs]
   (fn [abilities]
-    (not (some (fn [[stat min-value]]
-                 (< (get abilities stat 1)
-                    min-value))
-               reqs))))
+    (some
+      (fn [[stat min-value]]
+        (let [v (get abilities stat 1)]
+          (when (< v min-value)
+            (str (str/upper-case
+                   (name stat))
+                 " " min-value
+                 " (is: " v ")"))))
+      reqs)))
 
 (defn compile-multiclass-reqs
   "Turns a multiclass reqs spec into an acceptor function.
@@ -188,10 +193,13 @@
   (if (list? reqs)
     (let [any-of (map compile-multiclass-and reqs)]
       (fn [sheet]
-        (boolean
-          (some (fn [f]
-                  (f sheet))
-                any-of))))
+        (let [failures (map (fn [f]
+                              (f sheet))
+                            any-of)]
+          (when-not (some nil? failures)
+            (->> failures
+                 (str/join ", or ")
+                 (str "None of: "))))))
 
     (compile-multiclass-and reqs)))
 

@@ -1499,10 +1499,12 @@
 
 ; ======= builder-specific =================================
 
-(defn- can-multiclass?
+(defn- multiclass-error
+  "Returns nil if the given class `c` can be multiclassed into,
+   else a String explanation of the ability prereqs that weren't met"
   [c abilities]
-  (let [can? (-> c :attrs :5e/multiclass-reqs)]
-    (can? abilities)))
+  (let [get-error (-> c :attrs :5e/multiclass-reqs)]
+    (get-error abilities)))
 
 (reg-sub
   ::available-classes
@@ -1511,9 +1513,9 @@
   :<- [::primary-class]
   :<- [::abilities-base]
   (fn [[all-classes selected-classes primary-class abilities]]
-    (let [primary-can-multiclass? (can-multiclass?
-                                    primary-class
-                                    abilities)
+    (let [primary-multiclass-error (multiclass-error
+                                     primary-class
+                                     abilities)
           selected-class-ids (->> selected-classes
                                   (map :id)
                                   (into #{}))]
@@ -1521,23 +1523,24 @@
            (remove (comp selected-class-ids :id))
            (map
              (fn [c]
-               ; TODO include the actual numbers here somewhere
-               (cond
+               (if
                  ; if the primary can't multiclass,
                  ; nobody can!
-                 (not primary-can-multiclass?)
+                 primary-multiclass-error
                  (assoc c :prereqs-failed? true
-                        :prereqs-reason "Starting class does not meet multiclass prerequisites.")
+                        :prereqs-reason (str "Starting class does not meet multiclass prerequisites: "
+                                             primary-multiclass-error))
 
                  ; if primary is good, then this class's reqs must also be satisfied
-                 (not (can-multiclass?
-                        c
-                        abilities))
-                 (assoc c :prereqs-failed? true
-                        :prereqs-reason "Multiclass prerequisites not met")
+                 (if-let [err (multiclass-error
+                                c
+                                abilities)]
+                   (assoc c :prereqs-failed? true
+                          :prereqs-reason (str "Multiclass prerequisites not met: "
+                                               err))
 
-                 ; good to go!
-                 :else c)
+                   ; good to go!
+                   c))
                ))
            (sort-by :name)))))
 
