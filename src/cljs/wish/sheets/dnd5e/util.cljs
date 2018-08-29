@@ -168,3 +168,46 @@
       compile-ac-sources
       compile-speed-buffs
       compile-weapon-dice))
+
+
+; ======= post-compile ====================================
+
+(defn- compile-multiclass-and [reqs]
+  (fn [abilities]
+    (some
+      (fn [[stat min-value]]
+        (let [v (get abilities stat 1)]
+          (when (< v min-value)
+            (str (str/upper-case
+                   (name stat))
+                 " " min-value
+                 " (is: " v ")"))))
+      reqs)))
+
+(defn compile-multiclass-reqs
+  "Turns a multiclass reqs spec into an acceptor function.
+   Reqs may either be a map, to indicate that ALL such
+   stats must match, or a list (`()`) of such maps, to indicate
+   that ONE OF of the maps must match."
+  [reqs]
+  (if (list? reqs)
+    (let [any-of (map compile-multiclass-and reqs)]
+      (fn [sheet]
+        (let [failures (map (fn [f]
+                              (f sheet))
+                            any-of)]
+          (when-not (some nil? failures)
+            (->> failures
+                 (str/join ", or ")
+                 (str "None of: "))))))
+
+    (compile-multiclass-and reqs)))
+
+(defn post-compile-class [c]
+  (-> c
+      (update-in [:attrs :5e/multiclass-reqs]
+                 compile-multiclass-reqs)))
+
+(defn post-compile [data]
+  (-> data
+      (update :classes update-each-value post-compile-class)))

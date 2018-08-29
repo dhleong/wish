@@ -9,7 +9,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
-            [wish.util :refer [<sub >evt click>swap!]]
+            [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
@@ -53,7 +53,12 @@
 
 (defstyled feature-options-style
   [:.feature>.content {:padding "0 12px"}
-   [:.desc style/metadata]])
+   [:.desc style/metadata]]
+  [:.class.feature-option.disabled {:color "#ccc"
+                                    :cursor 'default}
+   [:.name {:font-style 'italic
+            :text-decoration 'line-through}]
+   [:.prereqs-reason {:color "#a00"}]])
 
 (defstyled races-style
   [:.subrace {:padding-left "1em"}])
@@ -308,27 +313,37 @@
    ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
-  [:div.class-picker
-   [:h4 "Pick a new class"]
+  [:div.class-picker feature-options-style
+   [:h4 "Pick a new class\u00A0"
+    [:a {:href "#"
+         :on-click (click>reset! show-picker? false)}
+     "Cancel"]]
+
    [:div.feature-options
     (for [c (<sub [::subs/available-classes])]
       ^{:key (:id c)}
-      [:div.feature-option
-       {:on-click (fn-click
-                    ; TODO first, show a preview of the class features
+      [:div.class.feature-option
+       {:class (when (:prereqs-failed? c)
+                 "disabled")
+        :on-click (when-not (:prereqs-failed? c)
+                    (fn-click
+                      ; TODO first, show a preview of the class features
 
-                    (>evt [:update-meta [:classes]
-                           assoc (:id c)
+                      (>evt [:update-meta [:classes]
+                             assoc (:id c)
 
-                           ; build the class info map
-                           (let [class-info {:id (:id c)
-                                             :level 1}]
-                             (if (empty? unavailable-class-ids)
-                               ; first class
-                               (assoc class-info :primary? true)
-                               class-info))])
-                    (reset! show-picker? false))}
-       (:name c)])]])
+                             ; build the class info map
+                             (let [class-info {:id (:id c)
+                                               :level 1}]
+                               (if (empty? unavailable-class-ids)
+                                 ; first class
+                                 (assoc class-info :primary? true)
+                                 class-info))])
+                      (reset! show-picker? false)))}
+
+       [:div.name (:name c)]
+       (when (:prereqs-failed? c)
+         [:div.prereqs-reason (:prereqs-reason c)])])]])
 
 (defn hit-point-manager
   [classes]

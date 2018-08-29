@@ -17,7 +17,10 @@
     ([:light-crossbow :crossbow-bolt] {:type :weapon
                                        :category :simple})
     (:priests-pack :explorers-pack)
-    [:shield {:kind :holy-symbol}]]}
+    [:shield {:kind :holy-symbol}]]
+
+   :5e/multiclass-reqs
+   {:wis 13}}
 
   :features
   [:hit-dice/d8

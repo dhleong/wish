@@ -19,7 +19,10 @@
    [(:quarterstaff :dagger)
     (:component-pouch {:kind :arcane-focus})
     (:scholars-pack :explorers-pack)
-    [:spellbook]]}
+    [:spellbook]]
+
+   :5e/multiclass-reqs
+   {:int 13}}
 
   :features
   [:hit-dice/d6

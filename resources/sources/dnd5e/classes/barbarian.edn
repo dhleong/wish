@@ -11,7 +11,10 @@
      {:type :weapon
       :category :simple})
     [:explorers-pack {:id :javelin
-                      :count 4}]]}
+                      :count 4}]]
+
+   :5e/multiclass-reqs
+   {:str 13}}
 
   :features
   [:hit-dice/d12

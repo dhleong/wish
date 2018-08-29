@@ -22,6 +22,10 @@
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
+           ; extra 5e-specific compile step, run
+           ; on the whole, compiled data source.
+           :post-compile dnd5e-util/post-compile
+
            ; Function for post-processing entities,
            ;  IE: applying :attr side-effects.
            ; post-process functions should accept

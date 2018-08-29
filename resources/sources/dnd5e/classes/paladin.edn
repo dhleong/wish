@@ -27,7 +27,11 @@
       :category :simple})
 
     (:priests-pack :explorers-pack)
-    [:chain-mail {:kind :holy-symbol}]]}
+    [:chain-mail {:kind :holy-symbol}]]
+
+   :5e/multiclass-reqs
+   {:str 13
+    :cha 13}}
 
   :features
   [:hit-dice/d10

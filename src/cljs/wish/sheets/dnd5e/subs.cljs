@@ -140,6 +140,9 @@
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
 ; TODO There are also equippable items, but we don't yet support that.
+; TODO when we do handle equippable item buffs here, we need
+; to make sure ::available-classes doesn't use it (only ability
+; score improvements and racial bonuses ...)
 (reg-sub
   ::abilities-base
   :<- [:meta/sheet]
@@ -1496,16 +1499,49 @@
 
 ; ======= builder-specific =================================
 
+(defn- multiclass-error
+  "Returns nil if the given class `c` can be multiclassed into,
+   else a String explanation of the ability prereqs that weren't met"
+  [c abilities]
+  (let [get-error (-> c :attrs :5e/multiclass-reqs)]
+    (get-error abilities)))
+
 (reg-sub
   ::available-classes
   :<- [:available-entities :classes]
   :<- [:classes]
-  (fn [[all-classes selected-classes]]
-    (let [selected-class-ids (->> selected-classes
+  :<- [::primary-class]
+  :<- [::abilities-base]
+  (fn [[all-classes selected-classes primary-class abilities]]
+    (let [primary-multiclass-error (multiclass-error
+                                     primary-class
+                                     abilities)
+          selected-class-ids (->> selected-classes
                                   (map :id)
                                   (into #{}))]
       (->> all-classes
            (remove (comp selected-class-ids :id))
+           (map
+             (fn [c]
+               (if
+                 ; if the primary can't multiclass,
+                 ; nobody can!
+                 primary-multiclass-error
+                 (assoc c :prereqs-failed? true
+                        :prereqs-reason (str "Starting class does not meet multiclass prerequisites: "
+                                             primary-multiclass-error))
+
+                 ; if primary is good, then this class's reqs must also be satisfied
+                 (if-let [err (multiclass-error
+                                c
+                                abilities)]
+                   (assoc c :prereqs-failed? true
+                          :prereqs-reason (str "Multiclass prerequisites not met: "
+                                               err))
+
+                   ; good to go!
+                   c))
+               ))
            (sort-by :name)))))
 
 (reg-sub

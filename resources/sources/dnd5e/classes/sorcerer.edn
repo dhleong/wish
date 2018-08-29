@@ -19,7 +19,10 @@
     (:component-pouch {:kind :arcane-focus})
     (:dungeoneers-pack :explorers-pack)
     [{:id :dagger
-      :count 2}]]}
+      :count 2}]]
+
+   :5e/multiclass-reqs
+   {:cha 13}}
 
   :features
   [:hit-dice/d6

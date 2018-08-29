@@ -10,7 +10,10 @@
 
     (:burglers-pack :dungeoneers-pack :explorers-pack)
     [:leather-armor {:id :dagger
-                     :count 2} :thieves-tools]]}
+                     :count 2} :thieves-tools]]
+
+   :5e/multiclass-reqs
+   {:dex 13}}
 
   :features
   [:hit-dice/d8
