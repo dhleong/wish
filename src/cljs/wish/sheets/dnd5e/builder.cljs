@@ -53,7 +53,12 @@
 
 (defstyled feature-options-style
   [:.feature>.content {:padding "0 12px"}
-   [:.desc style/metadata]])
+   [:.desc style/metadata]]
+  [:.class.feature-option.disabled {:color "#ccc"
+                                    :cursor 'default}
+   [:.name {:font-style 'italic
+            :text-decoration 'line-through}]
+   [:.prereqs-reason {:color "#a00"}]])
 
 (defstyled races-style
   [:.subrace {:padding-left "1em"}])
@@ -308,7 +313,7 @@
    ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
-  [:div.class-picker
+  [:div.class-picker feature-options-style
    [:h4 "Pick a new class\u00A0"
     [:a {:href "#"
          :on-click (click>reset! show-picker? false)}
