@@ -3,6 +3,7 @@
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
+            [wish.sheets.dnd5e.keymaps :as dnd5e-key]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-sheet-with-data
@@ -22,6 +23,8 @@
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
+           :keymaps dnd5e-key/maps
+
            ; extra 5e-specific compile step, run
            ; on the whole, compiled data source.
            :post-compile dnd5e-util/post-compile
@@ -35,6 +38,10 @@
 
 
 ; ======= Public interface =================================
+
+(defn get-keymaps
+  [sheet-kind]
+  (get-in sheets [sheet-kind :keymaps]))
 
 (defn post-process
   "Apply sheet-kind-specific post-processing to an entity

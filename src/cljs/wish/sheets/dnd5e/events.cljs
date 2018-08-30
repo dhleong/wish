@@ -15,7 +15,7 @@
 
 (defn- page-nav [nav-key]
   "Create the event-db fn that navigates with the given nav-key"
-  (fn [db [new-page]]
+  (fn-traced [db [new-page]]
     (let [sheet-id (active-sheet-id db)]
       (assoc-in db [nav-key sheet-id] new-page))))
 

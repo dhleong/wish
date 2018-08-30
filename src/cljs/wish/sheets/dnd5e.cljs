@@ -789,7 +789,17 @@
 
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
-        page (<sub [::subs/page :actions])]
+        page (<sub [::subs/page :actions])
+
+        ; with keymaps, a user might accidentally go to :spells
+        ; but not have spells; in that case, fall back to :actions
+        page (if-not (and (= :spells page)
+                          (not spell-classes))
+               ; normal case
+               page
+
+               ; fallback
+               :actions)]
     [:<>
      [:div.nav
       [nav-link page :actions "Actions"]

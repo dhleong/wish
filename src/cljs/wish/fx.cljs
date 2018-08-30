@@ -3,9 +3,11 @@
   wish.fx
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [re-frame.core :refer [reg-fx]]
+            [re-pressed.core :as rp]
             [wish.db :as db]
             [wish.sources :as sources]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
+            [wish.sheets :as sheets]
             [wish.util :refer [>evt]]))
 
 ; ======= html stuff =======================================
@@ -15,6 +17,21 @@
   (fn [title]
     (log "document.title <-" title)
     (set! js/document.title title)))
+
+
+; ======= keymaps =========================================
+
+(reg-fx
+  ::update-keymaps
+  (fn [[[page-id :as page] sheet-kind]]
+    (let [new-keymaps
+          (case page-id
+            :sheet (sheets/get-keymaps sheet-kind)
+
+            ; otherwise, just clear
+            nil)]
+      (>evt [::rp/set-keydown-rules new-keymaps]))))
+
 
 ; ======= provider-related =================================
 

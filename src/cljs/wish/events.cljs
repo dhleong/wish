@@ -20,11 +20,19 @@
     {:db db/default-db
      :providers/init! :!}))
 
-(reg-event-db
+(reg-event-fx
   :navigate!
   [trim-v]
-  (fn-traced [db page-spec]
-    (assoc db :page page-spec)))
+  (fn-traced [{:keys [db]} page-spec]
+    {:db (assoc db :page page-spec)
+     :dispatch [::update-keymap page-spec]}))
+
+(reg-event-fx
+  ::update-keymap
+  [trim-v (inject-cofx ::inject/sub [:meta/kind])]
+  (fn-traced [{sheet-kind :meta/kind} [page-spec]]
+    {::fx/update-keymaps [page-spec
+                          sheet-kind]}))
 
 ; expects a full reagent form, eg: [#'hp-overlay]
 (reg-event-db
