@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Async util macros"}
   wish.util.async
-  (:require [clojure.core.async :refer [go chan put!]]))
+  (:require [clojure.core.async :refer [chan put!]]))
 
 (defmacro call-with-cb->chan
   "Given a call like (.execute cli arg), insert a function

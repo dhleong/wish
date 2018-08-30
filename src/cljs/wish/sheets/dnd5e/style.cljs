@@ -1,9 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.style"}
   wish.sheets.dnd5e.style
-  (:require [cljs-css-modules.macro :as css]
-            [garden.color :as color]
-            [wish.style :refer-macros [defclass defstyled]]
+  (:require [garden.color :as color]
+            [wish.style :refer [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :refer [metadata]]))
 

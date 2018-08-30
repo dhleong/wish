@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan put! <! >!]]
+  (:require [clojure.core.async :refer [chan put! <!]]
             [clojure.string :as str]
             [wish.config :refer [gdrive-client-id]]
             [wish.providers.core :refer [IProvider load-raw]]
