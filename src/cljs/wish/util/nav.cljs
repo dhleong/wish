@@ -2,10 +2,13 @@
       :doc "Navigation util"}
   wish.util.nav
   (:require [clojure.string :as string]
+            [reagent.dom :as reagent-dom]
+            [re-frame.core :refer [dispatch-sync]]
             [secretary.core :as secretary]
             [goog.events :as gevents]
             [goog.history.EventType :as HistoryEventType]
-            [pushy.core :as pushy])
+            [pushy.core :as pushy]
+            [wish.util :refer [is-ios? >evt]])
   (:import goog.History))
 
 (goog-define ^boolean LOCAL false)
@@ -50,6 +53,21 @@
   (if pushy-supported?
     (str pushy-prefix raw-link)
     (str "#" raw-link)))
+
+(defn navigate!
+  [& args]
+  (let [evt (into [:navigate!] args)]
+    (if (is-ios?)
+      ; NOTE: on iOS we do some whacky shit to prevent awful flashes
+      ;  when swiping back. hopefully there's a more efficient way
+      ;  to do this, but for now... this works
+      (do
+        (dispatch-sync evt)
+        (reagent-dom/force-update-all))
+
+      ; When we don't have to worry about back-swipe, we can be more
+      ;  relaxed about handling navigation
+      (>evt evt))))
 
 (defn replace!
   "Wrapper around js/window.location.replace"

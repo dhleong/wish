@@ -2,8 +2,7 @@
       :doc "util"}
   wish.util
   (:require-macros [wish.util :refer [fn-click]])
-  (:require [reagent.dom :as reagent-dom]
-            [re-frame.core :refer [subscribe dispatch dispatch-sync]]))
+  (:require [re-frame.core :refer [subscribe dispatch]]))
 
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
@@ -144,21 +143,6 @@
   (if (set? coll)
     coll
     (set coll)))
-
-(defn navigate!
-  [& args]
-  (let [evt (into [:navigate!] args)]
-    (if (is-ios?)
-      ; NOTE: on iOS we do some whacky shit to prevent awful flashes
-      ;  when swiping back. hopefully there's a more efficient way
-      ;  to do this, but for now... this works
-      (do
-        (dispatch-sync evt)
-        (reagent-dom/force-update-all))
-
-      ; When we don't have to worry about back-swipe, we can be more
-      ;  relaxed about handling navigation
-      (dispatch evt))))
 
 (defn process-map
   "Call (processor s v) for each value in the map
