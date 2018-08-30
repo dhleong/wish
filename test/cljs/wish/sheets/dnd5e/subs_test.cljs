@@ -2,6 +2,7 @@
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish.sheets.dnd5e.subs :refer [knowable-spell-counts-for
                                             level->proficiency-bonus
+                                            available-classes
                                             available-slots
                                             spell-slots
                                             calculate-weapon
@@ -389,3 +390,14 @@
                :unused 1}]
              {:spell-level 1})))
     ))
+
+(deftest available-classes-test
+  (testing "All classes available to be primary"
+    (is (= [{:id :rogue}
+            {:id :pilot}]
+           (available-classes
+             [{:id :rogue}
+              {:id :pilot}]
+             []  ; none selected
+             nil ; none primary
+             {})))))
