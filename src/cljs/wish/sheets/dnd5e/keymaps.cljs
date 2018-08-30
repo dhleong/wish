@@ -5,7 +5,12 @@
             [wish.sheets.dnd5e.overlays :as overlays]))
 
 (def ^:private event-keys
-  [;; open notes
+  [;; hide any open overlay
+   [[:toggle-overlay nil]
+    ; via esc:
+    [{:which 27}]]
+
+   ;; open notes
    [[:toggle-overlay [#'overlays/notes-overlay]]
 
     ; via:
@@ -49,7 +54,4 @@
      {:which 70}]]
    ])
 
-(def maps {:event-keys event-keys
-           :clear-keys [ ; escape:
-                        [{:which 27}]
-                        ]})
+(def maps {:event-keys event-keys})

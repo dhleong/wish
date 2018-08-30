@@ -39,15 +39,19 @@
   :toggle-overlay
   [trim-v]
   (fn-traced [db [[overlay-fn & args :as overlay-spec] & {:keys [scrollable?] :as opts}]]
-    (update db
-            :showing-overlay
-            (fn [old new-spec]
-              (when-not old
-                new-spec))
-            [(if scrollable?
-               "overlay-scrollable"
-               "overlay")
-             overlay-spec])))
+    (if overlay-spec
+      (update db
+              :showing-overlay
+              (fn [old new-spec]
+                (when-not old
+                  new-spec))
+              [(if scrollable?
+                 "overlay-scrollable"
+                 "overlay")
+               overlay-spec])
+
+      ; always dismiss
+      (assoc db :showing-overlay nil))))
 
 (reg-event-fx
   :title!
