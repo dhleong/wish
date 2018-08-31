@@ -142,13 +142,18 @@
      :db (reset-sheet-err db sheet-id)}))
 
 ; sheet loaded
-(reg-event-db
+(reg-event-fx
   :put-sheet!
   [trim-v]
-  (fn-traced [db [sheet-id sheet]]
-    (-> db
-        (assoc-in [:sheets sheet-id] sheet)
-        (reset-sheet-err sheet-id))))
+  (fn-traced [{:keys [db]} [sheet-id sheet]]
+    {:db (-> db
+             (assoc-in [:sheets sheet-id] sheet)
+             (reset-sheet-err sheet-id))
+
+     ; NOTE: we're probably on a :sheet page, and we might not have
+     ; known the sheet-kind when we first navigated so we should
+     ; try to update-keymap again now that we (should) know it
+     :dispatch [::update-keymap (:page db)]}))
 
 (reg-event-db
   :put-sheet-error!
