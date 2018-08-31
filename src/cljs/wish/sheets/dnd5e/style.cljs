@@ -99,12 +99,19 @@
 
 (defstyled header
   (at-media
+    media-tablets
+    [:.col.meta {:max-width "15vw"}])
+
+  (at-media
     media-smartphones
     [:.side
      [:&.settings {:order "0 !important"}]
      [:&.right {:justify-content 'space-between
                 :padding "0 12px"
                 :width "100%"}]]
+
+    [:.col.meta {:max-width "35vw"}]
+
     [:.hp
      [:.label
       [:.content {:display 'none}]
@@ -138,7 +145,8 @@
     [:&.left {:text-align 'left}]
 
     [:.meta (merge flex
-                   metadata)
+                   flex/wrap
+                   {:font-size "80%"})
      [:.race {:margin-right "0.5em"}]]
 
     [:.save-state {:margin-right "12px"}]

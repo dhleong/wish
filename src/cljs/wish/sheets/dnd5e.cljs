@@ -83,7 +83,7 @@
        [:div.col
         [widgets/save-state]]
 
-       [:div.col.left
+       [:div.col.left.meta
         [:div.name [link {:class "inline"
                           :href "/sheets"}
                     (:name common)]]
