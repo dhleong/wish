@@ -91,7 +91,7 @@
          [:div.race (:name (<sub [:race]))]
          [:div.classes (->> classes
                             (map (fn [c]
-                                   (str (-> c :name) " " (:level c))))
+                                   (str (-> c :name) "\u00a0" (:level c))))
                             (str/join " / "))]]]
 
        [:div.col
