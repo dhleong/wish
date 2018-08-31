@@ -133,8 +133,8 @@
                      (<sub [::subs/initiative]))]
         [:div.label "Initiative"]]
 
-       [:div.col
-        [hp]] ]] ]))
+       [hp]]
+      ]]))
 
 
 ; ======= abilities ========================================
