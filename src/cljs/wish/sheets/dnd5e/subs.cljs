@@ -1480,21 +1480,38 @@
   (fn [[slots used] _]
     (available-slots slots used)))
 
+(defn usable-slots-for
+  [slots s]
+  (let [{use-id :consumes
+         :keys [spell-level at-will?]} s
+        cantrip? (= 0 spell-level)
+        at-will? (or cantrip? at-will?)]
+    (when-not (or use-id at-will?)
+      ; if it's at-will or powered by a limited-use,
+      ; there's no possible usable slot because it doesn't
+      ; use *any* slots
+      (->> slots
+           (filter #(>= (:level %)
+                        spell-level))))))
 
+(reg-sub
+  ::usable-slots-for
+  :<- [::available-slots]
+  (fn [slots [_ s]]
+    (usable-slots-for slots s)))
+
+; kept around for tests
 (defn usable-slot-for
   [slots s]
-  (let [spell-level (:spell-level s)]
-    (->> slots
-         (filter #(>= (:level %)
-                      spell-level))
-         first)))
+  (first (usable-slots-for slots s)))
 
 ; returns {:kind, :level} if any
 (reg-sub
   ::usable-slot-for
-  :<- [::available-slots]
-  (fn [slots [_ s]]
-    (usable-slot-for slots s)))
+  (fn [[_ s]]
+    (subscribe [::usable-slots-for s]))
+  (fn [usable-slots _]
+    (first usable-slots)))
 
 
 ; ======= builder-specific =================================

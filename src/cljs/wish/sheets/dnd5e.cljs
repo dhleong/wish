@@ -566,8 +566,12 @@
 
 (defn spell-block
   [s]
-  (let [level (:spell-level s)
-        cantrip? (= 0 level)]
+  (let [base-level (:spell-level s)
+        cantrip? (= 0 base-level)
+        {cast-level :level} (<sub [::subs/usable-slot-for s])
+        upcast? (when cast-level
+                  (not= cast-level base-level))
+        level (or cast-level base-level)]
     [expandable
      [:div.spell
       [cast-button s]
@@ -575,16 +579,21 @@
       [:div.spell-info
        [:div.name (:name s)]
 
-       [:div.meta (if cantrip?
-                    "Cantrip"
-                    (str "Level " level))
+       [:div.meta {:class (when upcast?
+                            "upcast")}
+        (if cantrip?
+          "Cantrip"
+          (str "Level " level))
         ; concentration? ritual?
         [spell-tags s]]]
 
       (cond
         (:dice s)
-        [:div.dice
-         (invoke-callable s :dice)]
+        [:div.dice {:class (when upcast?
+                             "upcast")}
+         (invoke-callable
+           (assoc s :spell-level level)
+           :dice)]
 
         (:save s)
         [:div.dice

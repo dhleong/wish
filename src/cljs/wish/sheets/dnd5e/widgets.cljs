@@ -123,10 +123,10 @@
 
          ; if it's not at-will (or consumes a limited-use)
          ; try to figure out what slot we can use
+         ; (the sub handles the check)
          {slot-level :level
           slot-kind :kind
-          slot-total :total} (when-not (or use-id at-will?)
-                               (<sub [::subs/usable-slot-for s]))
+          slot-total :total} (<sub [::subs/usable-slot-for s])
 
          castable-level (if cantrip?
                           0  ; always
@@ -209,12 +209,18 @@
      ]))
 
 (defn- the-spell-card
-  [{:keys [update-level! base-level max-level]}
+  [{:keys [update-level! base-level]}
    {:keys [spell-level] :as s}]
-  (let [upcast? (not= spell-level base-level)
+  (let [cantrip? (= 0 spell-level)
+        all-slots (<sub [::subs/usable-slots-for (assoc s :spell-level base-level)])
+        min-castable-level (->> all-slots first :level)
+        max-level (->> all-slots last :level)
+        {cast-level :level} (<sub [::subs/usable-slot-for s])
+        spell-level (max cast-level spell-level)
+        s (assoc s :spell-level spell-level)
+        upcast? (not= spell-level base-level)
         upcast-class {:class (when upcast?
-                               "upcast")}
-        cantrip? (= 0 spell-level)]
+                               "upcast")}]
     [:div styles/spell-card
      [:table.info
       [:tbody
@@ -292,8 +298,10 @@
          [:div.spell-leveling
           (when-not cantrip?
             [link>evt {:class ["btn"
-                               (when (<= spell-level
-                                         base-level)
+                               (when (or (<= spell-level
+                                             min-castable-level)
+                                         (<= spell-level
+                                             base-level))
                                  "disabled")]
                        :on-click (fn-click
                                    (update-level! dec))}
@@ -324,16 +332,29 @@
   "Spell info card widget"
   [s]
   (r/with-let [base-level (:spell-level s)
-               max-level (<sub [::subs/highest-spell-level])
                spell-atom (r/atom s)]
     [the-spell-card
      {:base-level base-level
-      :max-level max-level
       :update-level!
       (fn [f]
         (swap! spell-atom
                update
                :spell-level
-               with-range [base-level max-level]
-               f))}
+               (fn [old-level]
+                 ; this is somewhat obnoxiously complicated
+                 ; since we need to skip over fully-used
+                 ; slot levels :\
+                 (let [slots (<sub [::subs/usable-slots-for s])
+                       max-level (->> slots last :level)
+                       old-index (->> slots
+                                      (keep-indexed
+                                        (fn [i {:keys [level]}]
+                                          (when (= level old-level)
+                                            i)))
+                                      first)
+                       new-index (min (dec (count slots))
+                                      (max 0 (f old-index)))]
+                   (:level
+                     (nth slots
+                          new-index))))))}
      @spell-atom]))

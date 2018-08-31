@@ -597,11 +597,12 @@
                   :font-size "80%"}]
 
   [:.spell flex/center
+   [:.upcast {:color color-accent2}]
    [:.meta metadata]
    [:.spell-info flex/grow
     [:.name {:font-weight "bold"}]]
    [:.dice (merge text-center
-                  {:align-self 'center})]] )
+                  {:align-self 'center}) ]] )
 
 (defstyled inventory-section
   [:.add {:padding "12px 8px"}
