@@ -277,11 +277,14 @@
 (defstyled notes-overlay
   (at-media
     media-smartphones
-    [:textarea.notes {:height "80vh"}])
+    [:textarea.notes {:height "80vh"
+                      :font-size "10pt !important"}])
 
-  overlay
+  (merge base-overlay
+         {:width "80vw"})
 
   [:textarea.notes {:width "100%"
+                    :font-size "12pt"
                     :min-height "50vh"}])
 
 (defstyled short-rest-overlay
