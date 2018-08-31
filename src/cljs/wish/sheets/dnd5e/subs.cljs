@@ -1623,8 +1623,8 @@
 ; like the default one, but providing special handling for :all-spells
 (reg-sub
   ::class-features-with-options
-  (fn [[_ entity-id primary?]]
-    [(subscribe [:class-features-with-options entity-id primary?])
+  (fn [[_ entity-id]]
+    [(subscribe [:class-features-with-options entity-id])
      (subscribe [::highest-spell-level-for-class-id entity-id])])
   (fn [[features highest-spell-level]]
     (->> features

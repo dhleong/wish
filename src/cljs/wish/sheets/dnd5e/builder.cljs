@@ -306,8 +306,7 @@
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
    [feature-options-selection [::subs/class-features-with-options
-                               (:id class-info)
-                               (:primary? class-info)]
+                               (:id class-info)]
     class-info]
 
    ])

@@ -236,25 +236,35 @@
                         source
                         :race))))))))
 
-(defn- get-features
+(defn get-features
   "Returns a collection of [id feature] pairs."
-  [feature-containers [_ entity-id primary?]]
+  [feature-containers [_ entity-id]]
   (->> (if entity-id
+         ; if we were provided an entity-id, only get features from that entity
          (filter #(= entity-id (:id %)) feature-containers)
+
+         ; otherwise, combine them all
          feature-containers)
 
+       ; combine features from all containers into a single collection,
+       ; adding (meta) to each feature with the container it came from
        (mapcat (fn [container]
-                 (map (fn [f]
+                 (map (fn [entry]
                         (with-meta
-                          f
+                          entry
                           {:wish/container-id (:id container)
                            :wish/container container}))
                       (:features container))))
 
        ; remove features that only the primary class should have
        ; if we're not the primary
-       (remove #(when (:primary-only? (second %))
-                  (not primary?)))
+       (remove (fn [[id f :as entry]]
+                 (when (:primary-only? f)
+                   (let [primary? (->> entry
+                                       meta
+                                       :wish/container
+                                       :primary?)]
+                     (not primary?)))))
 
        ; expand multi-instanced features
        (mapcat (fn [[id f :as entry]]
@@ -390,8 +400,8 @@
 
 (reg-sub
   :inflated-class-features
-  (fn [[_ entity-id primary?]]
-    [(subscribe [:class-features entity-id primary?])
+  (fn [[_ entity-id]]
+    [(subscribe [:class-features entity-id])
      (subscribe [:meta/options])
      (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
@@ -401,8 +411,8 @@
 ; that don't accept options
 (reg-sub
   :class-features-with-options
-  (fn [[_ entity-id primary?]]
-    [(subscribe [:class-features entity-id primary?])
+  (fn [[_ entity-id]]
+    [(subscribe [:class-features entity-id])
      (subscribe [:meta/options])
      (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
