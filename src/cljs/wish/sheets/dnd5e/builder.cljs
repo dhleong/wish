@@ -10,6 +10,7 @@
             [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
+            [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
@@ -504,6 +505,28 @@
 (def ^:private standard-form (partial abilities-form :standard))
 (def ^:private point-form (partial abilities-form :point))
 
+(def labeled-abilities
+  [[:str "STRENGTH"]
+   [:dex "DEXTERITY"]
+   [:con "CONSTITUTION"]
+   [:int "INTELLIGENCE"]
+   [:wis "WISDOM"]
+   [:cha "CHARISMA"]])
+
+(defn- bonuses-from [label sub-vector]
+  (let [bonuses (<sub sub-vector)]
+    [:<>
+     [:tr
+      [:th {:col-span 6}
+       label]]
+
+     [:tr
+      (let [] (for [[id _] labeled-abilities]
+                ^{:key id}
+                [:td (if-let [b (get bonuses id)]
+                       (mod->str b)
+                       "—")]))]]))
+
 (defn abilities-page []
   (let [mode (<sub [::subs/abilities-mode])]
     [:div abilities-style
@@ -533,18 +556,28 @@
      [:table
       [:tbody
        [:tr
-        [:th "STRENGTH"]
-        [:th "DEXTERITY"]
-        [:th "CONSTITUTION"]
-        [:th "INTELLIGENCE"]
-        [:th "WISDOM"]
-        [:th "CHARISMA"]]
+        (for [[id label] labeled-abilities]
+          ^{:key id}
+          [:th label])]
 
        ; see comment on the definition of these vars above
        (case mode
          :manual [manual-form]
          :standard [standard-form]
          :point [point-form])
+
+       [bonuses-from "Racial Bonsues" [::subs/abilities-racial]]
+       [bonuses-from "Ability Score Improvements" [::subs/abilities-improvements]]
+
+       (let [abilities (<sub [::subs/abilities-base])]
+         [:<>
+          [:tr
+           [:th {:col-span 6}
+            "Total Scores"]]
+          [:tr
+           (for [[id _] labeled-abilities]
+             ^{:key id}
+             [:td (get abilities id)])]])
        ]]
      ]))
 

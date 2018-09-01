@@ -144,6 +144,19 @@
   (fn [sheet]
     (:abilities sheet)))
 
+(reg-sub
+  ::abilities-improvements
+  :<- [:classes]
+  (fn [classes]
+    (apply merge-with +
+           (map (comp :buffs :attrs) classes))))
+
+(reg-sub
+  ::abilities-racial
+  :<- [:race]
+  (fn [race]
+    (-> race :attrs :5e/ability-score-increase)))
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
@@ -154,13 +167,13 @@
 (reg-sub
   ::abilities-base
   :<- [::abilities-raw]
-  :<- [:race]
-  :<- [:classes]
-  (fn [[abilities race classes]]
-    (apply merge-with +
-           abilities
-           (-> race :attrs :5e/ability-score-increase)
-           (map (comp :buffs :attrs) classes))))
+  :<- [::abilities-racial]
+  :<- [::abilities-improvements]
+  (fn [[abilities race improvements]]
+    (merge-with +
+                abilities
+                race
+                improvements)))
 
 (reg-sub
   ::abilities
