@@ -7,8 +7,10 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
+            [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
@@ -16,6 +18,7 @@
             [wish.views.sheet-builder-util :refer [data-source-manager router
                                                    count-max-options]]
             [wish.views.widgets :refer [formatted-text]]
+            [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select]
             [wish.views.widgets.multi-limited-select]))
 
@@ -33,7 +36,8 @@
     [:td {:padding "4px"}
      [:input {:width "100%"
               :font-size "14pt"
-              :text-align 'center}]]]])
+              :text-align 'center}]
+     [:select {:width "100%"}]]]])
 
 (defstyled classes-style
   [:.meta style/metadata]
@@ -211,8 +215,8 @@
 
 (defn feature-options-selection [sub-vector source-info]
   ; NOTE: thanks to how reagent-forms completely disregards changed
-  ; inputs on subsequent renders, we have to store changes extra-info
-  ; in an atom and dereference it in limited-select-feature-options
+  ; inputs on subsequent renders, we have to store changed extra-info
+  ; in an atom and dereference it in limited-select-feature-options.
   ; extra-info, provided by callers, is mostly interesting for :level
   ; since many things scale by level
   (let [extra-info-atom (atom nil)]
@@ -416,52 +420,165 @@
 
 ; ======= ability scores ===================================
 
+(def ^:private standard-array-scores [8 10 12 13 14 15])
+
 (defn- input-for
-  [ability]
-  [:input {:field :numeric
-           :id ability
-           :min 1
-           :max 18}])
+  [mode ability]
+  (case mode
+    :manual [:input {:field :numeric
+                     :id ability
+                     :min 1
+                     :max 18}]
+
+    :standard (into [:select {:field :list
+                              :id ability}
+                     [:option {:key :-none} "—"]]
+
+                    (for [score standard-array-scores]
+                      [:option {:key score
+                                :visible? (fn [doc]
+                                            (or (= (get doc ability)
+                                                   score)
+                                                (not (contains?
+                                                       (->> doc
+                                                            vals
+                                                            set)
+                                                       score))))}
+                       (str score)]))
+
+    :point [:select.point-buy {:field :dynamic-list
+                               :id ability}
+            (for [[score cost] data/score-point-cost]
+              [:option {:key score
+                        :visible? (fn [doc]
+                                    (let [available (<sub [::subs/point-buy-remaining])
+                                          delta (<sub [::subs/point-buy-delta ability cost])]
+                                      (>= (+ available delta)
+                                          0)))
+                        :content (fn [doc]
+                                   (let [delta (<sub [::subs/point-buy-delta ability cost])
+                                         delta-mod (if (> delta 0)
+                                                     "+"
+                                                     "-")
+                                         delta-suffix (when-not (= delta 0)
+                                                        (str " ("
+                                                             delta-mod
+                                                             (Math/abs delta)
+                                                             " Points)"))]
+                                     (str score delta-suffix)))}
+               score])]))
+
+(defn- abilities-form [mode]
+  [bind-fields
+
+   [:tr
+    [:td (input-for mode :str)]
+    [:td (input-for mode :dex)]
+    [:td (input-for mode :con)]
+    [:td (input-for mode :int)]
+    [:td (input-for mode :wis)]
+    [:td (input-for mode :cha)]]
+
+   {:get (fn [path]
+           (let [a (:abilities (<sub [:meta/sheet]))]
+             (get-in a path)))
+    :doc #(:abilities (<sub [:meta/sheet]))
+    :save! (fn [path v]
+             (if (= :-none v)
+               ; unset
+               (>evt [:update-meta [:sheet :abilities]
+                      dissoc
+                      (first path)])
+
+               ; parse and set
+               (>evt [:update-meta [:sheet :abilities]
+                      assoc-in
+                      path
+                      (min 18
+                           (max 1
+                                (js/parseInt v)))])))}])
+
+;; NOTE: because bind-forms doesn't play nicely with changing the underlying
+;; form fields, we create a separate version of the form component for each type.
+;; Yuck.
+(def ^:private manual-form (partial abilities-form :manual))
+(def ^:private standard-form (partial abilities-form :standard))
+(def ^:private point-form (partial abilities-form :point))
+
+(def labeled-abilities
+  [[:str "STRENGTH"]
+   [:dex "DEXTERITY"]
+   [:con "CONSTITUTION"]
+   [:int "INTELLIGENCE"]
+   [:wis "WISDOM"]
+   [:cha "CHARISMA"]])
+
+(defn- bonuses-from [label sub-vector]
+  (let [bonuses (<sub sub-vector)]
+    [:<>
+     [:tr
+      [:th {:col-span 6}
+       label]]
+
+     [:tr
+      (let [] (for [[id _] labeled-abilities]
+                ^{:key id}
+                [:td (if-let [b (get bonuses id)]
+                       (mod->str b)
+                       "—")]))]]))
 
 (defn abilities-page []
-  (let [doc (r/atom {:str nil
-                     :dex nil
-                     :con nil
-                     :int nil
-                     :wis nil
-                     :cha nil})]
+  (let [mode (<sub [::subs/abilities-mode])]
     [:div abilities-style
      [:h3 "Abilities"]
-     [bind-fields
-      [:table
-       [:tbody
-        [:tr
-         [:th "STRENGTH"]
-         [:th "DEXTERITY"]
-         [:th "CONSTITUTION"]
-         [:th "INTELLIGENCE"]
-         [:th "WISDOM"]
-         [:th "CHARISMA"]]
 
-        [:tr
-         [:td (input-for :str)]
-         [:td (input-for :dex)]
-         [:td (input-for :con)]
-         [:td (input-for :int)]
-         [:td (input-for :wis)]
-         [:td (input-for :cha)]]
+     [:div
+      [:h4
+       "Input mode: "
+       [bind-fields
+        [:<>
+         [:select {:field :list
+                   :id :abilities-mode}
+          [:option {:key :manual} "Manual"]
+          [:option {:key :standard} "Standard Array"]
+          [:option {:key :point} "Point Buy"]]]
+        {:get #(<sub [::subs/abilities-mode])
+         :save! #(>evt [:update-meta [:sheet]
+                        assoc
+                        :abilities-mode %2])}]]]
 
-        ]]
-      {:get (fn [path]
-              (let [a (:abilities (<sub [:meta/sheet]))]
-                (get-in a path)))
-       :save! (fn [path v]
-                (>evt [:update-meta (concat [:sheet :abilities])
-                       assoc-in
-                       path
-                       (min 18
-                            (max 1
-                                 (js/parseInt v)))]))}]
+     (when (= :point mode)
+       [:<>
+        [:h5
+         "Remaining Points: "
+         (<sub [::subs/point-buy-remaining])]])
+
+     [:table
+      [:tbody
+       [:tr
+        (for [[id label] labeled-abilities]
+          ^{:key id}
+          [:th label])]
+
+       ; see comment on the definition of these vars above
+       (case mode
+         :manual [manual-form]
+         :standard [standard-form]
+         :point [point-form])
+
+       [bonuses-from "Racial Bonsues" [::subs/abilities-racial]]
+       [bonuses-from "Ability Score Improvements" [::subs/abilities-improvements]]
+
+       (let [abilities (<sub [::subs/abilities-base])]
+         [:<>
+          [:tr
+           [:th {:col-span 6}
+            "Total Scores"]]
+          [:tr
+           (for [[id _] labeled-abilities]
+             ^{:key id}
+             [:td (get abilities id)])]])
+       ]]
      ]))
 
 
