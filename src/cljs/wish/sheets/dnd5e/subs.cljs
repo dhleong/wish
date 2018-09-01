@@ -9,6 +9,8 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
+            [wish.sheets.dnd5e.builder.data :refer [point-buy-max
+                                                    score-point-cost]]
             [wish.util :refer [invoke-callable ->map]]
             [wish.util.string :as wstr]))
 
@@ -136,6 +138,12 @@
   (fn [classes [_ class-id]]
     (get classes class-id)))
 
+(reg-sub
+  ::abilities-raw
+  :<- [:meta/sheet]
+  (fn [sheet]
+    (:abilities sheet)))
+
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
 ; from the class.
@@ -145,12 +153,12 @@
 ; score improvements and racial bonuses ...)
 (reg-sub
   ::abilities-base
-  :<- [:meta/sheet]
+  :<- [::abilities-raw]
   :<- [:race]
   :<- [:classes]
-  (fn [[sheet race classes]]
+  (fn [[abilities race classes]]
     (apply merge-with +
-           (:abilities sheet)
+           abilities
            (-> race :attrs :5e/ability-score-increase)
            (map (comp :buffs :attrs) classes))))
 
@@ -1533,6 +1541,33 @@
 
       ; default for new characters
       :standard)))
+
+(defn calculate-scores-cost
+  "Given a map of abilities, calculate how many points it costs"
+  [abilities]
+  (->> abilities
+       vals
+       (map score-point-cost)
+       (apply +)))
+
+; number of "points" remaining when using the point-buy system
+; of ability score generation
+(reg-sub
+  ::point-buy-remaining
+  :<- [::abilities-raw]
+  (fn [abilities]
+    (- point-buy-max
+       (calculate-scores-cost abilities))))
+
+(reg-sub
+  ::point-buy-delta
+  :<- [::abilities-raw]
+  (fn [abilities [_ ability new-cost]]
+    (let [current-cost (->> abilities
+                            ability
+                            (get score-point-cost))]
+      (- current-cost
+         new-cost))))
 
 (defn- multiclass-error
   "Returns nil if the given class `c` can be multiclassed into,

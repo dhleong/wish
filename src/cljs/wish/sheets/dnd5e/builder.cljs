@@ -7,6 +7,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
@@ -16,6 +17,7 @@
             [wish.views.sheet-builder-util :refer [data-source-manager router
                                                    count-max-options]]
             [wish.views.widgets :refer [formatted-text]]
+            [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select]
             [wish.views.widgets.multi-limited-select]))
 
@@ -33,7 +35,8 @@
     [:td {:padding "4px"}
      [:input {:width "100%"
               :font-size "14pt"
-              :text-align 'center}]]]])
+              :text-align 'center}]
+     [:select {:width "100%"}]]]])
 
 (defstyled classes-style
   [:.meta style/metadata]
@@ -428,8 +431,7 @@
 
     :standard (into [:select {:field :list
                               :id ability}
-                     [:option {:key :-none}
-                      "—"]]
+                     [:option {:key :-none} "—"]]
 
                     (for [score standard-array-scores]
                       [:option {:key score
@@ -443,8 +445,27 @@
                                                        score))))}
                        (str score)]))
 
-    :point [:label {:field :label
-                    :id ability}]))
+    :point [:select.point-buy {:field :dynamic-list
+                               :id ability}
+            (for [[score cost] data/score-point-cost]
+              [:option {:key score
+                        :visible? (fn [doc]
+                                    (let [available (<sub [::subs/point-buy-remaining])
+                                          delta (<sub [::subs/point-buy-delta ability cost])]
+                                      (>= (+ available delta)
+                                          0)))
+                        :content (fn [doc]
+                                   (let [delta (<sub [::subs/point-buy-delta ability cost])
+                                         delta-mod (if (> delta 0)
+                                                     "+"
+                                                     "-")
+                                         delta-suffix (when-not (= delta 0)
+                                                        (str " ("
+                                                             delta-mod
+                                                             (Math/abs delta)
+                                                             " Points)"))]
+                                     (str score delta-suffix)))}
+               score])]))
 
 (defn- abilities-form [mode]
   [bind-fields
@@ -489,7 +510,8 @@
      [:h3 "Abilities"]
 
      [:div
-      [:h4 "Input mode"
+      [:h4
+       "Input mode: "
        [bind-fields
         [:<>
          [:select {:field :list
@@ -504,8 +526,9 @@
 
      (when (= :point mode)
        [:<>
-        [:h5 "Remaining Points"]
-        [:div "?"]])
+        [:h5
+         "Remaining Points: "
+         (<sub [::subs/point-buy-remaining])]])
 
      [:table
       [:tbody
@@ -522,12 +545,6 @@
          :manual [manual-form]
          :standard [standard-form]
          :point [point-form])
-
-       (when (= :point mode)
-         ; TODO
-         [:tr
-          [:th {:col-span 6} "TODO"]])
-
        ]]
      ]))
 
