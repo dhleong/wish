@@ -416,6 +416,8 @@
 
 ; ======= ability scores ===================================
 
+(def ^:private standard-array-scores [8 10 12 13 14 15])
+
 (defn- input-for
   [mode ability]
   (case mode
@@ -424,8 +426,22 @@
                      :min 1
                      :max 18}]
 
-    :standard [:select {:field :list
-                        :id ability}]
+    :standard (into [:select {:field :list
+                              :id ability}
+                     [:option {:key :-none}
+                      "—"]]
+
+                    (for [score standard-array-scores]
+                      [:option {:key score
+                                :visible? (fn [doc]
+                                            (or (= (get doc ability)
+                                                   score)
+                                                (not (contains?
+                                                       (->> doc
+                                                            vals
+                                                            set)
+                                                       score))))}
+                       (str score)]))
 
     :point [:label {:field :label
                     :id ability}]))
@@ -444,13 +460,21 @@
    {:get (fn [path]
            (let [a (:abilities (<sub [:meta/sheet]))]
              (get-in a path)))
+    :doc #(:abilities (<sub [:meta/sheet]))
     :save! (fn [path v]
-             (>evt [:update-meta [:sheet :abilities]
-                    assoc-in
-                    path
-                    (min 18
-                         (max 1
-                              (js/parseInt v)))]))}])
+             (if (= :-none v)
+               ; unset
+               (>evt [:update-meta [:sheet :abilities]
+                      dissoc
+                      (first path)])
+
+               ; parse and set
+               (>evt [:update-meta [:sheet :abilities]
+                      assoc-in
+                      path
+                      (min 18
+                           (max 1
+                                (js/parseInt v)))])))}])
 
 ;; NOTE: because bind-forms doesn't play nicely with changing the underlying
 ;; form fields, we create a separate version of the form component for each type.
@@ -479,9 +503,9 @@
                         :abilities-mode %2])}]]]
 
      (when (= :point mode)
-       [:div
+       [:<>
         [:h5 "Remaining Points"]
-        "?"])
+        [:div "?"]])
 
      [:table
       [:tbody
@@ -498,6 +522,12 @@
          :manual [manual-form]
          :standard [standard-form]
          :point [point-form])
+
+       (when (= :point mode)
+         ; TODO
+         [:tr
+          [:th {:col-span 6} "TODO"]])
+
        ]]
      ]))
 
