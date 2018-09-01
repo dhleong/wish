@@ -1516,6 +1516,24 @@
 
 ; ======= builder-specific =================================
 
+(reg-sub
+  ::abilities-mode
+  :<- [:meta/sheet]
+  (fn [sheet]
+    (or
+      ; normal case
+      (:abilities-mode sheet)
+
+      ; legacy compat
+      (when-let [existing (->> sheet :abilities vals seq)]
+        (println (:abilities sheet))
+        (when (not= #{8 10 12 13 14 15}
+                    (set existing))
+          :manual))
+
+      ; default for new characters
+      :standard)))
+
 (defn- multiclass-error
   "Returns nil if the given class `c` can be multiclassed into,
    else a String explanation of the ability prereqs that weren't met"

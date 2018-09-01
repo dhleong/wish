@@ -211,8 +211,8 @@
 
 (defn feature-options-selection [sub-vector source-info]
   ; NOTE: thanks to how reagent-forms completely disregards changed
-  ; inputs on subsequent renders, we have to store changes extra-info
-  ; in an atom and dereference it in limited-select-feature-options
+  ; inputs on subsequent renders, we have to store changed extra-info
+  ; in an atom and dereference it in limited-select-feature-options.
   ; extra-info, provided by callers, is mostly interesting for :level
   ; since many things scale by level
   (let [extra-info-atom (atom nil)]
@@ -417,51 +417,88 @@
 ; ======= ability scores ===================================
 
 (defn- input-for
-  [ability]
-  [:input {:field :numeric
-           :id ability
-           :min 1
-           :max 18}])
+  [mode ability]
+  (case mode
+    :manual [:input {:field :numeric
+                     :id ability
+                     :min 1
+                     :max 18}]
+
+    :standard [:select {:field :list
+                        :id ability}]
+
+    :point [:label {:field :label
+                    :id ability}]))
+
+(defn- abilities-form [mode]
+  [bind-fields
+
+   [:tr
+    [:td (input-for mode :str)]
+    [:td (input-for mode :dex)]
+    [:td (input-for mode :con)]
+    [:td (input-for mode :int)]
+    [:td (input-for mode :wis)]
+    [:td (input-for mode :cha)]]
+
+   {:get (fn [path]
+           (let [a (:abilities (<sub [:meta/sheet]))]
+             (get-in a path)))
+    :save! (fn [path v]
+             (>evt [:update-meta [:sheet :abilities]
+                    assoc-in
+                    path
+                    (min 18
+                         (max 1
+                              (js/parseInt v)))]))}])
+
+;; NOTE: because bind-forms doesn't play nicely with changing the underlying
+;; form fields, we create a separate version of the form component for each type.
+;; Yuck.
+(def ^:private manual-form (partial abilities-form :manual))
+(def ^:private standard-form (partial abilities-form :standard))
+(def ^:private point-form (partial abilities-form :point))
 
 (defn abilities-page []
-  (let [doc (r/atom {:str nil
-                     :dex nil
-                     :con nil
-                     :int nil
-                     :wis nil
-                     :cha nil})]
+  (let [mode (<sub [::subs/abilities-mode])]
     [:div abilities-style
      [:h3 "Abilities"]
-     [bind-fields
-      [:table
-       [:tbody
-        [:tr
-         [:th "STRENGTH"]
-         [:th "DEXTERITY"]
-         [:th "CONSTITUTION"]
-         [:th "INTELLIGENCE"]
-         [:th "WISDOM"]
-         [:th "CHARISMA"]]
 
-        [:tr
-         [:td (input-for :str)]
-         [:td (input-for :dex)]
-         [:td (input-for :con)]
-         [:td (input-for :int)]
-         [:td (input-for :wis)]
-         [:td (input-for :cha)]]
+     [:div
+      [:h4 "Input mode"
+       [bind-fields
+        [:<>
+         [:select {:field :list
+                   :id :abilities-mode}
+          [:option {:key :manual} "Manual"]
+          [:option {:key :standard} "Standard Array"]
+          [:option {:key :point} "Point Buy"]]]
+        {:get #(<sub [::subs/abilities-mode])
+         :save! #(>evt [:update-meta [:sheet]
+                        assoc
+                        :abilities-mode %2])}]]]
 
-        ]]
-      {:get (fn [path]
-              (let [a (:abilities (<sub [:meta/sheet]))]
-                (get-in a path)))
-       :save! (fn [path v]
-                (>evt [:update-meta (concat [:sheet :abilities])
-                       assoc-in
-                       path
-                       (min 18
-                            (max 1
-                                 (js/parseInt v)))]))}]
+     (when (= :point mode)
+       [:div
+        [:h5 "Remaining Points"]
+        "?"])
+
+     [:table
+      [:tbody
+       [:tr
+        [:th "STRENGTH"]
+        [:th "DEXTERITY"]
+        [:th "CONSTITUTION"]
+        [:th "INTELLIGENCE"]
+        [:th "WISDOM"]
+        [:th "CHARISMA"]]
+
+       ; see comment on the definition of these vars above
+       (case mode
+         :manual [manual-form]
+         :standard [standard-form]
+         :point [point-form])
+       ]]
      ]))
 
 
