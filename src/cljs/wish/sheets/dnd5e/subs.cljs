@@ -339,7 +339,14 @@
   ::max-hp-mode
   :<- [:meta/sheet]
   (fn [sheet]
-    (:max-hp-mode sheet)))
+    (or (:max-hp-mode sheet)
+
+        ; if not specified and they have any rolled, use that
+        (when (:hp-rolled sheet)
+          :manual)
+
+        ; default to :average for new users
+        :average)))
 
 (reg-sub
   ::max-hp-rolled
@@ -401,7 +408,7 @@
      ; subscriptions are de-dup'd so...?
      ; The only other way would be to always subscribe to both,
      ; and that seems worse
-     (case (or (<sub [::max-hp-mode]) :manual)
+     (case (<sub [::max-hp-mode])
        :manual (subscribe [::max-hp-rolled])
        :average (subscribe [::max-hp-average]))
 
@@ -1771,6 +1778,20 @@
          first
 
          :available?)))
+
+; returns a bit more than just the hit die, for convenience
+(reg-sub
+  ::class->hit-die
+  :<- [:classes]
+  (fn [classes]
+    (reduce
+      (fn [m c]
+        (assoc m (:id c)
+               (assoc
+                 (select-keys c [:name :level])
+                 :dice (-> c :attrs :5e/hit-dice))))
+      {}
+      classes)))
 
 
 ; ======= starting equipment ==============================
