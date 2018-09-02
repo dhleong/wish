@@ -3,7 +3,7 @@
   wish.sheets.dnd5e.subs
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
-            [re-frame.core :refer [reg-sub subscribe]]
+            [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list find-class find-race]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
@@ -11,7 +11,7 @@
                                                      mod->str]]
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
-            [wish.util :refer [invoke-callable ->map]]
+            [wish.util :refer [<sub invoke-callable ->map]]
             [wish.util.string :as wstr]))
 
 ; ======= Constants ========================================
@@ -336,42 +336,91 @@
          (apply +))))
 
 (reg-sub
-  ::max-hp
+  ::max-hp-mode
+  :<- [:meta/sheet]
+  (fn [sheet]
+    (:max-hp-mode sheet)))
+
+(reg-sub
+  ::max-hp-rolled
   :<- [::rolled-hp]
-  :<- [::temp-max-hp]
-  :<- [::abilities]
-  :<- [:total-level]
   :<- [::class->level]
-  :<- [::max-hp-buffs]
-  (fn [[rolled-hp temp-max abilities total-level class->level buffs]]
-    (apply +
-           temp-max
+  (fn [[rolled-hp class->level]]
+    (->> rolled-hp
 
-           (* total-level
-              (->> abilities
-                   :con
-                   ability->mod))
+         ; if you set a class to level 3, set HP, then go back
+         ; to level 2, there will be an orphaned entry in the
+         ; rolled-hp vector. We could remove that entry when
+         ; changing the level, but accounting for it here means
+         ; that an accidental level-down doesn't lose your data
+         ; Also, if you've removed a class that you once rolled HP
+         ; for, we don't care about that class's old, rolled hp
+         (reduce-kv
+           (fn [all-entries class-id class-rolled-hp]
+             (if-let [class-level (class->level class-id)]
+               (concat all-entries
+                       (take class-level
+                             class-rolled-hp))
 
-           buffs
+               ; no change
+               all-entries))
+           nil)
 
-           ; if you set a class to level 3, set HP, then go back
-           ; to level 2, there will be an orphaned entry in the
-           ; rolled-hp vector. We could remove that entry when
-           ; changing the level, but accounting for it here means
-           ; that an accidental level-down doesn't lose your data
-           ; Also, if you've removed a class that you once rolled HP
-           ; for, we don't care about that class's old, rolled hp
-           (reduce-kv
-             (fn [all-entries class-id class-rolled-hp]
-               (if-let [class-level (class->level class-id)]
-                 (concat all-entries
-                         (take class-level
-                               class-rolled-hp))
+         (apply +))))
 
-                 ; no change
-                 all-entries))
-             nil
-             rolled-hp))))
+(reg-sub
+  ::max-hp-average
+  :<- [:classes]
+  (fn [classes]
+    (reduce
+      (fn [total c]
+        (let [{:keys [primary? level]
+               {hit-die :5e/hit-dice} :attrs} c
+
+              ; the primary class gets full HP at first level,
+              ; so remove one from it (we add this special case below)
+              level (if primary?
+                      (dec level)
+                      level)]
+          (+ total
+
+             (when primary?
+               hit-die)
+
+             (* level
+                (inc (/ hit-die 2))))))
+
+      0 ; start at 0
+      classes)))
+
+; NOTE: we use reg-sub-raw here since it feels wrong to 
+(reg-sub
+  ::max-hp
+  (fn []
+    [; NOTE: this <sub is kinda gross but I *think* it's okay?
+     ; subscriptions are de-dup'd so...?
+     ; The only other way would be to always subscribe to both,
+     ; and that seems worse
+     (case (or (<sub [::max-hp-mode]) :manual)
+       :manual (subscribe [::max-hp-rolled])
+       :average (subscribe [::max-hp-average]))
+
+     (subscribe [::temp-max-hp])
+     (subscribe [::abilities])
+     (subscribe [:total-level])
+     (subscribe [::max-hp-buffs])
+     ])
+  (fn [[base-max temp-max abilities total-level buffs]]
+    (+ base-max
+
+       temp-max
+
+       (* total-level
+          (->> abilities
+               :con
+               ability->mod))
+
+       buffs)))
 
 (reg-sub
   ::hp
