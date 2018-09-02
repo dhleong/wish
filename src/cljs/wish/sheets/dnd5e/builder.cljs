@@ -53,7 +53,10 @@
   [:.hit-point-setting {:margin "8px"}
    [:.dice-level flex
     [:.level {:width "2em"
-              :text-align 'center}]]])
+              :text-align 'center}]]]
+
+  [:.hit-die
+   [:.dice {:font-weight "bold"}]])
 
 (defstyled feature-options-style
   [:.feature>.content {:padding "0 12px"}
@@ -348,74 +351,103 @@
        (when (:prereqs-failed? c)
          [:div.prereqs-reason (:prereqs-reason c)])])]])
 
-(defn hit-point-manager
-  [classes]
-  (let [hit-die-by-class (reduce
-                           (fn [m c]
-                             (assoc m (:id c)
-                                    (-> c :attrs :5e/hit-dice)))
-                           {}
-                           classes)]
+(defn- hp-mode-average []
+  [:<>
+   [:p.meta
+    "Your Max HP is determined by the average roll on your class's hit die
+     for each level in that class. You get the maximum roll for the first
+     level in your primary class."]
+   [:div
+    [:b "Total Max HP: "]
+    (<sub [::subs/max-hp])]
+
+   [:p
+    [:b "Hit Dice: "]
+    [:div (for [{:keys [die classes total]} (<sub [::subs/hit-dice])]
+            ^{:key die}
+            [:div.hit-die
+             [:span.dice total "d" die]
+             [:span.classes " (" (str/join ", " classes) ")"]])]]])
+
+(defn- hp-mode-manual []
+  (let [hit-die-by-class (<sub [::subs/class->hit-die])]
     [:<>
-     [:h2 "Hit Point Management"]
      [:p.meta
-      "We don't yet support auto-average. Please input health rolled (or average) for each level below:"]
+      "Input health rolled (or average) for each level below:"]
 
      [:div.sections
-      (for [c classes]
-        (let [die-size (get hit-die-by-class (:id c))]
-          ^{:key (:id c)}
-          [:div.hit-point-setting
-           [:div.class (:name c)
-            [:span.die (str " (D" die-size ")")]]
+      (for [[id {die-size :dice :as c}] hit-die-by-class]
+        ^{:key id}
+        [:div.hit-point-setting
+         [:div.class (:name c)
+          [:span.die (str " (D" die-size ")")]]
 
-           (for [level (range (:level c))]
-             ^{:key level}
-             [bind-fields
-              [:div.dice-level
-               [:div.level (inc level)]
-               [:div.hp [:input {:field :numeric
-                                 :id [(:id c) level]
-                                 :min 1
-                                 :max die-size}]]]
+         (for [level (range (:level c))]
+           ^{:key level}
+           [bind-fields
+            [:div.dice-level
+             [:div.level (inc level)]
+             [:div.hp [:input {:field :numeric
+                               :id [id level]
+                               :min 1
+                               :max die-size}]]]
 
-              {:get #(<sub [::subs/rolled-hp %])
-               :save! (fn [path v]
-                        (let [v (min
-                                  (get hit-die-by-class (first path))
-                                  (max v 1))]
-                          (>evt [::events/set-rolled-hp path v])))}])]))] ]))
+            {:get #(<sub [::subs/rolled-hp %])
+             :save! (fn [path v]
+                      (let [v (min
+                                (:dice (get hit-die-by-class (first path)))
+                                (max v 1))]
+                        (>evt [::events/set-rolled-hp path v])))}])])]]))
+
+(defn hit-point-manager []
+  [:<>
+   [:h2
+    "Hit Point Management "
+    [bind-fields
+     [:select {:id :max-hp-mode
+               :field :list}
+      [:option {:key :average} "Automatic"]
+      [:option {:key :manual} "Manual"]]
+     {:get #(<sub [::subs/max-hp-mode])
+      :save! #(>evt [:update-meta [:sheet]
+                     assoc
+                     :max-hp-mode %2])}]]
+
+   (case (<sub [::subs/max-hp-mode])
+     :average [hp-mode-average]
+     :manual [hp-mode-manual])
+
+   ])
 
 (defn classes-page []
-  (let [initial-classes (<sub [:classes])
-        show-picker? (r/atom (empty? initial-classes))]
-    (fn []
-      (let [existing-classes (<sub [:classes])]
+  (r/with-let [initial-classes (<sub [:classes])
+               show-picker? (r/atom (empty? initial-classes))]
+    (let [existing-classes (<sub [:classes])]
 
-        [:div classes-style
-         [:h1 "Level Up"]
+      [:div classes-style
+       [:h1 "Level Up"]
 
-         ; hit points
-         [hit-point-manager existing-classes]
+       ; hit points
+       [hit-point-manager]
 
-         ; multiclassing
-         (if @show-picker?
-           [class-picker
-            (->> existing-classes
-                 (map :id)
-                 (into #{}))
-            show-picker?]
+       ; multiclassing
+       (if @show-picker?
+         [class-picker
+          (->> existing-classes
+               (map :id)
+               (into #{}))
+          show-picker?]
 
-           [:div.pick-new-class
-            [:h2 "Multiclassing"]
-            [:a {:href "#"
-                 :on-click (click>swap! show-picker? not)}
-             "Add another class"]])
+         [:div.pick-new-class
+          [:h2 "Multiclassing"]
+          [:a {:href "#"
+               :on-click (click>swap! show-picker? not)}
+           "Add another class"]])
 
-         ; class feature config
-         (for [c existing-classes]
-           ^{:key (:id c)}
-           [class-section c])]))))
+       ; class feature config
+       (for [c existing-classes]
+         ^{:key (:id c)}
+         [class-section c])])))
 
 
 ; ======= ability scores ===================================
