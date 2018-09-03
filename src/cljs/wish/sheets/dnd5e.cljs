@@ -688,9 +688,9 @@
 
       (when (inv/instanced? item)
         [:div.notes
-         [link>evt [:toggle-overlay
-                    [#'overlays/notes-overlay :item item]]
-          :propagate? false
+         [link>evt {:> [:toggle-overlay
+                        [#'overlays/notes-overlay :item item]]
+                    :propagate? false}
           (icon :description)]])
 
       (when stacks?

@@ -36,7 +36,8 @@
    instead dispatch an event when clicked. `evt-or-opts` can be:
    - An events vector directly
    - A map including :on-click
-   - A map including :>, which is an events vector to dispatch"
+   - A map including :>, which is an events vector to dispatch. In this case,
+     you may also include :propagate? as for (click>evt)"
   [evt-or-opts & content]
   (let [base {:href "#"}
         opts (cond
@@ -51,8 +52,9 @@
                (:> evt-or-opts) (dissoc
                                   (merge base
                                          evt-or-opts
-                                         {:on-click (click>evt (:> evt-or-opts))})
-                                  :>)
+                                         {:on-click (click>evt (:> evt-or-opts)
+                                                               :propagate? (:propagate? evt-or-opts true))})
+                                  :> :propagate?)
                )]
     (into [:a opts]
           content)))
