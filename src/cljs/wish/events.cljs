@@ -509,6 +509,19 @@
                              (update :inventory dissoc inst-id)))
                        (:id item))))
 
+; "edit" an instanced item in the inventory, replacing by id. usually for
+; updating a custom item
+(reg-event-fx
+  :inventory-edit
+  [trim-v]
+  (fn [cofx [item]]
+    (update-sheet-path cofx [:items]
+                       assoc
+                       (:id item)
+                       (-> item
+                           (assoc :id (:item-id item))
+                           (dissoc :item-id)))))
+
 (reg-event-fx
   :toggle-equipped
   [trim-v]

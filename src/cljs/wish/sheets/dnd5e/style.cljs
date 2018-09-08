@@ -629,6 +629,9 @@
    [:&.equipped.attuned {:background-color "#99cc66f0"}]
    [:&.equipped {:background-color "#66cccc80"}]
    [:&.attuned {:background-color "#cccc0080"}]
+
+   [:.edit {:margin-right "12px"}]
+
    [:.info flex/grow
     [:.notes-preview {:overflow 'hidden
                       :font-size "10px"

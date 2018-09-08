@@ -699,6 +699,13 @@
        (when-let [n (:notes item)]
          [:div.notes-preview n])]
 
+      (when (inv/custom? item)
+        [:div.edit
+         [link>evt {:> [:toggle-overlay
+                        [#'overlays/custom-item-overlay item]]
+                    :propagate? false}
+          (icon :settings)]])
+
       (when (inv/instanced? item)
         [:div.notes
          [link>evt {:> [:toggle-overlay
@@ -765,7 +772,7 @@
 
     [link>evt {:class "link"
                :> [:toggle-overlay
-                   [#'overlays/custom-item-creator]]}
+                   [#'overlays/custom-item-overlay]]}
      "Custom"]
 
     [link>evt {:class "link"
