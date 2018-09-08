@@ -993,10 +993,12 @@
 
 (reg-sub
   ::combat-actions
-  :<- [:classes]
   :<- [:sheet-source]
-  (fn [[classes data-source] [_ filter-type]]
-    (->> classes
+  :<- [:classes]
+  :<- [:races]
+  (fn [[data-source & entity-lists] [_ filter-type]]
+    (->> entity-lists
+         flatten
          (mapcat
            (fn [c]
              (let [ids (keys (get-in c [:attrs filter-type]))]
