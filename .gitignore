@@ -1,6 +1,7 @@
 /*.log
 /target
 /*-init.clj
+/resources/public/worker.js
 /resources/public/js/compiled
 /resources/public/sources/
 /resources/public/css
