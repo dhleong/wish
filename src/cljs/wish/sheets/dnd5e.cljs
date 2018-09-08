@@ -690,7 +690,10 @@
          quantity :wish/amount} item
         stacks? (inv/stacks? item)]
     [expandable
-     [:div.item
+     [:div.item {:class [(when (:wish/equipped? item)
+                           "equipped")
+                         (when (:attuned? item)
+                           "attuned")]}
       [:div.info
        [:div.name (:name item)]
        (when-let [n (:notes item)]

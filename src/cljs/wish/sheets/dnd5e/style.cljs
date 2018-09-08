@@ -622,9 +622,13 @@
   [:.expandable>.button {:background 'none
                          :border-top "1px solid #333"
                          :color "#000"
-                         :padding "4px 8px"}]
+                         :padding 0}]
   [:.item (merge flex/center
-                 {:font-size "80%"})
+                 {:font-size "80%"
+                  :padding "4px 8px"})
+   [:&.equipped.attuned {:background-color "#99cc66f0"}]
+   [:&.equipped {:background-color "#66cccc80"}]
+   [:&.attuned {:background-color "#cccc0080"}]
    [:.info flex/grow
     [:.notes-preview {:overflow 'hidden
                       :font-size "10px"
