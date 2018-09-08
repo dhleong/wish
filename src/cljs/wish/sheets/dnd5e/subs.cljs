@@ -1580,12 +1580,16 @@
   [slots s]
   (let [{use-id :consumes
          :keys [spell-level at-will?]} s
+        limited-use? (and use-id
+                          (not= :*spell-slot use-id))
         cantrip? (= 0 spell-level)
         at-will? (or cantrip? at-will?)]
-    (when-not (or use-id at-will?)
+    (when-not (or limited-use? at-will?)
       ; if it's at-will or powered by a limited-use,
       ; there's no possible usable slot because it doesn't
-      ; use *any* slots
+      ; use *any* slots.
+      ; Of course, if the limited-use is the special
+      ; :*spell-slot type, then we *can* use slots
       (->> slots
            (filter #(>= (:level %)
                         spell-level))))))

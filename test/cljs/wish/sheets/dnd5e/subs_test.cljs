@@ -388,8 +388,22 @@
                :level 2
                :total 4
                :unused 1}]
-             {:spell-level 1})))
-    ))
+             {:spell-level 1}))))
+
+  (testing ":*spell-slot-consuming feature"
+    (is (= {:kind :default
+            :level 2
+            :total 4
+            :unused 1}
+
+           (usable-slot-for
+             [{:kind :default
+               :level 2
+               :total 4
+               :unused 1}]
+             {:spell-level 1
+              :consumes :*spell-slot}))))
+  )
 
 (deftest available-classes-test
   (testing "All classes available to be primary"
