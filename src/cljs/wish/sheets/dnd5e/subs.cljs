@@ -584,6 +584,23 @@
          (keep (partial src/find-feature data-source))
          (sort-by :name))))
 
+; returns a collection of feature ids
+(reg-sub
+  ::languages
+  :<- [:sheet-source]
+  :<- [:races]
+  :<- [:classes]
+  (fn [[data-source & entity-lists] _]
+    (->> entity-lists
+         flatten
+         (mapcat :attrs)
+         (keep (fn [[k v]]
+                 (when (and v
+                            (= "lang" (namespace k)))
+                   k)))
+         (keep (partial src/find-feature data-source))
+         (sort-by :name))))
+
 
 ; ======= general stats for header =========================
 

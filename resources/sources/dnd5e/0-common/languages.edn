@@ -9,41 +9,60 @@
   :type :feature}
 
  {:id :lang/common
-  :name "Common"}
+  :name "Common"
+  :! [[:!provide-attr :lang/common true]]}
 
  {:id :lang/aarakocra
-  :name "Aarakocra"}
+  :name "Aarakocra"
+  :! [[:!provide-attr :lang/aarakocra true]]}
  {:id :lang/abyssal
-  :name "Abyssal"}
+  :name "Abyssal"
+  :! [[:!provide-attr :lang/abyssal true]]}
  {:id :lang/aquan
-  :name "Aquan"}
+  :name "Aquan"
+  :! [[:!provide-attr :lang/aquan true]]}
  {:id :lang/auran
-  :name "Auran"}
+  :name "Auran"
+  :! [[:!provide-attr :lang/auran true]]}
  {:id :lang/celestial
-  :name "Celestial"}
+  :name "Celestial"
+  :! [[:!provide-attr :lang/celestial true]]}
  {:id :lang/deep-speech
-  :name "Deep Speech"}
+  :name "Deep Speech"
+  :! [[:!provide-attr :lang/deep-speech true]]}
  {:id :lang/draconic
-  :name "Draconic"}
+  :name "Draconic"
+  :! [[:!provide-attr :lang/draconic true]]}
  {:id :lang/dwarvish
-  :name "Dwarvish"}
+  :name "Dwarvish"
+  :! [[:!provide-attr :lang/dwarvish true]]}
  {:id :lang/elvish
-  :name "Elvish"}
+  :name "Elvish"
+  :! [[:!provide-attr :lang/elvish true]]}
  {:id :lang/giant
-  :name "Giant"}
+  :name "Giant"
+  :! [[:!provide-attr :lang/giant true]]}
  {:id :lang/gnomish
-  :name "Gnomish"}
+  :name "Gnomish"
+  :! [[:!provide-attr :lang/gnomish true]]}
  {:id :lang/goblin
-  :name "Goblin"}
+  :name "Goblin"
+  :! [[:!provide-attr :lang/goblin true]]}
  {:id :lang/halfling
-  :name "Halfling"}
+  :name "Halfling"
+  :! [[:!provide-attr :lang/halfling true]]}
  {:id :lang/infernal
-  :name "Infernal"}
+  :name "Infernal"
+  :! [[:!provide-attr :lang/infernal true]]}
  {:id :lang/orc
-  :name "Orc"}
+  :name "Orc"
+  :! [[:!provide-attr :lang/orc true]]}
  {:id :lang/primordial
-  :name "Primordial"}
+  :name "Primordial"
+  :! [[:!provide-attr :lang/primordial true]]}
  {:id :lang/sylvan
-  :name "Sylvan"}
+  :name "Sylvan"
+  :! [[:!provide-attr :lang/sylvan true]]}
  {:id :lang/undercommon
-  :name "Undercommon"}]
+  :name "Undercommon"
+  :! [[:!provide-attr :lang/undercommon true]]}]

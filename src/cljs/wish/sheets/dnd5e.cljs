@@ -258,16 +258,27 @@
 ; ======= Proficiencies ===================================
 
 (defn proficiencies-section []
-  (when-let [proficiencies (seq (<sub [::subs/other-proficiencies]))]
-    [:div styles/proficiencies-section
-     [:h3 "Proficiencies"]
+  [:div styles/proficiencies-section
+   (when-let [proficiencies (seq (<sub [::subs/other-proficiencies]))]
+     [:<>
+      [:h3 "Proficiencies"]
 
-     ; TODO organize by type
-     [:div.section
-      (for [f proficiencies]
-        ^{:key (:id f)}
-        [:div.item
-         (:name f)])]]))
+      ; TODO organize by type
+      [:div.section
+       (for [f proficiencies]
+         ^{:key (:id f)}
+         [:div.item
+          (:name f)])]])
+
+   (when-let [languages (seq (<sub [::subs/languages]))]
+     [:<>
+      [:h3 "Languages"]
+
+      [:div.section
+       (for [f languages]
+         ^{:key (:id f)}
+         [:div.item
+          (:name f)])]])])
 
 
 ; ======= Actions ==========================================
