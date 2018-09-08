@@ -466,6 +466,22 @@
             (str "; heal +" amount-to-heal))]]))))
 
 
+; ======= long rest =======================================
+
+(defn long-rest-overlay []
+  [:div styles/short-rest-overlay
+   [:h5 "Long Rest"]
+
+   ; SRD description:
+   [:p.desc "A long rest is a period of extended downtime, at least 8 hours long, during which a character sleeps or performs light activity: reading, talking, eating, or standing watch for no more than 2 hours. If the rest is interrupted by a period of strenuous activity—at least 1 hour of walking, fighting, casting spells, or similar adventuring activity—the characters must begin the rest again to gain any benefit from it."]
+
+   [:div.button
+    {:on-click (click>evts [:trigger-limited-use-restore
+                            [:short-rest :long-rest]]
+                           [:toggle-overlay nil])}
+    "Take a long rest" ]])
+
+
 ; ======= Spell management =================================
 
 (defn- spell-info-header [opts s]

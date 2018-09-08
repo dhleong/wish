@@ -32,8 +32,7 @@
     {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
     "Short Rest"]
    [:div.button.long
-    {:on-click (click>evt [:trigger-limited-use-restore
-                           [:short-rest :long-rest]])}
+    {:on-click (click>evt [:toggle-overlay [#'overlays/long-rest-overlay]])}
     "Long Rest"]])
 
 
