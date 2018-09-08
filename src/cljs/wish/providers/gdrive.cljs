@@ -74,6 +74,17 @@
                   ; upload retry succeeded!
                   [nil retry-resp]))))
 
+          ; network error
+          (and error
+               (str/includes?
+                 (some-> error (.-result) (.-error) (.-message))
+                 "network"))
+          [(ex-info
+             "A network error occured"
+             {:network? true}
+             error)
+           nil]
+
           ; unexpected error:
           error (do
                   (log/err f " ERROR:" error)
@@ -198,12 +209,19 @@
         (.-isSignedIn)
         (.get))))
 
-(defn init-client!  []
+(defn- on-client-init-error []
+  (log "gapi client failed")
+  ; TODO can we retry when network returns?
+  )
+
+(defn init-client! []
+  (log "init-client!")
   (-> (js/gapi.client.init
         #js {:discoveryDocs discovery-docs
              :clientId gdrive-client-id
              :scope scopes})
-      (.then on-client-init)))
+      (.then on-client-init
+             on-client-init-error)))
 
 (defn request-read!
   "Starts the flow to request readonly scope. Returns a channel"
@@ -224,7 +242,9 @@
 ;; NOTE: Exposed to index.html
 (defn ^:export handle-client-load []
   (log "load")
-  (js/gapi.load "client:auth2", init-client!))
+  (js/gapi.load "client:auth2",
+                #js {:callback init-client!
+                     :onerror on-client-init-error}))
 
 ;;
 ;; Public API

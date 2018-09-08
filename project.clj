@@ -10,6 +10,8 @@
 
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.7.3"]
+                 [com.cemerick/url "0.1.1"]
+                 [alandipert/storage-atom "2.0.1"]
 
                  [cljsjs/react-virtualized "9.18.5-1"]
 
@@ -104,20 +106,6 @@
                     :external-config      {:devtools/config {:features-to-install :all}}
                     }}
 
-    {:id           "worker-dev"
-     :source-paths ["src/cljs-worker"]
-     ; NOTE: "autoload" doesn't work here because the code
-     ; is executing in the worker process; instead, just
-     ; let Chrome handle updating
-     :figwheel     {:autoload false}
-     :compiler     {:main                 wish.worker.core
-                    :output-to            "resources/public/js/compiled/worker.js"
-                    :output-dir           "resources/public/js/compiled/worker-out"
-                    :asset-path           "worker-out"
-                    :source-map-timestamp true
-                    :target               :webworker
-                    }}
-
     {:id           "min"
      :source-paths ["src/cljs" "prod/cljs"]
      :compiler     {:main            wish.core
@@ -131,6 +119,34 @@
 
                     :externs ["externs/gapi.js"
                               "externs/wish.js"]}}
+
+    {:id           "worker-dev"
+     :source-paths ["src/cljs-worker" "dev/cljs"]
+     ; NOTE: "autoload" doesn't work here because the code
+     ; is executing in the worker process; instead, just
+     ; let Chrome handle updating
+     :figwheel     {:autoload false}
+     :compiler     {:main                 wish.worker.core
+                    :output-to            "resources/public/worker.js"
+                    :output-dir           "resources/public/js/compiled/worker-out"
+                    :asset-path           "js/compiled/worker-out"
+                    :source-map-timestamp true
+                    :target               :webworker
+                    }}
+
+    {:id           "worker-min"
+     :source-paths ["src/cljs-worker" "prod/cljs"]
+     :compiler     {:main                 wish.worker.core
+                    :output-to            "resources/public/worker.js"
+                    :output-dir           "resources/public/js/compiled/worker-out-min"
+                    :closure-defines {goog.DEBUG false
+                                      wish.util.nav.LOCAL false}
+                    :optimizations   :advanced
+                    :pretty-print    false
+                    :optimize-constants true
+                    :static-fns true
+                    :target               :webworker
+                    }}
 
     {:id           "min-debug"
      :source-paths ["src/cljs" "dev/cljs"]

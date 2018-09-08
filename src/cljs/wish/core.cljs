@@ -1,4 +1,5 @@
 (ns wish.core
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             [re-pressed.core :as rp]
@@ -16,8 +17,14 @@
 
 (defn mount-worker []
   (when js/navigator.serviceWorker
-    (println "mount worker")
-    (.register js/navigator.serviceWorker "/js/compiled/worker.js")))
+    (log "mount worker")
+    (-> js/navigator.serviceWorker
+        (.register (str config/server-root "/worker.js"))
+        (.then
+          (fn [reg]
+            (log "mounted service worker! " reg))
+          (fn [e]
+            (log/warn "error mounting service worker: " e))))))
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)

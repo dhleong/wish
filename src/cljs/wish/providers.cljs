@@ -6,6 +6,7 @@
   (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
+            [wish.providers.caching :refer [with-caching]]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.gdrive.errors :as gdrive-errors]
@@ -22,7 +23,8 @@
     :config #'gdrive-config/view
     :error-resolver #'gdrive-errors/view
     :share! #'gdrive/share!
-    :inst (gdrive/create-provider)}
+    :inst (with-caching
+            (gdrive/create-provider))}
 
    :wish
    {:id :wish
