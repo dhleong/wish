@@ -118,7 +118,6 @@
 (defn fetch-event [ev]
   (let [request (.-request ev)
         url (-> request .-url url/url)]
-    (log "fetch: " url)
     (cond
       (shell-root? url)
       (fetch-shell url)

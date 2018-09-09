@@ -35,9 +35,12 @@
 
 ; ======= provider-related =================================
 
-
 (reg-fx :providers/init! providers/init!)
 (reg-fx :providers/query-data-sources providers/query-data-sources!)
+(reg-fx :providers/query-sheets (fn [provider-id]
+                                  (when provider-id
+                                    (providers/query-sheets provider-id))))
+
 
 ; ======= sheet load requests ==============================
 

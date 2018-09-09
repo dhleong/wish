@@ -58,7 +58,8 @@
     [:div
      [:h3 "Google Drive"]
      (case state
-       :idle [:div "Preparing..."]
+       nil [:div "Preparing..."]
+       :unavailable [:div "Google Drive is currently unavailable..."]
        :signed-out [signin-prompt]
-       :signed-in [connected-view])
+       :ready [connected-view])
      ]))

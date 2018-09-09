@@ -62,8 +62,11 @@
     [widgets/error-box data]))
 
 (defn init! []
+  ; TODO map providers to init! channels; use alt! on them and
+  ; :put! the appropriate state
   (doseq [provider (vals providers)]
     (when-let [inst (:inst provider)]
+      (>evt [:put-provider-state! (:id provider) nil])
       (provider/init! inst))))
 
 (defn sharable? [sheet-id]
@@ -138,12 +141,32 @@
         (when inst
           (provider/query-data-sources inst))))))
 
+(defn query-sheets
+  "Start querying the given provider-id for its sheets"
+  [provider-id]
+  (if-let [inst (provider-key provider-id :inst)]
+    (go (let [[err sheets] (<! (provider/query-sheets inst))]
+          (if err
+            (log/warn "Failed to query " provider-id ": " err)
+            (>evt [:add-sheets sheets]))
+
+          ; either way, we're done querying:
+          (>evt [:mark-provider-listing! provider-id false])))
+
+    (log/err "No such provider to query: " provider-id)))
+
+; format sheet data for saving (as a string). this should convert
+; to a format for suitable for use with `load-raw`. For now, (str)
+; does the trick
+(def format-sheet-data str)
+
 (defn save-sheet!
   [sheet-id data on-done]
   (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
     (if-let [inst (provider-key provider-id :inst)]
       (go (let [[err] (<! (provider/save-sheet
-                            inst pro-sheet-id data))]
+                            inst pro-sheet-id
+                            data (format-sheet-data data)))]
             (on-done err)))
 
       (on-done (js/Error. (str "No provider instance for " sheet-id

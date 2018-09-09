@@ -159,6 +159,27 @@
     (reset! gapi-available? nil)
     (put! gapi-available-ch true)))
 
+(defn- when-gapi-available
+  "Apply `args` to `f` when gapi is available, or (if it's
+   unavailable) return an appropriate error"
+  [f & args]
+  (go (let [availability @gapi-available?]
+        (cond
+          (= false availability)
+          [(ex-info
+             "GAPI unavailable"
+             {:network? true})
+           nil]
+
+          ; wait on the channel, if there is one
+          (not (nil? availability))
+          (do (<! availability)
+              (<! (apply f args)))
+
+          ; should be available! go ahead and load
+          :else
+          (<! (apply f args))))))
+
 (defn- auth-instance
   "Convenience to get the gapi auth instance:
    gapi.auth2.getAuthInstance().
@@ -182,9 +203,9 @@
   [signed-in?]
   (log/info "signed-in? <-" signed-in?)
   (>evt [:put-provider-state! :gdrive (if signed-in?
-                                        :signed-in
+                                        :ready
                                         :signed-out)])
-  (when signed-in?
+  #_(when signed-in?
     (>evt [:mark-provider-listing! :gdrive true])
     (do-query-files
       "appProperties has { key='wish-type' and value='wish-sheet' }"
@@ -215,6 +236,7 @@
     (log/info "notifying consumers that gapi is unavailable")
     (reset! gapi-available? false)
     (put! ch false))
+  (>evt [:put-provider-state! :gdrive :unavailable])
 
   ; TODO can we retry when network returns?
   )
@@ -396,22 +418,7 @@
 
   (load-raw
     [this id]
-    (go (let [availability @gapi-available?]
-          (cond
-            (= false availability)
-            [(ex-info
-               "GAPI unavailable"
-               {:network? true})
-             nil]
-
-            ; wait on the channel, if there is one
-            (not (nil? availability))
-            (do (<! availability)
-                (<! (do-load-raw id)))
-
-            ; should be available! go ahead and load
-            :else
-            (<! (do-load-raw id))))))
+    (when-gapi-available do-load-raw id))
 
   (query-data-sources [this]
     ; TODO indicate query state?
@@ -424,13 +431,18 @@
                                   (assoc file :id id))
                                 files)]))))
 
+  (query-sheets [this]
+    (when-gapi-available
+      query-files
+      "appProperties has { key='wish-type' and value='wish-sheet' }"))
+
   (register-data-source [this]
     ; TODO sanity checks galore
     (pick-file {:mimeType source-mime
                 :description source-desc
                 :props source-props}))
 
-  (save-sheet [this file-id data]
+  (save-sheet [this file-id data data-str]
     (log/info "Save " file-id data)
     (upload-data
       :update
@@ -438,7 +450,7 @@
        :mimeType sheet-mime
        :description sheet-desc
        :name (:name data)}
-      (str data))))
+      data-str)))
 
 (defn create-provider []
   (->GDriveProvider))

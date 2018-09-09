@@ -62,11 +62,17 @@
 
 ; ======= Provider management ==============================
 
-(reg-event-db
+(reg-event-fx
   :put-provider-state!
   [trim-v]
-  (fn-traced [db [provider-id state]]
-    (assoc-in db [:provider-states provider-id] state)))
+  (fn-traced [{:keys [db]} [provider-id state]]
+    {:db (let [db (assoc-in db [:provider-states provider-id] state)]
+           (if (= :ready state)
+             ; if it's set to ready, immediately mark it as listing
+             (update db :providers-listing conj provider-id)
+             db))
+     :providers/query-sheets (when (= :ready state)
+                               provider-id)}))
 
 (reg-event-db
   :mark-provider-listing!
