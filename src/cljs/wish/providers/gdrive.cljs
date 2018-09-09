@@ -209,8 +209,13 @@
         (.-isSignedIn)
         (.get))))
 
-(defn- on-client-init-error []
-  (log "gapi client failed")
+(defn- on-client-init-error [e]
+  (log/warn "gapi client failed" e (js/JSON.stringify e))
+  (when-let [ch @gapi-available?]
+    (log/info "notifying consumers that gapi is unavailable")
+    (reset! gapi-available? false)
+    (put! ch false))
+
   ; TODO can we retry when network returns?
   )
 
@@ -240,11 +245,13 @@
 
 ;;
 ;; NOTE: Exposed to index.html
-(defn ^:export handle-client-load []
+(defn ^:export handle-client-load [success?]
   (log "load")
-  (js/gapi.load "client:auth2",
-                #js {:callback init-client!
-                     :onerror on-client-init-error}))
+  (if success?
+    (js/gapi.load "client:auth2",
+                  #js {:callback init-client!
+                       :onerror on-client-init-error})
+    (on-client-init-error nil)))
 
 ;;
 ;; Public API
@@ -331,6 +338,29 @@
 (def share! (api/when-loaded "drive-share" do-share-file))
 
 
+; ======= file loading ====================================
+
+(defn- do-load-raw [id]
+  (go (let [[err resp :as r] (<! (get-file id))]
+        (if err
+          (let [status (.-status err)]
+            (log/err "ERROR loading " id err)
+            (if (= 404 status)
+              ; possibly caused by permissions
+              [(ex-info
+                 (ex-message err)
+                 {:permissions? true
+                  :provider :gdrive
+                  :id id}
+                 err)
+               nil]
+
+              ; some other error
+              [err nil]))
+
+          ; success; return unchanged
+          r))))
+
 ; ======= Provider def =====================================
 
 (deftype GDriveProvider []
@@ -366,28 +396,22 @@
 
   (load-raw
     [this id]
-    (go (let [_ (when-let [ch @gapi-available?]
-                  (<! ch))
+    (go (let [availability @gapi-available?]
+          (cond
+            (= false availability)
+            [(ex-info
+               "GAPI unavailable"
+               {:network? true})
+             nil]
 
-              [err resp :as r] (<! (get-file id))]
-          (if err
-            (let [status (.-status err)]
-              (log/err "ERROR loading " id err)
-              (if (= 404 status)
-                ; possibly caused by permissions
-                [(ex-info
-                   (ex-message err)
-                   {:permissions? true
-                    :provider :gdrive
-                    :id id}
-                   err)
-                 nil]
+            ; wait on the channel, if there is one
+            (not (nil? availability))
+            (do (<! availability)
+                (<! (do-load-raw id)))
 
-                ; some other error
-                [err nil]))
-
-            ; success; return unchanged
-            r))))
+            ; should be available! go ahead and load
+            :else
+            (<! (do-load-raw id))))))
 
   (query-data-sources [this]
     ; TODO indicate query state?

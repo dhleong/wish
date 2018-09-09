@@ -14,6 +14,7 @@
     (provider/create-sheet base file-name data))
 
   (init! [this]
+    ; we have no init of our own; just delegate
     (provider/init! base))
 
   (load-raw
@@ -22,11 +23,12 @@
                                           base id))]
           (if-not err
             (do
-              (log "write to cache: " id)
+              (log/info "write to cache: " id)
               (swap! storage assoc id resp)
               result)
 
             (or (when-let [data (get @storage id)]
+                  (log/info "loaded " id " from cache")
                   [nil data])
                 result)))))
 

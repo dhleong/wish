@@ -48,7 +48,8 @@
 
     <script>wish.core.init();</script>
     <script async defer src="https://apis.google.com/js/api.js"
-        onload="this.onload=function(){};wish.providers.gdrive.handle_client_load()"
+        onerror="wish.providers.gdrive.handle_client_load(false)"
+        onload="this.onload=function(){};wish.providers.gdrive.handle_client_load(true)"
         onreadystatechange="if (this.readyState === 'complete') this.onload()">
     </script>
   </body>

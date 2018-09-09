@@ -63,6 +63,7 @@
             "build" ["with-profile" "+prod,-dev" "do"
                           ["clean"]
                           ["cljsbuild" "once" "min"]
+                          ["cljsbuild" "once" "worker-min"]
                           ["less" "once"]]
             "test" ["do" "test"
                          ["doo" "chrome-headless" "test" "once"]]}
@@ -139,12 +140,11 @@
      :compiler     {:main                 wish.worker.core
                     :output-to            "resources/public/worker.js"
                     :output-dir           "resources/public/js/compiled/worker-out-min"
-                    :closure-defines {goog.DEBUG false
-                                      wish.util.nav.LOCAL false}
-                    :optimizations   :advanced
-                    :pretty-print    false
-                    :optimize-constants true
-                    :static-fns true
+                    :closure-defines      {goog.DEBUG false}
+                    :optimizations        :advanced
+                    :pretty-print         false
+                    :optimize-constants   true
+                    :static-fns           true
                     :target               :webworker
                     }}
 
