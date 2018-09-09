@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Data source providers"}
   wish.providers
-  (:require-macros [cljs.core.async.macros :refer [go]]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [<!]]
+  (:require [clojure.core.async :as async :refer [<!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
             [wish.providers.caching :refer [with-caching]]
@@ -62,12 +62,25 @@
     [widgets/error-box data]))
 
 (defn init! []
-  ; TODO map providers to init! channels; use alt! on them and
-  ; :put! the appropriate state
-  (doseq [provider (vals providers)]
-    (when-let [inst (:inst provider)]
-      (>evt [:put-provider-state! (:id provider) nil])
-      (provider/init! inst))))
+  (log/info "init!")
+  ; let every provider init! in parallel, waiting for each to
+  ; let us know what their state is before putting it into the DB
+  (go-loop [init-chs (->> providers
+                          vals
+                          (map (fn [provider]
+                                 (go {:provider-id (:id provider)
+                                      :state (<! (provider/init!
+                                                   (:inst provider)))}))))]
+    (let [[{:keys [provider-id state]} port] (alts! init-chs)
+          new-chs (filterv
+                    (partial not= port)
+                    init-chs)]
+      (>evt [:put-provider-state! provider-id state])
+      (if (empty? new-chs)
+        (log/info "init!'d all providers")
+
+        ; still waiting
+        (recur new-chs)))))
 
 (defn sharable? [sheet-id]
   (let [[provider-id _] (unpack-id sheet-id)]

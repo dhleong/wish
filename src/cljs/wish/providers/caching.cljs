@@ -14,8 +14,12 @@
     (provider/create-sheet base file-name data))
 
   (init! [this]
-    ; we have no init of our own; just delegate
-    (provider/init! base))
+    (go (let [base-state (<! (provider/init! base))]
+          (if-not (= :unavailable base-state)
+            base-state
+
+            ; if base is unavailable, we can take over
+            :cache-only))))
 
   (load-raw
     [this id]

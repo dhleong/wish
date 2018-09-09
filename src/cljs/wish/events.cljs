@@ -66,13 +66,18 @@
   :put-provider-state!
   [trim-v]
   (fn-traced [{:keys [db]} [provider-id state]]
-    {:db (let [db (assoc-in db [:provider-states provider-id] state)]
-           (if (= :ready state)
-             ; if it's set to ready, immediately mark it as listing
-             (update db :providers-listing conj provider-id)
-             db))
-     :providers/query-sheets (when (= :ready state)
-                               provider-id)}))
+    (let [can-query? (contains? #{:ready :cache-only} state)
+          will-query? (when can-query?
+                        ; only query again if we previously could not
+                        (not= :ready
+                              (get-in db [:provider-states provider-id])))]
+      {:db (let [db (assoc-in db [:provider-states provider-id] state)]
+             (if will-query?
+               ; if it's ready to query, immediately mark it as listing
+               (update db :providers-listing conj provider-id)
+               db))
+       :providers/query-sheets (when will-query?
+                                 provider-id)})))
 
 (reg-event-db
   :mark-provider-listing!

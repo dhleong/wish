@@ -24,7 +24,7 @@
 
   (init! [this]
     ; we're always ready immediately
-    (>evt [:put-provider-state! :wish :ready]))
+    (to-chan [:ready]))
 
   (load-raw
     [this id]

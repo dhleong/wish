@@ -28,16 +28,9 @@
 
 (defn mount-root []
   (re-frame/clear-subscription-cache!)
-  ;; NOTE: right now, init! should only be done once, since it
-  ;; sets each provider's state to `nil`. We could do that conditionally,
-  ;; maybe, but actually none of our current providers do anything on
-  ;; `init!`, so it's unclear if that's the correct behavior. Instead,
-  ;; we simply do `init!` once for now, and leave this as reference in
-  ;; case we add providers that need to re-init! somehow, and we can
-  ;; figure out the best way to handle it then.
-  ;; (when config/debug?
-  ;;   ; hot-reload providers
-  ;;   (wish.providers/init!))
+  (when config/debug?
+    ; hot-reload providers
+    (wish.providers/init!))
   (reagent/render [views/main]
                   (.getElementById js/document "app")))
 

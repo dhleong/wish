@@ -7,12 +7,14 @@
   (id [this])
   (init!
     [this]
-    "Perform any necessary init. If/when available and ready, the Provider
-     MUST dispatch `[:put-provider-state! <id> :ready]`. This will
-     be the signal to call `query-sheets`. If not available (EG the user
-     has not enabled the provider, etc.) then the Provider MUST dispatch
-     an appropriate state (`:signed-out`, `:unavailable`, etc.). Otherwise,
-     Wish will believe the Provider is still initializing.
+    "Perform any necessary init, returning a channel that emits the state of
+     the Provider, such as `:ready`, `:signed-out`, etc. init! may be called
+     multiple times throughout the lifetime of the app, but usually only if
+     it previously returned `:unavailable`. In such cases, it is acceptable
+     for the Provider to just return a channel that immediately emits its
+     current state, if there's no need or ability to retry init. If the
+     Provider did previously fail to init (and emitted :unavailable), such
+     a case should be considered a good opportunity to try again.
      See the comments on `:provider-states` in `db.cljs` for all acceptable
      states.")
 

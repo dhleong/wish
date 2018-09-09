@@ -6,6 +6,8 @@
    ; map of provider id to their current state. Acceptable states:
    ;  - :ready        The provider is ready to be used. Setting this
    ;                  state will trigger a call to `(query-sheets)`
+   ;  - :cache-only   The provider could not be initialized, but a
+   ;                  cache is available to perform operations
    ;  - :signed-out   The provider is initialized, but not set up.
    ;  - :unavailable  The provider could not be initialized.
    ;  - nil           The provider is still initializing

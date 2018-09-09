@@ -143,36 +143,33 @@
 ;; State management and API interactions
 ;;
 
-; gapi availability channel. Once js/gapi is
-; available, this atom is reset! to nil. Due to
-; how the (go) macro works, we can't have a nice
-; convenience function to use this, so callers will
-; have to look like:
-;
-;   (when-let [ch @gapi-available?]
-;     (<! ch))
-;
-(defonce ^:private gapi-available? (atom (chan)))
+; gapi availability channel. it starts out as a channel,
+; so function calls depending on gapi being available can
+; wait on it to discover the state (see `when-gapi-available`).
+; Once gapi availability is determined, this atom is reset!
+; to one of the valid provider states (:ready, :unavailable, :signed-out)
+(defonce ^:private gapi-state (atom (chan)))
 
-(defn- set-gapi-available! []
-  (when-let [gapi-available-ch @gapi-available?]
-    (reset! gapi-available? nil)
-    (put! gapi-available-ch true)))
+(defn- set-gapi-state! [new-state]
+  (let [gapi-available-ch @gapi-state]
+    (reset! gapi-state new-state)
+    (when-not (keyword? gapi-available-ch)
+      (put! gapi-available-ch new-state))))
 
 (defn- when-gapi-available
   "Apply `args` to `f` when gapi is available, or (if it's
    unavailable) return an appropriate error"
   [f & args]
-  (go (let [availability @gapi-available?]
+  (go (let [availability @gapi-state]
         (cond
-          (= false availability)
+          (= :unavailable availability)
           [(ex-info
              "GAPI unavailable"
              {:network? true})
            nil]
 
           ; wait on the channel, if there is one
-          (not (nil? availability))
+          (not (keyword? availability))
           (do (<! availability)
               (<! (apply f args)))
 
@@ -202,22 +199,12 @@
 (defn- update-signin-status!
   [signed-in?]
   (log/info "signed-in? <-" signed-in?)
-  (>evt [:put-provider-state! :gdrive (if signed-in?
-                                        :ready
-                                        :signed-out)])
-  #_(when signed-in?
-    (>evt [:mark-provider-listing! :gdrive true])
-    (do-query-files
-      "appProperties has { key='wish-type' and value='wish-sheet' }"
-      :on-success (fn on-files-list [files]
-                    (log/info "Found: " files)
-                    (>evt [:add-sheets files])
-                    (>evt [:mark-provider-listing! :gdrive false])))))
+  (set-gapi-state! (if signed-in?
+                     :ready
+                     :signed-out)))
 
-(defn- on-client-init
-  []
+(defn- on-client-init []
   (log "gapi client init!")
-  (set-gapi-available!)
 
   ; listen for updates
   (-> (auth-instance)
@@ -232,11 +219,7 @@
 
 (defn- on-client-init-error [e]
   (log/warn "gapi client failed" e (js/JSON.stringify e))
-  (when-let [ch @gapi-available?]
-    (log/info "notifying consumers that gapi is unavailable")
-    (reset! gapi-available? false)
-    (put! ch false))
-  (>evt [:put-provider-state! :gdrive :unavailable])
+  (set-gapi-state! :unavailable)
 
   ; TODO can we retry when network returns?
   )
@@ -414,7 +397,15 @@
                  (fn [e]
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
-  (init! [this]) ; nop
+  (init! [this]
+    (go (let [state @gapi-state]
+          ; TODO if state is :unavailable, we could try to load gapi again
+          (if (keyword? state)
+            ; state is resolved; return directly
+            state
+
+            ; wait on the channel for the state
+            (<! state)))))
 
   (load-raw
     [this id]
