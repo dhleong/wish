@@ -27,6 +27,10 @@
     {:get #(get-in (<sub [:sheets-filters]) %)
      :save! #(>evt [:filter-sheets (first %1) %2])}]
 
+   [:div
+    [link {:href "/sheets/new"}
+     "Create a new sheet"]]
+
    (when (<sub [:providers-listing?])
      [:div.loading "Loading..."])
 
@@ -35,8 +39,4 @@
       ^{:key (:id s)}
       [:li.sheet-link
        [link {:href (sheet-url (:id s))}
-        (:name s)]])]
-
-   [:div
-    [link {:href "/sheets/new"}
-     "Create a new sheet"]]])
+        (:name s)]])] ])
