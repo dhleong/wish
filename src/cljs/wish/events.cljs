@@ -87,11 +87,13 @@
                         ; only query again if we previously could not
                         (not= :ready
                               (get-in db [:provider-states provider-id])))]
-      {:db (let [db (assoc-in db [:provider-states provider-id] state)]
-             (if will-query?
-               ; if it's ready to query, immediately mark it as listing
-               (update db :providers-listing conj provider-id)
-               db))
+      {:db (cond-> db
+             ; always put the state
+             true (assoc-in [:provider-states provider-id] state)
+
+             ; if it's ready to query, immediately mark it as listing
+             will-query? (update :providers-listing conj provider-id))
+
        :providers/query-sheets (when will-query?
                                  provider-id)})))
 
