@@ -17,6 +17,9 @@
    ; their lists of available character sheets
    :providers-listing #{}
 
+   ; hope for the best
+   :online? true
+
    ; map of :id -> {:id,:name,}
    :data-sources {}
 

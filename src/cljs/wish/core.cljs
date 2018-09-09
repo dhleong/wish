@@ -7,7 +7,8 @@
             [wish.routes :as routes]
             [wish.views :as views]
             [wish.config :as config]
-            [wish.fx]))
+            [wish.fx]
+            [wish.util.netwatcher :as netwatcher]))
 
 
 (defn dev-setup []
@@ -31,6 +32,7 @@
   (when config/debug?
     ; hot-reload providers
     (wish.providers/init!))
+  (netwatcher/attach!)
   (reagent/render [views/main]
                   (.getElementById js/document "app")))
 

@@ -59,6 +59,18 @@
   (fn-traced [_ [title]]
     {:title! title}))
 
+(reg-event-fx
+  :set-online
+  [trim-v]
+  (fn [{:keys [db]} [online?]]
+    ; NOTE: we can't use fn-traced here due to cond-> use
+    ; See: https://github.com/Day8/re-frame-debux/issues/22
+
+    (log "online <- " online?)
+    (cond-> {:db (assoc db :online? online?)}
+
+      ; if we're coming back online, trigger init!
+      online? (assoc :providers/init! :!))))
 
 ; ======= Provider management ==============================
 
