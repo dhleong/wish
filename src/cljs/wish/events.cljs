@@ -62,6 +62,22 @@
 
 ; ======= Provider management ==============================
 
+(reg-event-db
+  :prepare-provider-states!
+  [trim-v (path :provider-states)]
+  (fn-traced [states [provider-ids]]
+    (reduce
+      (fn [old-states provider-id]
+        (if-not (contains? old-states provider-id)
+          ; only set the "pending" state (nil) if
+          ; there was no existing state
+          (assoc old-states provider-id nil)
+
+          ; old state already; do nothing
+          old-states))
+      states
+      provider-ids)))
+
 (reg-event-fx
   :put-provider-state!
   [trim-v]

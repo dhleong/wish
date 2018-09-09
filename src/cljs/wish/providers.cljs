@@ -63,6 +63,11 @@
 
 (defn init! []
   (log/info "init!")
+
+  ; prep provider states all at once, to prevent :wish
+  ; from drowning out others
+  (>evt [:prepare-provider-states! (keys providers)])
+
   ; let every provider init! in parallel, waiting for each to
   ; let us know what their state is before putting it into the DB
   (go-loop [init-chs (->> providers

@@ -28,6 +28,11 @@
   :providers-listing?
   (fn [db _]
     (or (seq (:providers-listing db))
+
+        ; if provider-states is empty, then providers/init!
+        ; hasn't yet been called/finished executing
+        (empty? (:provider-states db))
+
         (some (fn [[id state]]
                 (nil? state))
               (:provider-states db)))))
