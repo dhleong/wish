@@ -6,6 +6,7 @@
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan put! <!]]
             [clojure.string :as str]
+            [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
@@ -258,6 +259,25 @@
                        :onerror on-client-init-error})
     (on-client-init-error nil)))
 
+(defn- retry-gapi-load! []
+  ; NOTE we have to do a get off window, else cljs throws
+  ; a reference error
+  (if js/window.gapi
+    ; we have gapi, but I guess one of the libs failed to load?
+    (handle-client-load true)
+
+    ; no gapi; add a new copy of the script node
+    (do
+      (log "Add a new gapi <script> node")
+      (dom/appendChild
+        (aget (dom/getElementsByTagName "head") 0)
+        (dom/createDom dom/TagName.SCRIPT
+                       #js {:onload (partial handle-client-load true)
+                            :onerror (partial handle-client-load false)
+                            :async true
+                            :src "https://apis.google.com/js/api.js"
+                            :type "text/javascript"})))))
+
 ;;
 ;; Public API
 ;;
@@ -399,12 +419,21 @@
 
   (init! [this]
     (go (let [state @gapi-state]
-          ; TODO if state is :unavailable, we could try to load gapi again
-          (if (keyword? state)
+          (cond
+            ; try to load gapi again
+            (= :unavailable state)
+            (let [ch (chan)]
+              (log "reloading gapi")
+              (reset! gapi-state ch)
+              (retry-gapi-load!)
+              (<! ch))
+
             ; state is resolved; return directly
+            (keyword? state)
             state
 
             ; wait on the channel for the state
+            :else
             (<! state)))))
 
   (load-raw
