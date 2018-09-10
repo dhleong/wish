@@ -45,10 +45,10 @@
 
   (save-sheet
     [this id data data-str]
-    "Save `data` into the the sheet with the given provider-specific
-     `id`, returning a channel that emits nil on success or an
-     error value on failure. `data` is pre-formatted as `data-str`,
-     which is what you should write for symmmetry with `load-raw` and
-     caching. However, the original `data` is provided in case you
-     want to pull out `:name`, for example."))
+    "Save string `data-str` into the the sheet with the given
+     provider-specific `id`, returning the usual channel style.
+     The original `data` *may* be provided, which you can use to
+     update `:name`, for example, but it may also be omitted.
+     `data-str` is in the same string format that should be
+     returned by `load-raw`."))
 

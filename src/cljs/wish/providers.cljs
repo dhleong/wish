@@ -179,12 +179,17 @@
 (def format-sheet-data str)
 
 (defn save-sheet!
-  [sheet-id data on-done]
-  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
+  [sheet-id data data-preformatted? on-done]
+  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)
+        data-str (if data-preformatted?
+                   data
+                   (format-sheet-data data))
+        data (when-not data-preformatted?
+               data)]
     (if-let [inst (provider-key provider-id :inst)]
       (go (let [[err] (<! (provider/save-sheet
                             inst pro-sheet-id
-                            data (format-sheet-data data)))]
+                            data data-str))]
             (on-done err)))
 
       (on-done (js/Error. (str "No provider instance for " sheet-id

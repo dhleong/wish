@@ -66,16 +66,15 @@
 
 (reg-fx
   ::save-sheet!
-  (fn [[sheet-id data]]
+  (fn [[sheet-id data data-preformatted?]]
     (>evt [::db/mark-save-processing sheet-id])
 
     (save-sheet!
-      sheet-id data
+      sheet-id data data-preformatted?
       (fn on-saved [err]
         (log-sheet "on-saved(" sheet-id ") " err)
 
         (when err
-          ; TODO dispatch retry (later)
           (log/err "Error saving " sheet-id ": " err))
 
         (when-not err

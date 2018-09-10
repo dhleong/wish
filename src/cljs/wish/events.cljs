@@ -268,6 +268,13 @@
     ; fetch the sheet data and forward it to the ::save-sheet! fx handler
     {::fx/save-sheet! [sheet-id (get-in db [:sheets sheet-id])]}))
 
+; used by the CachingProvider to eagerly persist offline changes to a sheet
+(reg-event-fx
+  :persist-cached-sheet!
+  [trim-v]
+  (fn-traced [{:keys [db]} [sheet-id data-str]]
+    {::fx/save-sheet! [sheet-id data-str :from-cache]}))
+
 (reg-event-fx
   :share-sheet!
   [trim-v]

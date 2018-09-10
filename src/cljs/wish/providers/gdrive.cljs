@@ -488,10 +488,11 @@
         (log/info "Save " file-id data)
         (upload-data
           :update
-          {:fileId file-id
-           :mimeType sheet-mime
-           :description sheet-desc
-           :name (:name data)}
+          (cond-> {:fileId file-id
+                   :mimeType sheet-mime
+                   :description sheet-desc }
+            ; update the :name if we can
+            data (assoc :name (:name data)))
           data-str))
 
       ; not ready? don't try

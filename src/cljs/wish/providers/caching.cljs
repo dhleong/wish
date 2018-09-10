@@ -1,11 +1,26 @@
 (ns ^{:author "Daniel Leong"
       :doc "caching"}
   wish.providers.caching
-  (:require-macros [cljs.core.async :refer [go]]
+  (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan put! <!]]
             [alandipert.storage-atom :refer [local-storage]]
-            [wish.providers.core :as provider :refer [IProvider]]))
+            [wish.providers.core :as provider :refer [IProvider]]
+            [wish.sheets.util :refer [make-id]]
+            [wish.util :refer [>evt]]))
+
+(defn- undirty
+  "Persist the set of dirty files with the given ids"
+  [base storage dirty?-storage ids]
+  (log "Persist dirty files" ids)
+  (doseq [id ids]
+    (if-let [data-str (get @storage id)]
+      (>evt [:persist-cached-sheet!
+             (make-id (provider/id base) id)
+             data-str])
+
+      (do (log/warn "Dirty flag set for " id " but no data stored!")
+          (swap! dirty?-storage disj id)))))
 
 (deftype CachingProvider [base my-id storage dirty?-storage]
   IProvider
@@ -15,6 +30,10 @@
 
   (init! [this]
     (go (let [base-state (<! (provider/init! base))]
+          (when (= :ready base-state)
+            (when-let [ids (seq @dirty?-storage)]
+              (undirty base storage dirty?-storage ids)))
+
           (if-not (= :unavailable base-state)
             base-state
 
