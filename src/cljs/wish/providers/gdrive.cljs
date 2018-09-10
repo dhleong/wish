@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Google Drive powered Provider"}
   wish.providers.gdrive
-  (:require-macros [cljs.core.async :refer [go]]
+  (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [chan close! put! to-chan <!]]
@@ -438,23 +438,34 @@
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
   (init! [this]
-    (go (let [state @gapi-state]
-          (cond
-            ; try to load gapi again
-            (= :unavailable state)
-            (let [ch (chan)]
-              (log "reloading gapi")
-              (reset! gapi-state ch)
-              (retry-gapi-load!)
-              (<! ch))
+    (go-loop [state @gapi-state]
+      (cond
+        ; try to load gapi again
+        (= :unavailable state)
+        (let [ch (chan)]
+          (log "reloading gapi")
+          (reset! gapi-state ch)
+          (retry-gapi-load!)
+          (if-let [r (<! ch)]
+            r
 
-            ; state is resolved; return directly
-            (keyword? state)
-            state
+            ; if nil, then someone else consumed the channel;
+            ; it's *probaby* resolved by now, but in some circumstances
+            ; it's possible for it to be replaced by a new channel,
+            ; in which case we want to wait on that.
+            (recur @gapi-state)))
 
-            ; wait on the channel for the state
-            :else
-            (<! state)))))
+        ; state is resolved; return directly
+        (keyword? state)
+        state
+
+        ; wait on the channel for the state
+        :else
+        (if-let [r (<! state)]
+          r
+
+          ; see above
+          (recur @gapi-state)))))
 
   (load-raw
     [this id]

@@ -80,6 +80,7 @@
           new-chs (filterv
                     (partial not= port)
                     init-chs)]
+      (log "provider init! " provider-id "<-" state)
       (>evt [:put-provider-state! provider-id state])
       (if (empty? new-chs)
         (log/info "init!'d all providers")

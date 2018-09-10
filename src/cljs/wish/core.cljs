@@ -27,10 +27,12 @@
           (fn [e]
             (log/warn "error mounting service worker: " e))))))
 
-(defn mount-root []
+(defn mount-root [& first?]
   (re-frame/clear-subscription-cache!)
-  (when config/debug?
-    ; hot-reload providers
+  (when (and config/debug?
+             (not first?))
+    ; hot-reload providers; don't do it the first time,
+    ; since it's requested as part of db init
     (wish.providers/init!))
   (netwatcher/attach!)
   (reagent/render [views/main]
@@ -42,4 +44,4 @@
   (re-frame/dispatch-sync [::rp/add-keyboard-event-listener "keydown"])
   (dev-setup)
   (mount-worker)
-  (mount-root))
+  (mount-root :first!))
