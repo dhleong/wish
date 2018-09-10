@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan put! <!]]
+  (:require [clojure.core.async :refer [chan close! put! to-chan <!]]
             [clojure.string :as str]
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
@@ -78,7 +78,14 @@
           ; network error
           (and error
                (str/includes?
-                 (some-> error (.-result) (.-error) (.-message))
+                 (or (some-> error
+                             (.-result)
+                             (.-error)
+                             (.-message))
+                     (some-> error
+                             (.-message))
+                     (ex-message error)
+                     (log/warn "No message on " error))
                  "network"))
           [(ex-info
              "A network error occured"
@@ -155,13 +162,15 @@
   (let [gapi-available-ch @gapi-state]
     (reset! gapi-state new-state)
     (when-not (keyword? gapi-available-ch)
-      (put! gapi-available-ch new-state))))
+      (put! gapi-available-ch new-state)
+      (close! gapi-available-ch))))
 
 (defn- when-gapi-available
   "Apply `args` to `f` when gapi is available, or (if it's
    unavailable) return an appropriate error"
   [f & args]
   (go (let [availability @gapi-state]
+        (log "when-gapi-available: " availability f args)
         (cond
           (= :unavailable availability)
           [(ex-info
@@ -171,8 +180,19 @@
 
           ; wait on the channel, if there is one
           (not (keyword? availability))
-          (do (<! availability)
-              (<! (apply f args)))
+          (let [_  (log "waiting on" availability "; then: " f args)
+                read (or (<! availability)
+                         @gapi-state)]
+            (if (= :ready read)
+              ; ready
+              (do
+                (log "got availability; then: " f args)
+                (<! (apply f args)))
+
+              ; try again
+              (do
+                (log "Not ready: " read)
+                [(js/Error. (str "Error? " read))])))
 
           ; should be available! go ahead and load
           :else
@@ -463,14 +483,19 @@
                 :props source-props}))
 
   (save-sheet [this file-id data data-str]
-    (log/info "Save " file-id data)
-    (upload-data
-      :update
-      {:fileId file-id
-       :mimeType sheet-mime
-       :description sheet-desc
-       :name (:name data)}
-      data-str)))
+    (if (= :ready @gapi-state)
+      (do
+        (log/info "Save " file-id data)
+        (upload-data
+          :update
+          {:fileId file-id
+           :mimeType sheet-mime
+           :description sheet-desc
+           :name (:name data)}
+          data-str))
+
+      ; not ready? don't try
+      (to-chan [[(js/Error. "No network; unable to save sheet") nil]]))))
 
 (defn create-provider []
   (->GDriveProvider))

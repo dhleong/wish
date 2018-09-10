@@ -7,7 +7,7 @@
             [alandipert.storage-atom :refer [local-storage]]
             [wish.providers.core :as provider :refer [IProvider]]))
 
-(deftype CachingProvider [base my-id storage]
+(deftype CachingProvider [base my-id storage dirty?-storage]
   IProvider
   (id [this] my-id)
   (create-sheet [this file-name data]
@@ -23,18 +23,32 @@
 
   (load-raw
     [this id]
-    (go (let [[err resp :as result] (<! (provider/load-raw
-                                          base id))]
-          (if-not err
-            (do
+    (go (let [is-dirty? (contains? @dirty?-storage id)
+              [err resp :as result] (when-not is-dirty?
+                                      ; don't try to load from provider if dirty
+                                      (<! (provider/load-raw
+                                            base id)))]
+          (or
+            ; if the sheet cache is dirty, just load it from cache to avoid
+            ; overwriting changes accidentally
+            (when is-dirty?
+              (when-let [data (get @storage id)]
+                (log/info "loaded dirty " id " from cache")
+                [nil data]))
+
+            ; successful load
+            (when-not err
               (log/info "write to cache: " id)
               (swap! storage assoc id resp)
               result)
 
-            (or (when-let [data (get @storage id)]
-                  (log/info "loaded " id " from cache")
-                  [nil data])
-                result)))))
+            ; error loading; try the cache
+            (when-let [data (get @storage id)]
+              (log/info "loaded " id " from cache")
+              [nil data])
+
+            ; no cache backup; just return the result
+            result))))
 
   (query-data-sources [this]
     (provider/query-data-sources base))
@@ -62,11 +76,22 @@
   (save-sheet [this file-id data data-str]
     (log/info "save-sheet to cache: " file-id)
     (swap! storage assoc file-id data-str)
-    (provider/save-sheet base file-id data data-str)))
+    (swap! dirty?-storage conj file-id)
+    (go (let [[err _ :as result] (<! (provider/save-sheet
+                                       base file-id data data-str))]
+          (when-not err
+            ; remove dirty flag
+            (swap! dirty?-storage disj file-id))
+
+          ; return the result as-is
+          result))))
 
 (defn with-caching [base-provider]
   (let [cache-id (keyword (str (name (provider/id base-provider))
-                               "-cached"))]
+                               "-cached"))
+        dirty?-id (keyword (str (name (provider/id base-provider))
+                               "-dirty?"))]
     (->CachingProvider base-provider
                        cache-id
-                       (local-storage (atom nil) cache-id))))
+                       (local-storage (atom nil) cache-id)
+                       (local-storage (atom #{}) dirty?-id))))
