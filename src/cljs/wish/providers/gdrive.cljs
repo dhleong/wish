@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan close! put! to-chan <!]]
+  (:require [clojure.core.async :refer [promise-chan close! put! to-chan <!]]
             [clojure.string :as str]
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
@@ -156,7 +156,7 @@
 ; wait on it to discover the state (see `when-gapi-available`).
 ; Once gapi availability is determined, this atom is reset!
 ; to one of the valid provider states (:ready, :unavailable, :signed-out)
-(defonce ^:private gapi-state (atom (chan)))
+(defonce ^:private gapi-state (atom (promise-chan)))
 
 (defn- set-gapi-state! [new-state]
   (let [gapi-available-ch @gapi-state]
@@ -180,10 +180,8 @@
 
           ; wait on the channel, if there is one
           (not (keyword? availability))
-          (let [_  (log "waiting on" availability "; then: " f args)
-                read (or (<! availability)
-                         @gapi-state)]
-            (if (= :ready read)
+          (let [from-ch (<! availability)]
+            (if (= :ready from-ch)
               ; ready
               (do
                 (log "got availability; then: " f args)
@@ -191,8 +189,8 @@
 
               ; try again
               (do
-                (log "Not ready: " read)
-                [(js/Error. (str "Error? " read))])))
+                (log "Not ready: " from-ch)
+                [(js/Error. (str "Error? " from-ch))])))
 
           ; should be available! go ahead and load
           :else
@@ -326,7 +324,7 @@
   ; but since we're using it everywhere else for easier compat
   ; with google docs, let's just use it here for consistency.
 
-  (let [ch (chan)]
+  (let [ch (promise-chan)]
     (-> (js/google.picker.PickerBuilder.)
         (.addView (doto (js/google.picker.View.
                           js/google.picker.ViewId.DOCS)
@@ -438,34 +436,26 @@
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
   (init! [this]
-    (go-loop [state @gapi-state]
-      (cond
-        ; try to load gapi again
-        (= :unavailable state)
-        (let [ch (chan)]
-          (log "reloading gapi")
-          (reset! gapi-state ch)
-          (retry-gapi-load!)
-          (if-let [r (<! ch)]
-            r
+    (go (let[state @gapi-state]
+          (cond
+            ; try to load gapi again
+            (= :unavailable state)
+            (let [ch (promise-chan)]
+              (log "reloading gapi")
+              (reset! gapi-state ch)
 
-            ; if nil, then someone else consumed the channel;
-            ; it's *probaby* resolved by now, but in some circumstances
-            ; it's possible for it to be replaced by a new channel,
-            ; in which case we want to wait on that.
-            (recur @gapi-state)))
+              ; init a new load onto this promise-chan,
+              ; and wait for the result
+              (retry-gapi-load!)
+              (<! ch))
 
-        ; state is resolved; return directly
-        (keyword? state)
-        state
+            ; state is resolved; return directly
+            (keyword? state)
+            state
 
-        ; wait on the channel for the state
-        :else
-        (if-let [r (<! state)]
-          r
-
-          ; see above
-          (recur @gapi-state)))))
+            ; wait on the channel for the state
+            :else
+            (<! state)))))
 
   (load-raw
     [this id]
