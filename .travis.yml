@@ -26,7 +26,7 @@ script:
     - scripts/compile-builtin-sources
 
 after_success:
-    - lein do clean, cljsbuild once min, less once
+    - lein build
 
 deploy:
     provider: pages
