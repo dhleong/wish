@@ -35,9 +35,12 @@
 
 ; ======= provider-related =================================
 
-
 (reg-fx :providers/init! providers/init!)
 (reg-fx :providers/query-data-sources providers/query-data-sources!)
+(reg-fx :providers/query-sheets (fn [provider-id]
+                                  (when provider-id
+                                    (providers/query-sheets provider-id))))
+
 
 ; ======= sheet load requests ==============================
 
@@ -63,16 +66,15 @@
 
 (reg-fx
   ::save-sheet!
-  (fn [[sheet-id data]]
+  (fn [[sheet-id data data-preformatted?]]
     (>evt [::db/mark-save-processing sheet-id])
 
     (save-sheet!
-      sheet-id data
+      sheet-id data data-preformatted?
       (fn on-saved [err]
         (log-sheet "on-saved(" sheet-id ") " err)
 
         (when err
-          ; TODO dispatch retry (later)
           (log/err "Error saving " sheet-id ": " err))
 
         (when-not err

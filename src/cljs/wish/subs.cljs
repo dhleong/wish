@@ -21,13 +21,21 @@
   :<- [:provider-states]
   (fn [states [_ provider-id]]
     (when-not provider-id
-      (js/console.warn "[subs] nil provider-id provided to :provider-state"))
-    (get states provider-id :idle)))
+      (log/warn "nil provider-id provided to :provider-state"))
+    (get states provider-id)))
 
 (reg-sub
   :providers-listing?
   (fn [db _]
-    (seq (:providers-listing db))))
+    (or (seq (:providers-listing db))
+
+        ; if provider-states is empty, then providers/init!
+        ; hasn't yet been called/finished executing
+        (empty? (:provider-states db))
+
+        (some (fn [[id state]]
+                (nil? state))
+              (:provider-states db)))))
 
 
 ; ======= data sources =====================================

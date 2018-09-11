@@ -1,11 +1,12 @@
 (ns ^{:author "Daniel Leong"
       :doc "Data source providers"}
   wish.providers
-  (:require-macros [cljs.core.async.macros :refer [go]]
+  (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [<!]]
+  (:require [clojure.core.async :as async :refer [<!]]
             [clojure.string :as str]
             [cljs.reader :as edn]
+            [wish.providers.caching :refer [with-caching]]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.gdrive.errors :as gdrive-errors]
@@ -22,7 +23,8 @@
     :config #'gdrive-config/view
     :error-resolver #'gdrive-errors/view
     :share! #'gdrive/share!
-    :inst (gdrive/create-provider)}
+    :inst (with-caching
+            (gdrive/create-provider))}
 
    :wish
    {:id :wish
@@ -60,9 +62,31 @@
     [widgets/error-box data]))
 
 (defn init! []
-  (doseq [provider (vals providers)]
-    (when-let [inst (:inst provider)]
-      (provider/init! inst))))
+  (log/info "init!")
+
+  ; prep provider states all at once, to prevent :wish
+  ; from drowning out others
+  (>evt [:prepare-provider-states! (keys providers)])
+
+  ; let every provider init! in parallel, waiting for each to
+  ; let us know what their state is before putting it into the DB
+  (go-loop [init-chs (->> providers
+                          vals
+                          (map (fn [provider]
+                                 (go {:provider-id (:id provider)
+                                      :state (<! (provider/init!
+                                                   (:inst provider)))}))))]
+    (let [[{:keys [provider-id state]} port] (alts! init-chs)
+          new-chs (filterv
+                    (partial not= port)
+                    init-chs)]
+      (log "provider init! " provider-id "<-" state)
+      (>evt [:put-provider-state! provider-id state])
+      (if (empty? new-chs)
+        (log/info "init!'d all providers")
+
+        ; still waiting
+        (recur new-chs)))))
 
 (defn sharable? [sheet-id]
   (let [[provider-id _] (unpack-id sheet-id)]
@@ -136,12 +160,37 @@
         (when inst
           (provider/query-data-sources inst))))))
 
+(defn query-sheets
+  "Start querying the given provider-id for its sheets"
+  [provider-id]
+  (if-let [inst (provider-key provider-id :inst)]
+    (go (let [[err sheets] (<! (provider/query-sheets inst))]
+          (if err
+            (log/warn "Failed to query " provider-id ": " err)
+            (>evt [:add-sheets sheets]))
+
+          ; either way, we're done querying:
+          (>evt [:mark-provider-listing! provider-id false])))
+
+    (log/err "No such provider to query: " provider-id)))
+
+; format sheet data for saving (as a string). this should convert
+; to a format for suitable for use with `load-raw`. For now, (str)
+; does the trick
+(def format-sheet-data str)
+
 (defn save-sheet!
-  [sheet-id data on-done]
-  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)]
+  [sheet-id data data-preformatted? on-done]
+  (let [[provider-id pro-sheet-id] (unpack-id sheet-id)
+        data-str (if data-preformatted?
+                   data
+                   (format-sheet-data data))
+        data (when-not data-preformatted?
+               data)]
     (if-let [inst (provider-key provider-id :inst)]
       (go (let [[err] (<! (provider/save-sheet
-                            inst pro-sheet-id data))]
+                            inst pro-sheet-id
+                            data data-str))]
             (on-done err)))
 
       (on-done (js/Error. (str "No provider instance for " sheet-id
@@ -156,3 +205,4 @@
 
       (throw (js/Error. (str "No provider instance for " sheet-id
                                "(" provider-id " / " pro-sheet-id ")"))))))
+

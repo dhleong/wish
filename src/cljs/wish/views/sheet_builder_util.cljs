@@ -139,6 +139,6 @@
                   :on-click (fn-click
                               (providers/register-data-source provider-id))}
               (:name (providers/get-info provider-id))]
-             (when (= state :signed-out)
+             (when (not= state :ready)
                [link {:href (str "/providers/" (name provider-id) "/config")}
                 "Configure"])])]]))))

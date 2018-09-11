@@ -59,14 +59,55 @@
   (fn-traced [_ [title]]
     {:title! title}))
 
+(reg-event-fx
+  :set-online
+  [trim-v]
+  (fn [{:keys [db]} [online?]]
+    ; NOTE: we can't use fn-traced here due to cond-> use
+    ; See: https://github.com/Day8/re-frame-debux/issues/22
+
+    (log "online <- " online?)
+    (cond-> {:db (assoc db :online? online?)}
+
+      ; if we're coming back online, trigger init!
+      online? (assoc :providers/init! :!))))
 
 ; ======= Provider management ==============================
 
 (reg-event-db
+  :prepare-provider-states!
+  [trim-v (path :provider-states)]
+  (fn-traced [states [provider-ids]]
+    (reduce
+      (fn [old-states provider-id]
+        (if-not (contains? old-states provider-id)
+          ; only set the "pending" state (nil) if
+          ; there was no existing state
+          (assoc old-states provider-id nil)
+
+          ; old state already; do nothing
+          old-states))
+      states
+      provider-ids)))
+
+(reg-event-fx
   :put-provider-state!
   [trim-v]
-  (fn-traced [db [provider-id state]]
-    (assoc-in db [:provider-states provider-id] state)))
+  (fn-traced [{:keys [db]} [provider-id state]]
+    (let [can-query? (contains? #{:ready :cache-only} state)
+          will-query? (when can-query?
+                        ; only query again if we previously could not
+                        (not= :ready
+                              (get-in db [:provider-states provider-id])))]
+      {:db (cond-> db
+             ; always put the state
+             true (assoc-in [:provider-states provider-id] state)
+
+             ; if it's ready to query, immediately mark it as listing
+             will-query? (update :providers-listing conj provider-id))
+
+       :providers/query-sheets (when will-query?
+                                 provider-id)})))
 
 (reg-event-db
   :mark-provider-listing!
@@ -226,6 +267,13 @@
   (fn-traced [{:keys [db]} [sheet-id]]
     ; fetch the sheet data and forward it to the ::save-sheet! fx handler
     {::fx/save-sheet! [sheet-id (get-in db [:sheets sheet-id])]}))
+
+; used by the CachingProvider to eagerly persist offline changes to a sheet
+(reg-event-fx
+  :persist-cached-sheet!
+  [trim-v]
+  (fn-traced [{:keys [db]} [sheet-id data-str]]
+    {::fx/save-sheet! [sheet-id data-str :from-cache]}))
 
 (reg-event-fx
   :share-sheet!

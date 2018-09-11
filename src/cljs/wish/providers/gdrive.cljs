@@ -1,11 +1,12 @@
 (ns ^{:author "Daniel Leong"
       :doc "Google Drive powered Provider"}
   wish.providers.gdrive
-  (:require-macros [cljs.core.async :refer [go]]
+  (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan put! <!]]
+  (:require [clojure.core.async :refer [promise-chan close! put! to-chan <!]]
             [clojure.string :as str]
+            [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
@@ -74,6 +75,24 @@
                   ; upload retry succeeded!
                   [nil retry-resp]))))
 
+          ; network error
+          (and error
+               (str/includes?
+                 (or (some-> error
+                             (.-result)
+                             (.-error)
+                             (.-message))
+                     (some-> error
+                             (.-message))
+                     (ex-message error)
+                     (log/warn "No message on " error))
+                 "network"))
+          [(ex-info
+             "A network error occured"
+             {:network? true}
+             error)
+           nil]
+
           ; unexpected error:
           error (do
                   (log/err f " ERROR:" error)
@@ -132,21 +151,50 @@
 ;; State management and API interactions
 ;;
 
-; gapi availability channel. Once js/gapi is
-; available, this atom is reset! to nil. Due to
-; how the (go) macro works, we can't have a nice
-; convenience function to use this, so callers will
-; have to look like:
-;
-;   (when-let [ch @gapi-available?]
-;     (<! ch))
-;
-(defonce ^:private gapi-available? (atom (chan)))
+; gapi availability channel. it starts out as a channel,
+; so function calls depending on gapi being available can
+; wait on it to discover the state (see `when-gapi-available`).
+; Once gapi availability is determined, this atom is reset!
+; to one of the valid provider states (:ready, :unavailable, :signed-out)
+(defonce ^:private gapi-state (atom (promise-chan)))
 
-(defn- set-gapi-available! []
-  (when-let [gapi-available-ch @gapi-available?]
-    (reset! gapi-available? nil)
-    (put! gapi-available-ch true)))
+(defn- set-gapi-state! [new-state]
+  (let [gapi-available-ch @gapi-state]
+    (reset! gapi-state new-state)
+    (when-not (keyword? gapi-available-ch)
+      (put! gapi-available-ch new-state)
+      (close! gapi-available-ch))))
+
+(defn- when-gapi-available
+  "Apply `args` to `f` when gapi is available, or (if it's
+   unavailable) return an appropriate error"
+  [f & args]
+  (go (let [availability @gapi-state]
+        (log "when-gapi-available: " availability f args)
+        (cond
+          (= :unavailable availability)
+          [(ex-info
+             "GAPI unavailable"
+             {:network? true})
+           nil]
+
+          ; wait on the channel, if there is one
+          (not (keyword? availability))
+          (let [from-ch (<! availability)]
+            (if (= :ready from-ch)
+              ; ready
+              (do
+                (log "got availability; then: " f args)
+                (<! (apply f args)))
+
+              ; try again
+              (do
+                (log "Not ready: " from-ch)
+                [(js/Error. (str "Error? " from-ch))])))
+
+          ; should be available! go ahead and load
+          :else
+          (<! (apply f args))))))
 
 (defn- auth-instance
   "Convenience to get the gapi auth instance:
@@ -170,22 +218,12 @@
 (defn- update-signin-status!
   [signed-in?]
   (log/info "signed-in? <-" signed-in?)
-  (>evt [:put-provider-state! :gdrive (if signed-in?
-                                        :signed-in
-                                        :signed-out)])
-  (when signed-in?
-    (>evt [:mark-provider-listing! :gdrive true])
-    (do-query-files
-      "appProperties has { key='wish-type' and value='wish-sheet' }"
-      :on-success (fn on-files-list [files]
-                    (log/info "Found: " files)
-                    (>evt [:add-sheets files])
-                    (>evt [:mark-provider-listing! :gdrive false])))))
+  (set-gapi-state! (if signed-in?
+                     :ready
+                     :signed-out)))
 
-(defn- on-client-init
-  []
+(defn- on-client-init []
   (log "gapi client init!")
-  (set-gapi-available!)
 
   ; listen for updates
   (-> (auth-instance)
@@ -198,12 +236,21 @@
         (.-isSignedIn)
         (.get))))
 
-(defn init-client!  []
+(defn- on-client-init-error [e]
+  (log/warn "gapi client failed" e (js/JSON.stringify e))
+  (set-gapi-state! :unavailable)
+
+  ; TODO can we retry when network returns?
+  )
+
+(defn init-client! []
+  (log "init-client!")
   (-> (js/gapi.client.init
         #js {:discoveryDocs discovery-docs
              :clientId gdrive-client-id
              :scope scopes})
-      (.then on-client-init)))
+      (.then on-client-init
+             on-client-init-error)))
 
 (defn request-read!
   "Starts the flow to request readonly scope. Returns a channel"
@@ -222,9 +269,32 @@
 
 ;;
 ;; NOTE: Exposed to index.html
-(defn ^:export handle-client-load []
+(defn ^:export handle-client-load [success?]
   (log "load")
-  (js/gapi.load "client:auth2", init-client!))
+  (if success?
+    (js/gapi.load "client:auth2",
+                  #js {:callback init-client!
+                       :onerror on-client-init-error})
+    (on-client-init-error nil)))
+
+(defn- retry-gapi-load! []
+  ; NOTE we have to do a get off window, else cljs throws
+  ; a reference error
+  (if js/window.gapi
+    ; we have gapi, but I guess one of the libs failed to load?
+    (handle-client-load true)
+
+    ; no gapi; add a new copy of the script node
+    (do
+      (log "Add a new gapi <script> node")
+      (dom/appendChild
+        (aget (dom/getElementsByTagName "head") 0)
+        (dom/createDom dom/TagName.SCRIPT
+                       #js {:onload (partial handle-client-load true)
+                            :onerror (partial handle-client-load false)
+                            :async true
+                            :src "https://apis.google.com/js/api.js"
+                            :type "text/javascript"})))))
 
 ;;
 ;; Public API
@@ -254,7 +324,7 @@
   ; but since we're using it everywhere else for easier compat
   ; with google docs, let's just use it here for consistency.
 
-  (let [ch (chan)]
+  (let [ch (promise-chan)]
     (-> (js/google.picker.PickerBuilder.)
         (.addView (doto (js/google.picker.View.
                           js/google.picker.ViewId.DOCS)
@@ -311,6 +381,29 @@
 (def share! (api/when-loaded "drive-share" do-share-file))
 
 
+; ======= file loading ====================================
+
+(defn- do-load-raw [id]
+  (go (let [[err resp :as r] (<! (get-file id))]
+        (if err
+          (let [status (.-status err)]
+            (log/err "ERROR loading " id err)
+            (if (= 404 status)
+              ; possibly caused by permissions
+              [(ex-info
+                 (ex-message err)
+                 {:permissions? true
+                  :provider :gdrive
+                  :id id}
+                 err)
+               nil]
+
+              ; some other error
+              [err nil]))
+
+          ; success; return unchanged
+          r))))
+
 ; ======= Provider def =====================================
 
 (deftype GDriveProvider []
@@ -342,32 +435,31 @@
                  (fn [e]
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
-  (init! [this]) ; nop
+  (init! [this]
+    (go (let[state @gapi-state]
+          (cond
+            ; try to load gapi again
+            (= :unavailable state)
+            (let [ch (promise-chan)]
+              (log "reloading gapi")
+              (reset! gapi-state ch)
+
+              ; init a new load onto this promise-chan,
+              ; and wait for the result
+              (retry-gapi-load!)
+              (<! ch))
+
+            ; state is resolved; return directly
+            (keyword? state)
+            state
+
+            ; wait on the channel for the state
+            :else
+            (<! state)))))
 
   (load-raw
     [this id]
-    (go (let [_ (when-let [ch @gapi-available?]
-                  (<! ch))
-
-              [err resp :as r] (<! (get-file id))]
-          (if err
-            (let [status (.-status err)]
-              (log/err "ERROR loading " id err)
-              (if (= 404 status)
-                ; possibly caused by permissions
-                [(ex-info
-                   (ex-message err)
-                   {:permissions? true
-                    :provider :gdrive
-                    :id id}
-                   err)
-                 nil]
-
-                ; some other error
-                [err nil]))
-
-            ; success; return unchanged
-            r))))
+    (when-gapi-available do-load-raw id))
 
   (query-data-sources [this]
     ; TODO indicate query state?
@@ -380,21 +472,32 @@
                                   (assoc file :id id))
                                 files)]))))
 
+  (query-sheets [this]
+    (when-gapi-available
+      query-files
+      "appProperties has { key='wish-type' and value='wish-sheet' }"))
+
   (register-data-source [this]
     ; TODO sanity checks galore
     (pick-file {:mimeType source-mime
                 :description source-desc
                 :props source-props}))
 
-  (save-sheet [this file-id data]
-    (log/info "Save " file-id data)
-    (upload-data
-      :update
-      {:fileId file-id
-       :mimeType sheet-mime
-       :description sheet-desc
-       :name (:name data)}
-      (str data))))
+  (save-sheet [this file-id data data-str]
+    (if (= :ready @gapi-state)
+      (do
+        (log/info "Save " file-id data)
+        (upload-data
+          :update
+          (cond-> {:fileId file-id
+                   :mimeType sheet-mime
+                   :description sheet-desc }
+            ; update the :name if we can
+            data (assoc :name (:name data)))
+          data-str))
+
+      ; not ready? don't try
+      (to-chan [[(js/Error. "No network; unable to save sheet") nil]]))))
 
 (defn create-provider []
   (->GDriveProvider))

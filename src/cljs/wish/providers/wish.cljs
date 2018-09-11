@@ -22,7 +22,9 @@
   (create-sheet [this file-name data]
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
-  (init! [this]) ; nop
+  (init! [this]
+    ; we're always ready immediately
+    (to-chan [:ready]))
 
   (load-raw
     [this id]
@@ -48,10 +50,14 @@
                   (assoc info :id (make-id :wish str-id)))
                 builtin-sources)]))
 
+  (query-sheets [this]
+    ; we never provide any sheets
+    (to-chan [[nil nil]]))
+
   (register-data-source [this]
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
-  (save-sheet [this file-id data]
+  (save-sheet [this file-id data data-str]
     (to-chan [[(js/Error. "Not implemented") nil]])))
 
 (defn create-provider []

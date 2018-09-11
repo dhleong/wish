@@ -98,10 +98,10 @@
                         :type 'radio
                         :on-change (radio-> form-data)
                         :checked (= provider-id selected-provider)
-                        :disabled (not= state :signed-in)}]
+                        :disabled (not= state :ready)}]
                [:label {:for provider-id}
                 (:name (providers/get-info provider-id))]
-               (when (= state :signed-out)
+               (when (not= state :ready)
                  [link {:href (str "/providers/" (name provider-id) "/config")}
                   "Configure"])])]
 

@@ -7,8 +7,16 @@
   (id [this])
   (init!
     [this]
-    "Perform any necessary init, possibly eager-fetching sheet ids
-     from cache or something")
+    "Perform any necessary init, returning a channel that emits the state of
+     the Provider, such as `:ready`, `:signed-out`, etc. init! may be called
+     multiple times throughout the lifetime of the app, but usually only if
+     it previously returned `:unavailable`. In such cases, it is acceptable
+     for the Provider to just return a channel that immediately emits its
+     current state, if there's no need or ability to retry init. If the
+     Provider did previously fail to init (and emitted :unavailable), such
+     a case should be considered a good opportunity to try again.
+     See the comments on `:provider-states` in `db.cljs` for all acceptable
+     states.")
 
   (create-sheet
     [this sheet-name data]
@@ -29,9 +37,18 @@
     [this]
     "Query for known data sources, storing into the DB directly")
 
+  (query-sheets
+    [this]
+    "Query for known character sheets, returning a channel that emits
+     `[err data]`, where `data` is a sequence of {:id,:name,:mine?}.
+     :id should already be formatted as per `wish.sheets.util/make-id`")
+
   (save-sheet
-    [this id data]
-    "Save `data` into the the sheet with the given provider-specific
-     `id`, returning a channel that emits nil on success or an
-     error value on failure"))
+    [this id data data-str]
+    "Save string `data-str` into the the sheet with the given
+     provider-specific `id`, returning the usual channel style.
+     The original `data` *may* be provided, which you can use to
+     update `:name`, for example, but it may also be omitted.
+     `data-str` is in the same string format that should be
+     returned by `load-raw`."))
 
