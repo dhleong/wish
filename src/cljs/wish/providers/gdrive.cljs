@@ -159,11 +159,18 @@
 (defonce ^:private gapi-state (atom (promise-chan)))
 
 (defn- set-gapi-state! [new-state]
-  (let [gapi-available-ch @gapi-state]
-    (reset! gapi-state new-state)
-    (when-not (keyword? gapi-available-ch)
-      (put! gapi-available-ch new-state)
-      (close! gapi-available-ch))))
+  (swap! gapi-state
+         (fn [old-state]
+           (if (keyword? old-state)
+             ; if it's not a channel then this is probably not
+             ; part of init!, instead from config. Dispatch the event
+             (>evt [:put-provider-state! :gdrive new-state])
+
+             ; if it is a channel, however, write to it!
+             (do (put! old-state new-state)
+                 (close! old-state)))
+
+           new-state)))
 
 (defn- when-gapi-available
   "Apply `args` to `f` when gapi is available, or (if it's
