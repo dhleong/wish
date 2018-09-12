@@ -25,6 +25,14 @@
     (get states provider-id)))
 
 (reg-sub
+  :storable-provider-states
+  :<- [:provider-states]
+  (fn [states _]
+    (->> states
+         (remove (fn [[k v]]
+                   (= :wish k))))))
+
+(reg-sub
   :providers-listing?
   (fn [db _]
     (or (seq (:providers-listing db))

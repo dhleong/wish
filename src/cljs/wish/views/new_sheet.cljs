@@ -90,7 +90,7 @@
            [:div
             [:p "Where do you want to store it?"]
 
-            (for [[provider-id state] (<sub [:provider-states])]
+            (for [[provider-id state] (<sub [:storable-provider-states])]
               ^{:key provider-id}
               [:div
                [:input {:id provider-id
