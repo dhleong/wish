@@ -1,16 +1,18 @@
 (ns wish.worker.core
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
-            [cemerick.url :as url]))
+            [cemerick.url :as url]
+            [wish.config :as config]))
 
 (def cache-name "wish")
 
-(def files-to-cache #js ["/"
-                         "/js/compiled/app.js"
-                         "/css/site.css"
+(def shell-root (str config/server-root "/"))
+
+(def files-to-cache #js [shell-root
+                         (str config/server-root "/js/compiled/app.js")
+                         (str config/server-root "/css/site.css")
 
                          ; external resources:
-                         ;; "https://apis.google.com/js/api.js"
                          "https://fonts.googleapis.com/icon?family=Material+Icons"])
 
 
@@ -94,21 +96,23 @@
   ; the shell is unlikely to change
   (log "fetching shell for " url)
   (-> js/caches
-      (.match "/")
+      (.match shell-root)
       (.then (fn [resp]
                (or resp
-                   (fetch-and-cache "/"))))))
+                   (fetch-and-cache shell-root))))))
 
 (defn fetch-shell-asset [{:keys [path]}]
   ; the shell is unlikely to change
   (log "fetching shell asset for " path)
   (let [css-dir-start (.indexOf path "/css/")]
     (if (not= -1 css-dir-start)
-      (fetch-with-cache (subs path css-dir-start))
+      (fetch-with-cache (str config/server-root
+                             (subs path css-dir-start)))
 
       (let [js-dir-start (.indexOf path "/js/")]
         (if (not= -1 js-dir-start)
-          (fetch-with-cache (subs path js-dir-start))
+          (fetch-with-cache (str config/server-root
+                                 (subs path js-dir-start)))
 
           (fetch-with-cache path))))))
 
