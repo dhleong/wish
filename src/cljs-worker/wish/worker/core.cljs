@@ -74,10 +74,11 @@
 
 (defn asset-file? [url]
   (let [path (:path url)]
-    (or (str/ends-with? path ".js")
-        (str/ends-with? path ".css")
+    (or (str/ends-with? path ".css")
+        (str/ends-with? path ".edn")
+        (str/ends-with? path ".js")
         (str/ends-with? path ".json")
-        (str/ends-with? path ".edn"))))
+        (str/ends-with? path ".png"))))
 
 (defn shell-root? [url]
   (and (wish-asset? url)
