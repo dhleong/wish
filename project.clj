@@ -48,6 +48,7 @@
              :builds-to-start ["dev" "worker-dev"]
              :nrepl-port 7002
              :server-ip "0.0.0.0"
+             :server-port 3450
              :ring-handler wish.dev-server/http-handler
              :nrepl-middleware
              [cemerick.piggieback/wrap-cljs-repl cider.nrepl/cider-middleware]}
