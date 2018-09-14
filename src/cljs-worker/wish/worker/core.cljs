@@ -6,7 +6,12 @@
 
 (def cache-name "wish")
 
-(def default-network-timeout-ms 15000)
+; how long to wait before deciding the network is slow
+; and loading assets from cache
+(def default-network-timeout-ms 9500)
+
+; we'll wait slightly longer for external assets
+(def external-network-timeout-ms 15000)
 
 (def shell-root (str config/server-root "/"))
 
@@ -155,7 +160,7 @@
       (never-cache? url)
       (do
         (log "Never cache: " url)
-        (-> (js/fetch request)
+        (-> (fetch-with-timeout request external-network-timeout-ms)
             (.catch (fn [e]
                       (log/warn "Unable to fetch " url ": " e)
                       (js/Response. nil #js {:status 503})))))
