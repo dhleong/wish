@@ -6,6 +6,8 @@
 
 (def cache-name "wish")
 
+(def default-network-timeout-ms 15000)
+
 (def shell-root (str config/server-root "/"))
 
 (def files-to-cache #js [shell-root
@@ -31,6 +33,26 @@
 
 
 ; ======= resource fetching ===============================
+
+(defn fetch-with-timeout
+  ([req]
+   (fetch-with-timeout req default-network-timeout-ms))
+  ([req timeout-ms]
+   (js/Promise.
+     (fn [presolve preject]
+       (let [about-controller (js/AbortController.)
+             timeout-timer (js/setTimeout
+                             (fn []
+                               (log/info "Abort slow request " req)
+                               ; signal the request to stop
+                               (.abort about-controller)
+                               (preject (js/Error.
+                                          "Request failed (network delay / timed out)")))
+                             default-network-timeout-ms)]
+         (-> (js/fetch req
+                       #js {:signal (.-signal about-controller)})
+             (.then presolve preject)
+             (.finally #(js/clearTimeout timeout-timer))))))))
 
 (defn fetch-and-cache [req]
   (-> (js/fetch req)
