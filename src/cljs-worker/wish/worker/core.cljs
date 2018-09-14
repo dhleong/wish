@@ -55,7 +55,7 @@
              (.finally #(js/clearTimeout timeout-timer))))))))
 
 (defn fetch-and-cache [req]
-  (-> (js/fetch req)
+  (-> (fetch-with-timeout req)
 
       (.then (fn [resp]
                (log "Attempt to cache: " req " -> " resp)
