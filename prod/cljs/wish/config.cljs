@@ -2,6 +2,8 @@
       :doc "Prod config"}
   wish.config)
 
+(goog-define ^string VERSION "PROD-SNAPSHOT")
+
 (def debug? false)
 
 ; IE: https://dhleong.github.io/wish

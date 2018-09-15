@@ -2,6 +2,8 @@
       :doc "Debug config"}
   wish.config)
 
+(goog-define ^string VERSION "DEV-SNAPSHOT")
+
 (def debug?
   ^boolean goog.DEBUG)
 

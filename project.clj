@@ -113,7 +113,8 @@
      :compiler     {:main            wish.core
                     :output-to       "resources/public/js/compiled/app.js"
                     :closure-defines {goog.DEBUG false
-                                      wish.util.nav.LOCAL false}
+                                      wish.util.nav.LOCAL false
+                                      wish.config.VERSION ~(System/getenv "WISH_VERSION")}
                     :optimizations   :advanced
                     :pretty-print    false
                     :optimize-constants true
@@ -141,7 +142,8 @@
      :compiler     {:main                 wish.worker.core
                     :output-to            "resources/public/worker.js"
                     :output-dir           "resources/public/js/compiled/worker-out-min"
-                    :closure-defines      {goog.DEBUG false}
+                    :closure-defines      {goog.DEBUG false
+                                           wish.config.VERSION ~(System/getenv "WISH_VERSION")}
                     :optimizations        :advanced
                     :pretty-print         false
                     :optimize-constants   true

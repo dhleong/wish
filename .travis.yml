@@ -21,6 +21,9 @@ before_script:
     # set up the plk tool
     - export PATH=$PATH:$PWD/planck/planck-sh/
 
+    # set the version variable
+    - export WISH_VERSION=$(git rev-parse --short HEAD)
+
 script:
     - lein test
     - scripts/compile-builtin-sources

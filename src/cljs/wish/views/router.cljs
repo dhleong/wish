@@ -3,8 +3,8 @@
   wish.views.router
   (:require [reagent.core :as r]
             [re-frame.core :as rf]
-            [wish.config :refer [server-root]]
-            [wish.util :refer [<sub >evt]]))
+            [wish.util :refer [<sub >evt]]
+            [wish.views.footer :refer [footer]]))
 
 (defn- pick-page-title []
   (let [current-sheet-name (:name (<sub [:sheet-meta]))]
@@ -18,21 +18,6 @@
 (defn- has-footer? [page]
   (not (contains? #{:sheet}
                   page)))
-
-(defn footer []
-  [:footer.footer
-   [:a.link {:href (str server-root "/privacy.html")
-             :target '_blank}
-    "Privacy Policy"]
-
-   [:a.link {:href "https://github.com/dhleong/wish"
-             :target '_blank}
-    "Contribute"]
-
-   [:a.link {:href "https://github.com/dhleong/wish/issues"
-             :target '_blank}
-    "Issues"]
-   ])
 
 (defn router
   "Renders the current page, given a map

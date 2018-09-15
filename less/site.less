@@ -36,6 +36,7 @@ a {
 
     & > .footer {
         .flex-shrink(0);
+        .flex();
 
         background-color: #eee;
         font-size: 80%;
@@ -59,6 +60,12 @@ a {
                     color: #333;
                 }
             }
+        }
+
+        .version {
+            .flex-grow();
+            text-align: right;
+            color: fade(#333, 7%);
         }
     }
 }
