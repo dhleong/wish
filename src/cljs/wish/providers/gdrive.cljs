@@ -443,7 +443,7 @@
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
   (init! [this]
-    (go (let[state @gapi-state]
+    (go (let [state @gapi-state]
           (cond
             ; try to load gapi again
             (= :unavailable state)

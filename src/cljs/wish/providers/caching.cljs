@@ -3,11 +3,14 @@
   wish.providers.caching
   (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [chan put! <!]]
+  (:require [clojure.core.async :refer [alt! chan timeout put! <!]]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.providers.core :as provider :refer [IProvider]]
             [wish.sheets.util :refer [make-id]]
             [wish.util :refer [>evt]]))
+
+(def default-timeout 7500)
+(def save-sheet-timeout 25000)
 
 (defn- undirty
   "Persist the set of dirty files with the given ids"
@@ -22,6 +25,27 @@
       (do (log/warn "Dirty flag set for " id " but no data stored!")
           (swap! dirty?-storage disj id)))))
 
+(defn <!timeout
+  "Take from the channel as <!, but give up after a timeout. In some slow
+   networks (like when on the subway) it may seem that we're fetching, but
+   (especially in cases like gapi init) it may effectively never complete,
+   and our service worker may not be able to do anything about it (for example,
+   service worker can timeout the core gapi lib, but has no jurisdiction over
+   the libs it subsequently tries to load).
+
+   By timing out at the cache layer, we can share this functionality across
+   things that we want cached and let the Providers not have to worry about
+   timeouts.
+
+   Returns `nil` on timeout"
+  ([ch]
+   (<!timeout ch default-timeout))
+  ([ch timeout-ms]
+   (go (let [to (timeout timeout-ms)]
+         (alt!
+           ch ([v] v)
+           to nil)))))
+
 (deftype CachingProvider [base my-id storage dirty?-storage]
   IProvider
   (id [this] my-id)
@@ -29,7 +53,8 @@
     (provider/create-sheet base file-name data))
 
   (init! [this]
-    (go (let [base-state (<! (provider/init! base))]
+    (go (let [base-state (or (<! (<!timeout (provider/init! base)))
+                             :unavailable)]
           (when (= :ready base-state)
             (when-let [ids (seq @dirty?-storage)]
               (undirty base storage dirty?-storage ids)))
@@ -45,8 +70,9 @@
     (go (let [is-dirty? (contains? @dirty?-storage id)
               [err resp :as result] (when-not is-dirty?
                                       ; don't try to load from provider if dirty
-                                      (<! (provider/load-raw
-                                            base id)))]
+                                      (or (<! (<!timeout (provider/load-raw
+                                                            base id)))
+                                          [:timeout]))]
           (or
             ; if the sheet cache is dirty, just load it from cache to avoid
             ; overwriting changes accidentally
@@ -73,7 +99,8 @@
     (provider/query-data-sources base))
 
   (query-sheets [this]
-    (go (let [[err sheets :as result] (<! (provider/query-sheets base))]
+    (go (let [[err sheets :as result] (or (<! (<!timeout (provider/query-sheets base)))
+                                          [:timeout])]
           (log "query-sheets: " err (count sheets))
           (if-not err
             (do
@@ -96,8 +123,10 @@
     (log/info "save-sheet to cache: " file-id)
     (swap! storage assoc file-id data-str)
     (swap! dirty?-storage conj file-id)
-    (go (let [[err _ :as result] (<! (provider/save-sheet
-                                       base file-id data data-str))]
+    (go (let [[err _ :as result] (or (<! (<!timeout (provider/save-sheet
+                                                       base file-id data data-str)
+                                                     save-sheet-timeout))
+                                     [:timeout])]
           (when-not err
             ; remove dirty flag
             (swap! dirty?-storage disj file-id))
