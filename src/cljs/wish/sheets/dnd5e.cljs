@@ -199,58 +199,51 @@
 ; ======= Skills ===========================================
 
 (def ^:private skills-table
-  [[[:dex :acrobatics "Acrobatics"]
-    [:wis :animal-handling "Animal Handling"]
-    [:int :arcana "Arcana"]
-    [:str :athletics "Athletics"]
-    [:cha :deception "Deception"]
-    [:int :history "History"]
-    [:wis :insight "Insight"]
-    [:cha :intimidation "Intimidation"]
-    [:int :investigation "Investigation"]]
-   [[:wis :medicine "Medicine"]
-    [:int :nature "Nature"]
-    [:wis :perception "Perception"]
-    [:cha :performance "Performance"]
-    [:cha :persuasion "Persuasion"]
-    [:int :religion "Religion"]
-    [:dex :sleight-of-hand "Sleight of Hand"]
-    [:dex :stealth "Stealth"]
-    [:wis :survival "Survival"]]])
+  [[[:acrobatics "Acrobatics"]
+    [:animal-handling "Animal Handling"]
+    [:arcana "Arcana"]
+    [:athletics "Athletics"]
+    [:deception "Deception"]
+    [:history "History"]
+    [:insight "Insight"]
+    [:intimidation "Intimidation"]
+    [:investigation "Investigation"]]
+   [[:medicine "Medicine"]
+    [:nature "Nature"]
+    [:perception "Perception"]
+    [:performance "Performance"]
+    [:persuasion "Persuasion"]
+    [:religion "Religion"]
+    [:sleight-of-hand "Sleight of Hand"]
+    [:stealth "Stealth"]
+    [:survival "Survival"]]])
 
 (defn skill-box
-  [ability label total-modifier expert? proficient?]
+  [label {:keys [ability modifier expert? half? proficient?]
+          :as skill}]
   [:div.skill
    [:div.base-ability
     (str "(" (name ability) ")")]
    [:div.label label]
-   [:div.score
-    (mod->str
-      total-modifier)]
+   [:div.score (mod->str modifier)]
    [:div.proficiency
-    {:class (str (when (or expert? proficient?)
-                   "proficient ")
-                 (when expert?
-                   "expert"))}]])
+    {:class [(when (and half?
+                        (not (or expert? proficient?)))
+               "half")
+             (when (or expert? half? proficient?)
+               "proficient")
+             (when expert?
+               "expert")]}]])
 
 (defn skills-section []
-  (let [abilities (<sub [::subs/abilities])
-        expertise (<sub [::subs/skill-expertise])
-        proficiencies (<sub [::subs/skill-proficiencies])
-        prof-bonus (<sub [::subs/proficiency-bonus])]
+  (let [skills (<sub [::subs/skill-info])]
     (->> skills-table
          (map
            (fn [col]
              [:div.skill-col
-              (for [[ability skill-id label] col]
-                (let [expert? (contains? expertise skill-id)
-                      proficient? (contains? proficiencies skill-id)
-                      total-modifier (+ (ability->mod (get abilities ability))
-                                        (cond
-                                          expert? (* 2 prof-bonus)
-                                          proficient?  prof-bonus))]
-                  ^{:key skill-id}
-                  [skill-box ability label total-modifier expert? proficient?]))]))
+              (for [[skill-id label] col]
+                ^{:key skill-id}
+                [skill-box label (get skills skill-id)])]))
          (into [:div.sections]))))
 
 

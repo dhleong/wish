@@ -196,6 +196,22 @@ EX:
             "d6"))}]
 ```
 
+## `:half-proficient`
+
+Declare that the character is half-proficient at a skill, meaning that they can add half their proficiency bonus rounded down to ability checks for that skill.
+
+### Format
+
+Map of `skill-id -> true`, where `skill-id` is one of `:stealth`, `:sleight-of-hand`, etc.
+
+EX:
+
+```clojure
+[:!provide-attr
+ [:half-proficient :stealth]
+ true]
+```
+
 ## `:immunities`
 
 Provide information about special immunities. See [`:resistances`](#resistances).

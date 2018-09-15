@@ -407,24 +407,29 @@ Finishing a long rest reduces a creature's exhaustion level by 1, provided that 
 
 ; ======= skills ==========================================
 
-(def skill-feature-ids #{:proficiency/acrobatics
-                         :proficiency/animal-handling
-                         :proficiency/arcana
-                         :proficiency/athletics
-                         :proficiency/deception
-                         :proficiency/history
-                         :proficiency/insight
-                         :proficiency/intimidation
-                         :proficiency/investigation
-                         :proficiency/medicine
-                         :proficiency/nature
-                         :proficiency/perception
-                         :proficiency/performance
-                         :proficiency/persuasion
-                         :proficiency/religion
-                         :proficiency/sleight-of-hand
-                         :proficiency/stealth
-                         :proficiency/survival})
+(def skill-id->ability {:acrobatics :dex
+                        :animal-handling :wis
+                        :arcana :int
+                        :athletics :str
+                        :deception :cha
+                        :history :int
+                        :insight :wis
+                        :intimidation :cha
+                        :investigation :int
+                        :medicine :wis
+                        :nature :int
+                        :perception :wis
+                        :performance :cha
+                        :persuasion :cha
+                        :religion :int
+                        :sleight-of-hand :dex
+                        :stealth :dex
+                        :survival :wis})
+
+(def skill-feature-ids (->> skill-id->ability
+                            keys
+                            (map #(keyword "proficiency" (name %)))
+                            (into #{})))
 
 
 ; ======= spell-related ===================================

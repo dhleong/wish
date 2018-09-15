@@ -42,9 +42,13 @@
           extra)
    [:&::before
     {:content "'●'"
-     :visibility 'hidden}]
+     :visibility 'hidden
+     :font-size "16px"}]
    [:&.proficient::before
     {:visibility 'visible}]
+   [:&.half::before
+    {:content "'◐'"
+     :font-size "8px"}]
    [:&.expert::before
     {:color color-expert}]])
 

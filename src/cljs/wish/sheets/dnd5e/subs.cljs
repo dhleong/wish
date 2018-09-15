@@ -239,6 +239,38 @@
       abilities)))
 
 (reg-sub
+  ::skill-info
+  :<- [::ability-modifiers]
+  :<- [::skill-expertise]
+  :<- [::skill-proficiencies]
+  :<- [::skill-half-proficiencies]
+  :<- [::proficiency-bonus]
+  (fn [[modifiers expertise proficiencies half-proficiencies prof-bonus]]
+    (reduce-kv
+      (fn [m skill ability]
+        (let [expert? (contains? expertise skill)
+              half? (contains? half-proficiencies skill)
+              proficient? (contains? proficiencies skill)]
+          (assoc m skill
+                 {:id skill
+                  :ability ability
+                  :expert? expert?
+                  :half? half?
+                  :proficient? proficient?
+                  :modifier (+ (get modifiers ability)
+
+                               ; NOTE: half proficiency is lower priority than
+                               ; other proficiencies; you could have both, but
+                               ; you don't want to use half if you're an expert!
+                               (cond
+                                 expert? (* 2 prof-bonus)
+                                 proficient? prof-bonus
+                                 half? (Math/floor
+                                         (/ prof-bonus 2))))})))
+      {}
+      data/skill-id->ability)))
+
+(reg-sub
   ::limited-uses
   :<- [:limited-uses]
   :<- [:total-level]
@@ -544,6 +576,16 @@
          (filter data/skill-feature-ids)
          (map (comp keyword name))
          (into #{}))))
+
+; returns a set of skill ids
+(reg-sub
+  ::skill-half-proficiencies
+  :<- [:classes]
+  (fn [classes _]
+    (->> classes
+         (mapcat (comp keys :half-proficient :attrs))
+         (into #{}))))
+
 
 ; returns a set of skill ids
 (reg-sub
