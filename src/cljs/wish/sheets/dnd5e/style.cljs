@@ -63,7 +63,8 @@
 (defstyled layout
   (at-media
     media-smartphones
-    flex/justify-center
+    (merge flex/justify-center
+           {:width "100%"})
     [:.side {:width "90% !important"}])
 
   (at-media
@@ -75,11 +76,18 @@
     [:.side {:height "100%"
              :overflow-y 'auto}])
 
+  (at-media
+    {:min-width "1100px"}
+    [:.side {:padding "0 !important"}
+     [:&.right {:width "700px !important"}]])
+
   (merge flex
          flex/wrap
          flex/grow
-         {:justify-content 'space-around
-          :height "100%"})
+         {:align-self 'center
+          :justify-content 'space-around
+          :height "100%"
+          :max-width "1100px"})
 
   [:.nav (merge flex
                 {:overflow-x 'auto})
@@ -91,7 +99,8 @@
   [:.side {:padding "0 1%"}]
   [:.left {:width "35%"
            :max-width "400px"}]
-  [:.right {:width "61%"}])
+  [:.right {:width "61%"
+            :max-width "700px"}])
 
 
 ;;
@@ -99,7 +108,8 @@
 ;;
 
 (defstyled header-container
-  {:display 'block})
+  {:display 'block
+   :background "#666666"})
 
 (defstyled header
   (at-media
@@ -134,9 +144,10 @@
 
   [:& (merge flex
              flex/wrap
-             {:background "#666666"
-              :color "#f0f0f0"
+             {:color "#f0f0f0"
+              :margin "0 auto"
               :padding "4px 0"
+              :max-width "1200px"
               :width "100%"})]
   [:.side flex
    [:&.left {:padding-left "12px"}]
