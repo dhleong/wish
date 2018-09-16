@@ -50,6 +50,8 @@
                  flex/align-center)
     [:select.level {:margin-left "12px"}]]]
 
+  [:.group {:margin "8px 0"}]
+
   [:.hit-point-setting {:margin "8px"}
    [:.dice-level flex
     [:.level {:width "2em"
@@ -321,9 +323,10 @@
 (defn class-picker [unavailable-class-ids show-picker?]
   [:div.class-picker feature-options-style
    [:h4 "Pick a new class\u00A0"
-    [:a {:href "#"
-         :on-click (click>reset! show-picker? false)}
-     "Cancel"]]
+    (when-not (empty? unavailable-class-ids)
+      [:a {:href "#"
+           :on-click (click>reset! show-picker? false)}
+       "Cancel"])]
 
    [:div.feature-options
     (for [c (<sub [::subs/available-classes])]
@@ -361,7 +364,7 @@
     [:b "Total Max HP: "]
     (<sub [::subs/max-hp])]
 
-   [:p
+   [:div.group
     [:b "Hit Dice: "]
     [:div (for [{:keys [die classes total]} (<sub [::subs/hit-dice])]
             ^{:key die}
@@ -400,24 +403,25 @@
                         (>evt [::events/set-rolled-hp path v])))}])])]]))
 
 (defn hit-point-manager []
-  [:<>
-   [:h2
-    "Hit Point Management "
-    [bind-fields
-     [:select {:id :max-hp-mode
-               :field :list}
-      [:option {:key :average} "Automatic"]
-      [:option {:key :manual} "Manual"]]
-     {:get #(<sub [::subs/max-hp-mode])
-      :save! #(>evt [:update-meta [:sheet]
-                     assoc
-                     :max-hp-mode %2])}]]
+  (when-not (empty? (<sub [:classes]))
+    [:<>
+     [:h2
+      "Hit Point Management "
+      [bind-fields
+       [:select {:id :max-hp-mode
+                 :field :list}
+        [:option {:key :average} "Automatic"]
+        [:option {:key :manual} "Manual"]]
+       {:get #(<sub [::subs/max-hp-mode])
+        :save! #(>evt [:update-meta [:sheet]
+                       assoc
+                       :max-hp-mode %2])}]]
 
-   (case (<sub [::subs/max-hp-mode])
-     :average [hp-mode-average]
-     :manual [hp-mode-manual])
+     (case (<sub [::subs/max-hp-mode])
+       :average [hp-mode-average]
+       :manual [hp-mode-manual])
 
-   ])
+     ]))
 
 (defn classes-page []
   (r/with-let [initial-classes (<sub [:classes])

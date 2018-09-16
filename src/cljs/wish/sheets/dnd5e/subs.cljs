@@ -1712,9 +1712,12 @@
 
 (defn- available-classes
   [all-classes selected-classes primary-class abilities]
-  (let [primary-multiclass-error (multiclass-error
-                                   primary-class
-                                   abilities)
+  (let [first-class? (empty? selected-classes)
+        ; there can't be a multiclass error for the first class
+        primary-multiclass-error (when-not first-class?
+                                   (multiclass-error
+                                     primary-class
+                                     abilities))
         selected-class-ids (->> selected-classes
                                 (map :id)
                                 (into #{}))]
@@ -1731,9 +1734,10 @@
                                            primary-multiclass-error))
 
                ; if primary is good, then this class's reqs must also be satisfied
-               (if-let [err (multiclass-error
-                              c
-                              abilities)]
+               (if-let [err (when-not first-class?
+                              (multiclass-error
+                                c
+                                abilities))]
                  (assoc c :prereqs-failed? true
                         :prereqs-reason (str "Multiclass prerequisites not met: "
                                              err))
