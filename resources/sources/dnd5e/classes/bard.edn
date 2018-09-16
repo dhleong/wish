@@ -80,7 +80,8 @@ Your Bardic Inspiration die changes when you reach certain levels in this class.
                  ; override this
                  :! [[:!provide-attr
                       :half-proficient
-                      {:acrobatics true
+                      {:initiative true
+                       :acrobatics true
                        :animal-handling true
                        :arcana true
                        :athletics true

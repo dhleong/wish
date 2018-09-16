@@ -722,9 +722,14 @@
 (reg-sub
   ::initiative
   :<- [::ability-modifiers]
-  (fn [abilities]
+  :<- [::skill-half-proficiencies]
+  :<- [::proficiency-bonus]
+  (fn [[abilities half-proficiencies prof-bonus]]
     ; TODO other initiative mods?
-    (:dex abilities)))
+    (+ (:dex abilities)
+
+       (when (contains? half-proficiencies :initiative)
+         (Math/floor (/ prof-bonus 2))))))
 
 (def ^:private compile-attacks-per (memoize ->callable))
 (reg-sub
