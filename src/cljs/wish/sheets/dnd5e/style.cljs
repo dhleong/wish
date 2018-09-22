@@ -579,13 +579,28 @@
     [:.uses {:padding "4px"}]]
    [:.desc metadata]])
 
+(def single-column-skills [:.base-ability
+                           {:width "3em !important"}])
+
 (defstyled skills-section
   ; collapse into a single row on smaller devices
   ; that can't fit two columns of Skills
   (at-media
-    media-tablets
-    [:.base-ability
-     {:width "3em !important"}])
+    (merge media-tablets
+           media-not-smartphones)
+    single-column-skills)
+
+  (at-media
+    {:max-width "370px"}
+    single-column-skills)
+
+  (at-media
+    (merge media-smartphones
+           {:min-width "371px"})
+    [:.skill-col {:max-width "48%"}])
+
+  [:.sections
+   {:justify-content 'space-between}]
 
   [:.skill-col (merge
                  flex/vertical
@@ -599,8 +614,6 @@
     [:.score {:padding "0 4px"}]
 
     (proficiency-style
-      ;; :padding-right "12px"
-      :margin-right "12px"
       :transform "translate(0, 34%)")]])
 
 (defstyled proficiencies-section
