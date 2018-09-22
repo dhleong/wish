@@ -18,12 +18,13 @@
 (def color-silver "#a6a4a0")
 (def color-copper "#a77c65")
 
-(def media-not-smartphones {:min-width "480px"})
-(def media-smartphones {:screen :only
-                        :max-width "479px"})
-(def media-tablets {:max-width "1024px"})
 (def media-tiny {:screen :only
                  :max-width "375px"})
+(def media-smartphones {:screen :only
+                        :max-width "479px"})
+(def media-not-smartphones {:min-width "480px"})
+(def media-tablets {:max-width "1024px"})
+(def media-laptops {:min-width "1100px"})
 
 (def button {:cursor 'pointer})
 
@@ -598,6 +599,10 @@
     (merge media-smartphones
            {:min-width "371px"})
     [:.skill-col {:max-width "48%"}])
+
+  (at-media
+    media-laptops
+    [:.skill-col:first-child {:margin-right "12px"}])
 
   [:.sections
    {:justify-content 'space-between}]
