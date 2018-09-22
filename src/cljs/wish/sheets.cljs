@@ -105,8 +105,11 @@
      (if-let [data (ex-data err)]
        [error-resolver-view data]
 
-       ; unknown error; something went wrong
-       [widgets/error-box err])
+       (if (keyword? err)
+         [error-resolver-view {:state err}]
+
+         ; unknown error; something went wrong
+         [widgets/error-box err]))
 
      [:div
       [:a {:href "#"

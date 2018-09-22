@@ -395,8 +395,9 @@
         (if err
           (let [status (.-status err)]
             (log/err "ERROR loading " id err)
-            (if (= 404 status)
+            (cond
               ; possibly caused by permissions
+              (= 404 status)
               [(ex-info
                  (ex-message err)
                  {:permissions? true
@@ -405,7 +406,18 @@
                  err)
                nil]
 
+              ; signed out
+              (= 403 status)
+              [(ex-info
+                 (ex-message err)
+                 {:state :signed-out
+                  :provider :gdrive
+                  :id id}
+                 err)
+               nil]
+
               ; some other error
+              :else
               [err nil]))
 
           ; success; return unchanged

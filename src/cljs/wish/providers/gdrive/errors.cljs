@@ -7,6 +7,7 @@
   (:require [clojure.core.async :refer [<!]]
             [wish.providers.gdrive :as gdrive :refer [has-global-read?]]
             [wish.providers.gdrive.api :refer [view-file-link]]
+            [wish.providers.gdrive.config :refer [signin-prompt]]
             [wish.util :refer [>evt]]))
 
 ; ======= Permissions =====================================
@@ -47,11 +48,25 @@
 
      [request-global-read]) ])
 
+(defn resolve-signed-out []
+  [:div.error-resolver
+   [:h4 "You're not signed into Google Drive"]
+   [:div "You'll need to sign in to view this file"]
+   [signin-prompt]
+   ])
 
 ; ======= Public interface ================================
 
 (defn view
-  [{:keys [id] :as data}]
+  [{:keys [id state] :as data}]
+  (println "ERROR: " data)
   (cond
+    (= :unavailable state)
+    [:div.error-resolver
+     [:h4 "Google Drive is not available right now"]]
+
+    (= :signed-out state)
+    [resolve-signed-out]
+
     (:permissions? data)
     [resolve-permissions id]))
