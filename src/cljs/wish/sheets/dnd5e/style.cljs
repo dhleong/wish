@@ -38,19 +38,43 @@
 
 (defn proficiency-style [& {:as extra}]
   [:.proficiency
-   (merge {:color color-proficient }
+   (merge {:position 'relative
+           :width "10px"
+           :height "10px"}
           extra)
    [:&::before
-    {:content "'●'"
-     :visibility 'hidden
-     :font-size "16px"}]
+    {:content "' '"
+     :width "8px"
+     :height "8px"
+     :border-radius "50%"
+     :border (str "1px solid " color-proficient)
+     :background color-proficient
+     :display 'inline-block
+     :position 'absolute
+     :visibility 'hidden}]
    [:&.proficient::before
     {:visibility 'visible}]
-   [:&.half::before
-    {:content "'◐'"
-     :font-size "8px"}]
    [:&.expert::before
-    {:color color-expert}]])
+    {:background-color color-expert
+     :border-color color-expert}]
+
+   ; this is the semi-circle
+   [:&.half::before
+    {:width "4px"
+     :border-color "#fff"
+     :border-radius "8px 0 0 8px"
+     :margin-right "4px"
+     }]
+   ; this is the outline of the circle
+   [:&.half::after
+    {:content "' '"
+     :width "8px"
+     :height "8px"
+     :border (str "1px solid " color-proficient)
+     :border-radius "50%"
+     :display 'inline-block
+     :position 'absolute
+     }] ])
 
 ;;
 ;; 35/65 layout
@@ -501,7 +525,8 @@
    [:.info (merge metadata
                   {:padding "0 4px"})]
    [:.mod {:font-size "1.05em"}]
-   (proficiency-style)]
+   (proficiency-style
+     :margin-left "4px")]
 
   [:.extras metadata])
 
@@ -574,7 +599,9 @@
     [:.score {:padding "0 4px"}]
 
     (proficiency-style
-      :padding-right "12px")]])
+      ;; :padding-right "12px"
+      :margin-right "12px"
+      :transform "translate(0, 34%)")]])
 
 (defstyled proficiencies-section
   [:.section {:padding "0 8px"
