@@ -1,15 +1,15 @@
 (defproject wish "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.329"]
+                 [org.clojure/clojurescript "1.10.339"]
                  [org.clojure/core.async "0.4.474"]
-                 [org.clojure/tools.reader "1.2.2"]
+                 [org.clojure/tools.reader "1.3.0"]
                  [reagent "0.8.1"]
-                 [re-frame "0.10.5"]
+                 [re-frame "0.10.6"]
                  [secretary "1.2.3"]
                  [re-pressed "0.2.2"]
 
                  [kibu/pushy "0.3.8"]
-                 [cljs-ajax "0.7.3"]
+                 [cljs-ajax "0.7.4"]
                  [com.cemerick/url "0.1.1"]
                  [alandipert/storage-atom "2.0.1"]
 
@@ -20,7 +20,7 @@
 
                  ; sheet-specific inline css
                  [cljs-css-modules "0.2.1"]
-                 [garden "1.3.5"] ; override older version in cljs-css-modules
+                 [garden "1.3.6"] ; override older version in cljs-css-modules
 
                  ; ::inject/sub cofx (for subscriptions in event handlers)
                  [re-frame-utils "0.1.0"]]
@@ -78,9 +78,9 @@
                    ;; [cider/piggieback "0.3.6"]
                    [com.cemerick/piggieback "0.2.2"]
 
-                   [ring "1.4.0"]
-                   [ring/ring-defaults "0.2.0"]
-                   [compojure "1.5.0"]]
+                   [ring "1.7.0"]
+                   [ring/ring-defaults "0.3.2"]
+                   [compojure "1.6.1"]]
 
     :source-paths ["src/cljs"]
 
