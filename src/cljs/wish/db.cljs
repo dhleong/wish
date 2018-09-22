@@ -2,6 +2,7 @@
 
 (def default-db
   {:page [:home]
+   :device-type :default
 
    ; map of provider id to their current state. Acceptable states:
    ;  - :ready        The provider is ready to be used. Setting this

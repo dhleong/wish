@@ -809,14 +809,32 @@
     [:div.section opts
      content]))
 
+(defn- abilities-pane
+  "This is the left side on desktop and tablets, or the
+   first page/tab on mobile"
+  []
+  [:<>
+   [abilities-section]
+
+   [rest-buttons]
+
+   [section "Skills"
+    styles/skills-section
+    [skills-section]]
+
+   [proficiencies-section]])
+
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
+        smartphone? (= :smartphone (<sub [:device-type]))
         page (<sub [::subs/page :actions])
 
         ; with keymaps, a user might accidentally go to :spells
         ; but not have spells; in that case, fall back to :actions
-        page (if-not (and (= :spells page)
-                          (not spell-classes))
+        page (if-not (or (and (= :abilities page)
+                              (not smartphone?))
+                         (and (= :spells page)
+                              (not spell-classes)))
                ; normal case
                page
 
@@ -824,6 +842,8 @@
                :actions)]
     [:<>
      [:div.nav
+      (when smartphone?
+        [nav-link page :abilities "Abilities"])
       [nav-link page :actions "Actions"]
       (when spell-classes
         [nav-link page :spells "Spells"])
@@ -832,6 +852,11 @@
 
      ; actual sections
      [error-boundary
+
+      (when smartphone?
+        [main-section page :abilities
+         nil
+         [abilities-pane]])
 
       [main-section page :actions
        styles/actions-section
@@ -856,17 +881,10 @@
     [header]]
 
    [:div styles/layout
-    [error-boundary
-     [:div.left.side
-      [abilities-section]
-
-      [rest-buttons]
-
-      [section "Skills"
-       styles/skills-section
-       [skills-section]]
-
-      [proficiencies-section]]]
+    (when-not (= :smartphone (<sub [:device-type]))
+      [error-boundary
+       [:div.left.side
+        [abilities-pane]]])
 
     [:div.right.side
      [sheet-right-page]]]])

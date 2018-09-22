@@ -11,6 +11,7 @@
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
    [wish.views.widgets :refer [link] :refer-macros [icon]]
+   [wish.views.widgets.media-tracker :refer [media-tracker]]
    ))
 
 (def pages
@@ -24,6 +25,11 @@
 
 (defn main []
   [:<>
+   ; we might render *slightly* differently on smartphones
+   [media-tracker
+    "(max-width: 479px)" [:set-device :smartphone]
+    [:set-device :default]]
+
    [router pages]
 
    ; overlay rendering
