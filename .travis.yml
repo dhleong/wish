@@ -8,7 +8,7 @@ addons:
 
 before_install:
     # build react-swipeable-views since it's not published on cljsjs yet
-    - git clone --depth 1 --single-branch -b react-swipeable-views git@github.com:dhleong/cljsjs-packages.git
+    - git clone --depth 1 --single-branch -b react-swipeable-views https://github.com/dhleong/cljsjs-packages.git
     - (cd cljsjs-packages && boot package install target)
 
 before_script:
