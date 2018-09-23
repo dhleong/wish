@@ -798,11 +798,19 @@
 
 (defn- nav-link
   [page id label]
-  [:h1.section
-   {:class (when (= id page)
-             "selected")
-    :on-click (click>evt [::events/page! id])}
-   label])
+  (r/with-let [view-ref (atom nil)]
+    (let [selected? (= id page)]
+      (when selected?
+        (when-let [r @view-ref]
+          (.scrollIntoView r #js {:behavior "smooth"
+                                  :block "nearest"
+                                  :inline "center"})))
+      [:h1.section
+       {:class (when selected?
+                 "selected")
+        :on-click (click>evt [::events/page! id])
+        :ref #(reset! view-ref %)}
+       label])))
 
 (defn- main-section
   [page id opts content]

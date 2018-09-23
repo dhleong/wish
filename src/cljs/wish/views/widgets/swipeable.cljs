@@ -30,17 +30,52 @@
         {:get-key get-key
          :set-key! set-key!}))))
 
+(defn- ->indices-set [partial-index]
+  #{(int (Math/floor partial-index))
+    (int (Math/ceil partial-index))})
+
 (defn swipeable
   [opts & children]
-  (let [children (keep identity children)
-        key->index (index-children children)
-        index->key (map-invert key->index)
-        {:keys [get-key set-key!]} (unpack-key-ops opts)
-        view-opts {:enable-mouse-events false
-                   :index (when get-key
-                            (get key->index (get-key)))
-                   :on-change-index (when set-key!
-                                      (fn [new-index]
-                                        (set-key! (get index->key new-index))))}]
-    (into [swipeable-views view-opts]
-          children)))
+  (r/with-let [visible-indices (r/atom nil)
+               pending-index (r/atom nil)
+               animate-transitions? (r/atom false)
+               set-indicies! (fn [new-indicies]
+                               (when-not (= new-indicies @visible-indices)
+                                 (reset! visible-indices new-indicies)))]
+    (let [children (keep identity children)
+          key->index (index-children children)
+          index->key (map-invert key->index)
+          {:keys [get-key set-key!]} (unpack-key-ops opts)
+          view-opts (merge
+                      (select-keys opts [:enable-mouse-events])
+                      {:animate-transitions @animate-transitions?
+
+                       :index (when get-key
+                                (get key->index (get-key)))
+
+                       :on-switching (fn [index type]
+                                       (case type
+                                         "move"
+                                         (do
+                                           (when-not @animate-transitions?
+                                             (reset! animate-transitions? true))
+                                           (set-indicies!  (->indices-set index)))
+
+                                         "end"
+                                         (do
+                                           (reset! pending-index index)
+                                           (set-key! (get index->key index)))))
+
+                       :on-transition-end (fn [& args]
+                                            (set-indicies! #{@pending-index}))})
+          visible @visible-indices
+          visible (if (not (contains? visible (:index view-opts)))
+                    #{(:index view-opts)}
+                    visible)]
+
+      (into [swipeable-views view-opts]
+            (->> children
+                 (map-indexed (fn [idx child]
+                                (if (contains? visible idx)
+                                  child
+                                  [:div.placeholder]))))))))
