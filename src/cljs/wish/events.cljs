@@ -423,11 +423,14 @@
          item-id (:id item)
          custom? (inv/custom? item)
 
-         item-id (if custom?
-                   (inv/custom-id (:name item))
+         item-id (or (:item-id item)
 
-                   ; had an id already
-                   item-id)
+                     ; generate a new item-id
+                     (when custom?
+                       (inv/custom-id (:name item)))
+
+                     ; had an id already
+                     item-id)
 
          inst-id (cond
                    ; custom items use their generated id
@@ -452,6 +455,8 @@
 
 (defn- do-add
   [cofx item quantity]
+  (log "add" item "<-" quantity)
+
   ; update the sheet meta directly
   (if (or (not quantity)
           (inv/stacks? item))

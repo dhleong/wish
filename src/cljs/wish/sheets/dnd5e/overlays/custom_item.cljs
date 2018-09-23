@@ -137,6 +137,16 @@
     [:input.numeric {:field :fast-numeric
                      :id :limited-use.uses}]]])
 
+(defn- item-stacks? [for-types]
+  [:div.section.stacks {:field :container
+                        :visible? (for-types :potion
+                                             :other)}
+   [:div
+    [:input {:field :checkbox
+             :id :stacks?}]
+    [:label.meta {:for :stacks?}
+     "Has a quantity"]]
+   ])
 
 ; ======= reagent-forms events ============================
 
@@ -171,6 +181,11 @@
 
               ; pull up the appropriate kind
               (assoc :kind (get-in s [:kind (:type s)]))
+
+              ; remove :stacks? for irrelevant types
+              (cond->
+                (not (contains? #{:other :potion} (:type s)))
+                (dissoc :stacks?))
 
               ; and inflate
               data/inflate-by-type)]
@@ -237,6 +252,9 @@
 
         ; limited-use config
         (item-creator-limited-use)
+
+        ; custom stacks?
+        (item-stacks? for-types)
 
         ; description
         [:div.section
