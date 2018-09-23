@@ -6,18 +6,6 @@ sudo: true
 addons:
     chrome: stable
 
-before_install:
-    # set up boot, needed below
-    - mkdir -p ~/bin
-    - export PATH=~/bin:$PATH
-    - curl -L https://github.com/boot-clj/boot-bin/releases/download/latest/boot.sh -o ~/bin/boot
-    - chmod +x ~/bin/boot
-    - boot -V
-
-    # build react-swipeable-views since it's not published on cljsjs yet
-    - git clone --depth 1 --single-branch -b react-swipeable-views https://github.com/dhleong/cljsjs-packages.git
-    - (cd cljsjs-packages/react-swipeable-views && boot package install target)
-
 before_script:
     # plk depends on clojure
     - curl -O https://download.clojure.org/install/linux-install-1.9.0.381.sh
@@ -46,9 +34,6 @@ after_success:
 cache:
     directories:
         - $HOME/.m2
-        - $HOME/.boot/cache/bin
-        - $HOME/.boot/cache/lib
-        - $HOME/bin
 
 deploy:
     provider: pages
