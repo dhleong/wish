@@ -24,6 +24,7 @@
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link link>evt]]
+            [wish.views.widgets.swipeable :refer [swipeable]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 (defn rest-buttons []
@@ -805,7 +806,8 @@
 
 (defn- main-section
   [page id opts content]
-  (when (= page id)
+  (when (or (= :smartphone (<sub [:device-type]))
+            (= page id))
     [:div.section opts
      content]))
 
@@ -853,27 +855,29 @@
      ; actual sections
      [error-boundary
 
-      (when smartphone?
-        [main-section page :abilities
-         nil
-         [abilities-pane]])
+      [swipeable {}
 
-      [main-section page :actions
-       styles/actions-section
-       [actions-section]]
+       (when smartphone?
+         [main-section page :abilities
+          nil
+          [abilities-pane]])
 
-      [main-section page :features
-       styles/features-section
-       [features-section]]
+       [main-section page :actions
+        styles/actions-section
+        [actions-section]]
 
-      (when spell-classes
-        [main-section page :spells
-         styles/spells-section
-         [spells-section spell-classes]])
+       [main-section page :features
+        styles/features-section
+        [features-section]]
 
-      [main-section page :inventory
-       styles/inventory-section
-       [inventory-section]]] ]))
+       (when spell-classes
+         [main-section page :spells
+          styles/spells-section
+          [spells-section spell-classes]])
+
+       [main-section page :inventory
+        styles/inventory-section
+        [inventory-section]]]] ]))
 
 (defn sheet []
   [:div styles/container

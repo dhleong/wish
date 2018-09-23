@@ -14,6 +14,7 @@
                  [alandipert/storage-atom "2.0.1"]
 
                  [cljsjs/react-virtualized "9.18.5-1"]
+                 [cljsjs/react-swipeable-views "0.12.18-0"]
 
                  ; simpler forms
                  [reagent-forms "0.5.42"]
