@@ -806,7 +806,10 @@
 
 (defn- main-section
   [page id opts content]
-  (when (or (= :smartphone (<sub [:device-type]))
+  ^{:key id}
+  [:div.section opts
+   content]
+  #_(when (or (= :smartphone (<sub [:device-type]))
             (= page id))
     [:div.section opts
      content]))
@@ -829,19 +832,7 @@
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
         smartphone? (= :smartphone (<sub [:device-type]))
-        page (<sub [::subs/page :actions])
-
-        ; with keymaps, a user might accidentally go to :spells
-        ; but not have spells; in that case, fall back to :actions
-        page (if-not (or (and (= :abilities page)
-                              (not smartphone?))
-                         (and (= :spells page)
-                              (not spell-classes)))
-               ; normal case
-               page
-
-               ; fallback
-               :actions)]
+        page (<sub [::subs/page :actions])]
     [:<>
      [:div.nav
       (when smartphone?
@@ -855,29 +846,32 @@
      ; actual sections
      [error-boundary
 
-      [swipeable {}
+      [swipeable {:get-key #(<sub [::subs/page :actions])
+                  :set-key! #(>evt [::events/page! %])}
 
        (when smartphone?
-         [main-section page :abilities
-          nil
-          [abilities-pane]])
+         (main-section page :abilities
+                       nil
+                       [abilities-pane]))
 
-       [main-section page :actions
-        styles/actions-section
-        [actions-section]]
-
-       [main-section page :features
-        styles/features-section
-        [features-section]]
+       (main-section page :actions
+                     styles/actions-section
+                     [actions-section])
 
        (when spell-classes
-         [main-section page :spells
-          styles/spells-section
-          [spells-section spell-classes]])
+         (main-section page :spells
+                       styles/spells-section
+                       [spells-section spell-classes]))
 
-       [main-section page :inventory
-        styles/inventory-section
-        [inventory-section]]]] ]))
+       (main-section page :inventory
+                     styles/inventory-section
+                     [inventory-section])
+
+       (main-section page :features
+                     styles/features-section
+                     [features-section])
+
+       ]] ]))
 
 (defn sheet []
   [:div styles/container
