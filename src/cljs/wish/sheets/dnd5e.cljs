@@ -798,6 +798,7 @@
 
 (defn- nav-link
   [page id label]
+  ; NOTE: NOT a ratom, else we get an endless render loop
   (r/with-let [view-ref (atom nil)]
     (let [selected? (= id page)]
       (when selected?
@@ -813,14 +814,12 @@
        label])))
 
 (defn- main-section
+  "Call this as a function instead of a reagent form,
+   since it adds the ^{:key}"
   [page id opts content]
   ^{:key id}
   [:div.section opts
-   content]
-  #_(when (or (= :smartphone (<sub [:device-type]))
-            (= page id))
-    [:div.section opts
-     content]))
+   content])
 
 (defn- abilities-pane
   "This is the left side on desktop and tablets, or the
