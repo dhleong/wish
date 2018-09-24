@@ -419,14 +419,22 @@
 
 (defn- combat-page-link
   [page id label]
-  (let [selected? (= id page)]
-    [:div.filter {:class (when selected?
-                           "selected")}
-     (if selected?
-       [:span.unselectable label]
+  (r/with-let [view-ref (atom nil)]
+    (let [selected? (= id page)]
+      (when selected?
+        (when-let [r @view-ref]
+          (.scrollIntoView r #js {:behavior "smooth"
+                                  :block "nearest"
+                                  :inline "center"})))
 
-       [link>evt [::events/actions-page! id]
-        label])]))
+      [:div.filter {:class (when selected?
+                             "selected")
+                    :ref #(reset! view-ref %)}
+       (if selected?
+         [:span.unselectable label]
+
+         [link>evt [::events/actions-page! id]
+          label])])))
 
 (declare limited-use-section)
 (defn actions-section []
@@ -440,13 +448,21 @@
       [combat-page-link page :specials "Others"]
       [combat-page-link page :limited-use "Limited"]]
 
-     (case page
-       :combat [actions-combat]
-       :actions [actions-for-type :action]
-       :bonuses [actions-for-type :bonus]
-       :reactions [actions-for-type :reaction]
-       :specials [actions-for-type :special-action]
-       :limited-use [limited-use-section])]))
+     ;; (case page
+     ;;   :combat [actions-combat]
+     ;;   :actions [actions-for-type :action]
+     ;;   :bonuses [actions-for-type :bonus]
+     ;;   :reactions [actions-for-type :reaction]
+     ;;   :specials [actions-for-type :special-action]
+     ;;   :limited-use [limited-use-section])
+     [swipeable {:get-key #(<sub [::subs/actions-page :combat])
+                 :set-key! #(>evt [::events/actions-page! %])}
+      ^{:key :combat} [actions-combat]
+      ^{:key :actions} [actions-for-type :action]
+      ^{:key :bonuses} [actions-for-type :bonus]
+      ^{:key :reactions} [actions-for-type :reaction]
+      ^{:key :specials} [actions-for-type :special-action]
+      ^{:key :limited-use} [limited-use-section]]]))
 
 
 ; ======= Features =========================================
