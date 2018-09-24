@@ -436,6 +436,11 @@
          [link>evt [::events/actions-page! id]
           label])])))
 
+(defn- actions-page [id form]
+  ^{:key id}
+  [:div styles/swipeable-page
+   form])
+
 (declare limited-use-section)
 (defn actions-section []
   (let [page (<sub [::subs/actions-page :combat])]
@@ -448,21 +453,14 @@
       [combat-page-link page :specials "Others"]
       [combat-page-link page :limited-use "Limited"]]
 
-     ;; (case page
-     ;;   :combat [actions-combat]
-     ;;   :actions [actions-for-type :action]
-     ;;   :bonuses [actions-for-type :bonus]
-     ;;   :reactions [actions-for-type :reaction]
-     ;;   :specials [actions-for-type :special-action]
-     ;;   :limited-use [limited-use-section])
      [swipeable {:get-key #(<sub [::subs/actions-page :combat])
                  :set-key! #(>evt [::events/actions-page! %])}
-      ^{:key :combat} [actions-combat]
-      ^{:key :actions} [actions-for-type :action]
-      ^{:key :bonuses} [actions-for-type :bonus]
-      ^{:key :reactions} [actions-for-type :reaction]
-      ^{:key :specials} [actions-for-type :special-action]
-      ^{:key :limited-use} [limited-use-section]]]))
+      (actions-page :combat [actions-combat])
+      (actions-page :actions [actions-for-type :action])
+      (actions-page :bonuses [actions-for-type :bonus])
+      (actions-page :reactions [actions-for-type :reaction])
+      (actions-page :specials [actions-for-type :special-action])
+      (actions-page :limited-use [limited-use-section])]]))
 
 
 ; ======= Features =========================================

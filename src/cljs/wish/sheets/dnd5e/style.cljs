@@ -484,6 +484,9 @@
               button
               text-center)])
 
+(defstyled swipeable-page
+  {:min-height "60vh"})
+
 ;;
 ;; Sections
 ;;
