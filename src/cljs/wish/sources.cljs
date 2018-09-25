@@ -10,6 +10,7 @@
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as sources :refer [IDataSource ->DataSource id]]
+            [wish.sources.composite :refer [composite-source]]
             [wish.util :refer [>evt]]))
 
 ; cache of *compiled* sources by id
@@ -60,7 +61,7 @@
   [sheet-id sources]
   (>evt [:put-sheet-source!
          sheet-id
-         (sources/composite sheet-id sources)]))
+         (composite-source sheet-id sources)]))
 
 (defn load!
   "Load the sources for the given sheet"

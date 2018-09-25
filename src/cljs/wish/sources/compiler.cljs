@@ -173,7 +173,7 @@
       opts)))
 
 (declare apply-directive) ; part of the public API below
-(defn- install-features
+(defn install-features
   ([s entity]
    (install-features s entity nil))
   ([s entity data-source]

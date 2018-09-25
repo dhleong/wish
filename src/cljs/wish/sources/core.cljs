@@ -2,8 +2,7 @@
       :doc "Core types, etc for DataSource"}
   wish.sources.core
   (:require-macros [wish.util.log :as log])
-  (:require [wish.sources.compiler.race :refer [install-deferred-subraces]]
-            [wish.util :refer [->set]]))
+  (:require [wish.util :refer [->set]]))
 
 (defprotocol IDataSource
   "Anything that provides features, classes, etc."
@@ -68,7 +67,7 @@
     accessor-fn
     (.-delegates s)) )
 
-(deftype CompositeDataSource [id delegates combined-state]
+(deftype CompositeDataSource [id delegates]
   IDataSource
   (id [this]
     (.-id this))
@@ -100,44 +99,9 @@
     (first-delegate-by-id this find-list-entity id))
 
   (find-race [this id]
-    (or (get-in (.-combined-state this) [:races id])
-        (first-delegate-by-id this find-race id)))
+    (first-delegate-by-id this find-race id))
 
   (list-entities [this kind]
-    (concat (cat-all this
-                     #(list-entities % kind))
-            (when (= :races kind)
-              (->> (.-combined-state this)
-                   :races
-                   vals))))
+    (cat-all this #(list-entities % kind)))
 
-  (raw [this]
-    (.-combined-state this)))
-
-
-; ======= last-step deferred combinations =================
-
-(defn- resolve-subraces [sources]
-  (let [s (->> sources
-               (map raw)
-               (map #(select-keys % [:races :deferred-subraces]))
-               (apply merge-with merge))
-        subrace-ids (->> s :deferred-subraces keys)]
-    (-> s
-        install-deferred-subraces
-        (update :races select-keys subrace-ids))))
-
-(defn- combine-sources [sources]
-  (->> sources
-       resolve-subraces))
-
-
-; ======= public interface ================================
-
-(defn composite
-  [id sources]
-  (if (not= (count sources) 1)
-    (->CompositeDataSource id sources (combine-sources sources))
-
-    ; if there's only one source, don't bother wrapping it
-    (first sources)))
+  (raw [this] {}))
