@@ -22,8 +22,8 @@
    :feats
 
    ; save proficiencies
-   :save-proficiency/str
-   :save-proficiency/con
+   :save-proficiency/dex
+   :save-proficiency/int
 
    ; weapon proficiencies
    :proficiency/simple-weapons
