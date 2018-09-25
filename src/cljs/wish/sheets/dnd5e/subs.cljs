@@ -165,9 +165,12 @@
 (reg-sub
   ::abilities-improvements
   :<- [:classes]
-  (fn [classes]
-    (apply merge-with +
-           (map (comp :buffs :attrs) classes))))
+  :<- [:races]
+  (fn [entity-lists]
+    (->> entity-lists
+         flatten
+         (map (comp :buffs :attrs))
+         (apply merge-with +))))
 
 (reg-sub
   ::abilities-racial
