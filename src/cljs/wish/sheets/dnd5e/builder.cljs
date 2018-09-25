@@ -603,7 +603,7 @@
          :standard [standard-form]
          :point [point-form])
 
-       [bonuses-from "Racial Bonsues" [::subs/abilities-racial]]
+       [bonuses-from "Racial Bonuses" [::subs/abilities-racial]]
        [bonuses-from "Ability Score Improvements" [::subs/abilities-improvements]]
 
        (let [abilities (<sub [::subs/abilities-base])]
