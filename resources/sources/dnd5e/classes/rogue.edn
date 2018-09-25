@@ -35,6 +35,9 @@
    ; armor proficiencies
    :proficiency/light-armor
 
+   ; tool proficiencies
+   :proficiency/thieves-tools
+
    {:id :rogue/skill-proficiencies
     :implicit? true
     :primary-only? true
