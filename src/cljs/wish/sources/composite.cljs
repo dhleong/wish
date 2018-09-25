@@ -21,10 +21,14 @@
         (dissoc :deferred-subraces))))
 
 (defn- combine-sources [sources]
-  (->> sources
-       resolve-subraces
+  ; create a temporary source combining the provided sources
+  ; that we can use to find features for the resolved subraces,
+  ; if any
+  (let [tmp-source (->CompositeDataSource :tmp sources)]
+    (->> sources
+         resolve-subraces
 
-       (process-map :races install-features)))
+         (process-map :races #(install-features %1 %2 tmp-source)))))
 
 
 ; ======= public interface ================================

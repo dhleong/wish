@@ -6,11 +6,13 @@
 
 (deftest composite-test
   (let [with-class (->DataSource :a (compile-directives
-                                      [[:!declare-race
+                                      [[:!provide-feature
+                                        {:id :shared-feature}]
+                                       [:!declare-race
                                         {:id :human
                                          :attrs
                                          {:from :earth}
-                                         :+features
+                                         :features
                                          [{:id :feat/base}]}]]))
         with-sub (->DataSource :b (compile-directives
                                     [[:!declare-subrace
@@ -20,7 +22,8 @@
                                        {:also :the-verse}
                                        :+features
                                        [{:id :feat/with-options
-                                         :max-options 2}]}]]))
+                                         :max-options 2}
+                                        :shared-feature]}]]))
         combined (composite-source :ab [with-class
                                         with-sub])]
 
@@ -46,6 +49,11 @@
                          :feat/with-options)]
         (is (identity feature))
         (is (fn? (:max-options feature))))
+      (is (= {:id :feat/base})
+          (-> (s/find-race combined :human/variant)
+              :features
+              :feat/with-options
+              (select-keys [:id])))
 
       ; NOTE: we should probably support finding racial features
       ; at some point, but things are working okay for now without
@@ -57,5 +65,12 @@
             (s/find-feature combined :feat/with-options)))
       #_(is (fn?
             (:max-options
-              (s/find-feature combined :feat/with-options)))))))
+              (s/find-feature combined :feat/with-options)))))
+
+    (testing "Cross-source subrace can reference other sources' features"
+      (is (= {:id :shared-feature}
+             (-> (s/find-race combined :human/variant)
+                 :features
+                 :shared-feature
+                 (select-keys [:id])))))))
 
