@@ -11,6 +11,7 @@
             [wish.sources.compiler.lists :as lists]
             [wish.sources.core :as src :refer [find-class find-race]]))
 
+(reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
 
 ; ======= Provider-related =================================

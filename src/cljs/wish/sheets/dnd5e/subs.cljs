@@ -111,7 +111,25 @@
   ::page
   :<- [:5e/page]
   :<- [:active-sheet-id]
-  page-specific-sheet)
+  :<- [::spellcaster-classes]
+  :<- [:device-type]
+  (fn [[sheet->page sheet-id
+        spell-classes device-type
+        :as input] [_ default :as params]]
+    (let [base (page-specific-sheet input params)
+          smartphone? (= :smartphone device-type)]
+
+      ; with keymaps, a user might accidentally go to :spells
+      ; but not have spells; in that case, fall back to :actions
+      (if-not (or (and (= :abilities base)
+                       (not smartphone?))
+                  (and (= :spells base)
+                       (not (seq spell-classes))))
+        ; normal case
+        base
+
+        ; fallback
+        default))))
 
 (reg-sub
   ::actions-page

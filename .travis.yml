@@ -12,7 +12,7 @@ before_script:
     - chmod +x linux-install-1.9.0.381.sh
     - sudo ./linux-install-1.9.0.381.sh
 
-    # build planck from scratch tosince we need the latest version
+    # build planck from scratch since we need the latest version
     - sudo apt-get install javascriptcoregtk-3.0 libglib2.0-dev libzip-dev libcurl4-gnutls-dev libicu-dev
     - git clone --depth 1 https://github.com/planck-repl/planck.git
     - (cd planck && script/build --fast && sudo script/install)
@@ -30,6 +30,10 @@ script:
 
 after_success:
     - lein build
+
+cache:
+    directories:
+        - $HOME/.m2
 
 deploy:
     provider: pages

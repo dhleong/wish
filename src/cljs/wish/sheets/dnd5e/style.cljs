@@ -90,10 +90,12 @@
     media-smartphones
     (merge flex/justify-center
            {:width "100%"})
-    [:.side {:width "90% !important"}])
+    [:.side {:width "92% !important"}])
 
   (at-media
     media-tablets
+    (merge flex/justify-center
+           {:width "100%"})
     [:.nav>.section {:font-size "1.5em"}])
 
   (at-media
@@ -483,6 +485,9 @@
               flex/grow
               button
               text-center)])
+
+(defstyled swipeable-page
+  {:min-height "60vh"})
 
 ;;
 ;; Sections

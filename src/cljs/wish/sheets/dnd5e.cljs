@@ -24,6 +24,7 @@
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link link>evt]]
+            [wish.views.widgets.swipeable :refer [swipeable]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 (defn rest-buttons []
@@ -418,14 +419,27 @@
 
 (defn- combat-page-link
   [page id label]
-  (let [selected? (= id page)]
-    [:div.filter {:class (when selected?
-                           "selected")}
-     (if selected?
-       [:span.unselectable label]
+  (r/with-let [view-ref (atom nil)]
+    (let [selected? (= id page)]
+      (when selected?
+        (when-let [r @view-ref]
+          (.scrollIntoView r #js {:behavior "smooth"
+                                  :block "nearest"
+                                  :inline "center"})))
 
-       [link>evt [::events/actions-page! id]
-        label])]))
+      [:div.filter {:class (when selected?
+                             "selected")
+                    :ref #(reset! view-ref %)}
+       (if selected?
+         [:span.unselectable label]
+
+         [link>evt [::events/actions-page! id]
+          label])])))
+
+(defn- actions-page [id form]
+  ^{:key id}
+  [:div styles/swipeable-page
+   form])
 
 (declare limited-use-section)
 (defn actions-section []
@@ -439,13 +453,14 @@
       [combat-page-link page :specials "Others"]
       [combat-page-link page :limited-use "Limited"]]
 
-     (case page
-       :combat [actions-combat]
-       :actions [actions-for-type :action]
-       :bonuses [actions-for-type :bonus]
-       :reactions [actions-for-type :reaction]
-       :specials [actions-for-type :special-action]
-       :limited-use [limited-use-section])]))
+     [swipeable {:get-key #(<sub [::subs/actions-page :combat])
+                 :set-key! #(>evt [::events/actions-page! %])}
+      (actions-page :combat [actions-combat])
+      (actions-page :actions [actions-for-type :action])
+      (actions-page :bonuses [actions-for-type :bonus])
+      (actions-page :reactions [actions-for-type :reaction])
+      (actions-page :specials [actions-for-type :special-action])
+      (actions-page :limited-use [limited-use-section])]]))
 
 
 ; ======= Features =========================================
@@ -797,33 +812,52 @@
 
 (defn- nav-link
   [page id label]
-  [:h1.section
-   {:class (when (= id page)
-             "selected")
-    :on-click (click>evt [::events/page! id])}
-   label])
+  ; NOTE: NOT a ratom, else we get an endless render loop
+  (r/with-let [view-ref (atom nil)]
+    (let [selected? (= id page)]
+      (when selected?
+        (when-let [r @view-ref]
+          (.scrollIntoView r #js {:behavior "smooth"
+                                  :block "nearest"
+                                  :inline "center"})))
+      [:h1.section
+       {:class (when selected?
+                 "selected")
+        :on-click (click>evt [::events/page! id])
+        :ref #(reset! view-ref %)}
+       label])))
 
 (defn- main-section
+  "Call this as a function instead of a reagent form,
+   since it adds the ^{:key}"
   [page id opts content]
-  (when (= page id)
-    [:div.section opts
-     content]))
+  ^{:key id}
+  [:div.section opts
+   content])
+
+(defn- abilities-pane
+  "This is the left side on desktop and tablets, or the
+   first page/tab on mobile"
+  []
+  [:<>
+   [abilities-section]
+
+   [rest-buttons]
+
+   [section "Skills"
+    styles/skills-section
+    [skills-section]]
+
+   [proficiencies-section]])
 
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
-        page (<sub [::subs/page :actions])
-
-        ; with keymaps, a user might accidentally go to :spells
-        ; but not have spells; in that case, fall back to :actions
-        page (if-not (and (= :spells page)
-                          (not spell-classes))
-               ; normal case
-               page
-
-               ; fallback
-               :actions)]
+        smartphone? (= :smartphone (<sub [:device-type]))
+        page (<sub [::subs/page :actions])]
     [:<>
      [:div.nav
+      (when smartphone?
+        [nav-link page :abilities "Abilities"])
       [nav-link page :actions "Actions"]
       (when spell-classes
         [nav-link page :spells "Spells"])
@@ -833,22 +867,32 @@
      ; actual sections
      [error-boundary
 
-      [main-section page :actions
-       styles/actions-section
-       [actions-section]]
+      [swipeable {:get-key #(<sub [::subs/page :actions])
+                  :set-key! #(>evt [::events/page! %])}
 
-      [main-section page :features
-       styles/features-section
-       [features-section]]
+       (when smartphone?
+         (main-section page :abilities
+                       nil
+                       [abilities-pane]))
 
-      (when spell-classes
-        [main-section page :spells
-         styles/spells-section
-         [spells-section spell-classes]])
+       (main-section page :actions
+                     styles/actions-section
+                     [actions-section])
 
-      [main-section page :inventory
-       styles/inventory-section
-       [inventory-section]]] ]))
+       (when spell-classes
+         (main-section page :spells
+                       styles/spells-section
+                       [spells-section spell-classes]))
+
+       (main-section page :inventory
+                     styles/inventory-section
+                     [inventory-section])
+
+       (main-section page :features
+                     styles/features-section
+                     [features-section])
+
+       ]] ]))
 
 (defn sheet []
   [:div styles/container
@@ -856,17 +900,10 @@
     [header]]
 
    [:div styles/layout
-    [error-boundary
-     [:div.left.side
-      [abilities-section]
-
-      [rest-buttons]
-
-      [section "Skills"
-       styles/skills-section
-       [skills-section]]
-
-      [proficiencies-section]]]
+    (when-not (= :smartphone (<sub [:device-type]))
+      [error-boundary
+       [:div.left.side
+        [abilities-pane]]])
 
     [:div.right.side
      [sheet-right-page]]]])

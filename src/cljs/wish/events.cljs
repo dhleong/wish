@@ -27,6 +27,12 @@
     {:db (assoc db :page page-spec)
      :dispatch [::update-keymap page-spec]}))
 
+(reg-event-db
+  :set-device
+  [trim-v]
+  (fn-traced [db [device-type]]
+    (assoc db :device-type device-type)))
+
 (reg-event-fx
   ::update-keymap
   [trim-v (inject-cofx ::inject/sub [:meta/kind])]
