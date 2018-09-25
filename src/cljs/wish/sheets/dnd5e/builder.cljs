@@ -270,6 +270,7 @@
                            :id :races}
      (for [r (<sub [::subs/available-races])]
        [:div.feature-option {:key (:id r) }
+        ^{:key (:id r)}
         [:div {:class (when (:subrace-of r)
                         "subrace")}
          (:name r)]])]
