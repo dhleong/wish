@@ -30,21 +30,25 @@
             (:id subrace-map)
             (assoc subrace-map :subrace-of parent-race-id))))
 
-(defn install-deferred-subraces
-  [s]
-  (let [races (:deferred-subraces s)]
-    (reduce-kv
+(defn install-deferred-subraces [s]
+  (let [races (:deferred-subraces s)
+        s (reduce-kv
 
-      (fn [state subrace-id subrace-map]
-        (let [parent-race-id (:subrace-of subrace-map)]
-          (if-let [installed-state (install-subrace state parent-race-id subrace-map)]
-            installed-state
+            (fn [state subrace-id subrace-map]
+              (let [parent-race-id (:subrace-of subrace-map)]
+                (if-let [installed-state (install-subrace state parent-race-id subrace-map)]
+                  (update installed-state :deferred-subraces dissoc)
 
-            ; still no? okay that's no good
-            (do
-              (log/err "Parent race " parent-race-id " for " (:id subrace-map) " not found")
-              state))))
+                  ; still no? okay that's no good. It could still be in another data source, though!
+                  (do
+                    (log/warn "Parent race " parent-race-id " for " (:id subrace-map) " not found")
+                    state))))
 
+            s
+            races)]
+    (if (empty? (:deferred-subraces s))
       (dissoc s :deferred-subraces)
-      races)))
+
+      ; keep it around
+      s)))
 

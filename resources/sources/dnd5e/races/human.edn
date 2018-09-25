@@ -14,4 +14,12 @@
 
   :features
   [:background
-   :lang/common]}]
+   :lang/common
+
+   {:id :human/extra-language
+    :name "Extra Language"
+    :desc "You speak, read, and write one extra language of your choice"
+    :max-options 1
+    :values [:all-languages]}
+
+   ]}]
