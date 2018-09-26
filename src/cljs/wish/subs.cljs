@@ -9,7 +9,8 @@
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-directives inflate]]
             [wish.sources.compiler.lists :as lists]
-            [wish.sources.core :as src :refer [find-class find-race]]))
+            [wish.sources.core :as src :refer [find-class find-race]]
+            [wish.util :refer [deep-merge]]))
 
 (reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
@@ -253,6 +254,17 @@
                         source
                         :race))))))))
 
+; combines :attrs from all classes and races into a single map
+(reg-sub
+  :all-attrs
+  :<- [:classes]
+  :<- [:races]
+  (fn [entity-lists _]
+    (->> entity-lists
+         flatten
+         (map :attrs)
+         (apply merge-with deep-merge))))
+
 (defn get-features
   "Returns a collection of [id feature] pairs."
   [feature-containers [_ entity-id]]
@@ -373,13 +385,14 @@
   )
 
 (defn- inflate-feature-options
-  [[features options sheet data-source]]
+  [[features options attrs sheet data-source]]
   (->> features
        (map (fn [[id v :as entry]]
               (let [container (-> entry meta :wish/container)
                     available-map (assoc container
                                          :options options
-                                         :sheet sheet)]
+                                         :sheet sheet
+                                         :attrs attrs)]
                 (with-meta
                   [id (-> v
                           (assoc :wish/raw-values (:values v))
@@ -403,10 +416,11 @@
                   (meta entry)))))))
 
 (defn- only-feature-options
-  [[features options sheet data-source]]
+  [[features options attrs sheet data-source]]
   (inflate-feature-options
     [(filter (comp :max-options second) features)
      options
+     attrs
      sheet
      data-source]))
 
@@ -420,6 +434,7 @@
   (fn [[_ entity-id]]
     [(subscribe [:class-features entity-id])
      (subscribe [:meta/options])
+     (subscribe [:all-attrs])
      (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
   inflate-feature-options)
@@ -431,6 +446,7 @@
   (fn [[_ entity-id]]
     [(subscribe [:class-features entity-id])
      (subscribe [:meta/options])
+     (subscribe [:all-attrs])
      (subscribe [:meta/sheet])
      (subscribe [:sheet-source])])
   only-feature-options)
@@ -444,6 +460,7 @@
   :inflated-race-features
   :<- [:race-features]
   :<- [:meta/options]
+  :<- [:all-attrs]
   :<- [:meta/sheet]
   :<- [:sheet-source]
   inflate-feature-options)
@@ -452,6 +469,7 @@
   :race-features-with-options
   :<- [:race-features]
   :<- [:meta/options]
+  :<- [:all-attrs]
   :<- [:meta/sheet]
   :<- [:sheet-source]
   only-feature-options)

@@ -99,74 +99,110 @@
  {:id :expertise/acrobatics
   :name "Acrobatics"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/acrobatics attrs))
   :! [[:!provide-attr :expertise/acrobatics true]]}
  {:id :expertise/animal-handling
   :name "Animal Handling"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/animal-handling attrs))
   :! [[:!provide-attr :expertise/animal-handling true]]}
  {:id :expertise/arcana
   :name "Arcana"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/arcana attrs))
   :! [[:!provide-attr :expertise/arcana true]]}
  {:id :expertise/athletics
   :name "Athletics"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/athletics attrs))
   :! [[:!provide-attr :expertise/athletics true]]}
  {:id :expertise/deception
   :name "Deception"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/deception attrs))
   :! [[:!provide-attr :expertise/deception true]]}
  {:id :expertise/history
   :name "History"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/history attrs))
   :! [[:!provide-attr :expertise/history true]]}
  {:id :expertise/insight
   :name "Insight"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/insight attrs))
   :! [[:!provide-attr :expertise/insight true]]}
  {:id :expertise/intimidation
   :name "Intimidation"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/intimidation attrs))
   :! [[:!provide-attr :expertise/intimidation true]]}
  {:id :expertise/investigation
   :name "Investigation"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/investigation attrs))
   :! [[:!provide-attr :expertise/investigation true]]}
  {:id :expertise/medicine
   :name "Medicine"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/medicine attrs))
   :! [[:!provide-attr :expertise/medicine true]]}
  {:id :expertise/nature
   :name "Nature"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/nature attrs))
   :! [[:!provide-attr :expertise/nature true]]}
  {:id :expertise/perception
   :name "Perception"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/perception attrs))
   :! [[:!provide-attr :expertise/perception true]]}
  {:id :expertise/performance
   :name "Performance"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/performance attrs))
   :! [[:!provide-attr :expertise/performance true]]}
  {:id :expertise/persuasion
   :name "Persuasion"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/persuasion attrs))
   :! [[:!provide-attr :expertise/persuasion true]]}
  {:id :expertise/religion
   :name "Religion"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/religion attrs))
   :! [[:!provide-attr :expertise/religion true]]}
  {:id :expertise/sleight-of-hand
   :name "Sleight of Hand"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/sleight-of-hand attrs))
   :! [[:!provide-attr :expertise/sleight-of-hand true]]}
  {:id :expertise/stealth
   :name "Stealth"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/stealth attrs))
   :! [[:!provide-attr :expertise/stealth true]]}
  {:id :expertise/survival
   :name "Survival"
   :implicit? true
+  :available? (fn [attrs]
+                (:proficiency/survival attrs))
   :! [[:!provide-attr :expertise/survival true]]}]
 
 [:!add-to-list
