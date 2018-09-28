@@ -21,74 +21,110 @@
  {:id :proficiency/acrobatics
   :name "Acrobatics"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/acrobatics attrs)))
   :! [[:!provide-attr :proficiency/acrobatics true]]}
  {:id :proficiency/animal-handling
   :name "Animal Handling"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/animal-handling attrs)))
   :! [[:!provide-attr :proficiency/animal-handling true]]}
  {:id :proficiency/arcana
   :name "Arcana"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/arcana attrs)))
   :! [[:!provide-attr :proficiency/arcana true]]}
  {:id :proficiency/athletics
   :name "Athletics"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/athletics attrs)))
   :! [[:!provide-attr :proficiency/athletics true]]}
  {:id :proficiency/deception
   :name "Deception"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/deception attrs)))
   :! [[:!provide-attr :proficiency/deception true]]}
  {:id :proficiency/history
   :name "History"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/history attrs)))
   :! [[:!provide-attr :proficiency/history true]]}
  {:id :proficiency/insight
   :name "Insight"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/insight attrs)))
   :! [[:!provide-attr :proficiency/insight true]]}
  {:id :proficiency/intimidation
   :name "Intimidation"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/intimidation attrs)))
   :! [[:!provide-attr :proficiency/intimidation true]]}
  {:id :proficiency/investigation
   :name "Investigation"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/investigation attrs)))
   :! [[:!provide-attr :proficiency/investigation true]]}
  {:id :proficiency/medicine
   :name "Medicine"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/medicine attrs)))
   :! [[:!provide-attr :proficiency/medicine true]]}
  {:id :proficiency/nature
   :name "Nature"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/nature attrs)))
   :! [[:!provide-attr :proficiency/nature true]]}
  {:id :proficiency/perception
   :name "Perception"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/perception attrs)))
   :! [[:!provide-attr :proficiency/perception true]]}
  {:id :proficiency/performance
   :name "Performance"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/performance attrs)))
   :! [[:!provide-attr :proficiency/performance true]]}
  {:id :proficiency/persuasion
   :name "Persuasion"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/persuasion attrs)))
   :! [[:!provide-attr :proficiency/persuasion true]]}
  {:id :proficiency/religion
   :name "Religion"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/religion attrs)))
   :! [[:!provide-attr :proficiency/religion true]]}
  {:id :proficiency/sleight-of-hand
   :name "Sleight of Hand"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/sleight-of-hand attrs)))
   :! [[:!provide-attr :proficiency/sleight-of-hand true]]}
  {:id :proficiency/stealth
   :name "Stealth"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/stealth attrs)))
   :! [[:!provide-attr :proficiency/stealth true]]}
  {:id :proficiency/survival
   :name "Survival"
   :implicit? true
+  :available? (fn [attrs]
+                (not (:proficiency/survival attrs)))
   :! [[:!provide-attr :proficiency/survival true]]}]
 
 [:!add-to-list

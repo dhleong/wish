@@ -186,6 +186,7 @@
          :visible?! #(<sub [::subs/have-feature-option?
                             sub-vector
                             (:id f)
+                            instance-id
                             (:id option)])
          }
         option])]))
@@ -209,6 +210,7 @@
                           :visible? #(<sub [::subs/have-feature-option?
                                             sub-vector
                                             (:id f)
+                                            instance-id
                                             (:id o)])}
                  (:name o)]))))))
 

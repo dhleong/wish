@@ -365,14 +365,6 @@
    options for a :list, we set this flag so it can be later
    queried from a :visible? function"
   [available-map values]
-  ;; (filter
-  ;;   (fn [v]
-  ;;     (if-let [available? (:available? v)]
-  ;;       (available? available-map)
-  ;;
-  ;;       ; if not provided, it's always available
-  ;;       true))
-  ;;   values)
   (map
     (fn [v]
       (assoc v :available?
@@ -381,8 +373,7 @@
 
                ; if not provided, it's always available
                true)))
-    values)
-  )
+    values))
 
 (defn- inflate-feature-options
   [[features options attrs sheet data-source]]

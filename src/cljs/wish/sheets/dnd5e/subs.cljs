@@ -1860,19 +1860,29 @@
 
 (reg-sub
   ::have-feature-option?
-  (fn [[_ source-sub feature-id option-id]]
-    (subscribe source-sub))
-  (fn [features [_ _ feature-id option-id]]
-    (->> features
-         (filter #(= feature-id (first %)))
-         first  ; first (only) match
-         second ; the feature
-         :values
+  (fn [[_ source-sub feature-id instance-id option-id]]
+    [(subscribe source-sub)
+     (subscribe [:options-> (if (seq? instance-id)
+                              instance-id
+                              [instance-id])])])
+  (fn [[features options] [_ _ feature-id instance-id option-id]]
+    ; the option is available either if we have it selected,
+    ; or if it is explicitly available. This way, feature options
+    ; that are shared across features but which should not be
+    ; available more than once can mark themselves as unavailable
+    ; when chosen, and still be seen in the character builder
+    (or
+      (some #{option-id} options)
+      (->> features
+           (filter #(= feature-id (first %)))
+           first  ; first (only) match
+           second ; the feature
+           :values
 
-         (filter #(= option-id (:id %)))
-         first
+           (filter #(= option-id (:id %)))
+           first
 
-         :available?)))
+           :available?))))
 
 ; returns a bit more than just the hit die, for convenience
 (reg-sub
