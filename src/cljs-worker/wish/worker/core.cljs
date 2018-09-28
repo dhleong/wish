@@ -1,6 +1,7 @@
 (ns wish.worker.core
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
+            [cljs.reader :as edn]
             [cemerick.url :as url]
             [wish.config :as config]))
 
@@ -23,6 +24,14 @@
                          "https://fonts.googleapis.com/icon?family=Material+Icons"])
 
 
+; ======= utils ===========================================
+
+(defn last-modified [resp]
+  (some-> resp
+          (.-headers)
+          (.get "last-modified")))
+
+
 ; ======= cache manipulation ==============================
 
 (defn purge-old-caches []
@@ -35,6 +44,19 @@
                    clj->js
                    js/Promise.all))
       (.then #(log "Purged old cache entries"))))
+
+
+; ======= client messaging ================================
+
+(defn post! [c message]
+  (.postMessage c (str message)))
+
+(defn post-message! [message]
+  (let [message-str (str message)]
+    (-> (js/self.clients.matchAll)
+        (.then (fn [clients]
+                 (doseq [c clients]
+                   (.postMessage c message-str)))))))
 
 
 ; ======= resource fetching ===============================
@@ -55,7 +77,13 @@
                                           "Request failed (network delay / timed out)")))
                              default-network-timeout-ms)]
          (-> (js/fetch req
-                       #js {:signal (.-signal about-controller)})
+                       #js {:signal (.-signal about-controller)
+
+                            ; no-cache means always validate responses in in the
+                            ; browser cache with eg: if-modified-since requests.
+                            ; this ensures we always get the latest-deployed version
+                            :cache "no-cache"
+                            })
              (.then presolve preject)
              (.finally #(js/clearTimeout timeout-timer))))))))
 
@@ -63,7 +91,7 @@
   (-> (fetch-with-timeout req)
 
       (.then (fn [resp]
-               (log "Attempt to cache: " req " -> " resp)
+               ;; (log "Attempt to cache: " req " -> " resp)
                (let [resp-clone (.clone resp)]
                  (-> js/caches
                      (.open cache-name)
@@ -108,42 +136,83 @@
         (str/ends-with? path ".png")
         (str/ends-with? path ".html"))))
 
-(defn shell-root? [url]
+(defn shell-root?
+  "The shell-root is any URL from which we want index.html"
+  [url]
   (and (wish-asset? url)
 
        ; all shell URLs have an anchor locally
        (or (not (str/blank? (:anchor url)))
 
-           ; files with these extensions are never the shell
+           ; files with these extensions are never the shell root
            (not (asset-file? url)))))
 
-(defn shell-asset? [url]
+(defn shell-asset?
+  "A shell asset is one of the core files involved in rendering
+   the app, such as app.js, but not any of the source data files,
+   for example."
+  [url]
   (and (wish-asset? url)
-       (asset-file? url)))
 
-(defn fetch-shell [url]
-  ; the shell is unlikely to change
-  (log "fetching shell for " url)
+       (let [path (:path url)]
+         (or (str/ends-with? path ".css")
+             (str/ends-with? path ".js")
+             (str/ends-with? path ".png")))))
+
+(def ^:private shell-last-modified-changed (atom nil))
+
+(defn- fetch-shell-path [path]
+  ; shell files are special. we want to load them from cache as
+  ; fast as possible, but still check for updates in the background.
+  ; If we detect an update, we then notify any clients
+  (log "fetching shell for " path)
   (-> js/caches
-      (.match shell-root)
+      (.match path)
       (.then (fn [resp]
-               (or resp
-                   (fetch-and-cache shell-root))))))
+               (if resp
+                 ; success!
+                 (let [old-modified (last-modified resp)]
+                   (log "shell path for " path " -> " resp)
+
+                   ; in the background, fetch and cache any updates
+                   (-> (fetch-and-cache path)
+                       (.then (fn [updated-resp]
+                                (let [new-modified (or (last-modified updated-resp)
+                                                       (when config/debug?
+                                                         "new-modified"))]
+                                  (when-not (= old-modified new-modified)
+                                    (log "Updated " path ": " updated-resp)
+
+                                    ; notify the client of shell changes, but
+                                    ; not excessively
+                                    (swap! shell-last-modified-changed
+                                           (fn [last-value]
+                                             (when-not (= last-value new-modified)
+                                               (post-message! [:shell-updated new-modified]))
+                                             new-modified))))))
+                       (.catch #(log/info "Error updating " path ": " %)))
+
+                   ; return the cached response immediately
+                   resp)
+
+                 (do
+                   (log "No cache for " path)
+                   (fetch-and-cache path)))))))
 
 (defn fetch-shell-asset [{:keys [path]}]
   ; the shell is unlikely to change
   (log "fetching shell asset for " path)
   (let [css-dir-start (.indexOf path "/css/")]
     (if (not= -1 css-dir-start)
-      (fetch-with-cache (str config/server-root
+      (fetch-shell-path (str config/server-root
                              (subs path css-dir-start)))
 
       (let [js-dir-start (.indexOf path "/js/")]
         (if (not= -1 js-dir-start)
-          (fetch-with-cache (str config/server-root
+          (fetch-shell-path (str config/server-root
                                  (subs path js-dir-start)))
 
-          (fetch-with-cache path))))))
+          (fetch-shell-path path))))))
 
 
 ; ======= event handlers ==================================
@@ -153,7 +222,7 @@
         url (-> request .-url url/url)]
     (cond
       (shell-root? url)
-      (fetch-shell url)
+      (fetch-shell-path shell-root)
 
       (shell-asset? url)
       (fetch-shell-asset url)
@@ -169,7 +238,6 @@
       :else
       (fetch-with-cache request))))
 
-
 (defn install-service-worker [ev]
   (log/info "Installing" ev)
   (-> js/caches
@@ -177,12 +245,24 @@
       (.then (fn [cache]
                (log "Caching app shell...")
                (.addAll cache files-to-cache)))
-      (.then #(log "Successfully installed!")))
-)
+      (.then #(log "Successfully installed!"))))
 
 (defn activate-service-worker [ev]
   (log/info "Activated.")
   (purge-old-caches))
+
+
+; ======= message receiver ================================
+
+(defn receive! [client [msg-type & args :as msg]]
+  (log "SW.receive! " msg-type)
+  (case msg-type
+    :ready (when-let [last-modified @shell-last-modified-changed]
+             ; the client is ready; if we've detected any updates,
+             ; let them know
+             (post! client [:shell-updated last-modified]))
+
+    (log/warn "Unexpected message from client:" msg)))
 
 
 ; ======= Attach events ===================================
@@ -190,3 +270,6 @@
 (.addEventListener js/self "install" #(.waitUntil % (install-service-worker %)))
 (.addEventListener js/self "fetch" #(.respondWith % (fetch-event %)))
 (.addEventListener js/self "activate" #(.waitUntil % (activate-service-worker %)))
+(.addEventListener js/self "message" #(receive! (.-source %)
+                                                (edn/read-string
+                                                  (.-data %))))
