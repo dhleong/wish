@@ -117,15 +117,23 @@
       (throw (js/Error. (str "No provider instance for " raw-id
                              "(" provider-id " / " pro-raw-id ")"))))))
 
+(defn compile-sheet [data]
+  (when data
+    (try
+      (let [read-data (edn/read-string data)]
+        (if (map? read-data)
+          [nil read-data]
+          [(ex-info
+             "Not a sheet"
+             {:error :not-sheet})]))
+      (catch :default e
+        [e nil]))))
+
 (defn load-sheet!
   [sheet-id]
   (log "Load sheet " sheet-id)
   (go (let [[err data] (<! (load-raw sheet-id))
-            [sheet-err sheet] (when data
-                                (try
-                                  [nil (edn/read-string data)]
-                                  (catch :default e
-                                    [e nil])))]
+            [sheet-err sheet] (compile-sheet data)]
         (if-let [e (or err sheet-err)]
           (do (log/err "Failed to load sheet: " e)
               (>evt [:put-sheet-error! sheet-id

@@ -12,10 +12,19 @@
             [wish.util.nav :as nav]))
 
 (defn error-box [e]
-  [:div "Info for nerds: "
-   ; NOTE: ex-message returns nil for non-errors
-   [:p.error-info (or (ex-message e)
-                      (str e))]])
+  (let [error (or (:error e)
+                  (:error (ex-data e)))]
+    (or (when error
+          (case error
+            :not-sheet [:div
+                        [:p.error-info "That's not a character sheet!"]]
+            nil))
+
+        ; fallback
+        [:div "Info for nerds: "
+         ; NOTE: ex-message returns nil for non-errors
+         [:p.error-info (or (ex-message e)
+                            (str e))]])))
 
 (defn formatted-text
   [container-spec text]
