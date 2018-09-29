@@ -129,9 +129,6 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                       true]]}
                 ]}
 
-            6 {:+features
-               [:ability-improvement]}
-
             7 {:+features
                [{:id :rogue/evasion
                  :name "Evasion"
@@ -153,9 +150,7 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                 [:ability-improvement]}
 
             14 {:+features
-                [:ability-improvement
-
-                 {:id :rogue/blindsense
+                [{:id :rogue/blindsense
                   :name "Blindsense"
                   :desc "Starting at 14th level, if you are able to hear, you are aware of the location of any hidden or invisible creature within 10 feet of you."}]}
 
