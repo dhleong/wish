@@ -14,6 +14,13 @@
       (get attrs availability-attr)
       (get-in attrs availability-attr))))
 
+(defn- uses-available??
+  [raw-fn]
+  (when (seq? raw-fn)
+    (let [[_fn args & _] raw-fn]
+      (when (vector? args)
+        (some #{'available?} args)))))
+
 (defn compile-available
   [base-raw {:keys [availability-attr]}]
   (cond
@@ -32,11 +39,20 @@
 
     ; tricky case: both!
     :else
-    (let [base-fn (->callable base-raw)]
-      (fn [{:keys [attrs] :as args}]
-        (base-fn (assoc args
-                        :available? (attrs->availability
-                                      attrs availability-attr)))))))
+    (let [base-fn (->callable base-raw)
+          explicit-combine? (uses-available?? base-raw)]
+      (if explicit-combine?
+        (fn [{:keys [attrs] :as args}]
+          (base-fn (assoc args
+                          :available? (attrs->availability
+                                        attrs availability-attr))))
+
+        ; it doesn't explicitly use the `available?` key,
+        ; so combine it implicitly
+        (fn [{:keys [attrs] :as args}]
+          (and (attrs->availability
+                 attrs availability-attr)
+               (base-fn args)))))))
 
 (defn compile-max-options
   ":max-options compiles to an acceptor function that

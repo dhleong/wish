@@ -183,9 +183,11 @@
   ;    :! [[:!provide-attr availability-attr true]]}
   ; If both :availability-attr *and* :available? are provided, an
   ; extra key, `available?`, will be provided to the `:available?`
-  ; fn which is what would have been the availability if just
+  ; fn whose value is what would have been the availability if just
   ; `:availability-attr` had been used (in other words, true if
-  ; the attr is unset, and false if it is set)
+  ; the attr is unset, and false if it is set).
+  ; If your `:available?` fn does not use this key, the result of
+  ; your fn will be implicitly ; combined with it using (and)
   :availability-attr [:attr ...]
 
   ; map of level -> feature-map, where any keys in the feature-map

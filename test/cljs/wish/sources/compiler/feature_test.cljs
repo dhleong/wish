@@ -80,6 +80,14 @@
       (is (= "!false"
              ((:available? f) {:attrs {:id {:path true}}})))))
 
+  (testing "Implicitly Combine :available? with :availability-attr"
+    (let [f (compile-feature '{:availability-attr :single-id
+                               :available? (fn [] true)})]
+      (is (= true
+             ((:available? f) {:attrs {}})))
+      (is (= false
+             ((:available? f) {:attrs {:single-id true}})))))
+
   (testing "Neither :available? nor :availability-attr"
     (let [f (compile-feature '{})]
       (is (nil? (:available? f))))))

@@ -100,128 +100,110 @@
   :name "Acrobatics"
   :implicit? true
   :availability-attr :expertise/acrobatics
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/acrobatics attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/acrobatics attrs))}
  {:id :expertise/animal-handling
   :name "Animal Handling"
   :implicit? true
   :availability-attr :expertise/animal-handling
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/animal-handling attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/animal-handling attrs))}
  {:id :expertise/arcana
   :name "Arcana"
   :implicit? true
   :availability-attr :expertise/arcana
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/arcana attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/arcana attrs))}
  {:id :expertise/athletics
   :name "Athletics"
   :implicit? true
   :availability-attr :expertise/athletics
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/athletics attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/athletics attrs))}
  {:id :expertise/deception
   :name "Deception"
   :implicit? true
   :availability-attr :expertise/deception
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/deception attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/deception attrs))}
  {:id :expertise/history
   :name "History"
   :implicit? true
   :availability-attr :expertise/history
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/history attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/history attrs))}
  {:id :expertise/insight
   :name "Insight"
   :implicit? true
   :availability-attr :expertise/insight
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/insight attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/insight attrs))}
  {:id :expertise/intimidation
   :name "Intimidation"
   :implicit? true
   :availability-attr :expertise/intimidation
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/intimidation attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/intimidation attrs))}
  {:id :expertise/investigation
   :name "Investigation"
   :implicit? true
   :availability-attr :expertise/investigation
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/investigation attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/investigation attrs))}
  {:id :expertise/medicine
   :name "Medicine"
   :implicit? true
   :availability-attr :expertise/medicine
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/medicine attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/medicine attrs))}
  {:id :expertise/nature
   :name "Nature"
   :implicit? true
   :availability-attr :expertise/nature
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/nature attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/nature attrs))}
  {:id :expertise/perception
   :name "Perception"
   :implicit? true
   :availability-attr :expertise/perception
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/perception attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/perception attrs))}
  {:id :expertise/performance
   :name "Performance"
   :implicit? true
   :availability-attr :expertise/performance
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/performance attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/performance attrs))}
  {:id :expertise/persuasion
   :name "Persuasion"
   :implicit? true
   :availability-attr :expertise/persuasion
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/persuasion attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/persuasion attrs))}
  {:id :expertise/religion
   :name "Religion"
   :implicit? true
   :availability-attr :expertise/religion
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/religion attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/religion attrs))}
  {:id :expertise/sleight-of-hand
   :name "Sleight of Hand"
   :implicit? true
   :availability-attr :expertise/sleight-of-hand
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/sleight-of-hand attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/sleight-of-hand attrs))}
  {:id :expertise/stealth
   :name "Stealth"
   :implicit? true
   :availability-attr :expertise/stealth
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/stealth attrs)))}
+  :available? (fn [attrs]
+                (:proficiency/stealth attrs))}
  {:id :expertise/survival
   :name "Survival"
   :implicit? true
   :availability-attr :expertise/survival
-  :available? (fn [attrs available?]
-                (and available?
-                     (:proficiency/survival attrs)))}]
+  :available? (fn [attrs]
+                (:proficiency/survival attrs))}]
 
 [:!add-to-list
 
