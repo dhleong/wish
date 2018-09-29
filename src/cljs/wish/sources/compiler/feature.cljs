@@ -7,6 +7,37 @@
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.util :refer [->map]]))
 
+(defn- attrs->availability
+  [attrs availability-attr]
+  (not
+    (if (keyword? availability-attr)
+      (get attrs availability-attr)
+      (get-in attrs availability-attr))))
+
+(defn compile-available
+  [base-raw {:keys [availability-attr]}]
+  (cond
+    ; easy case: neither fn nor attr
+    (not (or base-raw availability-attr))
+    nil
+
+    ; normal case: fn with no attr
+    (and base-raw (not availability-attr))
+    (->callable base-raw)
+
+    ; simple case: attr but no fn
+    (and availability-attr (not base-raw))
+    (fn [{:keys [attrs]}]
+      (attrs->availability attrs availability-attr))
+
+    ; tricky case: both!
+    :else
+    (let [base-fn (->callable base-raw)]
+      (fn [{:keys [attrs] :as args}]
+        (base-fn (assoc args
+                        :available? (attrs->availability
+                                      attrs availability-attr)))))))
+
 (defn compile-max-options
   ":max-options compiles to an acceptor function that
    expects `{:features []}`, where :features is the list of
@@ -48,6 +79,13 @@
 
       :else #(log/warn "Invalid :max-options " o))))
 
+(defn add-availability
+  [directives attr-id-or-path]
+  (let [provide-directive [:!provide-attr attr-id-or-path true]]
+    (if directives
+      (conj directives provide-directive)
+      [provide-directive])))
+
 (defn compile-feature
   "Compile a feature map"
   [fm]
@@ -55,7 +93,13 @@
   (-> fm
       (update :max-options compile-max-options)
       (update :values-filter ->callable)
-      (update :available? ->callable)
+      (update :available? compile-available fm)
+
+      (cond->
+        (:availability-attr fm) (update :!
+                                        add-availability
+                                        (:availability-attr fm)))
+
       compile-entity))
 
 (defn- ->feature [state f]

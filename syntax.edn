@@ -176,6 +176,18 @@
   ; which all refer to the current character
   :available? (fn [])
 
+  ; an optional attribute ID or attribute path used to control the
+  ; :available?-ness of this feature/option. This is syntactic sugar
+  ; for the common pattern:
+  ;   {:available? (fn [attrs] (not (availability-attr attrs)))
+  ;    :! [[:!provide-attr availability-attr true]]}
+  ; If both :availability-attr *and* :available? are provided, an
+  ; extra key, `available?`, will be provided to the `:available?`
+  ; fn which is what would have been the availability if just
+  ; `:availability-attr` had been used (in other words, true if
+  ; the attr is unset, and false if it is set)
+  :availability-attr [:attr ...]
+
   ; map of level -> feature-map, where any keys in the feature-map
   ; get replaced (or modified, following the above rules based on
   ; prefixes to the keyword)
@@ -298,11 +310,11 @@
 
  {:id :rogue/arcane-trickster
   :name "Arcane Trickster"
-  :! [[:!add-attrs
-       [:5e/spellcaster {:cantrips [3 3, 10 1]
-                         :slots {3 {1 2}
-                                 4 {1 3}}
-                         :spells [:wizard/spells-list]}]]
+  :! [[:!provide-attr
+       :5e/spellcaster {:cantrips [3 3, 10 1]
+                        :slots {3 {1 2}
+                                4 {1 3}}
+                        :spells [:wizard/spells-list]}]
       ]}
  ]
 
