@@ -52,3 +52,8 @@
      `data-str` is in the same string format that should be
      returned by `load-raw`."))
 
+(defn signed-out-err?
+  "Check if the given error was caused by not being signed into the provider"
+  [err]
+  (when-let [info (ex-data err)]
+    (= :signed-out (:state info))))

@@ -5,7 +5,7 @@
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [alt! chan timeout put! <!]]
             [alandipert.storage-atom :refer [local-storage]]
-            [wish.providers.core :as provider :refer [IProvider]]
+            [wish.providers.core :as provider :refer [IProvider signed-out-err?]]
             [wish.sheets.util :refer [make-id]]
             [wish.util :refer [>evt]]))
 
@@ -87,7 +87,15 @@
               (swap! storage assoc id resp)
               result)
 
-            ; error loading; try the cache
+            ; couldn't load because we signed out of the provider;
+            ; remove anything we had from the cache and return
+            ; the original result
+            (when (signed-out-err? err)
+              (log/info "remove " id " from cache")
+              (swap! storage dissoc id)
+              result)
+
+            ; some other error loading; try the cache
             (when-let [data (get @storage id)]
               (log/info "loaded " id " from cache")
               [nil data])
