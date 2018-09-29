@@ -853,7 +853,9 @@
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
         smartphone? (= :smartphone (<sub [:device-type]))
-        page (<sub [::subs/page :actions])]
+        page (<sub [::subs/page (if smartphone?
+                                  :abilities
+                                  :actions)])]
     [:<>
      [:div.nav
       (when smartphone?
