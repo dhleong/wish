@@ -38,13 +38,20 @@
       (is (false? (f features-3))))))
 
 (deftest compile-feature-test
-  (testing "Insert :!provide-attr from :availability-attr"
+  (testing "Generate :!provide-attr from :availability-attr"
     (let [f (compile-feature {:availability-attr :single-id})]
       (is (= [[:!provide-attr :single-id true]]
              (:! f))))
     (let [f (compile-feature {:availability-attr [:id :path]})]
       (is (= [[:!provide-attr [:id :path] true]]
              (:! f)))))
+  (testing "Insert :!provide-attr from :availability-attr"
+    (let [f (compile-feature {:availability-attr :single-id
+                              :! [[:!provide-attr :irrelevant :attr]]})]
+      (is (= [[:!provide-attr :irrelevant :attr]
+              [:!provide-attr :single-id true]]
+             (:! f)))
+      (is (vector? (:! f)))))
 
   (testing "Insert :available? from :availability-attr"
     (let [f (compile-feature {:availability-attr :single-id})]
