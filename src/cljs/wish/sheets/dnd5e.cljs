@@ -853,9 +853,7 @@
 (defn- sheet-right-page []
   (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
         smartphone? (= :smartphone (<sub [:device-type]))
-        page (<sub [::subs/page (if smartphone?
-                                  :abilities
-                                  :actions)])]
+        page (<sub [::subs/page])]
     [:<>
      [:div.nav
       (when smartphone?
@@ -869,7 +867,7 @@
      ; actual sections
      [error-boundary
 
-      [swipeable {:get-key #(<sub [::subs/page :actions])
+      [swipeable {:get-key #(<sub [::subs/page])
                   :set-key! #(>evt [::events/page! %])}
 
        (when smartphone?

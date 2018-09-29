@@ -116,8 +116,11 @@
   (fn [[sheet->page sheet-id
         spell-classes device-type
         :as input] [_ default :as params]]
-    (let [base (page-specific-sheet input params)
-          smartphone? (= :smartphone device-type)]
+    (let [smartphone? (= :smartphone device-type)
+          default (if smartphone?
+                    :abilities
+                    :actions)
+          base (page-specific-sheet input [nil default])]
 
       ; with keymaps, a user might accidentally go to :spells
       ; but not have spells; in that case, fall back to :actions
