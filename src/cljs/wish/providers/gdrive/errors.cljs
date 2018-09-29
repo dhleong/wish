@@ -5,6 +5,7 @@
                    [wish.util :refer [fn-click]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [<!]]
+            [reagent.core :as r]
             [wish.providers.gdrive :as gdrive :refer [has-global-read?]]
             [wish.providers.gdrive.api :refer [view-file-link]]
             [wish.providers.gdrive.config :refer [signin-prompt]]
@@ -25,19 +26,27 @@
      "If there's no such button then, sadly, the file doesn't exist."]])
 
 (defn- request-global-read []
-  [:<>
-   [:div "It may have been shared with you, but we'll need a bit more access
-          to your Google Drive account in order to see it."]
-   [:div
-    [:a {:href "#"
-         :on-click (fn-click
-                     (log/info "Requesting read scope")
-                     ; NOTE: returns [err, result]
-                     (go (when-not (first (<! (gdrive/request-read!)))
-                           ; on success, try again
-                           (log "Granted read scope!")
-                           (>evt [:retry-current-sheet!]))))}
-     "Let's do it!"]]])
+  (r/with-let [requested? (r/atom false)]
+    [:<>
+     [:div "It may have been shared with you, but we'll need a bit more access
+            to your Google Drive account in order to see it."]
+     [:div
+      [:a {:href "#"
+           :on-click (fn-click
+                       (log/info "Requesting read scope")
+                       (reset! requested? true)
+                       ; NOTE: returns [err, result]
+                       (go (when-not (first (<! (gdrive/request-read!)))
+                             ; on success, try again
+                             (log "Granted read scope!")
+                             (>evt [:retry-current-sheet!]))))}
+       "Let's do it!"]]
+
+     (when @requested?
+       [:<>
+        [:div.metadata "A window should have opened with the permission request.
+                        If not, your browser may have blocked it. You'll need to find the button to open it."]
+        [:div.metadata "On Chrome, that button is in the upper-right corner of the browser, near the address bar."]])]))
 
 (defn resolve-permissions [id]
   [:div.error-resolver
