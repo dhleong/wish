@@ -170,6 +170,12 @@
   ; from :values above or provided by !provide-options
   :values-filter (fn [])
 
+  ; an optional (fn) used to determine whether this feature/option
+  ; is visible to the user as an option for the current character.
+  ; the possible keys include `options`, `sheet`, and `attrs`,
+  ; which all refer to the current character
+  :available? (fn [])
+
   ; map of level -> feature-map, where any keys in the feature-map
   ; get replaced (or modified, following the above rules based on
   ; prefixes to the keyword)
