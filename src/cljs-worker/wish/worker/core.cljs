@@ -105,7 +105,8 @@
         (str/ends-with? path ".edn")
         (str/ends-with? path ".js")
         (str/ends-with? path ".json")
-        (str/ends-with? path ".png"))))
+        (str/ends-with? path ".png")
+        (str/ends-with? path ".html"))))
 
 (defn shell-root? [url]
   (and (wish-asset? url)
