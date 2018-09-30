@@ -111,7 +111,7 @@
   ::page
   :<- [:5e/page]
   :<- [:active-sheet-id]
-  :<- [::spellcaster-classes]
+  :<- [::spellcaster-blocks]
   :<- [:device-type]
   (fn [[sheet->page sheet-id
         spell-classes device-type
@@ -1160,9 +1160,8 @@
 
 
 (defn knowable-spell-counts-for
-  [c modifiers]
-  (let [{:keys [id level]} c
-        {:keys [cantrips slots known]} (-> c :attrs :5e/spellcaster)
+  [spellcaster modifiers]
+  (let [{:keys [id level cantrips slots known]} spellcaster
 
         spells (cond
                  known (get known (dec level))
@@ -1194,14 +1193,14 @@
 ; returns eg: {:cleric {:spells 4, :cantrips 2}}
 (reg-sub
   ::knowable-spell-counts-by-class
-  :<- [::spellcaster-classes]
+  :<- [::spellcaster-blocks]
   :<- [::spellcasting-modifiers]
-  (fn [[classes modifiers]]
+  (fn [[spellcasters modifiers]]
     (reduce
-      (fn [m c]
-        (assoc m (:id c) (knowable-spell-counts-for c modifiers)))
+      (fn [m s]
+        (assoc m (:id s) (knowable-spell-counts-for s modifiers)))
       {}
-      classes)))
+      spellcasters)))
 
 (reg-sub
   ::knowable-spell-counts
@@ -1211,16 +1210,17 @@
 
 (reg-sub
   ::prepared-spells-by-class
-  :<- [::spellcaster-classes]
+  :<- [::spellcaster-blocks]
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
   :<- [:meta/options]
-  (fn [[classes data-source modifiers attack-bonuses options]]
-    (when (seq classes)
+  (fn [[spellcasters data-source modifiers attack-bonuses options]]
+    (when (seq spellcasters)
       (reduce
-        (fn [m c]
-          (let [attrs (-> c :attrs :5e/spellcaster)
+        (fn [m attrs]
+          (let [caster-id (:id attrs)
+                c (:wish/container attrs)
                 {:keys [acquires?]} attrs
                 spells-list (:spells attrs)
                 extra-spells-list (:extra-spells attrs)
@@ -1228,7 +1228,7 @@
                 ; NOTE: we namespace spell mods by the class/race id in case
                 ; we ever want to combine all :attrs of a character into
                 ; a single map.
-                spell-mods (get-in c [:attrs :spells (:id c)])
+                spell-mods (get-in c [:attrs :spells caster-id])
 
                 ; if we acquire spells, the source list is still the same,
                 ; but the we use the :acquires?-spells option-list to
@@ -1279,28 +1279,28 @@
                 ]
 
             (assoc
-              m (:id c)
+              m caster-id
               (->> (concat
                      extra-spells
                      selected-spells)
 
                    (map #(-> %
                              (assoc
-                               ::source (:id c)
-                               :spell-mod (get modifiers (:id c))
+                               ::source caster-id
+                               :spell-mod (get modifiers caster-id)
                                :save-label (when-let [k (:save %)]
                                              (str/upper-case
                                                (name k)))
 
                                ; save dc is attack modifier + 8
-                               :save-dc (+ (get attack-bonuses (:id c))
+                               :save-dc (+ (get attack-bonuses caster-id)
                                            8))
                              (merge (get spell-mods (:id %)))))
 
                    ; sort by level, then name
                    (sort-by (juxt :spell-level :name))))))
         {}
-        classes))))
+        spellcasters))))
 
 ; just (get [::prepared-spells-by-class] class-id)
 (reg-sub
@@ -1350,35 +1350,33 @@
 
 (declare spell-slots)
 
-; list of all spells on a given spell list for the given class,
+; list of all spells on a given spell list for the given spellcaster block,
 ; with `:prepared? bool` inserted as appropriate
 (reg-sub
   ::preparable-spell-list
 
-  (fn [[_ the-class list-id]]
+  (fn [[_ spellcaster list-id]]
     [(subscribe [:sheet-source])
      (subscribe [:meta/options])
-     (subscribe [::prepared-spells (:id the-class)])
-     (subscribe [::highest-spell-level-for-class-id (:id the-class)])
+     (subscribe [::prepared-spells (:id spellcaster)])
+     (subscribe [::highest-spell-level-for-class-id (:id spellcaster)])
      (subscribe [:5e/spells-filter])])
 
   (fn [[data-source options prepared-spells highest-spell-level
         filter-str]
-       [_ the-class list-id]]
-    (let [attrs (-> the-class :attrs :5e/spellcaster)
-
-          ; is this the prepared list for an acquires? spellcaster?
-          acquires-list? (= (:acquires?-spells attrs)
+       [_ spellcaster list-id]]
+    (let [; is this the prepared list for an acquires? spellcaster?
+          acquires-list? (= (:acquires?-spells spellcaster)
                                list-id)
 
           ; are we listing spells that an acquires? spellcaster *can* acquire?
-          acquire-mode? (and (:acquires? attrs)
+          acquire-mode? (and (:acquires? spellcaster)
                              (not acquires-list?))
 
           prepared-set (if acquire-mode?
                          ; in acquire mode, the "prepared set" is actually
                          ; the "acquired set"
-                         (get options (:spells attrs) #{})
+                         (get options (:spells spellcaster) #{})
 
                          (->> prepared-spells
                               (map :id)
@@ -1402,13 +1400,13 @@
                    ; source is actually the selected from (:spells)
                    ; NOTE: do we need to concat class-provided lists?
                    (expand-list data-source
-                                (:spells attrs)
-                                (get options (:spells attrs) #{}))
+                                (:spells spellcaster)
+                                (get options (:spells spellcaster) #{}))
 
                    ; normal case:
                    (concat
                      ; include any added by class features (eg: warlock)
-                     (get-in the-class [:lists list-id])
+                     (get-in spellcaster [:wish/container :lists list-id])
                      (expand-list data-source list-id nil)))]
 
       (->> source
@@ -1454,32 +1452,35 @@
                                     :dice)))))))
 
 (reg-sub
-  ::spellcaster-classes
+  ::spellcaster-blocks
   :<- [:classes]
   :<- [:races]
   (fn [spellcaster-collections]
     (->> spellcaster-collections
          flatten
-         (filter (fn [c]
-                   (-> c :attrs :5e/spellcaster))))))
+         (mapcat (fn [c]
+                   (when-let [sc-map (-> c :attrs :5e/spellcaster)]
+                     (map (fn [[id spellcaster]]
+                            (-> spellcaster
+                                (assoc :id id
+                                       :wish/container c)
+                                (merge (select-keys c [:level :name]))))
+                          sc-map)))))))
 
 (reg-sub
   ::spellcasting-modifiers
   :<- [::abilities]
-  :<- [::spellcaster-classes]
-  (fn [[abilities classes]]
+  :<- [::spellcaster-blocks]
+  (fn [[abilities spellcasters]]
     (reduce
       (fn [m c]
-        (let [spellcasting-ability (-> c
-                                       :attrs
-                                       :5e/spellcaster
-                                       :ability)]
+        (let [spellcasting-ability (-> c :ability)]
           (assoc m
                  (:id c)
                  (ability->mod
                    (get abilities spellcasting-ability)))))
       {}
-      classes)))
+      spellcasters)))
 
 (reg-sub
   ::spell-attack-bonuses
@@ -1492,20 +1493,14 @@
       {}
       modifiers)))
 
-(defn- standard-spell-slots?
-  [c]
-  (= :standard (or (-> c
-                       :attrs
-                       :5e/spellcaster
-                       :slots-type)
-                   :standard)))
+(defn- standard-spell-slots? [c]
+  (= :standard (:slots-type c :standard)))
 
 (defn spell-slots
-  [spellcaster-classes]
-  (if (= 1 (count spellcaster-classes))
-    (let [c (first spellcaster-classes)
-          level (:level c)
-          spellcaster (-> c :attrs :5e/spellcaster)
+  [spellcasters]
+  (if (= 1 (count spellcasters))
+    (let [spellcaster (first spellcasters)
+          level (:level spellcaster)
           kind (:slots-type spellcaster :standard)
           label (:slots-label spellcaster std-slots-label)
           schedule (:slots spellcaster :standard)
@@ -1517,16 +1512,11 @@
 
     (let [std-level (apply
                       +
-                      (->> spellcaster-classes
+                      (->> spellcasters
                            (filter standard-spell-slots?)
                            (map
                              (fn [c]
-                               (let [mod (get-in
-                                           c
-                                           [:attrs
-                                            :5e/spellcaster
-                                            :multiclass-levels-mod]
-                                           1)]
+                               (let [mod (:multiclass-levels-mod c 1)]
                                  (when-not (= mod 0)
                                    (int
                                      (Math/floor
@@ -1537,17 +1527,16 @@
         {:standard
          {:label std-slots-label
           :slots (get-in spell-slot-schedules [:multiclass std-level])}}
-        (->> spellcaster-classes
+        (->> spellcasters
              (filter (complement standard-spell-slots?))
              (map (fn [c]
                     (spell-slots [c]))))))))
 
 (reg-sub
   ::spellcaster-classes-with-slots
-  :<- [::spellcaster-classes]
+  :<- [::spellcaster-blocks]
   (fn [all-classes]
-    (filter #(not= :none
-                   (-> % :attrs :5e/spellcaster :slots))
+    (filter #(not= :none (:slots %))
             all-classes)))
 
 (reg-sub

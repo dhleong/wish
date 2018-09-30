@@ -531,12 +531,11 @@
          [spell-card s])])))
 
 (defn spell-management
-  [the-class & {:keys [mode]
-                :or {mode :default}}]
-  (let [attrs (-> the-class :attrs :5e/spellcaster)
-        {:keys [acquires? prepares?]} attrs
+  [spellcaster & {:keys [mode]
+                  :or {mode :default}}]
+  (let [{:keys [acquires? prepares?]} spellcaster
 
-        knowable (<sub [::subs/knowable-spell-counts (:id the-class)])
+        knowable (<sub [::subs/knowable-spell-counts (:id spellcaster)])
 
         ; in :acquisition mode (eg: for spellbooks), cantrips have
         ; the normal limit but spells are unlimited
@@ -552,15 +551,15 @@
 
         title (case mode
                 :default (str "Manage "
-                              (:name the-class)
+                              (:name spellcaster)
                               (if prepares?
                                 " Prepared"
                                 " Known")
                               " Spells")
                 :acquisition (str "Manage "
-                                  (:name the-class)
+                                  (:name spellcaster)
                                   " "
-                                  (:acquired-label attrs)))
+                                  (:acquired-label spellcaster)))
 
         spells-limit (:spells limits)
         cantrips-limit (when-not (and acquires?
@@ -573,21 +572,21 @@
                          ; for an :acquires? spellcaster in default mode,
                          ; the source for their prepared spells is their
                          ; :acquires?-spells list
-                         (:acquires?-spells attrs)
+                         (:acquires?-spells spellcaster)
 
                          ; otherwise, it's the :spells list
-                         (:spells attrs))
+                         (:spells spellcaster))
 
-        all-prepared (<sub [::subs/my-prepared-spells-by-type (:id the-class)])
+        all-prepared (<sub [::subs/my-prepared-spells-by-type (:id spellcaster)])
         prepared-spells-count (count (:spells all-prepared))
         prepared-cantrips-count (count (:cantrips all-prepared))
 
-        spells (<sub [::subs/preparable-spell-list the-class available-list])
+        spells (<sub [::subs/preparable-spell-list spellcaster available-list])
 
         can-select-spells? (or (nil? spells-limit)
                                (< prepared-spells-count spells-limit))
         can-select-cantrips? (< prepared-cantrips-count cantrips-limit)
-        spell-opts (assoc attrs
+        spell-opts (assoc spellcaster
                           :verb prepare-verb
                           :source-list available-list
                           :selectable? (fn [{:keys [spell-level]}]

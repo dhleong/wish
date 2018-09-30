@@ -4,30 +4,31 @@
 
   :attrs
   {:5e/spellcaster
-   {:cantrips [1 2,
-               4 1,
-               10 1]
-    :known [2 3 4 5 6 7 8 9 10 11 12 12 13 13 14 14 15 15 15 15]
-    :ability :cha
-    :spells :warlock/spells-list
-    :extra-spells :warlock/extra-spells
-    :prepares? false
+   {:warlock
+    {:cantrips [1 2,
+                4 1,
+                10 1]
+     :known [2 3 4 5 6 7 8 9 10 11 12 12 13 13 14 14 15 15 15 15]
+     :ability :cha
+     :spells :warlock/spells-list
+     :extra-spells :warlock/extra-spells
+     :prepares? false
 
-    :slots-type :pact-magic
-    :slots-label "Pact Magic"
-    :slots {1 {1 1}, 2 {1 2}
-            3 {2 2}, 4 {2 2}
-            5 {3 2}, 6 {3 2}
-            7 {4 2}, 8 {4 2}
-            9 {5 2}, 10 {5 2}
-            11 {5 3}, 12 {5 3}
-            13 {5 3}, 14 {5 3}
-            15 {5 3}, 16 {5 3}
-            17 {5 4}, 18 {5 4}
-            19 {5 4}, 20 {5 4}}
-    :multiclass-levels-mod 0
-    :restore-trigger :short-rest
-    }
+     :slots-type :pact-magic
+     :slots-label "Pact Magic"
+     :slots {1 {1 1}, 2 {1 2}
+             3 {2 2}, 4 {2 2}
+             5 {3 2}, 6 {3 2}
+             7 {4 2}, 8 {4 2}
+             9 {5 2}, 10 {5 2}
+             11 {5 3}, 12 {5 3}
+             13 {5 3}, 14 {5 3}
+             15 {5 3}, 16 {5 3}
+             17 {5 4}, 18 {5 4}
+             19 {5 4}, 20 {5 4}}
+     :multiclass-levels-mod 0
+     :restore-trigger :short-rest
+     }}
 
    :5e/starting-eq
    [([:light-crossbow :crossbow-bolt] {:type :weapon

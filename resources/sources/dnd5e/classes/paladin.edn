@@ -3,12 +3,13 @@
   :name "Paladin"
   :attrs
   {:5e/spellcaster
-   {:ability :cha
-    :spells :paladin/spells-list
-    :slots :standard/half
-    :extra-spells :paladin/extra-spells
-    :multiclass-levels-mod 2
-    :prepares? true}
+   {:paladin
+    {:ability :cha
+     :spells :paladin/spells-list
+     :slots :standard/half
+     :extra-spells :paladin/extra-spells
+     :multiclass-levels-mod 2
+     :prepares? true}}
 
    :5e/starting-eq
    [; shield + weapon or 2 weapons

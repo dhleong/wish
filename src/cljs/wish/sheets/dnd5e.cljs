@@ -636,7 +636,7 @@
      ^{:key (:id s)}
      [spell-block s])])
 
-(defn spells-section [spell-classes]
+(defn spells-section [spellcasters]
   (let [slots-sets (<sub [::subs/spell-slots])
         slots-used (<sub [::subs/spell-slots-used])
         prepared-spells-by-class (<sub [::subs/prepared-spells-by-class])]
@@ -653,33 +653,32 @@
            [spell-slot-use-block
             id level total (get-in slots-used [id level])]])])
 
-     (for [c spell-classes]
-       (let [prepared-spells (get prepared-spells-by-class (:id c))
-             attrs (-> c :attrs :5e/spellcaster)
-             prepares? (:prepares? attrs)
-             acquires? (:acquires? attrs)
-             fixed-list? (not (:spells attrs))
+     (for [s spellcasters]
+       (let [prepared-spells (get prepared-spells-by-class (:id s))
+             prepares? (:prepares? s)
+             acquires? (:acquires? s)
+             fixed-list? (not (:spells s))
              any-prepared? (> (count prepared-spells) 0)
              prepared-label (if prepares?
                               "prepared"
                               "known")]
-         ^{:key (:id c)}
+         ^{:key (:id s)}
          [:div.spells
-          [:h4 (:name c)
+          [:h4 (:name s)
            (when-not fixed-list?
              [:div.manage-link
               [link>evt [:toggle-overlay
-                         [#'overlays/spell-management c]
+                         [#'overlays/spell-management s]
                          :scrollable? true]
                (str "Manage " prepared-label " spells")]])
            (when acquires?
              [:div.manage-link
               [link>evt [:toggle-overlay
                          [#'overlays/spell-management
-                          c
+                          s
                           :mode :acquisition]
                          :scrollable? true]
-               (str "Manage " (:acquired-label attrs))]])]
+               (str "Manage " (:acquired-label s))]])]
 
           (when-not fixed-list?
             [:div.list-info (str (str/capitalize prepared-label) " Spells")
@@ -851,7 +850,7 @@
    [proficiencies-section]])
 
 (defn- sheet-right-page []
-  (let [spell-classes (seq (<sub [::subs/spellcaster-classes]))
+  (let [spellcasters (seq (<sub [::subs/spellcaster-blocks]))
         smartphone? (= :smartphone (<sub [:device-type]))
         page (<sub [::subs/page])]
     [:<>
@@ -859,7 +858,7 @@
       (when smartphone?
         [nav-link page :abilities "Abilities"])
       [nav-link page :actions "Actions"]
-      (when spell-classes
+      (when spellcasters
         [nav-link page :spells "Spells"])
       [nav-link page :inventory "Inventory"]
       [nav-link page :features "Features"]]
@@ -879,10 +878,10 @@
                      styles/actions-section
                      [actions-section])
 
-       (when spell-classes
+       (when spellcasters
          (main-section page :spells
                        styles/spells-section
-                       [spells-section spell-classes]))
+                       [spells-section spellcasters]))
 
        (main-section page :inventory
                      styles/inventory-section
