@@ -9,9 +9,10 @@
    :5e/speed 30
 
    :5e/spellcaster
-   {:slots :none
-    :ability :cha
-    :extra-spells :tiefling/extra-spells}}
+   {:tiefling
+    {:slots :none
+     :ability :cha
+     :extra-spells :tiefling/extra-spells}}}
 
   :features
   [:background

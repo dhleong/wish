@@ -33,10 +33,11 @@
   {:5e/&ability-score-increase
    {:int 1}
    :5e/spellcaster
-   {:cantrips [0 1]
-    :slots :none
-    :ability :int
-    :spells :wizard/spells-list}}
+   {:elf
+    {:cantrips [0 1]
+     :slots :none
+     :ability :int
+     :spells :wizard/spells-list}}}
 
   :+features
   [{:id :high-elf/cantrip

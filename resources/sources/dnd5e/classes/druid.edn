@@ -3,13 +3,14 @@
   :name "Druid"
   :attrs
   {:5e/spellcaster
-   {:cantrips [1 2,
-               4 1,
-               10 1]
-    :ability :wis
-    :spells :druid/spells-list
-    :extra-spells :druid/extra-spells
-    :prepares? true}
+   {:druid
+    {:cantrips [1 2,
+                4 1,
+                10 1]
+     :ability :wis
+     :spells :druid/spells-list
+     :extra-spells :druid/extra-spells
+     :prepares? true}}
 
    :5e/starting-eq
    [(:shield {:type :weapon
