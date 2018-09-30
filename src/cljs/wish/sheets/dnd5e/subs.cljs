@@ -1583,11 +1583,7 @@
   (fn [classes]
     (->> classes
          (filter (complement standard-spell-slots?))
-         (map #(name
-                 (get-in %
-                         [:attrs
-                          :5e/spellcaster
-                          :slots-type])))
+         (map #(name (:slots-type %)))
          set)))
 
 (reg-sub
