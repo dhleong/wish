@@ -1680,11 +1680,6 @@
   (fn [slots [_ s]]
     (usable-slots-for slots s)))
 
-; kept around for tests
-(defn usable-slot-for
-  [slots s]
-  (first (usable-slots-for slots s)))
-
 ; returns {:kind, :level} if any
 (reg-sub
   ::usable-slot-for

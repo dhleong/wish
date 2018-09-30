@@ -7,7 +7,7 @@
                                             spell-slots
                                             calculate-weapon
                                             unpack-eq-choices
-                                            usable-slot-for]]
+                                            usable-slots-for]]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as src :refer [->DataSource]]))
 
@@ -15,6 +15,10 @@
   [& directives]
   (->DataSource :ds
                 (compile-directives directives)))
+
+(defn usable-slot-for
+  [slots s]
+  (first (usable-slots-for slots s)))
 
 (def ^:private warlock
   {:attrs
