@@ -213,159 +213,159 @@
  {:id :proficiency/alchemists-supplies
   :name "Alchemist's Supplies"
   :implicit? true
-  :! [[:!provide-attr :proficiency/alchemists-supplies true]]}
+  :availability-attr :proficiency/alchemists-supplies}
  {:id :proficiency/bagpipes
   :name "Bagpipes"
   :implicit? true
-  :! [[:!provide-attr :proficiency/bagpipes true]]}
+  :availability-attr :proficiency/bagpipes}
  {:id :proficiency/brewers-supplies
   :name "Brewer's Supplies"
   :implicit? true
-  :! [[:!provide-attr :proficiency/brewers-supplies true]]}
+  :availability-attr :proficiency/brewers-supplies}
  {:id :proficiency/calligraphers-supplies
   :name "Calligrapher's Supplies"
   :implicit? true
-  :! [[:!provide-attr :proficiency/calligraphers-supplies true]]}
+  :availability-attr :proficiency/calligraphers-supplies}
  {:id :proficiency/carpenters-tools
   :name "Carpenter's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/carpenters-tools true]]}
+  :availability-attr :proficiency/carpenters-tools}
  {:id :proficiency/cartographers-tools
   :name "Cartographer's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/cartographers-tools true]]}
+  :availability-attr :proficiency/cartographers-tools}
  {:id :proficiency/cobblers-tools
   :name "Cobbler's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/cobblers-tools true]]}
+  :availability-attr :proficiency/cobblers-tools}
  {:id :proficiency/cooks-utensils
   :name "Cook's Utensils"
   :implicit? true
-  :! [[:!provide-attr :proficiency/cooks-utensils true]]}
+  :availability-attr :proficiency/cooks-utensils}
  {:id :proficiency/dice-set
   :name "Dice Set"
   :implicit? true
-  :! [[:!provide-attr :proficiency/dice-set true]]}
+  :availability-attr :proficiency/dice-set}
  {:id :proficiency/disguise-kit
   :name "Disguise Kit"
   :implicit? true
-  :! [[:!provide-attr :proficiency/disguise-kit true]]}
+  :availability-attr :proficiency/disguise-kit}
  {:id :proficiency/dragonchess-set
   :name "Dragonchess Set"
   :implicit? true
-  :! [[:!provide-attr :proficiency/dragonchess-set true]]}
+  :availability-attr :proficiency/dragonchess-set}
  {:id :proficiency/drum
   :name "Drum"
   :implicit? true
-  :! [[:!provide-attr :proficiency/drum true]]}
+  :availability-attr :proficiency/drum}
  {:id :proficiency/dulcimer
   :name "Dulcimer"
   :implicit? true
-  :! [[:!provide-attr :proficiency/dulcimer true]]}
+  :availability-attr :proficiency/dulcimer}
  {:id :proficiency/flute
   :name "Flute"
   :implicit? true
-  :! [[:!provide-attr :proficiency/flute true]]}
+  :availability-attr :proficiency/flute}
  {:id :proficiency/forgery-kit
   :name "Forgery Kit"
   :implicit? true
-  :! [[:!provide-attr :proficiency/forgery-kit true]]}
+  :availability-attr :proficiency/forgery-kit}
  {:id :proficiency/glassblowers-tools
   :name "Glassblower's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/glassblowers-tools true]]}
+  :availability-attr :proficiency/glassblowers-tools}
  {:id :proficiency/herbalism-kit
   :name "Herbalism Kit"
   :implicit? true
-  :! [[:!provide-attr :proficiency/herbalism-kit true]]}
+  :availability-attr :proficiency/herbalism-kit}
  {:id :proficiency/horn
   :name "Horn"
   :implicit? true
-  :! [[:!provide-attr :proficiency/horn true]]}
+  :availability-attr :proficiency/horn}
  {:id :proficiency/jewelers-tools
   :name "Jeweler's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/jewelers-tools true]]}
+  :availability-attr :proficiency/jewelers-tools}
  {:id :proficiency/leatherworkers-tools
   :name "Leatherworker's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/leatherworkers-tools true]]}
+  :availability-attr :proficiency/leatherworkers-tools}
  {:id :proficiency/lute
   :name "Lute"
   :implicit? true
-  :! [[:!provide-attr :proficiency/lute true]]}
+  :availability-attr :proficiency/lute}
  {:id :proficiency/lyre
   :name "Lyre"
   :implicit? true
-  :! [[:!provide-attr :proficiency/lyre true]]}
+  :availability-attr :proficiency/lyre}
  {:id :proficiency/masons-tools
   :name "Mason's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/masons-tools true]]}
+  :availability-attr :proficiency/masons-tools}
  {:id :proficiency/navigators-tools
   :name "Navigator's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/navigators-tools true]]}
+  :availability-attr :proficiency/navigators-tools}
  {:id :proficiency/painters-supplies
   :name "Painter's Supplies"
   :implicit? true
-  :! [[:!provide-attr :proficiency/painters-supplies true]]}
+  :availability-attr :proficiency/painters-supplies}
  {:id :proficiency/pan-flute
   :name "Pan Flute"
   :implicit? true
-  :! [[:!provide-attr :proficiency/pan-flute true]]}
+  :availability-attr :proficiency/pan-flute}
  {:id :proficiency/playing-card-set
   :name "Playing Card Set"
   :implicit? true
-  :! [[:!provide-attr :proficiency/playing-card-set true]]}
+  :availability-attr :proficiency/playing-card-set}
  {:id :proficiency/poisoners-kit
   :name "Poisoner's Kit"
   :implicit? true
-  :! [[:!provide-attr :proficiency/poisoners-kit true]]}
+  :availability-attr :proficiency/poisoners-kit}
  {:id :proficiency/potters-tools
   :name "Potter's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/potters-tools true]]}
+  :availability-attr :proficiency/potters-tools}
  {:id :proficiency/shawm
   :name "Shawm"
   :implicit? true
-  :! [[:!provide-attr :proficiency/shawm true]]}
+  :availability-attr :proficiency/shawm}
  {:id :proficiency/smiths-tools
   :name "Smith's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/smiths-tools true]]}
+  :availability-attr :proficiency/smiths-tools}
  {:id :proficiency/thieves-tools
   :name "Thieves' Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/thieves-tools true]]}
+  :availability-attr :proficiency/thieves-tools}
  {:id :proficiency/three-dragon-ante-set
   :name "Three-Dragon Ante Set"
   :implicit? true
-  :! [[:!provide-attr :proficiency/three-dragon-ante-set true]]}
+  :availability-attr :proficiency/three-dragon-ante-set}
  {:id :proficiency/tinkers-tools
   :name "Tinker's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/tinkers-tools true]]}
+  :availability-attr :proficiency/tinkers-tools}
  {:id :proficiency/vehicles-land
   :name "Vehicles (Land)"
   :implicit? true
-  :! [[:!provide-attr :proficiency/vehicles-land true]]}
+  :availability-attr :proficiency/vehicles-land}
  {:id :proficiency/vehicles-water
   :name "Vehicles (Water)"
   :implicit? true
-  :! [[:!provide-attr :proficiency/vehicles-water true]]}
+  :availability-attr :proficiency/vehicles-water}
  {:id :proficiency/viol
   :name "Viol"
   :implicit? true
-  :! [[:!provide-attr :proficiency/viol true]]}
+  :availability-attr :proficiency/viol}
  {:id :proficiency/weavers-tools
   :name "Weaver's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/weavers-tools true]]}
+  :availability-attr :proficiency/weavers-tools}
  {:id :proficiency/woodcarvers-tools
   :name "Woodcarver's Tools"
   :implicit? true
-  :! [[:!provide-attr :proficiency/woodcarvers-tools true]]}]
+  :availability-attr :proficiency/woodcarvers-tools}]
 
 
 ; ======= Weapon proficiencies ============================

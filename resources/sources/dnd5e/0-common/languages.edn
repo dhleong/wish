@@ -10,59 +10,59 @@
 
  {:id :lang/common
   :name "Common"
-  :! [[:!provide-attr :lang/common true]]}
+  :availability-attr :lang/common}
 
  {:id :lang/aarakocra
   :name "Aarakocra"
-  :! [[:!provide-attr :lang/aarakocra true]]}
+  :availability-attr :lang/aarakocra}
  {:id :lang/abyssal
   :name "Abyssal"
-  :! [[:!provide-attr :lang/abyssal true]]}
+  :availability-attr :lang/abyssal}
  {:id :lang/aquan
   :name "Aquan"
-  :! [[:!provide-attr :lang/aquan true]]}
+  :availability-attr :lang/aquan}
  {:id :lang/auran
   :name "Auran"
-  :! [[:!provide-attr :lang/auran true]]}
+  :availability-attr :lang/auran}
  {:id :lang/celestial
   :name "Celestial"
-  :! [[:!provide-attr :lang/celestial true]]}
+  :availability-attr :lang/celestial}
  {:id :lang/deep-speech
   :name "Deep Speech"
-  :! [[:!provide-attr :lang/deep-speech true]]}
+  :availability-attr :lang/deep-speech}
  {:id :lang/draconic
   :name "Draconic"
-  :! [[:!provide-attr :lang/draconic true]]}
+  :availability-attr :lang/draconic}
  {:id :lang/dwarvish
   :name "Dwarvish"
-  :! [[:!provide-attr :lang/dwarvish true]]}
+  :availability-attr :lang/dwarvish}
  {:id :lang/elvish
   :name "Elvish"
-  :! [[:!provide-attr :lang/elvish true]]}
+  :availability-attr :lang/elvish}
  {:id :lang/giant
   :name "Giant"
-  :! [[:!provide-attr :lang/giant true]]}
+  :availability-attr :lang/giant}
  {:id :lang/gnomish
   :name "Gnomish"
-  :! [[:!provide-attr :lang/gnomish true]]}
+  :availability-attr :lang/gnomish}
  {:id :lang/goblin
   :name "Goblin"
-  :! [[:!provide-attr :lang/goblin true]]}
+  :availability-attr :lang/goblin}
  {:id :lang/halfling
   :name "Halfling"
-  :! [[:!provide-attr :lang/halfling true]]}
+  :availability-attr :lang/halfling}
  {:id :lang/infernal
   :name "Infernal"
-  :! [[:!provide-attr :lang/infernal true]]}
+  :availability-attr :lang/infernal}
  {:id :lang/orc
   :name "Orc"
-  :! [[:!provide-attr :lang/orc true]]}
+  :availability-attr :lang/orc}
  {:id :lang/primordial
   :name "Primordial"
-  :! [[:!provide-attr :lang/primordial true]]}
+  :availability-attr :lang/primordial}
  {:id :lang/sylvan
   :name "Sylvan"
-  :! [[:!provide-attr :lang/sylvan true]]}
+  :availability-attr :lang/sylvan}
  {:id :lang/undercommon
   :name "Undercommon"
-  :! [[:!provide-attr :lang/undercommon true]]}]
+  :availability-attr :lang/undercommon}]
