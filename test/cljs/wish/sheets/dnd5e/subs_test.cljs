@@ -106,6 +106,8 @@
              {:cleric 3})))))
 
 (deftest spell-slots-test
+  (testing "No slots"
+    (is (nil? (spell-slots [{:slots :none}]))))
   (testing "Single class, standard"
     (is (= (->standard {1 4, 2 3, 3 3, 4 1})
            (spell-slots [{:level 7}]))))

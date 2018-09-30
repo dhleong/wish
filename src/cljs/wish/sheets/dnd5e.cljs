@@ -665,7 +665,9 @@
          ^{:key (:id s)}
          [:div.spells
           [:h4 (:name s)
-           (when-not fixed-list?
+           (when-not (or fixed-list?
+                         (and acquires?
+                              (not prepares?)))
              [:div.manage-link
               [link>evt [:toggle-overlay
                          [#'overlays/spell-management s]

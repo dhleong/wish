@@ -599,7 +599,7 @@
       (when spells-limit
         [:div.limit
          "Spells " prepared-spells-count " / " spells-limit])
-      (when cantrips-limit
+      (when (> cantrips-limit 0)
         [:div.limit
          "Cantrips " prepared-cantrips-count " / " cantrips-limit])]
 

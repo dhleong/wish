@@ -1221,7 +1221,7 @@
         (fn [m attrs]
           (let [caster-id (:id attrs)
                 c (:wish/container attrs)
-                {:keys [acquires?]} attrs
+                {:keys [acquires? prepares?]} attrs
                 spells-list (:spells attrs)
                 extra-spells-list (:extra-spells attrs)
 
@@ -1230,11 +1230,11 @@
                 ; a single map.
                 spell-mods (get-in c [:attrs :spells caster-id])
 
-                ; if we acquire spells, the source list is still the same,
-                ; but the we use the :acquires?-spells option-list to
-                ; determine which are actually prepared (the normal :spells
+                ; if we acquire AND prepare spells, the source list is still
+                ; the same, but the we use the :acquires?-spells option-list
+                ; to determine which are actually prepared (the normal :spells
                 ; list just indicates which spells are *acquired*)
-                spells-option (if acquires?
+                spells-option (if (and acquires? prepares?)
                                 (:acquires?-spells attrs)
                                 spells-list)
 
@@ -1348,7 +1348,7 @@
            {:cantrips []
             :spells []}))))
 
-(declare spell-slots)
+(def ^:private compile-spellcaster-values-filter (memoize ->callable))
 
 ; list of all spells on a given spell list for the given spellcaster block,
 ; with `:prepared? bool` inserted as appropriate
@@ -1359,7 +1359,7 @@
     [(subscribe [:sheet-source])
      (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id spellcaster)])
-     (subscribe [::highest-spell-level-for-class-id (:id spellcaster)])
+     (subscribe [::highest-spell-level-for-spellcaster-id (:id spellcaster)])
      (subscribe [:5e/spells-filter])])
 
   (fn [[data-source options prepared-spells highest-spell-level
@@ -1367,7 +1367,7 @@
        [_ spellcaster list-id]]
     (let [; is this the prepared list for an acquires? spellcaster?
           acquires-list? (= (:acquires?-spells spellcaster)
-                               list-id)
+                            list-id)
 
           ; are we listing spells that an acquires? spellcaster *can* acquire?
           acquire-mode? (and (:acquires? spellcaster)
@@ -1407,12 +1407,20 @@
                    (concat
                      ; include any added by class features (eg: warlock)
                      (get-in spellcaster [:wish/container :lists list-id])
-                     (expand-list data-source list-id nil)))]
+                     (expand-list data-source list-id nil)))
+
+          spells-filter (if-let [filter-fn (:values-filter spellcaster)]
+                          ; let the spellcaster determine the filter
+                          (let [f (compile-spellcaster-values-filter filter-fn)]
+                            (fn [spell]
+                              (f (assoc spell :level (:level spellcaster)))))
+
+                          ; limit visible spells by those actually available
+                          ; (IE it must be of a level we can prepare)
+                          #(<= (:spell-level %) highest-spell-level))]
 
       (->> source
-           ; limit visible spells by those actually available
-           ; (IE it must be of a level we can prepare)
-           (filter #(<= (:spell-level %) highest-spell-level))
+           (filter spells-filter)
 
            (filter-by-str filter-str)
 
@@ -1463,9 +1471,24 @@
                      (map (fn [[id spellcaster]]
                             (-> spellcaster
                                 (assoc :id id
-                                       :wish/container c)
-                                (merge (select-keys c [:level :name]))))
+                                       :wish/container c
+                                       :level (:level c))
+                                (cond->
+                                  (not (:name spellcaster))
+                                  (assoc :name (:name c)))))
                           sc-map)))))))
+
+(reg-sub
+  ::spellcaster-blocks-by-id
+  :<- [::spellcaster-blocks]
+  (fn [blocks]
+    (->map blocks)))
+
+(reg-sub
+  ::spellcaster-block-by-id
+  :<- [::spellcaster-blocks-by-id]
+  (fn [blocks [_ spellcaster-id]]
+    (get blocks spellcaster-id)))
 
 (reg-sub
   ::spellcasting-modifiers
@@ -1504,11 +1527,12 @@
           kind (:slots-type spellcaster :standard)
           label (:slots-label spellcaster std-slots-label)
           schedule (:slots spellcaster :standard)
-          schedule (if (keyword? schedule)
-                     (schedule spell-slot-schedules)
-                     schedule)]
-      {kind {:label label
-             :slots (get schedule level)}})
+          schedule (or (when (keyword? schedule)
+                         (schedule spell-slot-schedules))
+                       schedule)]
+      (when-not (= :none schedule)
+        {kind {:label label
+               :slots (get schedule level)}}))
 
     (let [std-level (apply
                       +
@@ -1533,28 +1557,28 @@
                     (spell-slots [c]))))))))
 
 (reg-sub
-  ::spellcaster-classes-with-slots
+  ::spellcaster-blocks-with-slots
   :<- [::spellcaster-blocks]
-  (fn [all-classes]
+  (fn [all-blocks]
     (filter #(not= :none (:slots %))
-            all-classes)))
+            all-blocks)))
 
 (reg-sub
   ::spell-slots
-  :<- [::spellcaster-classes-with-slots]
+  :<- [::spellcaster-blocks-with-slots]
   spell-slots)
 
 (reg-sub
-  ::spell-slots-for-class-id
-  (fn [[_ class-id]]
-    (subscribe [::class-by-id class-id]))
-  (fn [the-class]
-    (spell-slots [the-class])))
+  ::spell-slots-for-spellcaster-id
+  (fn [[_ spellcaster-id]]
+    (subscribe [::spellcaster-block-by-id spellcaster-id]))
+  (fn [spellcaster]
+    (spell-slots [spellcaster])))
 
 (reg-sub
-  ::highest-spell-level-for-class-id
-  (fn [[_ class-id]]
-    (subscribe [::spell-slots-for-class-id class-id]))
+  ::highest-spell-level-for-spellcaster-id
+  (fn [[_ spellcaster-id]]
+    (subscribe [::spell-slots-for-spellcaster-id spellcaster-id]))
   (fn [spell-slots]
     (->> spell-slots
 
@@ -1579,7 +1603,7 @@
 
 (reg-sub
   ::spellcaster-slot-types
-  :<- [::spellcaster-classes-with-slots]
+  :<- [::spellcaster-blocks-with-slots]
   (fn [classes]
     (->> classes
          (filter (complement standard-spell-slots?))
@@ -1830,7 +1854,7 @@
   ::class-features-with-options
   (fn [[_ entity-id]]
     [(subscribe [:class-features-with-options entity-id])
-     (subscribe [::highest-spell-level-for-class-id entity-id])])
+     (subscribe [::highest-spell-level-for-spellcaster-id entity-id])])
   (fn [[features highest-spell-level]]
     (->> features
          (map (fn [[id f :as entry]]
