@@ -114,6 +114,7 @@
          {:align-self 'center
           :justify-content 'space-around
           :height "100%"
+          :width "100%" ; ensure we stretch as wide as we can
           :max-width "1100px"})
 
   [:.nav (merge flex
