@@ -4,6 +4,85 @@ D&D 5e-specific `:attrs`
 For different value types, such as that used for `:aoe`, see
 [D&D Value Types](./DnD%20Values.md).
 
+## `:5e/spellcaster`
+
+Add spellcasting ability to the character
+
+### Format
+
+A map of `spellcaster-id -> spellcaster-block` where `spellcaster-block` looks like:
+
+```clojure
+{:cantrips []  ; sequence of level, cantrips gained at that level
+ :slots  ; spellslots table, either a map of class level -> {spell level -> slots}
+         ; or one of the keywords:  :standard, :standard/half
+         ; where the latter is for rangers and paladins. For racial
+         ; spellcasting that only supports cantrips, for example, you
+         ; can provide :none if no slots are allowed
+ :multiclass-levels-mod 2  ; number by which to devide class level when
+                           ; determining multiclass spellcaster level.
+                           ; Default is just 1; rangers/paladins are 2
+ :slots-type :id  ; if non-standard (like Warlock) this should be a
+                  ; namespace-less keyword
+ :slots-label "Label"  ; if :slots-type is provided, this should also
+                       ; be provided
+ :restore-trigger :long-rest  ; :long-rest is the default
+ :ability :wis  ; base ability for spellcasting modifier
+ :acquires? false  ; whether the class acquires spells before preparing them. This is
+                   ; sort of a special case for Wizards. If True, the :spells list
+                   ; is used to select :acquired spells, and, if the class :prepares?
+                   ; then it instead prepares from the :acquired-spells list (it is
+                   ; sort of assumed that if a class acquires they also prepare, but
+                   ; you should set the flag anyway).
+                   ; Futhermore, for an :acquires? spellcaster, cantrips, once known,
+                   ; are always prepared.
+ :prepares? true  ; Whether the class prepares spells or just knows them
+ :known [table]  ; Vector that determines how many spells can be known or prepared
+                 ; at a given level (where the first index in the table is level 1).
+                 ; If not provided, :slots MUST be either :standard or :standard/half.
+                 ; Bard and Ranger in particular use a standard spellslot table, but
+                 ; have a distinct table of known spells. If NO spells are known at a
+                 ; level (such as for the Arcane Trickster) 0 can be used.
+
+ :spells :<class>/spells  ; id of a feature whose selected options provide available
+                          ; spells (or known spells for an :acquires? spellcaster)
+ :extra-spells :<class>/extra-spells  ; id of a list of spells that are always
+                                      ; available, such as a cleric's domain spells.
+ :acquired-label "Spellbook"  ; label for the :acquired-spells list
+ :acquires?-spells :<class>/acquires  ; id of a feature whose selected options provide
+                                      ; available spells for an :acquires? spellcaster.
+ }
+```
+
+EX:
+
+```clojure
+  {:5e/spellcaster
+   {:paladin
+    {:ability :cha
+     :spells :paladin/spells-list
+     :slots :standard/half
+     :extra-spells :paladin/extra-spells
+     :multiclass-levels-mod 2
+     :prepares? true}}}
+
+; NOTE: this would make the character have spells exactly as if
+; they were a wizard, without actually having the class
+[:!provide-attr
+ [:5e/spellcaster :my-wizard]
+ {:cantrips [1 3,
+             4 1,
+             10 1]
+  :ability :int
+  :spells :wizard/spells-list
+  :extra-spells :wizard/extra-spells
+  :acquires?-spells :wizard/prepared-spells
+  :acquired-label "Spellbook"
+  :prepares? true
+  :acquires? true
+  }]
+```
+
 ## `:action`
 
 Declare that a feature can be used as an Action.
