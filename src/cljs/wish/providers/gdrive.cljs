@@ -8,6 +8,7 @@
             [clojure.string :as str]
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
+            [wish.data :as data]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
@@ -31,7 +32,8 @@
 ;; included, separated by spaces.
 (def ^:private scopes (str/join
                         " "
-                        ["https://www.googleapis.com/auth/drive.file"]))
+                        ["https://www.googleapis.com/auth/drive.file"
+                         "https://www.googleapis.com/auth/drive.install"]))
 
 (def ^:private sheet-desc "WISH Character Sheet")
 (def ^:private sheet-mime "application/edn")
@@ -510,9 +512,10 @@
           :update
           (cond-> {:fileId file-id
                    :mimeType sheet-mime
-                   :description sheet-desc }
+                   :description sheet-desc}
             ; update the :name if we can
-            data (assoc :name (:name data)))
+            data (assoc :name (when-let [n (:name data)]
+                                (str n "." data/sheet-extension))))
           data-str))
 
       ; not ready? don't try

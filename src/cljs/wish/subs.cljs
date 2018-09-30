@@ -2,6 +2,7 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
+            [wish.data :as data]
             [wish.db :as db]
             [wish.inventory :as inv]
             [wish.providers :as providers]
@@ -136,9 +137,12 @@
     ; is exactly the value in the provider.
     (->> sheets
          (map (fn [[id v]]
-                (assoc v
-                       :id id
-                       :mine? (contains? my-sheets id))))
+                (-> v
+                    (assoc :id id
+                           :mine? (contains? my-sheets id))
+
+                    ; strip any file extensions from the name
+                    (update :name str/replace data/sheet-extension-regex, ""))))
          (filter :name)
          (sort-by :name))))
 
