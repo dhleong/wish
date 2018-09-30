@@ -16,10 +16,6 @@
   (->DataSource :ds
                 (compile-directives directives)))
 
-(defn usable-slot-for
-  [slots s]
-  (first (usable-slots-for slots s)))
-
 (def ^:private warlock
   {:attrs
    {:5e/spellcaster
@@ -51,6 +47,12 @@
     }})
 
 (def warlock-caster (-> warlock :attrs :5e/spellcaster :warlock))
+
+(defn usable-slot-for
+  ([slots s]
+   (usable-slot-for slots warlock-caster s))
+  ([slots spellcaster s]
+   (first (usable-slots-for slots spellcaster s))))
 
 (deftest level->proficiency-bonus-test
   (testing "Low levels"
@@ -400,6 +402,30 @@
                :level 2
                :total 4
                :unused 1}]
+             {:spell-level 1
+              :consumes :*spell-slot}))))
+
+  (testing "No-slot caster"
+    (is (nil? (usable-slot-for
+                [{:kind :default
+                  :level 2
+                  :total 4
+                  :unused 1}]
+                {:slots :none}
+                {:spell-level 1}))))
+
+  (testing ":*spell-slot-consuming feature from a no-slot caster"
+    (is (= {:kind :default
+            :level 2
+            :total 4
+            :unused 1}
+
+           (usable-slot-for
+             [{:kind :default
+               :level 2
+               :total 4
+               :unused 1}]
+             {:slots :none}
              {:spell-level 1
               :consumes :*spell-slot}))))
   )

@@ -1657,14 +1657,21 @@
     (available-slots slots used)))
 
 (defn usable-slots-for
-  [slots s]
+  [slots spellcaster s]
   (let [{use-id :consumes
          :keys [spell-level at-will?]} s
         limited-use? (and use-id
                           (not= :*spell-slot use-id))
         cantrip? (= 0 spell-level)
-        at-will? (or cantrip? at-will?)]
-    (when-not (or limited-use? at-will?)
+        at-will? (or cantrip? at-will?)
+        no-slots? (= :none (:slots spellcaster))]
+    (when (= :spell/detect-magic (:id s))
+      (println no-slots? ))
+    (when-not (or limited-use? at-will?
+                  ; no-slot casters can still have a slot
+                  ; if it's a spell-slot-based limited use
+                  (when-not (= :*spell-slot use-id)
+                    no-slots?))
       ; if it's at-will or powered by a limited-use,
       ; there's no possible usable slot because it doesn't
       ; use *any* slots.
@@ -1676,9 +1683,11 @@
 
 (reg-sub
   ::usable-slots-for
-  :<- [::available-slots]
-  (fn [slots [_ s]]
-    (usable-slots-for slots s)))
+  (fn [[_ s]]
+    [(subscribe [::available-slots])
+     (subscribe [::spellcaster-block-by-id (::source s)])])
+  (fn [[slots spellcaster] [_ s]]
+    (usable-slots-for slots spellcaster s)))
 
 ; returns {:kind, :level} if any
 (reg-sub
