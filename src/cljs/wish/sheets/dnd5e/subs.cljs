@@ -1665,8 +1665,6 @@
         cantrip? (= 0 spell-level)
         at-will? (or cantrip? at-will?)
         no-slots? (= :none (:slots spellcaster))]
-    (when (= :spell/detect-magic (:id s))
-      (println no-slots? ))
     (when-not (or limited-use? at-will?
                   ; no-slot casters can still have a slot
                   ; if it's a spell-slot-based limited use
