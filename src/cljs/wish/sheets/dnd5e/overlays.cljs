@@ -582,7 +582,6 @@
         prepared-cantrips-count (count (:cantrips all-prepared))
 
         spells (<sub [::subs/preparable-spell-list spellcaster available-list])
-        _ (println (count spells) available-list)
 
         can-select-spells? (or (nil? spells-limit)
                                (< prepared-spells-count spells-limit))
