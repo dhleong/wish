@@ -8,6 +8,7 @@
             [clojure.string :as str]
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
+            [wish.data :as data]
             [wish.providers.core :refer [IProvider load-raw]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
@@ -22,6 +23,8 @@
 ;; Array of API discovery doc URLs for APIs used by the quickstart
 (def ^:private discovery-docs #js ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"])
 
+(def ^:private drive-install-scope
+  "https://www.googleapis.com/auth/drive.install")
 (def ^:private drive-read-scope
   "https://www.googleapis.com/auth/drive.readonly")
 (def ^:private drive-full-scope
@@ -31,7 +34,8 @@
 ;; included, separated by spaces.
 (def ^:private scopes (str/join
                         " "
-                        ["https://www.googleapis.com/auth/drive.file"]))
+                        ["https://www.googleapis.com/auth/drive.file"
+                         drive-install-scope]))
 
 (def ^:private sheet-desc "WISH Character Sheet")
 (def ^:private sheet-mime "application/edn")
@@ -258,6 +262,13 @@
              :scope scopes})
       (.then on-client-init
              on-client-init-error)))
+
+(defn request-install!
+  "Starts the flow to request app intall. Returns a channel"
+  []
+  (some-> (current-user)
+          (.grant #js {:scope drive-install-scope})
+          (promise->chan)))
 
 (defn request-read!
   "Starts the flow to request readonly scope. Returns a channel"
@@ -510,9 +521,10 @@
           :update
           (cond-> {:fileId file-id
                    :mimeType sheet-mime
-                   :description sheet-desc }
+                   :description sheet-desc}
             ; update the :name if we can
-            data (assoc :name (:name data)))
+            data (assoc :name (when-let [n (:name data)]
+                                (str n "." data/sheet-extension))))
           data-str))
 
       ; not ready? don't try
