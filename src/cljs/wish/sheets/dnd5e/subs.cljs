@@ -1491,6 +1491,16 @@
     (get blocks spellcaster-id)))
 
 (reg-sub
+  ::spellcaster-info
+  :<- [::spellcasting-modifiers]
+  :<- [::spell-attack-bonuses]
+  (fn [[modifiers atk-bonuses] [_ spellcaster-id]]
+    (let [atk (get atk-bonuses spellcaster-id)]
+      {:mod (get modifiers spellcaster-id)
+       :attack atk
+       :save-dc (+ 8 atk)})))
+
+(reg-sub
   ::spellcasting-modifiers
   :<- [::abilities]
   :<- [::spellcaster-blocks]

@@ -636,6 +636,14 @@
      ^{:key (:id s)}
      [spell-block s])])
 
+(defn- spellcaster-info [spellcaster]
+  (let [info (<sub [::subs/spellcaster-info (:id spellcaster)])]
+    [:span.spellcaster-info
+     [:span.item "Modifier: " (mod->str (:mod info))]
+     [:span.item "Attack: " (mod->str (:attack info))]
+     [:span.item "Save DC: " (:save-dc info)]
+     ]))
+
 (defn spells-section [spellcasters]
   (let [slots-sets (<sub [::subs/spell-slots])
         slots-used (<sub [::subs/spell-slots-used])
@@ -665,6 +673,9 @@
          ^{:key (:id s)}
          [:div.spells
           [:h4 (:name s)
+
+           [spellcaster-info s]
+
            (when-not (or fixed-list?
                          (and acquires?
                               (not prepares?)))

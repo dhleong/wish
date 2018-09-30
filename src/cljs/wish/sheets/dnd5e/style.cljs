@@ -569,6 +569,7 @@
   [:.spells (merge flex/center
                    flex/wrap
                    {:margin-bottom "12px"})
+
    [:.section-label {:font-size "90%"
                      :font-weight 'bold}]
    [:.spell-name {:font-size "80%"
@@ -668,6 +669,16 @@
 (defstyled spells-section
   [:.spell-slot-level flex/center
    [:.label flex/grow]]
+
+  [:.spellcaster-info {:font-size "80%"
+                       :font-weight 'normal
+                       :margin-left "8px"}
+   [:.item
+    ["&:not(:first-child)" {:padding-right "0.5em"}
+     [:&:before {:content "'·'"
+                 :display 'inline-block
+                 :text-align 'center
+                 :width "1em"}]]]]
 
   [:.manage-link {:font-weight 'normal
                   :font-size "80%"}]
