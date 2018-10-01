@@ -1,5 +1,6 @@
 {
     "name": "WISH",
+    "short_name": "WISH",
     "start_url": "/wish",
     "display": "standalone",
     "icons": [
