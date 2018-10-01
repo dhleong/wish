@@ -178,7 +178,9 @@
                    (-> (fetch-and-cache path)
                        (.then (fn [updated-resp]
                                 (let [new-modified (or (last-modified updated-resp)
-                                                       (when config/debug?
+
+                                                       ; uncomment for local testing:
+                                                       #_(when config/debug?
                                                          "new-modified"))]
                                   (when-not (= old-modified new-modified)
                                     (log "Updated " path ": " updated-resp)
