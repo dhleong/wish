@@ -199,20 +199,26 @@
                    (log "No cache for " path)
                    (fetch-and-cache path)))))))
 
-(defn fetch-shell-asset [{:keys [path]}]
-  ; the shell is unlikely to change
-  (log "fetching shell asset for " path)
-  (let [css-dir-start (.indexOf path "/css/")]
-    (if (not= -1 css-dir-start)
-      (fetch-shell-path (str config/server-root
-                             (subs path css-dir-start)))
+(defn fetch-shell-asset [{:keys [path query] :as url}]
+  (if (and config/debug?
+           (seq query))
+    ; probably a figwheel update; ignore cache
+    (fetch-and-cache url)
 
-      (let [js-dir-start (.indexOf path "/js/")]
-        (if (not= -1 js-dir-start)
+    ; normal case
+    (do
+      (log "fetching shell asset for " path)
+      (let [css-dir-start (.indexOf path "/css/")]
+        (if (not= -1 css-dir-start)
           (fetch-shell-path (str config/server-root
-                                 (subs path js-dir-start)))
+                                 (subs path css-dir-start)))
 
-          (fetch-shell-path path))))))
+          (let [js-dir-start (.indexOf path "/js/")]
+            (if (not= -1 js-dir-start)
+              (fetch-shell-path (str config/server-root
+                                     (subs path js-dir-start)))
+
+              (fetch-shell-path path))))))))
 
 
 ; ======= event handlers ==================================
