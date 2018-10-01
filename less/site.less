@@ -262,9 +262,18 @@ a {
         bottom: 0;
     }
 
+    @keyframes slide-in {
+        from {
+            transform: translateY(100%);
+        }
+    }
+
     .flex();
     .flex-direction(row);
     .align-items(center);
+
+    // https://material.io/design/motion/speed.html#easing
+    animation: slide-in 250ms cubic-bezier(0, 0, 0.2, 1);
 
     background-color: #666666;
     color: #fff;
@@ -274,7 +283,6 @@ a {
     bottom: 24px;
 
     padding: 4px;
-
     vertical-align: center;
 
     .ignore {
