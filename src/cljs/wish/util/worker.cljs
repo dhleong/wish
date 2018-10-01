@@ -4,7 +4,8 @@
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [cljs.reader :as edn]
             [goog.events :as gevents :refer [EventType]]
-            [wish.config :as config]))
+            [wish.config :as config]
+            [wish.util :refer [>evt]]))
 
 (defonce ^:private message-listener-key (atom nil))
 
@@ -13,7 +14,8 @@
 (defn receive! [[msg-type & args :as msg]]
   (case msg-type
     :shell-updated (let [[modified] args]
-                     (log/todo "shell-updated: " modified))
+                     (log/info "shell-updated: " modified)
+                     (>evt [:set-latest-update modified]))
     (log "receive!'d unknown message from worker: " msg)))
 
 

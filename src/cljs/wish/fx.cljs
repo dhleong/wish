@@ -117,3 +117,11 @@
   :share-sheet!
   (fn [sheet-id]
     (providers/share! sheet-id)))
+
+
+; ======= App updates =====================================
+
+(reg-fx
+  :update-app
+  (fn []
+    (js/location.reload)))

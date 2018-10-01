@@ -78,6 +78,27 @@
       ; if we're coming back online, trigger init!
       online? (assoc :providers/init! :!))))
 
+(reg-event-db
+  :set-latest-update
+  [trim-v]
+  (fn [db [version]]
+    (assoc-in db [:updates :latest] version)))
+
+(reg-event-fx
+  :update-app
+  [trim-v]
+  (fn []
+    {:dispatch [:ignore-latest-update]
+     :update-app :now!}))
+
+(reg-event-db
+  :ignore-latest-update
+  [trim-v]
+  (fn [db _]
+    (update db :updates (fn [updates]
+                          (assoc updates :ignored (:latest updates))))))
+
+
 ; ======= Provider management ==============================
 
 (reg-event-db

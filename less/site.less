@@ -255,6 +255,52 @@ a {
     }
 }
 
+.update-notifier {
+    @media @smartphones {
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .flex();
+    .flex-direction(row);
+    .align-items(center);
+
+    background-color: #666666;
+    color: #fff;
+
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+
+    padding: 4px;
+
+    vertical-align: center;
+
+    .ignore {
+        .justify-content(center);
+
+        .link {
+            .flex();
+
+            padding: 8px;
+
+            vertical-align: middle;
+        }
+    }
+
+    .content {
+        padding: 8px;
+
+        .flex-grow();
+    }
+
+    .update {
+        margin-right: 8px;
+        padding: 8px;
+    }
+}
+
 //
 // shared widgets
 

@@ -16,6 +16,12 @@
 (reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
 
+(reg-sub
+  :update-available?
+  (fn [{{:keys [latest ignored]} :updates} _]
+    (not= latest ignored)))
+
+
 ; ======= Provider-related =================================
 
 (reg-sub :provider-states :provider-states)
