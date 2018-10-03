@@ -12,6 +12,7 @@
                  [cljs-ajax "0.7.4"]
                  [com.cemerick/url "0.1.1"]
                  [alandipert/storage-atom "2.0.1"]
+                 [com.cognitect/transit-cljs "0.8.256"]
 
                  [cljsjs/react-virtualized "9.18.5-1"]
                  [cljsjs/react-swipeable-views "0.12.18-0"]

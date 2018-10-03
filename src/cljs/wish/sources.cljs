@@ -6,6 +6,7 @@
   (:require [clojure.core.async :as async :refer [alts! <!]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
+            [cognitect.transit :as t]
             [wish.providers :as providers]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [compile-directives]]
@@ -18,17 +19,27 @@
 
 (defn- compile-raw-source
   [{:keys [kind] :as sheet} id raw]
-  (loop [reader (string-push-back-reader raw)
-         directives []]
-    (if-let [d (edn/read reader)]
-      ; keep loading directives
-      (recur reader (conj directives d))
-
+  (if (= "wish" (namespace id))
+    (do
+      (log/info "Compile transit!")
       (->DataSource
         id
-        (->> directives
+        (->> raw
+             (t/read (t/reader :json))
              (compile-directives)
-             (sheets/post-compile kind))))))
+             (sheets/post-compile kind))))
+
+    (loop [reader (string-push-back-reader raw)
+           directives []]
+      (if-let [d (edn/read reader)]
+        ; keep loading directives
+        (recur reader (conj directives d))
+
+        (->DataSource
+          id
+          (->> directives
+               (compile-directives)
+               (sheets/post-compile kind)))))))
 
 (defn- load-source!
   "Returns a channel that signals with [err] or [nil source] when done"
