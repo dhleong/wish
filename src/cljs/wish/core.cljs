@@ -8,8 +8,8 @@
             [wish.views :as views]
             [wish.config :as config]
             [wish.fx]
-            [wish.util.netwatcher :as netwatcher]))
-
+            [wish.util.netwatcher :as netwatcher]
+            [wish.util.worker :as worker]))
 
 (defn dev-setup []
   (when config/debug?
@@ -19,13 +19,9 @@
 (defn mount-worker []
   (when js/navigator.serviceWorker
     (log "mount worker")
-    (-> js/navigator.serviceWorker
-        (.register (str config/server-root "/worker.js"))
-        (.then
-          (fn [reg]
-            (log "mounted service worker! " reg))
-          (fn [e]
-            (log/warn "error mounting service worker: " e))))))
+    (worker/listen!)
+
+    (worker/register!)))
 
 (defn mount-root [& first?]
   (re-frame/clear-subscription-cache!)
