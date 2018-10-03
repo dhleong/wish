@@ -1,6 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Micro (but macro-based) logging framework"}
   wish.util.log
+  (:refer-clojure :exclude [time])
   (:require [clojure.string :as str]))
 
 (defmacro -log
@@ -64,3 +65,11 @@
      [& args#]
      (-log {:ns ~ns-part
             :level :info} args#)))
+
+(defmacro time
+  [label expr]
+  `(let [start# (cljs.core/system-time)
+         ret# ~expr
+         elapsed# (.toFixed (- (cljs.core/system-time) start#) 6)]
+     (info "Time[" ~label "]: " elapsed# " msecs elapsed")
+     ret#))

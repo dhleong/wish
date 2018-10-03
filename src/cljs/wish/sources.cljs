@@ -42,7 +42,9 @@
             [err]
 
             (try
-              (let [compiled (compile-raw-source sheet source-id raw)]
+              (let [compiled (log/time
+                               (str "compile:" source-id)
+                               (compile-raw-source sheet source-id raw))]
                 ; cache the compiled source for for later
                 (swap! loaded-sources assoc source-id compiled)
                 (log "Compiled " source-id compiled)
