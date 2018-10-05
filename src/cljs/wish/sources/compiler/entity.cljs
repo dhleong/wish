@@ -7,11 +7,13 @@
   [features]
   (when features
     (cond
-      (vector? features) (reduce
-                           (fn [m feature]
+      (vector? features) (reduce-kv
+                           (fn [m i feature]
                              (if (map? feature)
-                               (assoc m (:id feature) feature)
-                               (assoc m feature true)))
+                               (assoc m
+                                      (:id feature)
+                                      (assoc feature :wish/sort [0 i]))
+                               (assoc m feature {:wish/sort [0 i]})))
                            {}
                            features)
       (map? features) features

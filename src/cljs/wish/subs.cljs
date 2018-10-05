@@ -414,7 +414,8 @@
                               (update v :values (partial filter filter-fn))
                               v))
                           )]
-                  (meta entry)))))))
+                  (meta entry)))))
+       (sort-by (comp :wish/sort second))))
 
 (defn- only-feature-options
   [[features options attrs sheet data-source]]

@@ -41,6 +41,30 @@
     :name "Charisma"
     :! [[:!update-attr [:buffs :cha] inc]]}] }
 
+ {:id :feat
+  :name "Feat"
+  :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides."
+  :instanced? true
+  :max-options 1
+  :values [:all-feats]
+  }
+
+ {:id :abi-or-feat
+  :name "Ability Score Improvement (or Feat)"
+  :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature.
+
+Alternatively, if your DM uses the optional Feats rule, you can choose a Feat."
+  :implicit? true
+  :instanced? true
+  :max-options 1
+  :values [{:id :provide/abi
+            :name "Ability Score Improvement"
+            :! [[:!provide-feature :ability-improvement]]}
+           {:id :provide/feat
+            :name "Feat"
+            :! [[:!provide-feature :feat]]}]
+  }
+
  {:id :feats
   :name "Feats"
   :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides.

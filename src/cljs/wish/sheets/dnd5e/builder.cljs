@@ -243,7 +243,10 @@
                [:h3
                 (:name f)
                 (when-let [n (:wish/instance f)]
-                  (str " #" (inc n)))]
+                  (str " #" (inc n)))
+                (str "—Sort: `" (or (:wish/sort f)
+                                   "(no sort)")
+                     "`")]
 
                [:div.content
                 (when-let [desc (:desc f)]

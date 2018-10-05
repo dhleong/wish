@@ -118,7 +118,7 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                 ]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             5 {:+features
                [{:id :rogue/uncanny-dodge
@@ -136,10 +136,10 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                 ]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             10 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             11 {:+features
                 [{:id :rogue/reliable-talent
