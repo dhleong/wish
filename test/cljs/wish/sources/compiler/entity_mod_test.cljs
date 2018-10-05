@@ -56,22 +56,25 @@
 
   (testing "Features special case"
     (let [features-with-a (apply-entity-mod {} {:+features [:a]})]
-      (is (= {:features {:a 1 :b {:id :b}}}
+      (is (= {:features {:a {:wish/instances 1}
+                         :b {:id :b}}}
              (apply-entity-mod
                features-with-a
                {:+features {:b {:id :b}}})))
-      (is (= {:features {:a 1 :b {:id :b}}}
+      (is (= {:features {:a {:wish/instances 1}
+                         :b {:id :b}}}
              (apply-entity-mod
                features-with-a
                {:+features [{:id :b}]})))
-      (is (= {:features {:a 1 :b 1}}
+      (is (= {:features {:a {:wish/instances 1}
+                         :b {:wish/instances 1}}}
              (apply-entity-mod
                features-with-a
                {:+features [:b]})))))
 
   (testing "Multiple Feature instances"
     (let [features-with-a (apply-entity-mod {} {:+features [:a]})]
-      (is (= {:features {:a 2}}
+      (is (= {:features {:a {:wish/instances 2}}}
              (apply-entity-mod
                features-with-a
                {:+features [:a]}))))))
