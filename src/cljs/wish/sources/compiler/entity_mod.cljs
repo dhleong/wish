@@ -18,6 +18,29 @@
     a  ; no change
     (str a b)))
 
+(defn- merge-features-list-into-map
+  [features new-features]
+  (reduce
+    (fn [features-map new-feature]
+      (let [new-feature (if (map-entry? new-feature)
+                          ; unpack
+                          (second new-feature)
+
+                          ; normal
+                          new-feature)]
+        (cond
+          ; increment to support multiple feature instances.
+          ; We ONLY support this when referenced by id
+          (keyword? new-feature)
+          (update features-map new-feature
+                  update :wish/instances inc)
+
+          (map? new-feature)
+          (assoc features-map (:id new-feature) new-feature)
+          )))
+    features
+    new-features))
+
 ; NOTE public for testing
 (defn extract-mod-and-key
   "Given an entity-mod keyword, pick the function used
@@ -29,32 +52,7 @@
            (if (= the-key :features)
              ; :features is a special case because the edn list
              ; actually gets inflated into a map
-             [(fn [features new-features]
-                (reduce
-                  (fn [features-map new-feature]
-                    (let [new-feature (if (map-entry? new-feature)
-                                        ; unpack
-                                        (second new-feature)
-
-                                        ; normal
-                                        new-feature)]
-                      (cond
-                        ; increment to support multiple feature instances.
-                        ; We ONLY support this when referenced by id
-                        (keyword? new-feature)
-                        (update features-map new-feature
-                                (fn [old]
-                                  (if (or (number? old)
-                                          (not old))
-                                    (inc old)
-                                    (update old :wish/instances inc))))
-
-                        (map? new-feature)
-                        (assoc features-map (:id new-feature) new-feature)
-                        )))
-                  features
-                  new-features))
-              the-key]
+             [merge-features-list-into-map the-key]
 
              ; normal case
              [concat the-key]))

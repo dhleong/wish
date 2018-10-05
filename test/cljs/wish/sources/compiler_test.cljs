@@ -455,3 +455,24 @@
                    :limited-uses
                    :spell-points
                    :restore-trigger)))))))
+
+; as features get compiled and installed into entities,
+; we add :wish/sort to them to ensure that, when iterating
+; over all the features installed into an entity we can do
+; so in the order the data-source author intended.
+; This includes sorting features provided by a feature to
+; come immediately after the feature they were provided by,
+; and sorting features added by level-scaling in ascending
+; order by the level they were added
+(deftest sort-key-test
+  (testing "Basic :features"
+    (let [class-def (->> (compile-directives
+                           [[:!declare-class
+                             {:id :cleric
+                              :features
+                              [{:id :first}
+                               {:id :second}]}]])
+                         :classes
+                         :cleric)]
+      (is (= [0 0] (-> class-def :features :first :wish/sort)))
+      (is (= [0 1] (-> class-def :features :second :wish/sort))))))
