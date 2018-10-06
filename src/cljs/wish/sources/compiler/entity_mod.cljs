@@ -22,7 +22,20 @@
   [features new-features]
   (reduce
     (fn [features-map new-feature]
-      (let [new-feature (if (map-entry? new-feature)
+      (let [new-feature-id (cond
+                             ; unpack
+                             (map-entry? new-feature)
+                             (first new-feature)
+
+                             ; keyword id
+                             (keyword? new-feature)
+                             new-feature
+
+                             ; normal
+                             :else
+                             (:id new-feature))
+
+            new-feature (if (map-entry? new-feature)
                           ; unpack
                           (second new-feature)
 
@@ -31,12 +44,23 @@
         (cond
           ; increment to support multiple feature instances.
           ; We ONLY support this when referenced by id
-          (keyword? new-feature)
-          (update features-map new-feature
-                  update :wish/instances inc)
+          (or (keyword? new-feature)
+              (not (:id new-feature)))
+          (-> features-map
+              (update-in [new-feature-id :wish/instances] inc)
+
+              ; each instance of a feature provided by :+features should
+              ; have its own :wish/sort, provided by compile-entity. Since
+              ; instanced features are managed by a single map for the original
+              ; feature, we conj all the :wish/sort entries together and pull
+              ; them out in the subscription when the feature is being expanded
+              ; into its instances
+              (cond-> (:wish/sort new-feature)
+                (update-in [new-feature-id :wish/sorts]
+                           conj (:wish/sort new-feature))))
 
           (map? new-feature)
-          (assoc features-map (:id new-feature) new-feature)
+          (assoc features-map new-feature-id new-feature)
           )))
     features
     new-features))

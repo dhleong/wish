@@ -475,4 +475,20 @@
                          :classes
                          :cleric)]
       (is (= [0 0] (-> class-def :features :first :wish/sort)))
-      (is (= [0 1] (-> class-def :features :second :wish/sort))))))
+      (is (= [0 1] (-> class-def :features :second :wish/sort)))))
+
+  (testing ":+features"
+    (let [class-def (-> (compile-directives
+                           [[:!declare-class
+                             {:id :cleric
+                              :features
+                              [{:id :first}]
+                              :&levels
+                              {2 {:+features [{:id :second}]}}}]])
+                         :classes
+                         :cleric
+                         (assoc :level 3) ; ensure sort is based on level *added*,
+                                          ; not level *when added*
+                         (inflate nil {}))]
+      (is (= [0 0] (-> class-def :features :first :wish/sort)))
+      (is (= [2 0] (-> class-def :features :second :wish/sort))))))

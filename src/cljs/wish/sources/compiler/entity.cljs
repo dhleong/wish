@@ -3,8 +3,16 @@
   wish.sources.compiler.entity
   (:require [wish.sources.compiler.fun :refer [->callable]]))
 
+(defn- update-each-key
+  [m f]
+  (reduce-kv
+    (fn [m k v]
+      (assoc m k (f v k)))
+    m
+    m))
+
 (defn- inflate-features
-  [features]
+  [features level]
   (when features
     (cond
       (vector? features) (reduce-kv
@@ -12,16 +20,24 @@
                              (if (map? feature)
                                (assoc m
                                       (:id feature)
-                                      (assoc feature :wish/sort [0 i]))
-                               (assoc m feature {:wish/sort [0 i]})))
+                                      (assoc feature :wish/sort [level i]))
+                               (assoc m feature {:wish/sort [level i]})))
                            {}
                            features)
       (map? features) features
       :else (throw (js/Error.
                      (str "Unexpected features: " features))))))
 
+(defn- inflate-+features
+  [levels-map level]
+  (cond-> levels-map
+    (:+features levels-map)
+    (update :+features inflate-features level)))
+
 (defn compile-entity
   [e]
   (-> e
-      (update :features inflate-features)
+      (update :features inflate-features 0)
+      (update :levels update-each-key inflate-+features)
+      (update :&levels update-each-key inflate-+features)
       (update :dice ->callable)))
