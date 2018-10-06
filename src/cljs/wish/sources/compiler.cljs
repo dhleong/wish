@@ -100,14 +100,24 @@
    (fn provide-feature [state & args]
      (loop [state state
             args args]
-       (let [raw-values-features (->> args
+       (let [providing-feature (first (:wish/context state))
+             base-sort-key (or (:wish/sort provide-feature)
+                               (when-let [sorts (:wish/sorts providing-feature)]
+                                 ; FIXME TODO maybe apply-options can let us know
+                                 ; which instance to use
+                                 (log/todo "Pick correct :sort for instanced feature")
+                                 (first sorts))
+                               [99 0]) ; can we do anything better?
+             raw-values-features (->> args
                                       (map :values)
                                       flatten
                                       (filter :id)
                                       (map #(assoc % :wish/option? true)))
-             features (inflate-features state
-                                        (concat args
-                                                raw-values-features))
+             features (->> (inflate-features state
+                                             (concat args
+                                                     raw-values-features))
+                           (map-indexed (fn [i f]
+                                          (assoc f :wish/sort (conj base-sort-key i)))))
              features-map (->map features)
              features-with-directives (when (:wish/data-source state)
                                         (->> features
@@ -216,7 +226,8 @@
               :features
               vals
               (mapcat (fn [{instances :wish/instances
-                            directives :!}]
+                            directives :!
+                            id :id}]
                         (if instances
                           ; repeat the directives n times
                           (mapcat
@@ -269,14 +280,23 @@
 ; ======= Options ==========================================
 
 (defn- apply-feature-directives
-  [state the-feature & {:keys [option-value feature-id]}]
+  [state the-feature & {:keys [option-value providing-feature]}]
   ; only try to apply the feature if state's primary?-ness
   ; matches the feature's requirements
   (let [feature-directives (when-not (and (:primary-only? the-feature)
                                           (not (:primary? state)))
                              (:! the-feature))]
     (if feature-directives
-      (reduce apply-directive state feature-directives)
+      (-> state
+          ; push the feature on the context stack
+          (update :wish/context conj providing-feature)
+
+          ; apply features to state with context attached
+          (as-> s
+            (reduce apply-directive s feature-directives))
+
+          ; pop feature off the context stack
+          (update :wish/context pop))
 
       (do
         ; NOTE: at this point, there may just be no directives to apply?
@@ -284,7 +304,7 @@
           (log/warn "failed to apply "
                     (when option-value
                       (str " from " option-value
-                           " for feature " feature-id))))
+                           " for feature " (:id providing-feature)))))
         state))))
 
 (declare apply-levels)
@@ -304,33 +324,34 @@
 
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
-  (if (or (empty? options-chosen)
+  (let [providing-feature (get-in state [:features feature-id])]
+    (if (or (empty? options-chosen)
 
-          ; don't apply any options if the feature doesn't apply to this state
-          ; (EX: racial feature options on the class, or vice versa)
-          (not (get-in state [:features feature-id])))
-    state
+            ; don't apply any options if the feature doesn't apply to this state
+            ; (EX: racial feature options on the class, or vice versa)
+            (not providing-feature))
+      state
 
-    (let [option-value (first options-chosen)
-          the-feature (when-let [f (merge
-                                     (find-feature data-source option-value)
-                                     (or (get-in state [:features option-value])
-                                         (->> (get-in state [:features feature-id :values])
-                                              (filter #(= option-value (:id %)))
-                                              first)))]
-                        ; level-scale the feature
-                        (level-scale-feature data-source (:level state) f))]
+      (let [option-value (first options-chosen)
+            the-feature (when-let [f (merge
+                                       (find-feature data-source option-value)
+                                       (or (get-in state [:features option-value])
+                                           (->> (get-in state [:features feature-id :values])
+                                                (filter #(= option-value (:id %)))
+                                                first)))]
+                          ; level-scale the feature
+                          (level-scale-feature data-source (:level state) f))]
 
-      (recur
-        data-source
+        (recur
+          data-source
 
-        ; new state:
-        (apply-feature-directives state the-feature
-                                  :option-value option-value
-                                  :feature-id feature-id)
+          ; new state:
+          (apply-feature-directives state the-feature
+                                    :option-value option-value
+                                    :providing-feature providing-feature)
 
-        feature-id
-        (next options-chosen)))))
+          feature-id
+          (next options-chosen))))))
 
 (defn unpack-option
   "Given an entry in the :options map (eg: [feature-id v])

@@ -312,7 +312,7 @@
                          sorts (:wish/sorts f)
                          {:wish/keys [container-id]} (meta entry)]
                      (map
-                       (fn [n]
+                       (fn [n sort-key]
                          (-> entry
                              (assoc-in
                                [1 :wish/instance-id]
@@ -326,9 +326,13 @@
                              (assoc-in [1 :wish/instance] n)
                              (update-in [1 :wish/sort] (fn [old-sort]
                                                          (or old-sort
-                                                             (when (< n (count sorts))
-                                                               (nth sorts n)))))))
-                       (range total-instances)))
+                                                             sort-key)))))
+                       (range total-instances)
+                       (concat
+                         ; to ensure we get all instances, even if we don't have enough
+                         ; sorts, we pad the end of the list of sorts with nil
+                         (reverse sorts)
+                         (repeat nil))))
 
                    ; normal feature
                    [entry])))))
