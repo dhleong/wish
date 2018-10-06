@@ -182,32 +182,31 @@
                (fn [features]
                  (reduce-kv
                    (fn [m feature-id v]
-                     (let [instances (:wish/instances v)]
-                       ; if the value is just a map indicating that this
-                       ; is a secondary instance of the feature,
-                       ; just load the feature as normal (2nd branch)
-                       (if (and (:id v)
-                                (not instances))
-                         ; ensure it's compiled
-                         (assoc m feature-id (compile-feature v))
+                     ; if the value is just a map indicating that this
+                     ; is a secondary instance of the feature,
+                     ; just load the feature as normal (2nd branch)
+                     (if (and (:id v)
+                              (not (:wish/instances v)))
+                       ; ensure it's compiled
+                       (assoc m feature-id (compile-feature v))
 
-                         ; pull it out of the state (or data source,
-                         ; if we have one)
-                         (let [from-state (get-in s [:features feature-id])
-                               ; this is a bit obnoxious to avoid eager evaluation
-                               ; from-state could be a number here
-                               f (if (:id from-state)
-                                   ; already inflated
-                                   from-state
+                       ; pull it out of the state (or data source, if we have one)
+                       (let [from-state (get-in s [:features feature-id])
 
-                                   ; inflate the feature
-                                   (when data-source
-                                     (find-feature data-source feature-id)))
+                             ; this is a bit obnoxious to avoid eager evaluation
+                             ; from-state could be a number here
+                             f (if (:id from-state)
+                                 ; already inflated
+                                 from-state
 
-                               ; include :wish/instances and :wish/sort
-                               f (when f
-                                   (merge v f))]
-                           (assoc m feature-id f)))))
+                                 ; inflate the feature
+                                 (when data-source
+                                   (find-feature data-source feature-id)))
+
+                             ; include :wish/instances and :wish/sort
+                             f (when f
+                                 (merge v f))]
+                         (assoc m feature-id f))))
                    features
                    features)))
 

@@ -309,6 +309,7 @@
        (mapcat (fn [[id f :as entry]]
                  (if (:instanced? f)
                    (let [total-instances (:wish/instances f 1)
+                         sorts (:wish/sorts f)
                          {:wish/keys [container-id]} (meta entry)]
                      (map
                        (fn [n]
@@ -322,7 +323,11 @@
                                       (name container-id)
                                       "#"
                                       n)))
-                             (assoc-in [1 :wish/instance] n)))
+                             (assoc-in [1 :wish/instance] n)
+                             (update-in [1 :wish/sort] (fn [old-sort]
+                                                         (or old-sort
+                                                             (when (< n (count sorts))
+                                                               (nth sorts n)))))))
                        (range total-instances)))
 
                    ; normal feature
