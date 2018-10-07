@@ -526,40 +526,59 @@
       (is (= [0 0] (-> class-def :features :base :wish/sort)))
       (is (= [0 0 1] (-> class-def :features :provided :wish/sort)))))
 
-  (testing ":!provide-feature as instanced option"
-    (let [state (compile-directives
-                  [[:!provide-feature
-                    {:id :child
-                     :instanced? true
-                     :max-options 1}
-                    {:id :instanced
-                     :instanced? true
-                     :max-options 1
-                     :values
-                     [{:id :provide/child
-                       :! [[:!provide-feature :child]]}]}]
-                   [:!declare-class
-                    {:id :cleric
-                     :&levels
-                     {1 {:+features [:instanced]}
-                      2 {:+features [:instanced]}
-                      3 {:+features [:instanced]}
-                      }}]])
-          class-def (-> state
-                        :classes
-                        :cleric
-                        (assoc :level 4)
-                        (inflate (->DataSource :id state)
-                                 {:instanced#rogue#0
-                                  {:id :instanced
-                                   :value [:provide/child]}
-                                  :instanced#rogue#1
-                                  {:id :instanced
-                                   :value [:provide/child]}
-                                  :instanced#rogue#2
-                                  {:id :instanced
-                                   :value [:provide/child]}}))]
-      (is (= '([3 0] [2 0] [1 0])
-             (-> class-def :features :instanced :wish/sorts)))
-      (is (= '([3 0 1] [2 0 1] [1 0 1])
-             (-> class-def :features :child :wish/sorts))))))
+  (let [state (compile-directives
+                [[:!provide-feature
+                  {:id :child
+                   :instanced? true
+                   :max-options 1}
+                  {:id :instanced
+                   :instanced? true
+                   :max-options 1
+                   :values
+                   [{:id :provide/child
+                     :! [[:!provide-feature :child]]}]}]
+                 [:!declare-class
+                  {:id :cleric
+                   :&levels
+                   {1 {:+features [:instanced]}
+                    2 {:+features [:instanced]}
+                    3 {:+features [:instanced]}
+                    }}]])]
+
+    (testing ":!provide-feature as instanced option"
+      (let [class-def (-> state
+                          :classes
+                          :cleric
+                          (assoc :level 4)
+                          (inflate (->DataSource :id state)
+                                   {:instanced#rogue#0
+                                    {:id :instanced
+                                     :value [:provide/child]}
+                                    :instanced#rogue#1
+                                    {:id :instanced
+                                     :value [:provide/child]}
+                                    :instanced#rogue#2
+                                    {:id :instanced
+                                     :value [:provide/child]}}))]
+        (is (= '([3 0] [2 0] [1 0])
+               (-> class-def :features :instanced :wish/sorts)))
+        (is (= '([3 0 1] [2 0 1] [1 0 1])
+               (-> class-def :features :child :wish/sorts)))))
+
+    (testing "More selected options than are available"
+      (let [class-def (-> state
+                          :classes
+                          :cleric
+                          (assoc :level 1)
+                          (inflate (->DataSource :id state)
+                                   {:instanced#rogue#0
+                                    {:id :instanced
+                                     :value [:provide/child]}
+                                    :instanced#rogue#1
+                                    {:id :instanced
+                                     :value [:provide/child]}}))]
+        (is (= '([1 0])
+               (-> class-def :features :instanced :wish/sorts)))
+        (is (nil?  (-> class-def :features :child :wish/sorts)))
+        (is (= [1 0 1]
+               (-> class-def :features :child :wish/sort)))))))
