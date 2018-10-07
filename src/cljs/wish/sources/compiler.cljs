@@ -10,6 +10,7 @@
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.lists :refer [add-to-list inflate-items install-deferred-lists]]
             [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
+            [wish.sources.compiler.util :as util]
             [wish.sources.core :refer [find-feature]]
             [wish.util :refer [deep-merge inc-or ->map process-map]]))
 
@@ -143,16 +144,7 @@
                                                     inc-or 2)
 
                                             ; ensure :wish/sorts exists with :wish/sort
-                                            (update :wish/sorts
-                                                    #(cond-> %
-                                                       (and (:wish/sort a)
-                                                            (nil? %))
-                                                       (as-> _ ;ignore the old value
-                                                         (list (:wish/sort a)))
-
-                                                       ; conj new sort, if any
-                                                       (:wish/sort b)
-                                                       (conj (:wish/sort b)))))
+                                            (util/combine-sorts b))
 
                                         ; just use the newer
                                         b)))
