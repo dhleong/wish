@@ -31,7 +31,8 @@
   [{:keys [limited-use?]
     item-id :id
     item-name :name
-    {use-name :name
+    {restore-trigger :restore-trigger
+     use-name :name
      uses :uses} :limited-use
     :as item}]
   (let [item (if limited-use?
@@ -40,7 +41,8 @@
                            {:id item-id
                             :name (or use-name item-name)
                             :uses (or uses 1)
-                            :restore-trigger :long-rest}]])
+                            :restore-trigger (or restore-trigger
+                                                 :long-rest)}]])
 
                ; strip :attunes? if there's no limited-use
                (dissoc item :attunes?))]
@@ -132,10 +134,16 @@
              :placeholder "Limited Use Name"}]]
 
    [:div
-    [:label.meta {:for :attunes?}
-     "Uses\u00A0"]
+    [:label.meta {:for :limited-use.uses}
+     "Uses:\u00A0"]
     [:input.numeric {:field :fast-numeric
-                     :id :limited-use.uses}]]])
+                     :id :limited-use.uses}]
+
+    "\u00A0per\u00A0"
+    [:select {:field :list
+              :id :limited-use.restore-trigger}
+     [:option {:key :long-rest} "Long Rest"]
+     [:option {:key :short-rest} "Short Rest"]]]])
 
 (defn- item-stacks? [for-types]
   [:div.section.stacks {:field :container

@@ -18,13 +18,14 @@
                  {:id :serenity
                   :name "Crazy Ivan"
                   :uses 2
-                  :restore-trigger :long-rest}]]}
+                  :restore-trigger :short-rest}]]}
 
            (install-limited-use {:id :serenity
                                  :limited-use? true
                                  :attunes? true
                                  :limited-use
                                  {:name "Crazy Ivan"
+                                  :restore-trigger :short-rest
                                   :uses 2}}))))
 
   (testing "Install with nothing provided"
