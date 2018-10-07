@@ -244,7 +244,7 @@
                 (:name f)
                 (when-let [n (:wish/instance f)]
                   (str " #" (inc n)))
-                (str "—Sort: `" (or (:wish/sort f)
+                #_(str "—Sort: `" (or (:wish/sort f)
                                    "(no sort)")
                      "`")]
 

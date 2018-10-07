@@ -101,13 +101,12 @@
      (loop [state state
             args args]
        (let [providing-feature (first (:wish/context state))
-             base-sort-key (or (:wish/sort provide-feature)
+             base-sort-key (or (:wish/sort providing-feature)
                                (when-let [sorts (:wish/sorts providing-feature)]
-                                 ; FIXME TODO maybe apply-options can let us know
-                                 ; which instance to use
-                                 (log/todo "Pick correct :sort for instanced feature")
-                                 (first sorts))
-                               [99 0]) ; can we do anything better?
+                                 ; shouldn't happen
+                                 (log/warn "Pick correct :sort for instanced feature" args)
+                                 (first sorts)))
+
              raw-values-features (->> args
                                       (map :values)
                                       flatten
@@ -117,7 +116,12 @@
                                              (concat args
                                                      raw-values-features))
                            (map-indexed (fn [i f]
-                                          (assoc f :wish/sort (conj base-sort-key i)))))
+                                          (if base-sort-key
+                                            ; NOTE: (inc) so that, when the base is padded,
+                                            ; this definitely comes after base
+                                            (assoc f :wish/sort (conj base-sort-key (inc i)))
+                                            f))))
+
              features-map (->map features)
              features-with-directives (when (:wish/data-source state)
                                         (->> features
@@ -132,11 +136,23 @@
                            (partial merge-with
                                     (fn [a b]
                                       (if a
-                                        (update
-                                          a :wish/instances
-                                          ; a existing means there's at least 1
-                                          ; instance, so now there are at least 2
-                                          inc-or 2)
+                                        (-> a
+                                            (update :wish/instances
+                                                    ; a existing means there's at least 1
+                                                    ; instance, so now there are at least 2
+                                                    inc-or 2)
+
+                                            ; ensure :wish/sorts exists with :wish/sort
+                                            (update :wish/sorts
+                                                    #(cond-> %
+                                                       (and (:wish/sort a)
+                                                            (nil? %))
+                                                       (as-> _ ;ignore the old value
+                                                         (list (:wish/sort a)))
+
+                                                       ; conj new sort, if any
+                                                       (:wish/sort b)
+                                                       (conj (:wish/sort b)))))
 
                                         ; just use the newer
                                         b)))
@@ -227,15 +243,18 @@
               vals
               (mapcat (fn [{instances :wish/instances
                             directives :!
-                            id :id}]
-                        (if instances
-                          ; repeat the directives n times
-                          (mapcat
-                            (constantly directives)
-                            (range instances))
+                            :as providing-feature}]
+                        (->> (if instances
+                               ; repeat the directives n times
+                               (mapcat
+                                 (constantly directives)
+                                 (range instances))
 
-                          directives)
-                        ))
+                               directives)
+
+                             ; attach context in meta to each directive
+                             (map #(with-meta % {:wish/context providing-feature}))
+                             )))
               (reduce apply-directive e))))))
 
 ; ======= public api =======================================
@@ -245,7 +264,18 @@
     (let [[kind & args] directive-vector]
       (if-let [f (get directives kind)]
         ; valid directive
-        (apply f state args)
+        (let [?context (:wish/context (meta directive-vector))
+
+              ; if we had a context, push it on the stack
+              state (cond-> state
+                      ?context (update :wish/context conj ?context))
+
+              ; apply the directive
+              new-state (apply f state args)]
+
+          ; we we pushed a context, pop it before returning the new state
+          (cond-> new-state
+            ?context (update :wish/context pop)))
 
         ; unknown; ignore
         (do
@@ -324,7 +354,18 @@
 
 (defn- apply-feature-options
   [data-source state feature-id options-chosen]
-  (let [providing-feature (get-in state [:features feature-id])]
+  (let [instance-n (-> options-chosen meta :wish/instance)
+        providing-feature (get-in state [:features feature-id])
+        providing-feature (if (and instance-n
+                                   (:wish/sorts providing-feature))
+                            ; choose the right :wish/sort to use
+                            (-> providing-feature
+                                (dissoc :wish/sorts)
+                                (assoc :wish/sort (-> (:wish/sorts providing-feature)
+                                                      (reverse)
+                                                      (nth instance-n))))
+                            providing-feature)]
+
     (if (or (empty? options-chosen)
 
             ; don't apply any options if the feature doesn't apply to this state
@@ -334,7 +375,8 @@
 
       (let [option-value (first options-chosen)
             the-feature (when-let [f (merge
-                                       (find-feature data-source option-value)
+                                       (when data-source
+                                         (find-feature data-source option-value))
                                        (or (get-in state [:features option-value])
                                            (->> (get-in state [:features feature-id :values])
                                                 (filter #(= option-value (:id %)))
@@ -353,13 +395,24 @@
           feature-id
           (next options-chosen))))))
 
+(defn- instance-id->n
+  "Given an instance ID, return the instance number/index"
+  [id]
+  (let [s (name id)
+        sep-idx (.lastIndexOf s "#")]
+    (if (= -1 sep-idx)
+      -1
+      (int (subs s (inc sep-idx))))))
+
 (defn unpack-option
   "Given an entry in the :options map (eg: [feature-id v])
    unpack it to another vector, in case the `v` was a map
    for a multi-instance feature"
-  [[_ v :as option-entry]]
+  [[inst-id v :as option-entry]]
   (if (map? v)
-    [(:id v) (:value v)]
+    [(:id v) (with-meta
+               (:value v)
+               {:wish/instance (instance-id->n inst-id)})]
     option-entry))
 
 (defn apply-options
