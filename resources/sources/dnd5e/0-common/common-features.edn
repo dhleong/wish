@@ -57,10 +57,10 @@ Alternatively, using the optional feats rule, you can forgo increasing any abili
   :implicit? true
   :instanced? true
   :max-options 1
-  :values [{:id :provide/abi
+  :values [{:id :abi-or-feat/abi
             :name "Ability Score Improvement"
             :! [[:!provide-feature :ability-improvement]]}
-           {:id :provide/feat
+           {:id :abi-or-feat/feat
             :name "Feat"
             :! [[:!provide-feature :feat]]}]
   }
