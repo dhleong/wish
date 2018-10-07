@@ -325,8 +325,8 @@
                                       n)))
                              (assoc-in [1 :wish/instance] n)
                              (update-in [1 :wish/sort] (fn [old-sort]
-                                                         (or old-sort
-                                                             sort-key)))))
+                                                         (or sort-key
+                                                             old-sort)))))
                        (range total-instances)
                        (concat
                          ; to ensure we get all instances, even if we don't have enough
@@ -394,6 +394,17 @@
                true)))
     values))
 
+(defn- padded-compare
+  "Given two vectors of numbers, this will pad them both
+   with zeroes to be the same length, then call compare"
+  [a b]
+  (let [longest (max (count a)
+                     (count b))]
+    ; FIXME this is terribly inefficient
+    (compare
+      (vec (concat a (repeat (- longest (count a)) 0)))
+      (vec (concat b (repeat (- longest (count b)) 0))))))
+
 (defn- inflate-feature-options
   [[features options attrs sheet data-source]]
   (->> features
@@ -424,7 +435,7 @@
                               v))
                           )]
                   (meta entry)))))
-       (sort-by (comp :wish/sort second))))
+       (sort-by (comp :wish/sort second) padded-compare)))
 
 (defn- only-feature-options
   [[features options attrs sheet data-source]]
