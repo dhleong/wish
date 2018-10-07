@@ -16,6 +16,7 @@
             [wish.sources.compiler.fun-test]
             [wish.sources.compiler.limited-use-test]
             [wish.sources.compiler.lists-test]
+            [wish.sources.compiler.util-test]
             [wish.sources.composite-test]
             [wish.subs-test]
             [wish.util-test]

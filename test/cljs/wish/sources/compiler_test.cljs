@@ -542,19 +542,24 @@
                     {:id :cleric
                      :&levels
                      {1 {:+features [:instanced]}
-                      2 {:+features [:instanced]}}}]])
+                      2 {:+features [:instanced]}
+                      3 {:+features [:instanced]}
+                      }}]])
           class-def (-> state
                         :classes
                         :cleric
-                        (assoc :level 3)
+                        (assoc :level 4)
                         (inflate (->DataSource :id state)
                                  {:instanced#rogue#0
                                   {:id :instanced
                                    :value [:provide/child]}
                                   :instanced#rogue#1
                                   {:id :instanced
+                                   :value [:provide/child]}
+                                  :instanced#rogue#2
+                                  {:id :instanced
                                    :value [:provide/child]}}))]
-      (is (= '([2 0] [1 0])
+      (is (= '([3 0] [2 0] [1 0])
              (-> class-def :features :instanced :wish/sorts)))
-      (is (= '([2 0 1] [1 0 1])
+      (is (= '([3 0 1] [2 0 1] [1 0 1])
              (-> class-def :features :child :wish/sorts))))))
