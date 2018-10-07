@@ -124,7 +124,7 @@ Your choice grants you features at 3rd level and again at 7th, 15th, and 20th le
                  :max-options 1}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             5 {:+features
                [:extra-attack]}
 
@@ -135,7 +135,7 @@ Your choice grants you features at 3rd level and again at 7th, 15th, and 20th le
 At 18th level, the range of this aura increases to 30 feet."}]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             10 {:+features
                 [{:id :paladin/aura-courage
@@ -153,7 +153,7 @@ At 18th level, the range of this aura increases to 30 feet."}]}
                         :type :radiant}]]}]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             14 {:+features
                 [{:id :paladin/cleansing-touch
@@ -172,9 +172,9 @@ You can use this feature a number of times equal to your Charisma modifier (a mi
                        true]]}]}
 
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             19 {:+features
-                [:ability-improvement]}}}]
+                [:abi-or-feat]}}}]
 
 [:!provide-options
  :paladin/oath

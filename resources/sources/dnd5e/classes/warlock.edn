@@ -100,9 +100,9 @@ Additionally, when you gain a level in this class, you can choose one of the inv
                  :max-options 1}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             11 {:+features
                 [{:id :warlock/mystic-arcanum
@@ -122,7 +122,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
                   }]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             13 {:+features
                 [{:id :warlock/mystic-arcanum-7th
@@ -155,7 +155,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
                   }]}
 
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             17 {:+features
                 [{:id :warlock/mystic-arcanum-9th
@@ -173,7 +173,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
                   }]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             20 {:+features
                 [{:id :warlock/eldritch-master
                   :name "Eldritch Master"

@@ -105,7 +105,7 @@ You have advantage on Dexterity saving throws against effects that you can see, 
                 ]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             5 {:+features
                [:extra-attack
@@ -126,7 +126,7 @@ You have advantage on Dexterity saving throws against effects that you can see, 
 Additionally, if you are surprised at the beginning of combat and aren’t incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn."}]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             9 {:+features
                [{:id :barbarian/brutal-critical
@@ -143,7 +143,7 @@ Each time you use this feature after the first, the DC increases by 5. When you 
                   }]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             15 {:+features
                 [{:id :barbarian/persistent-rage
@@ -151,7 +151,7 @@ Each time you use this feature after the first, the DC increases by 5. When you 
                   :desc "Beginning at 15th level, your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it."}]}
 
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             18 {:+features
                 [{:id :barbarian/indomitable-might
@@ -159,7 +159,7 @@ Each time you use this feature after the first, the DC increases by 5. When you 
                   :desc "If your total for a Strength check is less than your Strength score, you can use that score in place of the total."}]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             20 {:+feature
                 [{:id :barbarian/primal-champion

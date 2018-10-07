@@ -94,7 +94,7 @@ Once you use this feature, you must finish a short or long rest before you can u
                 ]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             5 {:+features
                [{:id :fighter/extra-attack
@@ -111,10 +111,10 @@ The number of attacks increases to three when you reach 11th level in this class
                 ]}
 
             6 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             9 {:+features
                [{:id :fighter/indomitable
@@ -132,16 +132,16 @@ You can use this feature twice between long rests starting at 13th level and thr
                        :restore-trigger :long-rest}]]}]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             14 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             19 {:+features
-                [:ability-improvement]} }}]
+                [:abi-or-feat]} }}]
 
 [:!provide-options
  :fighter/archetype

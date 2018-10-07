@@ -67,13 +67,13 @@ For example, if you’re a 4th-level wizard, you can recover up to two levels wo
                  :max-options 1}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             18 {:+features
                 [{:id :wizard/spell-mastery
@@ -96,7 +96,7 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
                  ]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             20 {:+features
                 [{:id :wizard/signature-spells
                   :name "Signature Spells"

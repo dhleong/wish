@@ -147,7 +147,7 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                   :desc "By 11th level, you have refined your chosen skills until they approach perfection. Whenever you make an ability check that lets you add your proficiency bonus, you can treat a d20 roll of 9 or lower as a 10."}]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             14 {:+features
                 [{:id :rogue/blindsense
@@ -162,7 +162,7 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                  :save-proficiency/wis]}
 
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             18 {:+features
                 [{:id :rogue/elusive
@@ -170,7 +170,7 @@ In addition, you understand a set of secret signs and symbols used to convey sho
                   :desc "Beginning at 18th level, you are so evasive that attackers rarely gain the upper hand against you. No attack roll has advantage against you while you aren’t incapacitated."}]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             20 {:+features
                 [{:id :rogue/stroke-luck

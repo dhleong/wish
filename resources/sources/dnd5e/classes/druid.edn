@@ -100,13 +100,13 @@
                  :max-options 1}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             18 {:+features
                 [{:id :druid/timeless-body
@@ -117,7 +117,7 @@
                   :desc "Beginning at 18th level, you can cast many of your druid spells in any shape you assume using Wild Shape. You can perform the somatic and verbal components of a druid spell while in a beast shape, but you aren’t able to provide material components."}]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             20 {:+features
                 [{:id :druid/arch
                   :name "Archdruid"
