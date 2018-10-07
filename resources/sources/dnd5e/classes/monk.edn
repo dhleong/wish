@@ -161,7 +161,7 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                       true]]}]}
 
             4 {:+features
-               [:ability-improvement
+               [:abi-or-feat
 
                 {:id :monk/slow-fall
                  :name "Slow Fall"
@@ -196,7 +196,7 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                       true]]}]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             10 {:+features
                 [{:id :monk/purity-body
@@ -207,7 +207,7 @@ If you reduce the damage to 0, you can catch the missile if it is small enough f
                        {:desc "You are immune to disease and poison."}]]}]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             13 {:+features
                 [{:id :monk/tongue-sun-moon
@@ -234,7 +234,7 @@ Additionally, whenever you make a saving throw and fail, you can spend 1 ki poin
                   :name "Timeless Body"
                   :desc "At 15th level, your ki sustains you so that you suffer none of the frailty of old age, and you can’t be aged magically. You can still die of old age, however. In addition, you no longer need food or water."}]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             18 {:+features
                 [{:id :monk/empty-body
@@ -247,7 +247,7 @@ Additionally, you can spend 8 ki points to cast the astral projection spell, wit
                        true]]}]}
 
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             20 {:+features
                 [{:id :monk/perfect-self

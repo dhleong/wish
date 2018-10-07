@@ -114,7 +114,7 @@ The extra hit points increase when you reach certain levels in this class: to 1d
                 :bard/expertise]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             5 {:+features
                [{:id :bard/font-of-inspiration
@@ -130,7 +130,7 @@ The extra hit points increase when you reach certain levels in this class: to 1d
                       true]]}]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             10 {:+features
                 [:bard/expertise
@@ -158,11 +158,11 @@ You learn two additional spells from any class at 14th level and again at 18th l
                  ]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             19 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
 
             20 {:+features
                 [{:id :bard/superior-inspiration

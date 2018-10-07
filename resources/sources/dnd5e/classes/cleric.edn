@@ -70,7 +70,7 @@ A turned creature must spend its turns trying to move as far away from you as it
                       true]]}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             5 {:+features
                [{:id :cleric/destroy-undead
@@ -94,7 +94,7 @@ A turned creature must spend its turns trying to move as far away from you as it
                  }]}
 
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
 
             10 {:+features
                 [{:id :cleric/divine-intervention
@@ -113,11 +113,11 @@ At 20th level, your call for intervention succeeds automatically, no roll requir
                        true]]}]}
 
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             19 {:+features
-                [:ability-improvement]}}}]
+                [:abi-or-feat]}}}]
 
 [:!provide-feature
  {:id :cleric/channel-divinity

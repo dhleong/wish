@@ -53,7 +53,7 @@
   :name "Ability Score Improvement (or Feat)"
   :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature.
 
-Alternatively, if your DM uses the optional Feats rule, you can choose a Feat."
+Alternatively, using the optional feats rule, you can forgo increasing any ability scores to take a feat of your choice instead. A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides. You can take each feat only once, unless the feat’s description says otherwise."
   :implicit? true
   :instanced? true
   :max-options 1
@@ -66,9 +66,10 @@ Alternatively, if your DM uses the optional Feats rule, you can choose a Feat."
   }
 
  {:id :feats
-  :name "Feats"
+  :name "Extra Feats"
   :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides.
-At certain levels, your class gives you the Ability Score Improvement feature. Using the optional feats rule, you can forgo taking that feature to take a feat of your choice instead. You can take each feat only once, unless the feat’s description says otherwise."
+
+You can normally only take feats in place of Ability Score Improvements, but with permission from your DM you may add extra feats here."
   :primary-only? true
   :max-options 99
   :values [:all-feats]}

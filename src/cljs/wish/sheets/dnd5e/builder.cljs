@@ -63,6 +63,11 @@
 (defstyled feature-options-style
   [:.feature>.content {:padding "0 12px"}
    [:.desc style/metadata]]
+
+  ; features provided by another feature:
+  [:.feature.provided {:margin-left "16px"}
+     [:.title {:font-size "1.1em"}]]
+
   [:.class.feature-option.disabled {:color "#ccc"
                                     :cursor 'default}
    [:.name {:font-style 'italic
@@ -239,8 +244,9 @@
 
              ^{:key instance-id}
              [bind-fields
-              [:div.feature
-               [:h3
+              [:div.feature {:class (when (> (count (:wish/sort f)) 2)
+                                      "provided")}
+               [:h3.title
                 (:name f)
                 (when-let [n (:wish/instance f)]
                   (str " #" (inc n)))

@@ -93,15 +93,15 @@ You can use only one Metamagic option on a spell when you cast it, unless otherw
                                   :else 4))}]}
 
             4 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             8 {:+features
-               [:ability-improvement]}
+               [:abi-or-feat]}
             12 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             16 {:+features
-                [:ability-improvement]}
+                [:abi-or-feat]}
             19 {:+features
-                [:ability-improvement]}}
+                [:abi-or-feat]}}
   }]
 
 ;;
