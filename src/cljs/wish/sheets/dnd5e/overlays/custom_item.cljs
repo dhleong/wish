@@ -50,6 +50,26 @@
     ; always strip these keys
     (dissoc item :limited-use? :limited-use)))
 
+; NOTE also public for testing
+(defn item->form-state
+  [original-item]
+  (-> (reduce
+        (fn [item [directive arg]]
+          (case directive
+            :!add-limited-use
+            (-> item
+                (assoc :limited-use? true)
+                (assoc :limited-use
+                       (dissoc arg :id)))
+
+            ; some other directive? ignore it
+            item))
+        original-item
+        (:! original-item))
+
+      (dissoc :!)
+      (dissoc :limited-uses)))
+
 
 ; ======= internal widgets ================================
 
@@ -234,7 +254,8 @@
 (defn custom-item-overlay
   ([] (custom-item-overlay nil))
   ([existing-item]
-   (r/with-let [state (r/atom (or existing-item
+   (r/with-let [state (r/atom (or (when existing-item
+                                    (item->form-state existing-item))
                                   {:type :other}))]
 
      [:div styles/custom-item-overlay

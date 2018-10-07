@@ -1,6 +1,8 @@
 (ns wish.sheets.dnd5e.overlays.custom-item-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.overlays.custom-item :refer [install-limited-use]]))
+            [wish.sheets.dnd5e.overlays.custom-item
+             :refer [install-limited-use
+                     item->form-state]]))
 
 (deftest install-limited-use-test
   (testing "Ignore when-not limited-use?"
@@ -41,4 +43,34 @@
                                  :name "Serenity"
                                  :limited-use? true})))))
 
+(deftest item->form-state-test
+  (testing "Normal pass-through"
+    (is (= {:id :serenity
+            :type :other
+            :name "Serenity"}
+           (item->form-state
+             {:id :serenity
+              :type :other
+              :name "Serenity"}))))
 
+  (testing "Limited use"
+    (is (= {:id :serenity
+            :type :gear
+            :limited-use? true
+            :limited-use
+            {:uses 1
+             :restore-trigger :short-rest
+             :name "Crazy Ivan"}}
+
+           (item->form-state
+             {:id :serenity
+              :type :gear
+              :limited-uses {:serenity {:id :serenity
+                                        :name "Crazy Ivan"
+                                        :uses 1
+                                        :restore-trigger :short-rest}}
+              :! [[:!add-limited-use
+                   {:id :serenity
+                    :name "Crazy Ivan"
+                    :uses 1
+                    :restore-trigger :short-rest}]]})))))
