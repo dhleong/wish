@@ -19,7 +19,9 @@
   (let [const-max (-> accepted? meta :const)]
     (if (= 1 const-max)
       ; act like a radio button
-      {key-clicked true}
+      (if (get selections key-clicked)
+        {}
+        {key-clicked true})
 
       (let [updated (update-in selections [key-clicked] not)]
         (if (accepted? (merge
