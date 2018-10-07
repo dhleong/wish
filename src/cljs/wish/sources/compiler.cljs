@@ -355,14 +355,22 @@
                                 (dissoc :wish/sorts)
                                 (assoc :wish/sort (-> (:wish/sorts providing-feature)
                                                       (reverse)
-                                                      (nth instance-n))))
+                                                      (nth instance-n nil))))
                             providing-feature)]
 
     (if (or (empty? options-chosen)
 
             ; don't apply any options if the feature doesn't apply to this state
             ; (EX: racial feature options on the class, or vice versa)
-            (not providing-feature))
+            (not providing-feature)
+
+            ; also, if the providing feature is instanced, don't apply we don't have
+            ; enough instances available (IE: they leveled up, selected, then leveled down)
+            (when (:instanced? providing-feature)
+              ; NOTE: :wish/instances can be nil if it's a single instance of the
+              ; feature, but we know it exists with *at least* one because (:instanced?)
+              ; is true
+              (>= instance-n (:wish/instances providing-feature 1))))
       state
 
       (let [option-value (first options-chosen)
