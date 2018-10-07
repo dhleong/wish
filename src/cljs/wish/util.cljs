@@ -57,6 +57,26 @@
                       (when-not (= old v)
                         v))))
 
+(defn padded-compare
+  "Given two vectors of numbers, this will compare them as if the
+   shorter were padded with zeroes to be the same length as the
+   longer. This allows for orderings like:
+
+    [0 0] [0 0 0] [4 0] [4 0 0]"
+  [a b]
+  (let [longest (max (count a)
+                     (count b))]
+    (if (= 0 longest)
+      0 ; quick reject
+
+      (loop [i 0]
+        (let [c (compare (nth a i 0)
+                         (nth b i 0))
+              nexti (inc i)]
+          (if (and (zero? c) (< nexti longest))
+            (recur nexti)
+            c))))))
+
 (defn click>evts
   "Returns an on-click handler that dispatches the given events
    and prevents the default on-click events"

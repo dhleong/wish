@@ -11,7 +11,7 @@
             [wish.sources.compiler :refer [apply-directives inflate]]
             [wish.sources.compiler.lists :as lists]
             [wish.sources.core :as src :refer [find-class find-race]]
-            [wish.util :refer [deep-merge]]))
+            [wish.util :refer [deep-merge padded-compare]]))
 
 (reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
@@ -393,17 +393,6 @@
                ; if not provided, it's always available
                true)))
     values))
-
-(defn- padded-compare
-  "Given two vectors of numbers, this will pad them both
-   with zeroes to be the same length, then call compare"
-  [a b]
-  (let [longest (max (count a)
-                     (count b))]
-    ; FIXME this is terribly inefficient
-    (compare
-      (vec (concat a (repeat (- longest (count a)) 0)))
-      (vec (concat b (repeat (- longest (count b)) 0))))))
 
 (defn- inflate-feature-options
   [[features options attrs sheet data-source]]
