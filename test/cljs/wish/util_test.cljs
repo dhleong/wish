@@ -1,6 +1,6 @@
 (ns wish.util-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.util :refer [->map update-each-value]]))
+            [wish.util :refer [->map padded-compare update-each-value]]))
 
 (deftest ->map-test
   (testing "Vector ->map"
@@ -25,3 +25,17 @@
            (update-each-value
              {:one 1 :three 3}
              inc)))))
+
+(deftest padded-compare-test
+  (testing "Compare same length"
+    (is (= 0 (padded-compare [1] [1])))
+    (is (= 0 (padded-compare [1 1] [1 1])))
+    (is (= 0 (padded-compare [1 1 1] [1 1 1]))))
+  (testing "Compare (count a) < (count b) "
+    (is (= 0 (padded-compare [1] [1 0])))
+    (is (< (padded-compare [1] [1 1])
+           0)))
+  (testing "Compare (count a) > (count b) "
+    (is (= 0 (padded-compare [1 0] [1])))
+    (is (> (padded-compare [1 1] [1])
+           0))))
