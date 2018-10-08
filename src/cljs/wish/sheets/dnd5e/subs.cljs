@@ -522,7 +522,7 @@
   ::save-buffs
   :<- [:races]
   :<- [:classes]
-  :<- [:equipped-sorted]
+  :<- [::attuned-eq]
   (fn [entity-lists _]
     (->> entity-lists
          flatten
@@ -538,7 +538,7 @@
   :<- [:sheet-source]
   :<- [:races]
   :<- [:classes]
-  :<- [:equipped-sorted]
+  :<- [::attuned-eq]
   (fn [[data-source & entity-lists] _]
     (->> entity-lists
          flatten
@@ -718,7 +718,7 @@
 (reg-sub
   ::ac
   :<- [:classes]
-  :<- [:equipped-sorted]
+  :<- [::attuned-eq]
   :<- [::ability-modifiers]
   :<- [::armor-equipped?]
   (fn [[classes equipped modifiers armor? shield?]]
@@ -867,6 +867,18 @@
   :<- [:5e/items-filter]
   (fn [[items filter-str]]
     (filter-by-str filter-str items)))
+
+; all equipped items that are attuned (or that don't need to be attuned)
+(reg-sub
+  ::attuned-eq
+  :<- [:equipped-sorted]
+  :<- [::attuned-ids]
+  (fn [[equipped attuned-set]]
+    (remove
+      (fn [item]
+        (and (:attunes? item)
+             (not (contains? attuned-set (:id item)))))
+      equipped)))
 
 (reg-sheet-sub
   ::attuned-ids
@@ -1067,6 +1079,7 @@
   :<- [:sheet-source]
   :<- [:classes]
   :<- [:races]
+  :<- [::attuned-eq]
   (fn [[data-source & entity-lists] [_ filter-type]]
     (->> entity-lists
          flatten
@@ -1075,9 +1088,13 @@
              (let [ids (keys (get-in c [:attrs filter-type]))]
                (map
                  (fn [id]
-                   (or (get-in c [:features id])
+                   (or (when (= id (:id c))
+                         ; attuned equipment, probably
+                         c)
+                       (get-in c [:features id])
                        (src/find-feature data-source id)))
                  ids))))
+         (keep identity)
          (sort-by :name))))
 
 (def ^:private compile-dice-fn (memoize ->callable))

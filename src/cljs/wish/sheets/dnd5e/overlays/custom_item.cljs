@@ -31,18 +31,31 @@
   [{:keys [limited-use?]
     item-id :id
     item-name :name
-    {restore-trigger :restore-trigger
+    {action :action-type
+     restore-trigger :restore-trigger
      use-name :name
      uses :uses} :limited-use
     :as item}]
-  (let [item (if limited-use?
-               (assoc item
-                      :! [[:!add-limited-use
-                           {:id item-id
-                            :name (or use-name item-name)
-                            :uses (or uses 1)
-                            :restore-trigger (or restore-trigger
-                                                 :long-rest)}]])
+  (let [use-id (when limited-use?
+                 (keyword (namespace item-id)
+                          (str (name item-id) "#uses")))
+        item (if limited-use?
+               (cond-> item
+                 ; always:
+                 true (assoc :! [[:!add-limited-use
+                                  {:id use-id
+                                   :name (or use-name item-name)
+                                   :uses (or uses 1)
+                                   :restore-trigger (or restore-trigger
+                                                        :long-rest)}]])
+
+                 ; if selected:
+                 (and action
+                      (not= :-none action))
+                 (-> (assoc :consumes use-id)
+                     (update :! conj [:!provide-attr
+                                      [action item-id]
+                                      true])))
 
                ; strip :attunes? if there's no limited-use
                (dissoc item :attunes?))]
@@ -62,13 +75,17 @@
                 (assoc :limited-use
                        (dissoc arg :id)))
 
+            :!provide-attr
+            (cond-> item
+              (vector? arg) (assoc-in [:limited-use :action-type]
+                                      (first arg)))
+
             ; some other directive? ignore it
             item))
         original-item
         (:! original-item))
 
-      (dissoc :!)
-      (dissoc :limited-uses)))
+      (dissoc :! :consumes :limited-uses)))
 
 
 ; ======= internal widgets ================================
@@ -163,7 +180,18 @@
     [:select {:field :list
               :id :limited-use.restore-trigger}
      [:option {:key :long-rest} "Long Rest"]
-     [:option {:key :short-rest} "Short Rest"]]]])
+     [:option {:key :short-rest} "Short Rest"]]]
+
+   [:div
+    [:label.meta {:for :limited-use.action-type}
+     "This can be done as: \u00A0"]
+    [:select {:field :list
+              :id :limited-use.action-type}
+     [:option {:key :-none} "(nothing)"]
+     [:option {:key :action} "an Action"]
+     [:option {:key :bonus} "a Bonus Action"]
+     [:option {:key :reaction} "a Reaction"]
+     [:option {:key :special-action} "a Special Action"]]]])
 
 (defn- item-stacks? [for-types]
   [:div.section.stacks {:field :container

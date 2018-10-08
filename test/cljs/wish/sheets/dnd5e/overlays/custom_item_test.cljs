@@ -16,11 +16,15 @@
   (testing "Install with everything provided"
     (is (= {:id :serenity
             :attunes? true
+            :consumes :serenity#uses
             :! [[:!add-limited-use
-                 {:id :serenity
+                 {:id :serenity#uses
                   :name "Crazy Ivan"
                   :uses 2
-                  :restore-trigger :short-rest}]]}
+                  :restore-trigger :short-rest}]
+                [:!provide-attr
+                 [:bonus :serenity]
+                 true]]}
 
            (install-limited-use {:id :serenity
                                  :limited-use? true
@@ -28,13 +32,14 @@
                                  :limited-use
                                  {:name "Crazy Ivan"
                                   :restore-trigger :short-rest
+                                  :action-type :bonus
                                   :uses 2}}))))
 
   (testing "Install with nothing provided"
     (is (= {:id :serenity
             :name "Serenity"
             :! [[:!add-limited-use
-                 {:id :serenity
+                 {:id :serenity#uses
                   :name "Serenity"
                   :uses 1
                   :restore-trigger :long-rest}]]}
@@ -53,24 +58,29 @@
               :type :other
               :name "Serenity"}))))
 
-  (testing "Limited use"
+  (testing "Limited use w/action"
     (is (= {:id :serenity
             :type :gear
             :limited-use? true
             :limited-use
-            {:uses 1
+            {:action-type :bonus
+             :uses 1
              :restore-trigger :short-rest
              :name "Crazy Ivan"}}
 
            (item->form-state
              {:id :serenity
               :type :gear
-              :limited-uses {:serenity {:id :serenity
+              :consumes :serenity#uses
+              :limited-uses {:serenity {:id :serenity#uses
                                         :name "Crazy Ivan"
                                         :uses 1
                                         :restore-trigger :short-rest}}
               :! [[:!add-limited-use
-                   {:id :serenity
+                   {:id :serenity#uses
                     :name "Crazy Ivan"
                     :uses 1
-                    :restore-trigger :short-rest}]]})))))
+                    :restore-trigger :short-rest}]
+                  [:!provide-attr
+                   [:bonus :serenity]
+                   true]]})))))
