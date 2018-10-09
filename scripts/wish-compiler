@@ -2,11 +2,20 @@
 
 # auto-download latest release bin
 if ! [ -d ".bin" ] || ! [ -f ".bin/wish-compiler" ]; then
-    mkdir .bin
-    url=$(curl -s https://api.github.com/repos/dhleong/wish-compiler/releases/latest \
+    mkdir .bin 2> /dev/null
+    response=$(curl -s https://api.github.com/repos/dhleong/wish-compiler/releases/latest)
+    url=$(echo "$response" \
         | grep "browser_download_url" \
         | cut -d '"' -f 4)
-    curl $url -Lo .bin/wish-compiler
+
+    echo "Fetching wish-compiler: $url"
+    curl $url -Lo .bin/wish-compiler || echo "Error getting latest compiler version: $response"
+
+    if ! [ -f ".bin/wish-compiler" ]; then
+        echo "Failed to download wish-compiler"
+        exit 1
+    fi
+
     chmod +x .bin/wish-compiler
 fi
 
