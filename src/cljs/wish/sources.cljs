@@ -6,6 +6,7 @@
   (:require [clojure.core.async :as async :refer [alts! <!]]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
+            [cognitect.transit :as t]
             [wish.providers :as providers]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [compile-directives]]
@@ -16,19 +17,34 @@
 ; cache of *compiled* sources by id
 (defonce ^:private loaded-sources (atom {}))
 
-(defn- compile-raw-source
-  [{:keys [kind] :as sheet} id raw]
+(defn- read-transit-directives [raw]
+  (t/read (t/reader :json) raw))
+
+(defn- read-edn-directives [raw]
   (loop [reader (string-push-back-reader raw)
          directives []]
     (if-let [d (edn/read reader)]
       ; keep loading directives
       (recur reader (conj directives d))
 
-      (->DataSource
-        id
-        (->> directives
-             (compile-directives)
-             (sheets/post-compile kind))))))
+      ; done!
+      directives)))
+
+(defn- compile-raw-source
+  [{:keys [kind] :as sheet} id raw]
+  (let [directives (if (= (subs raw 0 2) "[[")
+                     (do
+                       (log "Read transit for " id)
+                       (read-transit-directives raw))
+
+                     (do
+                       (log "Read edn for " id)
+                       (read-edn-directives raw)))]
+    (->DataSource
+      id
+      (->> directives
+           (compile-directives)
+           (sheets/post-compile kind)))))
 
 (defn- load-source!
   "Returns a channel that signals with [err] or [nil source] when done"

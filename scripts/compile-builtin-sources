@@ -17,5 +17,5 @@ fi
 
 for s in "${sources[@]}"; do
     echo "Compiling $s"
-    scripts/compile-source.cljs "$s"
+    scripts/wish-compiler "resources/sources/$s" "resources/public/sources/$s.transit.json"
 done

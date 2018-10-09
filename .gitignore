@@ -11,5 +11,6 @@ out
 .lein-failures
 .cljs_nashorn_repl
 .repl
+.bin
 nashorn_code_cache
 .planck_cache
