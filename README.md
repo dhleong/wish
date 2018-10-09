@@ -76,11 +76,7 @@ You'll need to do this on first checkout and any time you update part of a data 
 scripts/compile-builtin-sources
 ```
 
-This script uses [planck][4] to execute clojurescript without the extra
-compile steps, and can be used to compile custom Data Sources for homebrew,
-etc. At some point we may just pull this tool out into a separate project
-since we have to build planck from source as part of the CI deploy process
-anyway, so it's not exactly saving time....
+This script uses [wish-compiler][4] under the hood, which can be used to compile custom Data Sources for homebrew, etc. [Included in this repo][6] is a wrapper script which automatically downloads the latest version of [wish-compiler][4]. If you use this script and need to update your local copy of the binary, just delete `.bin/wish-compiler` and the script will re-fetch it for you.
 
 ### Run application:
 
@@ -114,5 +110,6 @@ lein build
 [1]: https://github.com/Day8/re-frame
 [2]: https://github.com/tpope/vim-fireplace
 [3]: https://github.com/dhleong/dots/blob/master/.vim/ftplugin/clojure.vim
-[4]: https://github.com/planck-repl/planck
+[4]: https://github.com/dhleong/wish-compiler
 [5]: http://dnd.wizards.com/articles/features/systems-reference-document-srd
+[6]: https://github.com/dhleong/wish/blob/master/scripts/wish-compiler
