@@ -15,7 +15,7 @@ script:
     - scripts/compile-builtin-sources
 
 after_success:
-    - lein build
+    - [ "$TRAVIS_BRANCH" = "master" ] && lein build
 
 cache:
     directories:
