@@ -67,17 +67,17 @@
   ([req timeout-ms]
    (js/Promise.
      (fn [presolve preject]
-       (let [about-controller (js/AbortController.)
+       (let [abort-controller (js/AbortController.)
              timeout-timer (js/setTimeout
                              (fn []
                                (log/info "Abort slow request " req)
                                ; signal the request to stop
-                               (.abort about-controller)
+                               (.abort abort-controller)
                                (preject (js/Error.
                                           "Request failed (network delay / timed out)")))
                              default-network-timeout-ms)]
          (-> (js/fetch req
-                       #js {:signal (.-signal about-controller)
+                       #js {:signal (.-signal abort-controller)
 
                             ; no-cache means always validate responses in in the
                             ; browser cache with eg: if-modified-since requests.
@@ -88,15 +88,14 @@
              (.finally #(js/clearTimeout timeout-timer))))))))
 
 (defn fetch-and-cache [req]
-  (-> (fetch-with-timeout req)
-
-      (.then (fn [resp]
-               ;; (log "Attempt to cache: " req " -> " resp)
-               (let [resp-clone (.clone resp)]
-                 (-> js/caches
-                     (.open cache-name)
-                     (.then #(.put % req resp-clone))))
-               resp))))
+  (-> js/caches
+      (.open cache-name)
+      (.then (fn [cache]
+               (-> (fetch-with-timeout req)
+                   (.then (fn [resp]
+                            ;; (log "Attempt to cache: " req " -> " resp)
+                            (.put cache req (.clone resp))
+                            resp)))))))
 
 (defn fetch-with-cache [to-match]
   ; we always prefer network if we can
@@ -106,11 +105,10 @@
                 (-> js/caches
                     (.match to-match)
                     (.then (fn [resp]
-                             (if resp
-                               resp
-                               (do
-                                 (log/warn "Couldn't fetch " to-match " from cache")
-                                 (throw e))))))))))
+                             (or resp
+                                 (do
+                                   (log/warn "Couldn't fetch " to-match " from cache")
+                                   (throw e))))))))))
 
 (defn never-cache? [url]
   ; don't cache other schemes
@@ -160,6 +158,25 @@
              (str/ends-with? path ".png")))))
 
 (def ^:private shell-last-modified-changed (atom nil))
+(def ^:private notify-shell-updated-timer (atom nil))
+
+(defn- notify-shell-updated [new-modified]
+  ; throttle notification, since multiple assets could be updating
+  ; and we don't want to notify until they're all ready
+  (swap! notify-shell-updated-timer
+         (fn [old-timer]
+           (when old-timer
+             (js/clearTimeout old-timer))
+
+           ; return the new timer value:
+           (js/setTimeout
+             #(swap! shell-last-modified-changed
+                     (fn [last-value]
+                       (when-not (= last-value new-modified)
+                         (post-message! [:shell-updated new-modified]))
+                       new-modified))
+             1500))))
+
 
 (defn- fetch-shell-path [path]
   ; shell files are special. we want to load them from cache as
@@ -171,27 +188,25 @@
       (.then (fn [resp]
                (if resp
                  ; success!
-                 (let [old-modified (last-modified resp)]
-                   (log "shell path for " path " -> " resp)
+                 (let [resp-clone (.clone resp)
+                       old-modified (last-modified resp-clone)]
+                   (log "shell path for " path " -> " resp-clone)
 
                    ; in the background, fetch and cache any updates
                    (-> (fetch-and-cache path)
                        (.then (fn [updated-resp]
-                                (let [new-modified (or (last-modified updated-resp)
+                                (let [updated-clone (.clone updated-resp)
+                                      new-modified (or (last-modified updated-clone)
 
                                                        ; uncomment for local testing:
                                                        #_(when config/debug?
                                                          "new-modified"))]
                                   (when-not (= old-modified new-modified)
-                                    (log "Updated " path ": " updated-resp)
+                                    (log "Updated " path ": " updated-clone)
 
                                     ; notify the client of shell changes, but
-                                    ; not excessively
-                                    (swap! shell-last-modified-changed
-                                           (fn [last-value]
-                                             (when-not (= last-value new-modified)
-                                               (post-message! [:shell-updated new-modified]))
-                                             new-modified))))))
+                                    ; not too noisily
+                                    (notify-shell-updated new-modified)))))
                        (.catch #(log/info "Error updating " path ": " %)))
 
                    ; return the cached response immediately
