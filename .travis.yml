@@ -15,7 +15,7 @@ script:
     - scripts/compile-builtin-sources
 
 after_success:
-    - if [ "$TRAVIS_BRANCH" = master ]; then lein build || travis_terminate 1; fi
+    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then lein build || travis_terminate 1; fi
 
 cache:
     directories:
