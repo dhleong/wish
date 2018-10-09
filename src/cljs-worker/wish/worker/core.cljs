@@ -198,11 +198,12 @@
                                 (let [updated-clone (.clone updated-resp)
                                       new-modified (or (last-modified updated-clone)
 
-                                                       ; uncomment for local testing:
-                                                       #_(when config/debug?
+                                                       ; local testing:
+                                                       (when config/debug?
                                                          "new-modified"))]
                                   (when-not (= old-modified new-modified)
-                                    (log "Updated " path ": " updated-clone)
+                                    (log "Updated " path ": " new-modified
+                                         " (was: " old-modified ")")
 
                                     ; notify the client of shell changes, but
                                     ; not too noisily

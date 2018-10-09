@@ -39,11 +39,7 @@
                                  edn/read-string
                                  receive!)))]
 
-             ; if we don't have a controller, the serviceWorker is not
-             ; installed yet, so don't worry about it
-             (when-let [controller js/navigator.serviceWorker.controller]
-               ; let the serviceWorker know we're listening
-               (.postMessage controller (str [:ready])))
+             (>evt [:set-worker-ready])
 
              new-key))))
 

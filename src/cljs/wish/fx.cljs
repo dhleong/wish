@@ -4,6 +4,7 @@
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [re-frame.core :refer [reg-fx]]
             [re-pressed.core :as rp]
+            [alandipert.storage-atom :refer [local-storage]]
             [wish.db :as db]
             [wish.sources :as sources]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
@@ -121,7 +122,28 @@
 
 ; ======= App updates =====================================
 
+(defonce ^:private latest-version
+  (local-storage (atom nil) "wish-update-version"))
+
 (reg-fx
   :update-app
   (fn []
     (js/location.reload)))
+
+(reg-fx
+  :fetch-latest-update
+  (fn []
+    (>evt [:set-ignored-update @latest-version])))
+
+(reg-fx
+  :persist-latest-update
+  (fn [version]
+    (reset! latest-version version)))
+
+(reg-fx
+  :notify-service-worker
+  (fn [ready?]
+    (when ready?
+      (when-let [controller js/navigator.serviceWorker.controller]
+        ; let the serviceWorker know we're listening
+        (.postMessage controller (str [:ready]))))))

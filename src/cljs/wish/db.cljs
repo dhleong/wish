@@ -5,7 +5,8 @@
    :device-type :default
 
    :updates {:latest nil
-             :ignored nil}
+             :ignored :unknown}
+   :worker-ready? false
 
    ; map of provider id to their current state. Acceptable states:
    ;  - :ready        The provider is ready to be used. Setting this

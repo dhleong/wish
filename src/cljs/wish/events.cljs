@@ -18,6 +18,7 @@
   ::initialize-db
   (fn-traced [_ _]
     {:db db/default-db
+     :fetch-latest-update :!
      :providers/init! :!}))
 
 (reg-event-fx
@@ -78,11 +79,12 @@
       ; if we're coming back online, trigger init!
       online? (assoc :providers/init! :!))))
 
-(reg-event-db
+(reg-event-fx
   :set-latest-update
   [trim-v]
-  (fn [db [version]]
-    (assoc-in db [:updates :latest] version)))
+  (fn [{:keys [db]} [version]]
+    {:persist-latest-update version
+     :db (assoc-in db [:updates :latest] version)}))
 
 (reg-event-fx
   :update-app
@@ -97,6 +99,23 @@
   (fn [db _]
     (update db :updates (fn [updates]
                           (assoc updates :ignored (:latest updates))))))
+
+(reg-event-fx
+  :set-ignored-update
+  [trim-v]
+  (fn [{:keys [db]} [ignored-version]]
+    {:db (assoc-in db [:updates :ignored] ignored-version)
+     :notify-service-worker (when (:worker-ready? db)
+                              :ready)}))
+
+(reg-event-fx
+  :set-worker-ready
+  [trim-v]
+  (fn [{:keys [db]} _]
+    {:db (assoc db :worker-ready? true)
+     :notify-service-worker (when-not (= :unknown (get-in db [:updates :ignored]))
+                              :ready)}))
+
 
 
 ; ======= Provider management ==============================

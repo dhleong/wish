@@ -19,7 +19,10 @@
 (reg-sub
   :update-available?
   (fn [{{:keys [latest ignored]} :updates} _]
-    (not= latest ignored)))
+    (and (not (nil? ignored)) ; if nil, this is a fresh run
+         (not (nil? latest))
+         (not= :unknown ignored)
+         (not= latest ignored))))
 
 
 ; ======= Provider-related =================================
