@@ -315,7 +315,8 @@
        :save! (fn [path v]
                 ; NOTE this seems to get triggered whenever this section is
                 ; rendered for some reason...
-                (>evt [:update-meta [:classes] assoc-in path v]))}]
+                (when-not (= v (<sub [::subs/class-level (first path)]))
+                  (>evt [:update-meta [:classes] assoc-in path v])))}]
 
      [:div.remove.clickable
       {:title (str "Remove " (:name class-info) " Class")
@@ -425,9 +426,10 @@
         [:option {:key :average} "Automatic"]
         [:option {:key :manual} "Manual"]]
        {:get #(<sub [::subs/max-hp-mode])
-        :save! #(>evt [:update-meta [:sheet]
-                       assoc
-                       :max-hp-mode %2])}]]
+        :save! #(when-not (= %2 (<sub [::subs/max-hp-mode]))
+                  (>evt [:update-meta [:sheet]
+                         assoc
+                         :max-hp-mode %2]))}]]
 
      (case (<sub [::subs/max-hp-mode])
        :average [hp-mode-average]
