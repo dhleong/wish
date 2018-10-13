@@ -96,22 +96,20 @@
     ; data source mgmt
     [data-source-manager]]])
 
-(defn feature-option
-  ([option]
-   (feature-option option :selected))
-  ([option selected?]
-   ; Fragment! avoids unnecessary extra parent
-   [:<>
-    [:b (:name option)
+(defn- feature-option
+  [option selected?]
+  ; Fragment! avoids unnecessary extra parent
+  [:<>
+   [:b (:name option)
 
-     ; special case for spells:
-     (when-let [spell-level (:spell-level option)]
-       (if (= 0 spell-level)
-         " · Cantrip"
-         (str " · Level " spell-level)))]
+    ; special case for spells:
+    (when-let [spell-level (:spell-level option)]
+      (if (= 0 spell-level)
+        " · Cantrip"
+        (str " · Level " spell-level)))]
 
-    (when selected?
-      [formatted-text :div.desc (:desc option)])]))
+   (when selected?
+     [formatted-text :div.desc (:desc option)])])
 
 (defn expanding-assoc
   "Like (assoc), but safely expands vectors"
@@ -167,110 +165,137 @@
   [:div.feature-option (dissoc opts :active?)
    [feature-option option selected?]])
 
-(defn limited-select-feature-options
-  [f instance-id sub-vector extra-info]
+(defn- have-feature-option?
+  [sub-vector feature-id instance-id option-id]
+  (contains?
+    (<sub [::subs/available-feature-options
+           sub-vector
+           feature-id
+           instance-id])
+    option-id))
+
+(defn- limited-select-feature-options
+  [f instance-id sub-vector extra-info doc]
   (let [total-items (count (:values f))
-        scrollable? (>= total-items 15)]
+        scrollable? (>= total-items 15)
+        path [instance-id]
+        selected (set ((:get doc) path))
+        available-options (<sub [::subs/available-feature-options
+                                 sub-vector
+                                 (:id f)
+                                 instance-id])
+        accepted? (:max-options f)
+        toggle-option (fn [option-id]
+                        ((:save! doc)
+                         path
+                         (let [new-v (into
+                                       []
+                                       (if (contains? selected option-id)
+                                         (disj selected option-id)
+                                         (conj selected option-id)))]
+                           (if (accepted? (assoc
+                                            extra-info
+                                            :features new-v))
+                             new-v
+                             (into [] selected)))))]
     [:div.feature-options {:class (when scrollable?
                                     "scrollable")
-                           :field :limited-select
-                           :accepted? (:max-options f)
-                           :accepted?-extra extra-info
                            :id instance-id}
      (for [option (:values f)]
-       ; being able to use a fn here is only because :limited-select is a
-       ; custom widget, but it's nice because the map we pass below gets
-       ; updated to include :active?, with which we can limit how much
-       ; we render—very helpful for perf on large lists. One tricky bit
-       ; about this usage, though, is that the body is passed through as
-       ; a sequence, so we need to destructure it (see above)
-       [limited-select-feature-option
-        {:key (:id option)
-         ; NOTE: reagent-forms doesn't properly handle dynamically
-         ; changing option lists for a feature
-         :visible?! #(<sub [::subs/have-feature-option?
-                            sub-vector
-                            (:id f)
-                            instance-id
-                            (:id option)])
-         }
-        option])]))
+       (when (contains? available-options (:id option))
+         (let [active? (contains? selected (:id option))]
+           ^{:key (:id option)}
+           [limited-select-feature-option
+            {:class (when active? "active")
+             :active? active?
+             :on-click (fn-click
+                         (toggle-option (:id option)))}
+            [option]])))]))
 
 (defn multi-select-feature-options
-  [f instance-id sub-vector extra-info]
+  [f instance-id sub-vector extra-info doc]
   (let [max-options (count-max-options f extra-info)
         base-path (if (:wish/instance-id f)
                     [instance-id :value]
                     [instance-id])]
     (into [:div.multi-feature-options]
           (for [i (range max-options)]
-            (into
-              [:select {:field :multi-limited-select
-                        :id (concat base-path [i])}
-               [:option {:key :-none} "—Select One—"]]
+            [bind-fields
+             (into
+               [:select {:field :multi-limited-select
+                         :id (concat base-path [i])}
+                [:option {:key :-none} "—Select One—"]]
 
-              (for [o (:values f)]
-                ^{:key (:id o)}
-                [:option {:key (:id o)
-                          :visible? #(<sub [::subs/have-feature-option?
-                                            sub-vector
-                                            (:id f)
-                                            instance-id
-                                            (:id o)])}
-                 (:name o)]))))))
+               (for [o (:values f)]
+                 ^{:key (:id o)}
+                 [:option {:key (:id o)
+                           :visible? #(have-feature-option?
+                                        sub-vector
+                                        (:id f)
+                                        instance-id
+                                        (:id o))
+                           }
+                  (:name o)]))
+             doc]))))
 
 (defn- feature-options
-  [f instance-id sub-vector extra-info-atom]
-  (if (:multi? f)
-    (multi-select-feature-options f instance-id sub-vector @extra-info-atom)
-    (limited-select-feature-options f instance-id sub-vector extra-info-atom)))
+  [f instance-id sub-vector extra-info doc]
+  (let [total-items (count (:values f))
+        huge? (>= total-items 30)]
+    (cond
+      (:multi? f)
+      [multi-select-feature-options
+       f instance-id sub-vector
+       extra-info doc]
 
-(defn feature-options-selection [sub-vector source-info]
-  ; NOTE: thanks to how reagent-forms completely disregards changed
-  ; inputs on subsequent renders, we have to store changed extra-info
-  ; in an atom and dereference it in limited-select-feature-options.
-  ; extra-info, provided by callers, is mostly interesting for :level
-  ; since many things scale by level
-  (let [extra-info-atom (atom nil)]
-    (fn [sub-vector source-info]
-      (if-let [features (seq (<sub sub-vector))]
-        [:div feature-options-style
-         (for [[feature-id f :as entry] features]
-           (let [instance-id (or (:wish/instance-id f)
-                                 feature-id)
-                 extra-info (dissoc source-info :features :limited-uses :&levels)]
-             ; see NOTE above
-             (reset! extra-info-atom extra-info)
+      ; FIXME the secret sauce goes here:
+      #_huge?
+      #_[:div "TODO"]
+      #_[multi-select-feature-options
+       f instance-id sub-vector
+       extra-info doc]
 
-             ^{:key instance-id}
-             [bind-fields
-              [:div.feature {:class (when (> (count (:wish/sort f)) 2)
-                                      "provided")}
-               [:h3.title
-                (:name f)
-                (when-let [n (:wish/instance f)]
-                  (str " #" (inc n)))
-                #_(str "—Sort: `" (or (:wish/sort f)
-                                   "(no sort)")
-                     "`")]
+      :else
+      [limited-select-feature-options
+       f instance-id sub-vector
+       extra-info doc]
+      )))
 
-               [:div.content
-                (when-let [desc (:desc f)]
-                  [formatted-text :div.desc desc])
+(defn feature-options-selection [sub-vector extra-info]
+  (if-let [features (seq (<sub sub-vector))]
+    [:div feature-options-style
+     (for [[feature-id f :as entry] features]
+       (let [instance-id (or (:wish/instance-id f)
+                             feature-id)
+             ;; extra-info (dissoc source-info :features :limited-uses :&levels)
+             doc {:get #(<sub [:options-> %])
+                  :save! (fn [path v]
+                           (>evt [:update-meta [:options]
+                                  update
+                                  (first path)
+                                  expand-val
+                                  f path v]))
+                  :doc #(<sub [:meta/options])}]
 
-                (feature-options f instance-id sub-vector extra-info-atom)]]
+         ^{:key instance-id}
+         [:div.feature {:class (when (> (count (:wish/sort f)) 2)
+                                 "provided")}
+          [:h3.title
+           (:name f)
+           (when-let [n (:wish/instance f)]
+             (str " #" (inc n)))
+           #_(str "—Sort: `" (or (:wish/sort f)
+                                 "(no sort)")
+                  "`")]
 
-              {:get #(<sub [:options-> %])
-               :save! (fn [path v]
-                        (>evt [:update-meta [:options]
-                               update
-                               (first path)
-                               expand-val
-                               f path v]))
-               :doc #(<sub [:meta/options])}])) ]
+          [:div.content
+           (when-let [desc (:desc f)]
+             [formatted-text :div.desc desc])
 
-        ; no features
-        [:p "No features with options available yet."]))))
+           [feature-options f instance-id sub-vector extra-info doc]]])) ]
+
+    ; no features
+    [:p "No features with options available yet."]))
 
 (defn race-page []
   [:div races-style
