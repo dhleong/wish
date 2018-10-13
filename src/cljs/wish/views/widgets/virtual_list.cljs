@@ -17,31 +17,35 @@
 
    :render-item must accept a prop map and the item to render"
   [& {:keys [items render-item]}]
+  {:pre [(identity render-item)
+         (identity items)]}
 
-  ; persist the cache
+  ; DON'T persist the cache, else changes to the items
+  ; (for example, marking some "selected" or not) will NOT allow them
+  ; to render with a different height
   (let [cache (js/ReactVirtualized.CellMeasurerCache.
                 #js {:fixedWidth true})]
-
-    (fn [& {:keys [items render-item]}]
-      [auto-sizer
-       (fn [js-size]
-         (r/as-element
-           [virtualized-list
-            {:height (aget js-size "height")
-             :width (aget js-size "width")
-             :deferred-measurement-cache cache
-             :row-count (count items)
-             :row-height (.-rowHeight cache)
-             :row-renderer (fn [row]
-                             (let [{:keys [index key parent style] :as row} (js->clj row :keywordize-keys true)]
-                               (r/as-element
-                                 [cell-measurer
-                                  {:cache cache
-                                   :column-index 0
-                                   :key key
-                                   :parent parent
-                                   :row-index index}
-                                  (render-item
-                                    {:style style}
-                                    (nth items index))])))}
-            ]))])))
+    [auto-sizer
+     (fn [js-size]
+       (r/as-element
+         [virtualized-list
+          {:height (aget js-size "height")
+           :width (aget js-size "width")
+           :deferred-measurement-cache cache
+           :overscan-row-count 0
+           :row-count (count items)
+           :row-height (.-rowHeight cache)
+           :row-renderer (fn [row]
+                           (let [{:keys [index key parent style] :as row} (js->clj row :keywordize-keys true)]
+                             (r/as-element
+                               [cell-measurer
+                                {:cache cache
+                                 :column-index 0
+                                 :key key
+                                 :parent parent
+                                 :row-index index}
+                                (render-item
+                                  ; NOTE: the fixed height passed here seems to include borders when it should not
+                                  {:style (dissoc style :height)}
+                                  (nth items index))])))}
+          ]))]))

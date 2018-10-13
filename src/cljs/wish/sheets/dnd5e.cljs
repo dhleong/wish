@@ -24,8 +24,7 @@
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link link>evt]]
-            [wish.views.widgets.swipeable :refer [swipeable]]
-            [wish.views.widgets.virtual-list :refer [virtual-list]]))
+            [wish.views.widgets.swipeable :refer [swipeable]]))
 
 (defn rest-buttons []
   [:div styles/rest-buttons

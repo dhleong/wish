@@ -20,7 +20,8 @@
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select]
-            [wish.views.widgets.multi-limited-select]))
+            [wish.views.widgets.multi-limited-select]
+            [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 ; ======= CSS ==============================================
 
@@ -161,7 +162,7 @@
       v)))
 
 (defn- limited-select-feature-option
-  [{selected? :active? :as opts} [option]]
+  [{selected? :active? :as opts} option]
   [:div.feature-option (dissoc opts :active?)
    [feature-option option selected?]])
 
@@ -176,14 +177,17 @@
 
 (defn- limited-select-feature-options
   [f instance-id sub-vector extra-info doc]
-  (let [total-items (count (:values f))
-        scrollable? (>= total-items 15)
-        path [instance-id]
+  (let [path [instance-id]
         selected (set ((:get doc) path))
-        available-options (<sub [::subs/available-feature-options
-                                 sub-vector
-                                 (:id f)
-                                 instance-id])
+        available-options-set (<sub [::subs/available-feature-options
+                                     sub-vector
+                                     (:id f)
+                                     instance-id])
+        available-options (->> (:values f)
+                               (filter #(contains? available-options-set (:id %))))
+        total-items (count available-options)
+        scrollable? (>= total-items 15)
+
         accepted? (:max-options f)
         toggle-option (fn [option-id]
                         ((:save! doc)
@@ -197,20 +201,28 @@
                                             extra-info
                                             :features new-v))
                              new-v
-                             (into [] selected)))))]
+                             (into [] selected)))))
+        render-item (fn [opts option]
+                      (let [active? (contains? selected (:id option))]
+                        [limited-select-feature-option
+                         (merge opts
+                                {:class (when active? "active")
+                                 :active? active?
+                                 :on-click (fn-click
+                                             (toggle-option (:id option)))})
+                         option]))]
     [:div.feature-options {:class (when scrollable?
                                     "scrollable")
                            :id instance-id}
-     (for [option (:values f)]
-       (when (contains? available-options (:id option))
-         (let [active? (contains? selected (:id option))]
-           ^{:key (:id option)}
-           [limited-select-feature-option
-            {:class (when active? "active")
-             :active? active?
-             :on-click (fn-click
-                         (toggle-option (:id option)))}
-            [option]])))]))
+     (if scrollable?
+       [virtual-list
+        :items available-options
+        :render-item render-item]
+
+       (for [option available-options]
+         (with-meta
+           (render-item nil option)
+         {:key (:id option)})))]))
 
 (defn multi-select-feature-options
   [f instance-id sub-vector extra-info doc]
@@ -240,26 +252,14 @@
 
 (defn- feature-options
   [f instance-id sub-vector extra-info doc]
-  (let [total-items (count (:values f))
-        huge? (>= total-items 30)]
-    (cond
-      (:multi? f)
-      [multi-select-feature-options
-       f instance-id sub-vector
-       extra-info doc]
+  (if (:multi? f)
+    [multi-select-feature-options
+     f instance-id sub-vector
+     extra-info doc]
 
-      ; FIXME the secret sauce goes here:
-      #_huge?
-      #_[:div "TODO"]
-      #_[multi-select-feature-options
-       f instance-id sub-vector
-       extra-info doc]
-
-      :else
-      [limited-select-feature-options
-       f instance-id sub-vector
-       extra-info doc]
-      )))
+    [limited-select-feature-options
+     f instance-id sub-vector
+     extra-info doc]))
 
 (defn feature-options-selection [sub-vector extra-info]
   (if-let [features (seq (<sub sub-vector))]
