@@ -44,8 +44,7 @@
                                  :key key
                                  :parent parent
                                  :row-index index}
-                                (render-item
-                                  ; NOTE: the fixed height passed here seems to include borders when it should not
-                                  {:style (dissoc style :height)}
-                                  (nth items index))])))}
+                                [:div.row-entry {:style style}
+                                 (render-item
+                                   (nth items index))]])))}
           ]))]))

@@ -202,14 +202,13 @@
                                             :features new-v))
                              new-v
                              (into [] selected)))))
-        render-item (fn [opts option]
+        render-item (fn [option]
                       (let [active? (contains? selected (:id option))]
                         [limited-select-feature-option
-                         (merge opts
-                                {:class (when active? "active")
-                                 :active? active?
-                                 :on-click (fn-click
-                                             (toggle-option (:id option)))})
+                         {:class (when active? "active")
+                          :active? active?
+                          :on-click (fn-click
+                                      (toggle-option (:id option)))}
                          option]))]
     [:div.feature-options {:class (when scrollable?
                                     "scrollable")
@@ -221,7 +220,7 @@
 
        (for [option available-options]
          (with-meta
-           (render-item nil option)
+           (render-item option)
          {:key (:id option)})))]))
 
 (defn multi-select-feature-options
