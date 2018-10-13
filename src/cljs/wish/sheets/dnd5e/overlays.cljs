@@ -739,8 +739,8 @@
    [:div.item-browser.scrollable
     [virtual-list
      :items (<sub [::subs/all-items])
-     :render-item (fn [props item]
-                    [:div.item props
+     :render-item (fn [item]
+                    [:div.item
                      [item-browser-item item]])]]])
 
 (defn item-adder []

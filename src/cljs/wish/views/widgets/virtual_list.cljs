@@ -15,33 +15,41 @@
 
    This element must be wrapped in a :div with a fixed height.
 
-   :render-item must accept a prop map and the item to render"
-  [& {:keys [items render-item]}]
+   :items is the list (sequential collection) of items to render
+   :render-item must accept a single argument with the item to render
+   :overscan-row-count (optional, default 10) is an Int indicating how many
+                       extra rows to render above and below the visible area
+                       for smoother scrolls"
+  [& {:keys [items render-item overscan-row-count]
+      :or {overscan-row-count 10}}]
+  {:pre [(identity render-item)
+         (identity items)]}
 
-  ; persist the cache
+  ; DON'T persist the cache, else changes to the items
+  ; (for example, marking some "selected" or not) will NOT allow them
+  ; to render with a different height
   (let [cache (js/ReactVirtualized.CellMeasurerCache.
                 #js {:fixedWidth true})]
-
-    (fn [& {:keys [items render-item]}]
-      [auto-sizer
-       (fn [js-size]
-         (r/as-element
-           [virtualized-list
-            {:height (aget js-size "height")
-             :width (aget js-size "width")
-             :deferred-measurement-cache cache
-             :row-count (count items)
-             :row-height (.-rowHeight cache)
-             :row-renderer (fn [row]
-                             (let [{:keys [index key parent style] :as row} (js->clj row :keywordize-keys true)]
-                               (r/as-element
-                                 [cell-measurer
-                                  {:cache cache
-                                   :column-index 0
-                                   :key key
-                                   :parent parent
-                                   :row-index index}
-                                  (render-item
-                                    {:style style}
-                                    (nth items index))])))}
-            ]))])))
+    [auto-sizer
+     (fn [js-size]
+       (r/as-element
+         [virtualized-list
+          {:height (aget js-size "height")
+           :width (aget js-size "width")
+           :deferred-measurement-cache cache
+           :overscan-row-count overscan-row-count
+           :row-count (count items)
+           :row-height (.-rowHeight cache)
+           :row-renderer (fn [row]
+                           (let [{:keys [index key parent style] :as row} (js->clj row :keywordize-keys true)]
+                             (r/as-element
+                               [cell-measurer
+                                {:cache cache
+                                 :column-index 0
+                                 :key key
+                                 :parent parent
+                                 :row-index index}
+                                [:div.row-entry {:style style}
+                                 (render-item
+                                   (nth items index))]])))}
+          ]))]))
