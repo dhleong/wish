@@ -15,8 +15,13 @@
 
    This element must be wrapped in a :div with a fixed height.
 
-   :render-item must accept a prop map and the item to render"
-  [& {:keys [items render-item]}]
+   :items is the list (sequential collection) of items to render
+   :render-item must accept a single argument with the item to render
+   :overscan-row-count (optional, default 10) is an Int indicating how many
+                       extra rows to render above and below the visible area
+                       for smoother scrolls"
+  [& {:keys [items render-item overscan-row-count]
+      :or {overscan-row-count 10}}]
   {:pre [(identity render-item)
          (identity items)]}
 
@@ -32,7 +37,7 @@
           {:height (aget js-size "height")
            :width (aget js-size "width")
            :deferred-measurement-cache cache
-           :overscan-row-count 0
+           :overscan-row-count overscan-row-count
            :row-count (count items)
            :row-height (.-rowHeight cache)
            :row-renderer (fn [row]
