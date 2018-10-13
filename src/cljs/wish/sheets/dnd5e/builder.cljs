@@ -19,7 +19,6 @@
                                                    count-max-options]]
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
-            [wish.views.widgets.limited-select]
             [wish.views.widgets.multi-limited-select]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
