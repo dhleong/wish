@@ -19,8 +19,8 @@
                                                    count-max-options]]
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
-            [wish.views.widgets.multi-limited-select]
-            [wish.views.widgets.virtual-list :refer [virtual-list]]))
+            [wish.views.widgets.limited-select :refer [limited-select]]
+            [wish.views.widgets.multi-limited-select]))
 
 ; ======= CSS ==============================================
 
@@ -79,7 +79,6 @@
 
 
 ; ======= Pages ============================================
-
 
 (defn home-page []
   [:div
@@ -176,51 +175,20 @@
 
 (defn- limited-select-feature-options
   [f instance-id sub-vector extra-info doc]
-  (let [path [instance-id]
-        selected (set ((:get doc) path))
-        available-options-set (<sub [::subs/available-feature-options
+  (let [available-options-set (<sub [::subs/available-feature-options
                                      sub-vector
                                      (:id f)
                                      instance-id])
         available-options (->> (:values f)
-                               (filter #(contains? available-options-set (:id %))))
-        total-items (count available-options)
-        scrollable? (>= total-items 15)
-
-        accepted? (:max-options f)
-        toggle-option (fn [option-id]
-                        ((:save! doc)
-                         path
-                         (let [new-v (into
-                                       []
-                                       (if (contains? selected option-id)
-                                         (disj selected option-id)
-                                         (conj selected option-id)))]
-                           (if (accepted? (assoc
-                                            extra-info
-                                            :features new-v))
-                             new-v
-                             (into [] selected)))))
-        render-item (fn [option]
-                      (let [active? (contains? selected (:id option))]
-                        [limited-select-feature-option
-                         {:class (when active? "active")
-                          :active? active?
-                          :on-click (fn-click
-                                      (toggle-option (:id option)))}
-                         option]))]
-    [:div.feature-options {:class (when scrollable?
-                                    "scrollable")
-                           :id instance-id}
-     (if scrollable?
-       [virtual-list
-        :items available-options
-        :render-item render-item]
-
-       (for [option available-options]
-         (with-meta
-           (render-item option)
-         {:key (:id option)})))]))
+                               (filter #(contains? available-options-set (:id %))))]
+    [limited-select
+     :accepted? (:max-options f)
+     :doc doc
+     :extra-info extra-info
+     :options available-options
+     :path [instance-id]
+     :render-item (fn [opts option]
+                    [limited-select-feature-option opts option])]))
 
 (defn multi-select-feature-options
   [f instance-id sub-vector extra-info doc]

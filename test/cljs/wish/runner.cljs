@@ -21,6 +21,7 @@
             [wish.subs-test]
             [wish.util-test]
             [wish.util.formatted-test]
-            [wish.views.sheet-builder-util-test]))
+            [wish.views.sheet-builder-util-test]
+            [wish.views.widgets.limited-select-test]))
 
 (doo-all-tests #"wish\..*-test")
