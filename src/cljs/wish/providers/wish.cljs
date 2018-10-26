@@ -60,7 +60,11 @@
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
   (save-sheet [this file-id data data-str]
-    (to-chan [[(js/Error. "Not implemented") nil]])))
+    (to-chan [[(js/Error. "Not implemented") nil]]))
+
+  (watch-auth [this]
+    ; not supported:
+    nil))
 
 (defn create-provider []
   (->WishProvider))

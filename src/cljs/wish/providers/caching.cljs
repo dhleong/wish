@@ -140,7 +140,11 @@
             (swap! dirty?-storage disj file-id))
 
           ; return the result as-is
-          result))))
+          result)))
+
+  (watch-auth [this]
+    ; delegate
+    (provider/watch-auth base)))
 
 (defn with-caching [base-provider]
   (let [cache-id (keyword (str (name (provider/id base-provider))

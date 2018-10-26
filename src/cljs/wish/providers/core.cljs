@@ -50,7 +50,12 @@
      The original `data` *may* be provided, which you can use to
      update `:name`, for example, but it may also be omitted.
      `data-str` is in the same string format that should be
-     returned by `load-raw`."))
+     returned by `load-raw`.")
+
+  (watch-auth
+    [this]
+    "Generate the auth data needed to watch changes to files provided
+     by this provider, or nil if that's not supported by this provider"))
 
 (defn signed-out-err?
   "Check if the given error was caused by not being signed into the provider"

@@ -217,12 +217,15 @@
           (.-currentUser)
           (.get)))
 
+(defn- auth-response []
+  (some-> (current-user)
+          (.getAuthResponse)))
+
 (defn- access-token
   "When logged in, get the current user's access token"
   []
-  (-> (current-user)
-      (.getAuthResponse)
-      (.-access_token)))
+  (some-> (auth-response)
+          (.-access_token)))
 
 (defn- update-signin-status!
   [signed-in?]
@@ -519,7 +522,12 @@
           data-str))
 
       ; not ready? don't try
-      (to-chan [[(js/Error. "No network; unable to save sheet") nil]]))))
+      (to-chan [[(js/Error. "No network; unable to save sheet") nil]])))
+
+  (watch-auth [this]
+    (when-let [resp (auth-response)]
+      {:id_token (.-id_token resp)
+       :access_token (access-token)})))
 
 (defn create-provider []
   (->GDriveProvider))
