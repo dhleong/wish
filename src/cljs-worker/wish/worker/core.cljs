@@ -23,6 +23,8 @@
                          ; external resources:
                          "https://fonts.googleapis.com/icon?family=Material+Icons"])
 
+(def push-server-url (url/url config/push-server))
+
 
 ; ======= utils ===========================================
 
@@ -118,7 +120,14 @@
       ; don't cache gapi; it's simpler to just use local-storage
       ; and handle caching sheets and data sources ourselves
       (contains? #{"apis.google.com"}
-                 (:host url))))
+                 (:host url))
+
+      ; also, don't interfere with requests to the push-server.
+      ; This is generally only a problem for local dev
+      (and (= (:port push-server-url)
+              (:port url))
+           (= (:host push-server-url)
+              (:host url)))))
 
 (defn wish-asset? [url]
   (contains? #{"localhost"
@@ -245,12 +254,6 @@
   (let [request (.-request ev)
         url (-> request .-url url/url)]
     (cond
-      (shell-root? url)
-      (fetch-shell-path shell-root)
-
-      (shell-asset? url)
-      (fetch-shell-asset url)
-
       (never-cache? url)
       (do
         (log "Never cache: " url)
@@ -258,6 +261,12 @@
             (.catch (fn [e]
                       (log/warn "Unable to fetch " url ": " e)
                       (js/Response. nil #js {:status 503})))))
+
+      (shell-root? url)
+      (fetch-shell-path shell-root)
+
+      (shell-asset? url)
+      (fetch-shell-asset url)
 
       :else
       (fetch-with-cache request))))
