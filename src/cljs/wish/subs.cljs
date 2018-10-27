@@ -659,3 +659,14 @@
 
       ; otherwise, idle
       :else :idle)))
+
+
+; ======= Push notifications ==============================
+
+(reg-sub
+  :interested-push-ids
+  :<- [:active-sheet-id]
+  :<- [:active-sheet-source-ids]
+  (fn [[sheet-id source-ids] _]
+    (when sheet-id
+      (into #{sheet-id} source-ids))))

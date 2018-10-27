@@ -9,6 +9,7 @@
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.inventory :as inv]
+            [wish.push :as push]
             [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses update-sheet update-sheet-path]]
             [wish.subs-util :refer [active-sheet-id]]
@@ -660,3 +661,21 @@
         (update ::db/save-errors (if err
                                    conj
                                    disj) sheet-id))))
+
+
+; ======= Push notifications ==============================
+
+(reg-event-fx
+  :create-push-session
+  [(inject-cofx ::inject/sub [:interested-push-ids])]
+  (fn [{ids :interested-push-ids}]
+    (when (seq ids)
+      {:push/create ids})))
+
+(reg-event-fx
+  ::push/session-created
+  [trim-v (inject-cofx ::inject/sub [:interested-push-ids])]
+  (fn [{current-ids :interested-push-ids} [interested-ids session-id]]
+    (if-not (= current-ids interested-ids)
+      (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids)
+      {:push/connect session-id})))

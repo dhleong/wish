@@ -7,6 +7,7 @@
             [alandipert.storage-atom :refer [local-storage]]
             [wish.db :as db]
             [wish.sources :as sources]
+            [wish.push :as push]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.sheets :as sheets]
             [wish.util :refer [>evt]]))
@@ -147,3 +148,31 @@
       (when-let [controller js/navigator.serviceWorker.controller]
         ; let the serviceWorker know we're listening
         (.postMessage controller (str [:ready]))))))
+
+
+; ======= Push notifications ==============================
+
+(defonce ^:private current-event-source (atom nil))
+
+(reg-fx
+  :push/disconnect
+  (fn [_]
+    (swap! current-event-source
+           (fn [old-source]
+             (when old-source
+               (.close old-source))
+             nil))))
+
+(reg-fx
+  :push/connect
+  (fn [session-id]
+    (swap! current-event-source
+           (fn [old-source]
+             (when old-source
+               (.close old-source))
+             (push/connect session-id)))))
+
+(reg-fx
+  :push/create
+  (fn [interested-ids]
+    (push/create-session interested-ids)))
