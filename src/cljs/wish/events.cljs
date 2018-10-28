@@ -627,7 +627,7 @@
 (reg-event-fx
   :toggle-equipped
   [trim-v]
-  (fn [cofx [item]]
+  (fn-traced [cofx [item]]
     (update-sheet-path cofx [:equipped]
                        (fn [equipped inst-id]
                          (if (get equipped inst-id)
@@ -641,13 +641,13 @@
 (reg-event-db
   ::db/put-pending-save
   [trim-v]
-  (fn [db [sheet-id]]
+  (fn-traced [db [sheet-id]]
     (update db ::db/pending-saves conj sheet-id)))
 
 (reg-event-db
   ::db/mark-save-processing
   [trim-v]
-  (fn [db [sheet-id]]
+  (fn-traced [db [sheet-id]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
         (update ::db/save-errors disj sheet-id)
@@ -656,7 +656,7 @@
 (reg-event-db
   ::db/finish-save
   [trim-v]
-  (fn [db [sheet-id err]]
+  (fn-traced [db [sheet-id err]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
         (update ::db/processing-saves disj sheet-id)
@@ -670,18 +670,39 @@
 (reg-event-fx
   :push/check
   [(inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
-  (fn [{ids :interested-push-ids}]
+  (fn-traced [{ids :interested-push-ids}]
     (if (seq ids)
       {:push/ensure ids}
       {:push/disconnect :!})))
 
 (reg-event-fx
+  :push/retry-later
+  (fn-traced [{:keys [db]} _]
+    ; retry connect (via :push/check) with exponential backoff:
+    (let [last-delay (::push/retry-delay db)
+          new-delay (if last-delay
+                      (min 15000
+                           (* 2 last-delay))
+
+                      ; base of 2s delay
+                      2000)]
+      (log "Retry push connection after " new-delay)
+      {:db (assoc db ::push/retry-delay new-delay)
+       :dispatch-later [{:ms new-delay :dispatch [:push/check]}]})))
+
+(reg-event-fx
   ::push/session-created
   [trim-v (inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
-  (fn [{current-ids :interested-push-ids} [interested-ids session-id]]
-    (if-not (= current-ids interested-ids)
-      (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids)
-      {:push/connect session-id})))
+  (fn-traced [{current-ids :interested-push-ids :keys [db]}
+              [interested-ids session-id]]
+    (let [session-id (when (= current-ids interested-ids)
+                       session-id)]
+      (when-not session-id
+        (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids))
+
+      ; always clear the retry-delay on success to reset the backoff
+      {:push/connect session-id
+       :db (dissoc db ::push/retry-delay)})))
 
 (reg-event-fx
   :reload-changed!

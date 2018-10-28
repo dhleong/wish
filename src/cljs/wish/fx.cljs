@@ -169,19 +169,23 @@
 (reg-fx
   :push/connect
   (fn [session-id]
-    (log "Connect to push session " session-id)
-    (swap! current-event-source
-           (fn [old-source]
-             (when old-source
-               (.close old-source))
-             (push/connect session-id)))))
+    ; NOTE: session-id may be nil if we lost interest in the
+    ; session between requesting the create and it being created
+    (when session-id
+      (log "Connect to push session " session-id)
+      (swap! current-event-source
+             (fn [old-source]
+               (when old-source
+                 (.close old-source))
+               (push/connect session-id))))))
 
 (reg-fx
   :push/ensure
   (fn [interested-ids]
     (swap! current-session-ids
            (fn [current]
-             (when-not (= current interested-ids)
+             (when (or (not= current interested-ids)
+                       (= :closed (push/ready-state @current-event-source)))
                (log "Create push session for " interested-ids " (was: " current ")")
                (push/create-session interested-ids))
 

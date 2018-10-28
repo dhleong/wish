@@ -40,7 +40,9 @@
   (when-let [auth (providers/watch-auth-map interested-ids)]
     (go (when-let [[err {:keys [id]}] (<! (do-create-session auth interested-ids))]
           (if err
-            (log/warn "Unable to create push session" err)
+            (do (log/warn "Unable to create push session" err)
+                (>evt [:push/retry-later]))
+
             (>evt [::session-created interested-ids id]))))))
 
 
@@ -93,17 +95,29 @@
 
 
 ; ======= connect to a created session ====================
-
 ; NOTE event handler fns declared separately to improve hot-reload developer UX
+
+(def ^:private connection-ready-states
+  {0 :connecting
+   1 :open
+   2 :closed})
+
+(defn ready-state [event-source]
+  (if event-source
+    (get connection-ready-states (.-readyState event-source))
+    :closed))
+
 (defn- on-error [evt]
-  ; TODO on fatal errors, we should create a new session, maybe?
-  ; An error is also emitted when the connection drops, but it
-  ; will attempt to auto-reconnect....
-  ; NOTE: readyState:
-  ;  0 - CONNECTING
-  ;  1 - OPEN
-  ;  2 - CLOSED
-  (log/warn "Error with push session; state=" (-> evt (.-target) (.-readyState))))
+  ; on fatal errors, we should try to create a new session after a delay
+  (let [state (-> evt (.-target) ready-state)]
+    ; NOTE: if we get an error when the state is :connecting, EventSource
+    ; is handling it; we shouldn't get any in :open state
+    (if-not (= :closed state)
+      (log/info "Reconnecting to push session; state=" state)
+
+      (do
+        (log/info "Error with push session; state=" state)
+        (>evt [:push/retry-later])))))
 
 (defn- on-message [evt]
   (let [data (-> (.-data evt)
