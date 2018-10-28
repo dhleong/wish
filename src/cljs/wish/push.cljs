@@ -14,6 +14,9 @@
 
 (def ^:private push-url-base (str config/push-server "/" push-server-version "/push"))
 
+
+; ======= session creation ================================
+
 (defn session-args [auth interested-ids]
   {:auth auth
 
@@ -39,13 +42,46 @@
             (log/warn "Unable to create push session" err)
             (>evt [::session-created interested-ids id]))))))
 
+
+; ======= push event handling =============================
+
+(defmulti on-push! (comp keyword :event))
+(defmethod on-push! :need-watch
+  [{{:keys [id]} :data}]
+  (let [id (keyword id)]
+    (log/todo "Create watch for sheet " (keyword id))))
+
+(defmethod on-push! :changed
+  [{{:keys [id]} :data}]
+  (let [id (keyword id)]
+    (log/todo "Sheet changed" (keyword id))))
+
+(defmethod on-push! :default
+  [evt]
+  (log/warn "Unknown push event: " evt))
+
+
+; ======= connect to a created session ====================
+
+; NOTE event handler fns declared separately to improve hot-reload developer UX
+(defn- on-error [e]
+  (log/warn "Error with push session" e))
+
+(defn- on-message [evt]
+  (let [data (-> (.-data evt)
+                 (js/JSON.parse)
+                 (js->clj :keywordize-keys true))]
+    (log/info "Received: " data)
+    (on-push! data)))
+
+(defn- on-open [session-id]
+  (log/info "Connected to session " session-id))
+
 (defn connect [session-id]
   (log "Connecting to session " session-id)
   (doto (js/EventSource.
           (str push-url-base "/sessions/" session-id))
-    (.addEventListener "error" (fn [e]
-                                 (log/warn "Error with push session" e)))
+    (.addEventListener "error" on-error)
     (.addEventListener "open" (fn []
-                                (log/info "Connected to session " session-id)))
-    (.addEventListener "message" (fn [evt]
-                                   (log/info "Pushed: " evt (.-data evt))))))
+                                (on-open session-id)))
+    (.addEventListener "message" on-message)))
