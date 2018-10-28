@@ -153,19 +153,23 @@
 ; ======= Push notifications ==============================
 
 (defonce ^:private current-event-source (atom nil))
+(defonce ^:private current-session-ids (atom nil))
 
 (reg-fx
   :push/disconnect
   (fn [_]
+    (reset! current-session-ids nil)
     (swap! current-event-source
            (fn [old-source]
              (when old-source
+               (log "Disconnect from push session")
                (.close old-source))
              nil))))
 
 (reg-fx
   :push/connect
   (fn [session-id]
+    (log "Connect to push session " session-id)
     (swap! current-event-source
            (fn [old-source]
              (when old-source
@@ -173,6 +177,13 @@
              (push/connect session-id)))))
 
 (reg-fx
-  :push/create
+  :push/ensure
   (fn [interested-ids]
-    (push/create-session interested-ids)))
+    (swap! current-session-ids
+           (fn [current]
+             (when-not (= current interested-ids)
+               (log "Create push session for " interested-ids " (was: " current ")")
+               (push/create-session interested-ids))
+
+             ; always swap in the new interested-ids set
+             interested-ids))))

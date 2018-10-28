@@ -667,6 +667,13 @@
   :interested-push-ids
   :<- [:active-sheet-id]
   :<- [:active-sheet-source-ids]
-  (fn [[sheet-id source-ids] _]
-    (when sheet-id
+  :<- [:my-sheets]
+  (fn [[sheet-id source-ids my-sheets] _]
+    ; NOTE: currently, we're only interested in changes
+    ; to sheets we *don't* own.
+    ; We could later listen to changes in the sources for
+    ; a sheet we own, in which case we wouldn't be interested
+    ; in sheet-id
+    (when (and sheet-id
+               (not (contains? my-sheets sheet-id)))
       (into #{sheet-id} source-ids))))

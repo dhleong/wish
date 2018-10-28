@@ -27,7 +27,8 @@
   [trim-v]
   (fn-traced [{:keys [db]} page-spec]
     {:db (assoc db :page page-spec)
-     :dispatch [::update-keymap page-spec]}))
+     :dispatch-n [[::update-keymap page-spec]
+                  [:push/check]]}))
 
 (reg-event-db
   :set-device
@@ -666,15 +667,16 @@
 ; ======= Push notifications ==============================
 
 (reg-event-fx
-  :create-push-session
-  [(inject-cofx ::inject/sub [:interested-push-ids])]
+  :push/check
+  [(inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
   (fn [{ids :interested-push-ids}]
-    (when (seq ids)
-      {:push/create ids})))
+    (if (seq ids)
+      {:push/ensure ids}
+      {:push/disconnect :!})))
 
 (reg-event-fx
   ::push/session-created
-  [trim-v (inject-cofx ::inject/sub [:interested-push-ids])]
+  [trim-v (inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
   (fn [{current-ids :interested-push-ids} [interested-ids session-id]]
     (if-not (= current-ids interested-ids)
       (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids)
