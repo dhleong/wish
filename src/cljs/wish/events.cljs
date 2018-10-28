@@ -1,5 +1,5 @@
 (ns wish.events
-  (:require-macros [wish.util.log :refer [log]])
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
             [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    path
@@ -209,6 +209,7 @@
 
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
+
 
 ; ======= sheet-related ====================================
 
@@ -681,3 +682,16 @@
     (if-not (= current-ids interested-ids)
       (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids)
       {:push/connect session-id})))
+
+(reg-event-fx
+  :reload-changed!
+  [trim-v (inject-cofx ::inject/sub [:active-sheet-id])]
+  (fn [{:keys [active-sheet-id]} [changed-ids]]
+    (when (> (count changed-ids) 1)
+      ; TODO:
+      (log/todo "Support reloading data sources as well as sheets"))
+
+    (when (contains? changed-ids active-sheet-id)
+      ; trigger sheet data reload
+      {:load-sheet! active-sheet-id})))
+
