@@ -8,13 +8,15 @@
             [wish.providers :as providers]
             [wish.sheets.util :refer [unpack-id]]
             [wish.util :refer [>evt]]
-            [wish.util.http :refer [POST]]))
+            [wish.util.http :refer [POST]]
+            [wish.util.throttled-set :refer [throttle-with-set]]))
 
 (def push-server-version "v1")
 
 (def ^:private push-url-base (str config/push-server "/" push-server-version "/push"))
 
 (def ^:private reload-changed-throttle-ms 750)
+(def ^:private create-watches-throttle-ms 3000)
 
 ; ======= session creation ================================
 
@@ -46,51 +48,57 @@
             (>evt [::session-created interested-ids id]))))))
 
 
+; ======= watch creation ==================================
+
+(defn create-watches [session-id ids]
+  ; TODO
+  (log/info "Creating watches on " session-id " for " ids))
+
+
 ; ======= push event handling =============================
 
-(defmulti on-push! (comp keyword :event))
-(defmethod on-push! :need-watch
-  [{{:keys [id]} :data}]
-  (let [id (keyword id)]
-    (log/todo "Create watch for sheet " (keyword id))))
+(defmulti on-push! (fn [session-id evt] (-> evt :event keyword)))
 
+;;
+;; "need-watch" handling
+
+(defonce ^:private create-watches-throttled
+  (throttle-with-set
+    create-watches-throttle-ms
+    (fn [ids session-id]
+      ; NOTE "extra" args (eg: session-id) are passed
+      ; *after* the ids set (throttle-with-set semantics)
+      ; but our fns all put sesion-id first for consistency
+      (create-watches session-id ids))))
+
+(defmethod on-push! :need-watch
+  [session-id {{:keys [id]} :data}]
+  (let [id (keyword id)]
+    (log "Need watch for sheet " (keyword id)
+         "for session " session-id)
+    ; NOTE "extra" args must be passed *after* ids
+    (create-watches-throttled id session-id)))
+
+;;
 ;; "changed" handling
 
-(defonce ^:private pending-changes (atom {:timer nil
-                                          :ids #{}}))
-
-(defn- reload-changed []
-  (swap! pending-changes
-         (fn [{:keys [ids]}]
-           (>evt [:reload-changed! ids])
-
-           ; reset state:
-           {:timer nil :ids #{}})))
+(defonce ^:private reload-changed
+  (throttle-with-set
+    reload-changed-throttle-ms
+    (fn [changed-ids]
+      (>evt [:reload-changed! changed-ids]))))
 
 (defmethod on-push! :changed
-  [{{:keys [id]} :data}]
+  [session-id {{:keys [id]} :data}]
   (let [changed-id (keyword id)]
     (log "Sheet changed" changed-id)
-    (swap! pending-changes
-           (fn [{:keys [timer ids] :as old}]
-             (if (contains? ids changed-id)
-               ; ignore the dup notification
-               old
+    (reload-changed changed-id)))
 
-               ; cancel any old timer and start over
-               (do
-                 (when timer
-                   (js/clearTimeout timer))
-
-                 {:ids (conj ids changed-id)
-                  :timer (js/setTimeout
-                           reload-changed
-                           reload-changed-throttle-ms)}))))))
-
+;;
 ;; fallback
 
 (defmethod on-push! :default
-  [evt]
+  [session-id evt]
   (log/warn "Unknown push event: " evt))
 
 
@@ -119,12 +127,12 @@
         (log/info "Error with push session; state=" state)
         (>evt [:push/retry-later])))))
 
-(defn- on-message [evt]
+(defn- on-message [session-id evt]
   (let [data (-> (.-data evt)
                  (js/JSON.parse)
                  (js->clj :keywordize-keys true))]
     (log/info "Received: " data)
-    (on-push! data)))
+    (on-push! session-id data)))
 
 (defn- on-open [session-id]
   (log/info "Connected to session " session-id))
@@ -136,4 +144,4 @@
     (.addEventListener "error" on-error)
     (.addEventListener "open" (fn []
                                 (on-open session-id)))
-    (.addEventListener "message" on-message)))
+    (.addEventListener "message" #(on-message session-id %))))
