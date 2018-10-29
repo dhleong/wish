@@ -85,7 +85,7 @@
         original-item
         (:! original-item))
 
-      (dissoc :! :consumes :limited-uses)))
+      (dissoc :! :consumes :limited-uses :attrs)))
 
 
 ; ======= internal widgets ================================

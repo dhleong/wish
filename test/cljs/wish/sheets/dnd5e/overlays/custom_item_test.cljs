@@ -76,6 +76,7 @@
                                         :name "Crazy Ivan"
                                         :uses 1
                                         :restore-trigger :short-rest}}
+              :attrs {:bonus {:serenity true}}
               :! [[:!add-limited-use
                    {:id :serenity#uses
                     :name "Crazy Ivan"
