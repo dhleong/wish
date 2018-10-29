@@ -50,9 +50,17 @@
 
 ; ======= watch creation ==================================
 
+(defn- do-create-watches [session-id auth interested-ids]
+  (POST (str push-url-base "/sessions/watch")
+        (assoc (session-args auth interested-ids)
+               :sessionId session-id)))
+
 (defn create-watches [session-id ids]
-  ; TODO
-  (log/info "Creating watches on " session-id " for " ids))
+  (log/info "Creating watches on " session-id " for " ids)
+  (when-let [auth (providers/watch-auth-map ids)]
+    (go (when-let [[err _] (<! (do-create-watches session-id auth ids))]
+          (when err
+            (log/warn "Failed to create watches for " ids ": " err))))))
 
 
 ; ======= push event handling =============================
@@ -68,7 +76,7 @@
     (fn [ids session-id]
       ; NOTE "extra" args (eg: session-id) are passed
       ; *after* the ids set (throttle-with-set semantics)
-      ; but our fns all put sesion-id first for consistency
+      ; but our fns all put session-id first for consistency
       (create-watches session-id ids))))
 
 (defmethod on-push! :need-watch
