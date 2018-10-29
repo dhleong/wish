@@ -79,7 +79,21 @@
     (cond-> {:db (assoc db :online? online?)}
 
       ; if we're coming back online, trigger init!
-      online? (assoc :providers/init! :!))))
+      online? (assoc :providers/init! :!
+
+                     ; also, go ahead and check if we should
+                     ; init a push connection
+                     :dispatch [:push/check])
+
+      ; going offline? go ahead and boost the push retry delay,
+      ; if we had any. since we immediately trigger a check when
+      ; we come back online anyway, this seems like a good way to
+      ; ensure ; our desperate pleas for attention don't ruin battery
+      ; life too much
+      (not online?) (update-in [:db ::push/retry-delay]
+                               (fn [old-delay]
+                                 (when old-delay
+                                   (* 4 old-delay)))))))
 
 (reg-event-fx
   :set-latest-update
@@ -667,6 +681,11 @@
 
 ; ======= Push notifications ==============================
 
+; NOTE: we immediately trigger :push/check on coming back online,
+; so it should be fine to have a very long sleep when offline
+(def ^:private push-retry-delay-offline 120000)
+(def ^:private push-retry-delay-online 15000)
+
 (reg-event-fx
   :push/check
   [(inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
@@ -679,9 +698,13 @@
   :push/retry-later
   (fn-traced [{:keys [db]} _]
     ; retry connect (via :push/check) with exponential backoff:
-    (let [last-delay (::push/retry-delay db)
+    (let [online? (:online? db)
+          last-delay (::push/retry-delay db)
+          max-delay (if online?
+                      push-retry-delay-online
+                      push-retry-delay-offline)
           new-delay (if last-delay
-                      (min 15000
+                      (min max-delay
                            (* 2 last-delay))
 
                       ; base of 2s delay
