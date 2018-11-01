@@ -1,5 +1,5 @@
 (ns wish.events
-  (:require-macros [wish.util.log :refer [log]])
+  (:require-macros [wish.util.log :as log :refer [log]])
   (:require [clojure.string :as str]
             [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    path
@@ -9,6 +9,7 @@
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.inventory :as inv]
+            [wish.push :as push]
             [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses update-sheet update-sheet-path]]
             [wish.subs-util :refer [active-sheet-id]]
@@ -26,7 +27,8 @@
   [trim-v]
   (fn-traced [{:keys [db]} page-spec]
     {:db (assoc db :page page-spec)
-     :dispatch [::update-keymap page-spec]}))
+     :dispatch-n [[::update-keymap page-spec]
+                  [:push/check]]}))
 
 (reg-event-db
   :set-device
@@ -77,7 +79,21 @@
     (cond-> {:db (assoc db :online? online?)}
 
       ; if we're coming back online, trigger init!
-      online? (assoc :providers/init! :!))))
+      online? (assoc :providers/init! :!
+
+                     ; also, go ahead and check if we should
+                     ; init a push connection
+                     :dispatch [:push/check])
+
+      ; going offline? go ahead and boost the push retry delay,
+      ; if we had any. since we immediately trigger a check when
+      ; we come back online anyway, this seems like a good way to
+      ; ensure ; our desperate pleas for attention don't ruin battery
+      ; life too much
+      (not online?) (update-in [:db ::push/retry-delay]
+                               (fn [old-delay]
+                                 (when old-delay
+                                   (* 4 old-delay)))))))
 
 (reg-event-fx
   :set-latest-update
@@ -207,6 +223,7 @@
 
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
+
 
 ; ======= sheet-related ====================================
 
@@ -624,7 +641,7 @@
 (reg-event-fx
   :toggle-equipped
   [trim-v]
-  (fn [cofx [item]]
+  (fn-traced [cofx [item]]
     (update-sheet-path cofx [:equipped]
                        (fn [equipped inst-id]
                          (if (get equipped inst-id)
@@ -638,13 +655,13 @@
 (reg-event-db
   ::db/put-pending-save
   [trim-v]
-  (fn [db [sheet-id]]
+  (fn-traced [db [sheet-id]]
     (update db ::db/pending-saves conj sheet-id)))
 
 (reg-event-db
   ::db/mark-save-processing
   [trim-v]
-  (fn [db [sheet-id]]
+  (fn-traced [db [sheet-id]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
         (update ::db/save-errors disj sheet-id)
@@ -653,10 +670,72 @@
 (reg-event-db
   ::db/finish-save
   [trim-v]
-  (fn [db [sheet-id err]]
+  (fn-traced [db [sheet-id err]]
     (-> db
         (update ::db/pending-saves disj sheet-id)
         (update ::db/processing-saves disj sheet-id)
         (update ::db/save-errors (if err
                                    conj
                                    disj) sheet-id))))
+
+
+; ======= Push notifications ==============================
+
+; NOTE: we immediately trigger :push/check on coming back online,
+; so it should be fine to have a very long sleep when offline
+(def ^:private push-retry-delay-offline 120000)
+(def ^:private push-retry-delay-online 15000)
+
+(reg-event-fx
+  :push/check
+  [(inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
+  (fn-traced [{ids :interested-push-ids}]
+    (if (seq ids)
+      {:push/ensure ids}
+      {:push/disconnect :!})))
+
+(reg-event-fx
+  :push/retry-later
+  (fn-traced [{:keys [db]} _]
+    ; retry connect (via :push/check) with exponential backoff:
+    (let [online? (:online? db)
+          last-delay (::push/retry-delay db)
+          max-delay (if online?
+                      push-retry-delay-online
+                      push-retry-delay-offline)
+          new-delay (if last-delay
+                      (min max-delay
+                           (* 2 last-delay))
+
+                      ; base of 2s delay
+                      2000)]
+      (log "Retry push connection after " new-delay)
+      {:db (assoc db ::push/retry-delay new-delay)
+       :dispatch-later [{:ms new-delay :dispatch [:push/check]}]})))
+
+(reg-event-fx
+  ::push/session-created
+  [trim-v (inject-cofx ::inject/sub ^:ignore-dispose [:interested-push-ids])]
+  (fn-traced [{current-ids :interested-push-ids :keys [db]}
+              [interested-ids session-id]]
+    (let [session-id (when (= current-ids interested-ids)
+                       session-id)]
+      (when-not session-id
+        (log "Drop un-interesting sesssion; was " interested-ids "; now " current-ids))
+
+      ; always clear the retry-delay on success to reset the backoff
+      {:push/connect session-id
+       :db (dissoc db ::push/retry-delay)})))
+
+(reg-event-fx
+  :reload-changed!
+  [trim-v (inject-cofx ::inject/sub [:active-sheet-id])]
+  (fn [{:keys [active-sheet-id]} [changed-ids]]
+    (when (> (count changed-ids) 1)
+      ; TODO:
+      (log/todo "Support reloading data sources as well as sheets"))
+
+    (when (contains? changed-ids active-sheet-id)
+      ; trigger sheet data reload
+      {:load-sheet! active-sheet-id})))
+

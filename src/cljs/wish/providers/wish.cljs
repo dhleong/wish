@@ -3,11 +3,11 @@
   wish.providers.wish
   (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
-            [ajax.core :refer [GET]]
             [wish.config :as config]
             [wish.providers.core :refer [IProvider]]
             [wish.sheets.util :refer [make-id]]
-            [wish.util :refer [>evt]]))
+            [wish.util :refer [>evt]]
+            [wish.util.http :refer [GET]]))
 
 (def ^:private data-root (str config/server-root
                               "/sources"))
@@ -30,21 +30,10 @@
 
   (load-raw
     [this id]
-    (let [ch (chan)
-          url (str data-root (:path (builtin-sources id)))]
-      (if url
-        (GET url
-             {:handler (fn [raw]
-                         (log "Loaded " url)
-                         (put! ch [nil raw]))
-              :response-format :text
-              :error-handler (fn [e]
-                               (put! ch [e]))})
+    (if-let [url (str data-root (:path (builtin-sources id)))]
+      (GET url {:response-format :text})
 
-        (put! ch [(js/Error. (str "No such source: " id))]))
-
-      ; return the ch
-      ch))
+      (to-chan [[(js/Error. (str "No such source: " id))]])))
 
   (query-data-sources [this]
     (>evt [:add-data-sources
@@ -60,7 +49,11 @@
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
   (save-sheet [this file-id data data-str]
-    (to-chan [[(js/Error. "Not implemented") nil]])))
+    (to-chan [[(js/Error. "Not implemented") nil]]))
+
+  (watch-auth [this]
+    ; not supported
+    nil))
 
 (defn create-provider []
   (->WishProvider))

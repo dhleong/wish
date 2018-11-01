@@ -214,3 +214,18 @@
       (throw (js/Error. (str "No provider instance for " sheet-id
                                "(" provider-id " / " pro-sheet-id ")"))))))
 
+(defn watch-auth-map
+  "Given a collection of sheet IDs, generate an appropate
+   auth-map for use with the wish-server watch session API"
+  [sheet-ids]
+  (->> sheet-ids
+       (map (comp first unpack-id))
+       (into #{})
+       (reduce
+         (fn [m provider-id]
+           (if-let [auth (some-> provider-id
+                                 (provider-key :inst)
+                                 (provider/watch-auth))]
+             (assoc m provider-id auth)
+             m))
+         {})))

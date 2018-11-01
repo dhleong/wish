@@ -7,6 +7,7 @@
             [alandipert.storage-atom :refer [local-storage]]
             [wish.db :as db]
             [wish.sources :as sources]
+            [wish.push :as push]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.sheets :as sheets]
             [wish.util :refer [>evt]]))
@@ -147,3 +148,46 @@
       (when-let [controller js/navigator.serviceWorker.controller]
         ; let the serviceWorker know we're listening
         (.postMessage controller (str [:ready]))))))
+
+
+; ======= Push notifications ==============================
+
+(defonce ^:private current-event-source (atom nil))
+(defonce ^:private current-session-ids (atom nil))
+
+(reg-fx
+  :push/disconnect
+  (fn [_]
+    (reset! current-session-ids nil)
+    (swap! current-event-source
+           (fn [old-source]
+             (when old-source
+               (log "Disconnect from push session")
+               (.close old-source))
+             nil))))
+
+(reg-fx
+  :push/connect
+  (fn [session-id]
+    ; NOTE: session-id may be nil if we lost interest in the
+    ; session between requesting the create and it being created
+    (when session-id
+      (log "Connect to push session " session-id)
+      (swap! current-event-source
+             (fn [old-source]
+               (when old-source
+                 (.close old-source))
+               (push/connect session-id))))))
+
+(reg-fx
+  :push/ensure
+  (fn [interested-ids]
+    (swap! current-session-ids
+           (fn [current]
+             (when (or (not= current interested-ids)
+                       (= :closed (push/ready-state @current-event-source)))
+               (log "Create push session for " interested-ids " (was: " current ")")
+               (push/create-session interested-ids))
+
+             ; always swap in the new interested-ids set
+             interested-ids))))

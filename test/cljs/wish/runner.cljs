@@ -2,6 +2,7 @@
   (:require [doo.runner :refer-macros [doo-tests doo-all-tests]]
             [wish.events-test]
             [wish.inventory-test]
+            [wish.push-test]
             [wish.providers.gdrive.api-test]
             [wish.sheets.dnd5e.builder-test]
             [wish.sheets.dnd5e.data-test]
