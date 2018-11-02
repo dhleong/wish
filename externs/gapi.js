@@ -69,6 +69,9 @@ gapi.auth2.AuthResponse = function() {};
 /** @type {string} */
 gapi.auth2.AuthResponse.access_token;
 
+/** @type {string} */
+gapi.auth2.AuthResponse.id_token;
+
 
 /** @constructor */
 gapi.drive.share.ShareClient = function() {};
