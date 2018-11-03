@@ -113,6 +113,8 @@
 ; ======= connect to a created session ====================
 ; NOTE event handler fns declared separately to improve hot-reload developer UX
 
+;; EventSource:
+
 (def ^:private connection-ready-states
   {0 :connecting
    1 :open
@@ -145,11 +147,40 @@
 (defn- on-open [session-id]
   (log/info "Connected to session " session-id))
 
-(defn connect [session-id]
-  (log "Connecting to session " session-id)
+(defn- connect-sse [session-id]
   (doto (js/EventSource.
           (str push-url-base "/sessions/" session-id))
     (.addEventListener "error" on-error)
     (.addEventListener "open" (fn []
                                 (on-open session-id)))
     (.addEventListener "message" #(on-message session-id %))))
+
+;; socket.io:
+
+(defn- on-sio-error [e]
+  (log/warn "SIO error" e))
+
+(defn- on-sio-message [session-id m]
+  (log/todo "SIO message: " session-id m))
+
+(defn- connect-sio [session-id]
+  (doto (js/io (str config/push-server "/" session-id)
+               #js {:path (str "/" push-server-version
+                               "/push/sessions/io/")})
+    (.on "error" on-sio-error)
+    (.on "connect" #(on-open session-id))
+    (.on "message" #(on-sio-message session-id %))))
+
+;;
+;; Public interface
+;;
+
+(defn connect [session-id]
+  (log "Connecting to session " session-id)
+  ; NOTE: we currently *only* try to connect via socket.io,
+  ; because now.sh doesn't handle EventSource properly....
+  (connect-sio session-id))
+
+(defn close [connection]
+  ; should work for both EventSource and socket.io
+  (.close connection))
