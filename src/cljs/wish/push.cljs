@@ -4,6 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.log :refer [log] :as log])
   (:require [clojure.core.async :refer [<!]]
+            [cljsjs.socket-io-client]
             [wish.config :as config]
             [wish.providers :as providers]
             [wish.sheets.util :refer [unpack-id]]

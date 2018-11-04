@@ -16,6 +16,7 @@
 
                  [cljsjs/react-virtualized "9.18.5-1"]
                  [cljsjs/react-swipeable-views "0.12.18-0"]
+                 [cljsjs/socket-io-client "2.1.1-0"]
 
                  ; simpler forms
                  [reagent-forms "0.5.42"]
@@ -124,7 +125,6 @@
                     :static-fns true
 
                     :externs ["externs/gapi.js"
-                              "externs/socketio.js"
                               "externs/wish.js"]}}
 
     {:id           "worker-dev"
