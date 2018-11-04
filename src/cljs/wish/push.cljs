@@ -146,7 +146,7 @@
 
 (defn- connect-sse [session-id]
   (doto (js/EventSource.
-          (str push-url-base "/sessions/" session-id))
+          (str push-url-base "/sessions/sse/" session-id))
     (.addEventListener "error" on-error)
     (.addEventListener "open" (fn []
                                 (on-open session-id)))
