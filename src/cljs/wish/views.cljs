@@ -10,6 +10,7 @@
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
+   [wish.views.splash :as splash]
    [wish.views.update-notifier :refer [update-notifier]]
    [wish.views.widgets :refer [link] :refer-macros [icon]]
    [wish.views.widgets.media-tracker :refer [media-tracker]]
@@ -21,6 +22,7 @@
    :sheet #'sheets/viewer
    :sheet-browser #'sheet-browser/page
    :sheet-builder #'sheets/builder
+   :splash #'splash/page
    :provider-config #'providers/config-view
    })
 

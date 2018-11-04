@@ -1,7 +1,7 @@
 (ns wish.db)
 
 (def default-db
-  {:page [:home]
+  {:page [:splash]
    :device-type :default
 
    :updates {:latest nil
