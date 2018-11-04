@@ -113,17 +113,14 @@
 ; ======= connect to a created session ====================
 ; NOTE event handler fns declared separately to improve hot-reload developer UX
 
+(declare ready-state)
+
 ;; EventSource:
 
 (def ^:private connection-ready-states
   {0 :connecting
    1 :open
    2 :closed})
-
-(defn ready-state [event-source]
-  (if event-source
-    (get connection-ready-states (.-readyState event-source))
-    :closed))
 
 (defn- on-error [evt]
   ; on fatal errors, we should try to create a new session after a delay
@@ -158,10 +155,14 @@
 ;; socket.io:
 
 (defn- on-sio-error [e]
-  (log/warn "SIO error" e))
+  (log/warn "SIO error" e)
+  (>evt [:push/retry-later]))
 
-(defn- on-sio-message [session-id m]
-  (log/todo "SIO message: " session-id m))
+(defn- on-sio-message [session-id raw-event]
+  (let [data (-> raw-event
+                 (js->clj :keywordize-keys true))]
+    (log/info "Received:" session-id data)
+    (on-push! session-id data)))
 
 (defn- connect-sio [session-id]
   (doto (js/io (str config/push-server "/" session-id)
@@ -184,3 +185,21 @@
 (defn close [connection]
   ; should work for both EventSource and socket.io
   (.close connection))
+
+(defn ready-state [channel]
+  (if channel
+    (if-some [ev-readystate (.-readyState channel)]
+      ; event source channel
+      (get connection-ready-states ev-readystate)
+
+      ; socket.io channel
+      (cond
+        (.-connected channel) :open
+        (.-disconnected channel) :closed
+
+        ; I'm just assuming this is possible...
+        :else :connecting))
+
+    ; doesn't exist? that means closed
+    :closed))
+

@@ -124,6 +124,7 @@
                     :static-fns true
 
                     :externs ["externs/gapi.js"
+                              "externs/socketio.js"
                               "externs/wish.js"]}}
 
     {:id           "worker-dev"
