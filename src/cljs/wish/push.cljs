@@ -39,13 +39,24 @@
         (session-args auth interested-ids)))
 
 (defn create-session [interested-ids]
-  (when-let [auth (providers/watch-auth-map interested-ids)]
-    (go (when-let [[err {:keys [id]}] (<! (do-create-session auth interested-ids))]
-          (if err
-            (do (log/warn "Unable to create push session" err)
-                (>evt [:push/retry-later]))
+  (try
 
-            (>evt [::session-created interested-ids id]))))))
+    (when-let [auth (providers/watch-auth-map interested-ids)]
+      (go (when-let [[err {:keys [id]}] (<! (do-create-session auth interested-ids))]
+            (if err
+              (do (log/warn "Unable to create push session" err)
+                  (>evt [:push/retry-later]))
+
+              (>evt [::session-created interested-ids id])))))
+
+    (catch :default e
+      ; NOTE: this is caused by auth being unavailable; especially
+      ; when loading directly into a sheet, gapi may not have loaded
+      ; yet. In general it is an error to try to access gapi before
+      ; it is loaded, so rather than handling this in gdrive, we catch
+      ; the exception here and try again later
+      (log/warn "Unable to create push session" e)
+      (>evt [:push/retry-later]))))
 
 
 ; ======= watch creation ==================================
