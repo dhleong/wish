@@ -4,6 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.log :refer [log] :as log])
   (:require [clojure.core.async :refer [<!]]
+            [cljsjs.socket-io-client]
             [wish.config :as config]
             [wish.providers :as providers]
             [wish.sheets.util :refer [unpack-id]]
@@ -124,15 +125,14 @@
 ; ======= connect to a created session ====================
 ; NOTE event handler fns declared separately to improve hot-reload developer UX
 
+(declare ready-state)
+
+;; EventSource:
+
 (def ^:private connection-ready-states
   {0 :connecting
    1 :open
    2 :closed})
-
-(defn ready-state [event-source]
-  (if event-source
-    (get connection-ready-states (.-readyState event-source))
-    :closed))
 
 (defn- on-error [evt]
   ; on fatal errors, we should try to create a new session after a delay
@@ -156,11 +156,62 @@
 (defn- on-open [session-id]
   (log/info "Connected to session " session-id))
 
-(defn connect [session-id]
-  (log "Connecting to session " session-id)
+(defn- connect-sse [session-id]
   (doto (js/EventSource.
-          (str push-url-base "/sessions/" session-id))
+          (str push-url-base "/sessions/sse/" session-id))
     (.addEventListener "error" on-error)
     (.addEventListener "open" (fn []
                                 (on-open session-id)))
     (.addEventListener "message" #(on-message session-id %))))
+
+;; socket.io:
+
+(defn- on-sio-error [e]
+  (log/warn "SIO error" e)
+  (>evt [:push/retry-later]))
+
+(defn- on-sio-message [session-id raw-event]
+  (let [data (-> raw-event
+                 (js->clj :keywordize-keys true))]
+    (log/info "Received:" session-id data)
+    (on-push! session-id data)))
+
+(defn- connect-sio [session-id]
+  (doto (js/io (str config/push-server "/" session-id)
+               #js {:path (str "/" push-server-version
+                               "/push/sessions/io/")})
+    (.on "error" on-sio-error)
+    (.on "connect" #(on-open session-id))
+    (.on "message" #(on-sio-message session-id %))))
+
+;;
+;; Public interface
+;;
+
+(defn connect [session-id]
+  (log "Connecting to session " session-id)
+  ; NOTE: we currently *only* try to connect via socket.io,
+  ; because now.sh doesn't handle EventSource properly....
+  (connect-sio session-id))
+
+(defn close [connection]
+  ; should work for both EventSource and socket.io
+  (.close connection))
+
+(defn ready-state [channel]
+  (if channel
+    (if-some [ev-readystate (.-readyState channel)]
+      ; event source channel
+      (get connection-ready-states ev-readystate)
+
+      ; socket.io channel
+      (cond
+        (.-connected channel) :open
+        (.-disconnected channel) :closed
+
+        ; I'm just assuming this is possible...
+        :else :connecting))
+
+    ; doesn't exist? that means closed
+    :closed))
+

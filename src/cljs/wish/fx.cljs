@@ -163,7 +163,7 @@
            (fn [old-source]
              (when old-source
                (log "Disconnect from push session")
-               (.close old-source))
+               (push/close old-source))
              nil))))
 
 (reg-fx
@@ -176,7 +176,7 @@
       (swap! current-event-source
              (fn [old-source]
                (when old-source
-                 (.close old-source))
+                 (push/close old-source))
                (push/connect session-id))))))
 
 (reg-fx
