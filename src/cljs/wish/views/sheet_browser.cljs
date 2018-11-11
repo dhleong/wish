@@ -30,7 +30,7 @@
     {:get #(get-in (<sub [:sheets-filters]) %)
      :save! #(>evt [:filter-sheets (first %1) %2])}]
 
-   [:div
+   [:div.new-sheet-link
     [link {:href "/sheets/new"}
      "Create a new sheet"]]
 
