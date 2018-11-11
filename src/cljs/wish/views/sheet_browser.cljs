@@ -5,11 +5,14 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub]]
             [wish.util.nav :refer [sheet-url]]
-            [wish.views.widgets :refer [link]]))
+            [wish.views.widgets :refer [icon link]]))
 
 (defn page []
   [:div
-   [:h3 "Sheets"]
+   [:h3
+    [link {:href "/"}
+     (icon :home)]
+    "Sheets"]
 
    [bind-fields
     [:div

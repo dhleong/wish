@@ -6,7 +6,7 @@
             [wish.providers.gdrive.styles :as styles]
             [wish.style :refer [asset]]
             [wish.util :refer [<sub]]
-            [wish.views.widgets :refer [link]]))
+            [wish.views.widgets :refer [icon link]]))
 
 (def ^:private src-set-kinds [["" "1x"]
                               ["@2x" "2x"]])
@@ -56,7 +56,10 @@
 (defn view []
   (let [state (<sub [:provider-state :gdrive])]
     [:div
-     [:h3 "Google Drive"]
+     [:h3
+      [link {:href "/"}
+       (icon :home)]
+      "Google Drive"]
      (case state
        nil [:div "Preparing..."]
        (:cache-only :unavailable) [:div "Google Drive is currently unavailable..."]

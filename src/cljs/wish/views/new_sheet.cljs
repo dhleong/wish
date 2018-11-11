@@ -11,7 +11,7 @@
             [wish.sheets :as sheets]
             [wish.util :refer [<sub]]
             [wish.util.nav :as nav :refer [sheet-url]]
-            [wish.views.widgets :refer [link]]))
+            [wish.views.widgets :refer [icon link]]))
 
 (defn change->
   "Creates an :on-change handler that assoc's the
@@ -57,7 +57,10 @@
             selected-sheet (:sheet data)
             selected-provider (:provider data)]
         [:div
-         [:h3 "New Sheet"]
+         [:h3
+          [link {:href "/"}
+           (icon :home)]
+          "New Sheet"]
          [:div
           [:form#new-sheet
            {:on-submit (fn-click
