@@ -12,6 +12,15 @@
   (defroute "/" []
     (navigate! :home))
 
+  (defroute "/campaigns" []
+    (navigate! :campaign-browser))
+
+  (defroute "/campaigns/new" []
+    (navigate! :new-campaign))
+
+  (defroute #"/campaigns/([a-z0-9-]+/[^/]+)" [id]
+    (navigate! :campaign (keyword id)))
+
   (defroute "/sheets" []
     (navigate! :sheet-browser))
 
