@@ -45,6 +45,19 @@
                    (= :wish k))))))
 
 (reg-sub
+  :any-storable-provider?
+  :<- [:storable-provider-states]
+  (fn [states _]
+    (println (->> states
+                  (map second)
+                  (into #{})
+                  :ready))
+    (->> states
+         (map second)
+         (into #{})
+         :ready)))
+
+(reg-sub
   :providers-listing?
   (fn [db _]
     (or (seq (:providers-listing db))
