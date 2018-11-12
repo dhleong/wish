@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Navigation util"}
   wish.util.nav
-  (:require [clojure.string :as string]
+  (:require [clojure.string :as str]
             [reagent.dom :as reagent-dom]
             [re-frame.core :refer [dispatch-sync]]
             [secretary.core :as secretary]
@@ -19,11 +19,22 @@
                                      (pushy/supported?)))
 
 (def ^:private pushy-prefix "/wish")
+(def ^:private secretary-prefix (if pushy-supported?
+                                  (str pushy-prefix "/")
+                                  "#"))
 
 (defn init! []
-  (secretary/set-config! :prefix (if pushy-supported?
-                                   (str pushy-prefix "/")
-                                   "#")))
+  (secretary/set-config! :prefix secretary-prefix))
+
+;; from secretary
+(defn- uri-without-prefix [uri]
+  (str/replace uri (re-pattern (str "^" secretary-prefix)) ""))
+(defn- uri-with-leading-slash
+  "Ensures that the uri has a leading slash"
+  [uri]
+  (if (= "/" (first uri))
+    uri
+    (str "/" uri)))
 
 ;; must be called after routes have been defined
 (defn hook-browser-navigation! []
@@ -32,8 +43,11 @@
     (let [history (pushy/pushy
                     secretary/dispatch!
                     (fn [x]
-                      (when (secretary/locate-route x)
-                        x)))]
+                      (let [[uri-path query-string]
+                            (str/split (uri-without-prefix x) #"\?")
+                            uri-path (uri-with-leading-slash uri-path)]
+                        (when (secretary/locate-route uri-path)
+                          x))))]
       (pushy/start! history))
 
     ; #-based navigation
