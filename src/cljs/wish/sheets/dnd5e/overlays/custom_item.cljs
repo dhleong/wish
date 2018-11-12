@@ -206,13 +206,13 @@
 
 ; ======= reagent-forms events ============================
 
-(defn- event-clear-errors [id value doc]
+(defn- event-clear-errors [id path value doc]
   ; when we provide a value for :name, :default-quantity,
   ; clear any errors that had been raised about them
-  (when (and (some (set id) [:name
+  (when (and (some (set path) [:name
                              :default-quantity])
              (not (str/blank? value)))
-    (update doc :errors dissoc (first id))))
+    (update doc :errors dissoc (first path))))
 
 
 ; ======= creation ========================================

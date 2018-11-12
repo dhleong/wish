@@ -32,11 +32,8 @@
     (let [history (pushy/pushy
                     secretary/dispatch!
                     (fn [x]
-                      (let [[uri-path query-string]
-                            (string/split (secretary/uri-without-prefix x) #"\?")
-                            uri-path (secretary/uri-with-leading-slash uri-path)]
-                        (when (secretary/locate-route uri-path)
-                          x))))]
+                      (when (secretary/locate-route x)
+                        x)))]
       (pushy/start! history))
 
     ; #-based navigation

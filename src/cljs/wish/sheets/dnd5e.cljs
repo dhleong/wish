@@ -5,7 +5,6 @@
                    [wish.util.log :as log])
   (:require [clojure.string :as str]
             [reagent.core :as r]
-            [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt click>reset!
                                invoke-callable]]
             [wish.util.nav :refer [sheet-url]]

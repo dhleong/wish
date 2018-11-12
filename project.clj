@@ -1,15 +1,15 @@
 (defproject wish "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.339"]
+                 [org.clojure/clojurescript "1.10.439"]
                  [org.clojure/core.async "0.4.474"]
-                 [org.clojure/tools.reader "1.3.0"]
+                 [org.clojure/tools.reader "1.3.2"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
                  [secretary "1.2.3"]
                  [re-pressed "0.2.2"]
 
                  [kibu/pushy "0.3.8"]
-                 [cljs-ajax "0.7.4"]
+                 [cljs-ajax "0.7.5"]
                  [com.cemerick/url "0.1.1"]
                  [alandipert/storage-atom "2.0.1"]
                  [com.cognitect/transit-cljs "0.8.256"]
@@ -19,7 +19,7 @@
                  [cljsjs/socket-io-client "2.1.1-0"]
 
                  ; simpler forms
-                 [reagent-forms "0.5.42"]
+                 [reagent-forms "0.5.43"]
 
                  ; sheet-specific inline css
                  [cljs-css-modules "0.2.1"]
@@ -77,17 +77,17 @@
    {:dependencies [[binaryage/devtools "0.9.10"]
                    [day8.re-frame/re-frame-10x "0.3.3-react16"]
                    [day8.re-frame/tracing "0.5.1"]
-                   [figwheel-sidecar "0.5.16"]
+                   [figwheel-sidecar "0.5.17"]
                    ;; [cider/piggieback "0.3.6"]
                    [com.cemerick/piggieback "0.2.2"]
 
-                   [ring "1.7.0"]
+                   [ring "1.7.1"]
                    [ring/ring-defaults "0.3.2"]
                    [compojure "1.6.1"]]
 
     :source-paths ["src/cljs"]
 
-    :plugins      [[lein-figwheel "0.5.16"]
+    :plugins      [[lein-figwheel "0.5.17"]
                    [lein-doo "0.1.10"]
                    [lein-pdo "0.1.1"]]}
 
