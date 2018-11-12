@@ -7,7 +7,9 @@
    [wish.subs :as subs]
    [wish.util :refer [<sub click>evt]]
    [wish.views.error-boundary :refer [error-boundary]]
+   [wish.views.campaign-browser :as campaign-browser]
    [wish.views.home :refer [home]]
+   [wish.views.new-campaign :as new-campaign]
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
@@ -18,7 +20,10 @@
    ))
 
 (def pages
-  {:home #'home
+  {:campaign #'sheets/campaign
+   :campaign-browser #'campaign-browser/page
+   :home #'home
+   :new-campaign #'new-campaign/page
    :new-sheet #'new-sheet-page
    :sheet #'sheets/viewer
    :sheet-browser #'sheet-browser/page

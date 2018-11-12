@@ -3,6 +3,7 @@
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
+            [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
@@ -20,6 +21,7 @@
   {:dnd5e {:name "D&D 5E"
            :fn #'dnd5e/sheet
            :builder #'dnd5e-builder/view
+           :campaign #'dnd5e-campaign/view
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
@@ -169,12 +171,19 @@
   [[sheet-id section]]
   (ensuring-loaded
     sheet-id
-    (fn [sheet-info]
-      [(:builder sheet-info) section])))
+    (fn [{view :builder}]
+      [view section])))
+
+(defn campaign
+  [[campaign-id section]]
+  (ensuring-loaded
+    campaign-id
+    (fn [{view :campaign}]
+      [view section])))
 
 (defn viewer
   [sheet-id]
   (ensuring-loaded
     sheet-id
-    (fn [sheet-info]
-      [(:fn sheet-info)])))
+    (fn [{view :fn}]
+      [view])))

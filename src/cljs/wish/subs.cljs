@@ -180,6 +180,12 @@
       (:shared? filters)
       (remove :mine? sheets))))
 
+(reg-sub
+  :known-campaigns
+  (fn [db]
+    ; TODO
+    nil))
+
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id
 (reg-sub
