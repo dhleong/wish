@@ -7,7 +7,7 @@
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
-            [wish.providers :refer [create-sheet-with-data
+            [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
             [wish.views.error-boundary :refer [error-boundary]]
@@ -65,6 +65,25 @@
     ; no processor for this sheet; pass through
     data))
 
+(defn stub-campaign
+  "Create the initial data for a new campaign"
+  [kind campaign-name]
+  (let [kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
+
+    {:v [compiler-version (:v kind-meta)]  ; wish + sheet version numbers
+     :updated (.getTime (js/Date.))  ; date
+     :kind kind
+
+     :name sheet-name
+
+     :sources (:default-sources kind-meta)
+
+     :players #{}
+     }))
+
 (defn stub-sheet
   "Create the initial data for a new sheet"
   [kind sheet-name]
@@ -89,13 +108,21 @@
      :equipped #{}
      }))
 
+(defn create-campaign!
+  "Returns a channel that emits [err sheet-id] on success"
+  [campaign-name provider-id sheet-kind]
+  {:pre [(not (nil? provider-id))
+         (not (nil? sheet-kind))]}
+  (create-file-with-data :campaign campaign-name provider-id
+                         (stub-campaign sheet-kind campaign-name)))
+
 (defn create-sheet!
   "Returns a channel that emits [err sheet-id] on success"
   [sheet-name provider-id sheet-kind]
   {:pre [(not (nil? provider-id))
          (not (nil? sheet-kind))]}
-  (create-sheet-with-data sheet-name provider-id
-                          (stub-sheet sheet-kind sheet-name)))
+  (create-file-with-data :sheet sheet-name provider-id
+                         (stub-sheet sheet-kind sheet-name)))
 
 ; ======= Views ============================================
 

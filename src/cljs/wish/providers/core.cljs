@@ -18,9 +18,12 @@
      See the comments on `:provider-states` in `db.cljs` for all acceptable
      states.")
 
-  (create-sheet
-    [this sheet-name data]
-    "Create a new sheet with the given name and data")
+  (create-file
+    [this kind sheet-name data]
+    "Create a new file with the given name, kind, and data.
+     `kind` will be one of:
+      - :sheet
+      - :campaign")
 
   (load-raw
     [this id]

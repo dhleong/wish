@@ -49,8 +49,8 @@
 (deftype CachingProvider [base my-id storage dirty?-storage]
   IProvider
   (id [this] my-id)
-  (create-sheet [this file-name data]
-    (provider/create-sheet base file-name data))
+  (create-file [this kind file-name data]
+    (provider/create-file base kind file-name data))
 
   (init! [this]
     (go (let [base-state (or (<! (<!timeout (provider/init! base)))
