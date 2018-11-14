@@ -77,7 +77,7 @@
      :updated (.getTime (js/Date.))  ; date
      :kind kind
 
-     :name sheet-name
+     :name campaign-name
 
      :sources (:default-sources kind-meta)
 

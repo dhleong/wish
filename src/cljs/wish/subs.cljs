@@ -141,7 +141,7 @@
            :id sheet-id)))
 
 (reg-sub
-  :known-sheets
+  ::known-files
   :<- [:sheets]
   :<- [:my-sheets]
   (fn [[sheets my-sheets] _]
@@ -165,6 +165,15 @@
          (sort-by :name))))
 
 (reg-sub
+  :known-sheets
+  :<- [::known-files]
+  (fn [all-files _]
+    (->> all-files
+         (filter (comp (partial = :sheet)
+                       :type))
+         (sort-by :name))))
+
+(reg-sub
   :filtered-known-sheets
   :<- [:known-sheets]
   :<- [:sheets-filters]
@@ -182,9 +191,13 @@
 
 (reg-sub
   :known-campaigns
-  (fn [db]
-    ; TODO
-    nil))
+  :<- [::known-files]
+  (fn [all-files _]
+    (->> all-files
+         (filter (comp (partial = :campaign)
+                       :type))
+         (sort-by :name))))
+
 
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id
