@@ -48,10 +48,6 @@
   :any-storable-provider?
   :<- [:storable-provider-states]
   (fn [states _]
-    (println (->> states
-                  (map second)
-                  (into #{})
-                  :ready))
     (->> states
          (map second)
          (into #{})

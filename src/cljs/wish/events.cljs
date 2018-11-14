@@ -161,11 +161,6 @@
                         ; only query again if we previously could not
                         (not= :ready
                               (get-in db [:provider-states provider-id])))]
-      (println provider-id
-               "] "
-               (get-in db [:provider-states provider-id])
-               " --> "
-               (assoc-in db [:provider-states provider-id] state))
       {:db (cond-> db
              ; always put the state
              true (assoc-in [:provider-states provider-id] state)

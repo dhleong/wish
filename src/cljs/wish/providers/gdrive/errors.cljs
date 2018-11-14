@@ -68,7 +68,6 @@
 
 (defn view
   [{:keys [id state] :as data}]
-  (println "ERROR: " data)
   (cond
     (= :unavailable state)
     [:div.error-resolver

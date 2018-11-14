@@ -28,10 +28,7 @@
                                            (js/console.warn
                                              "No placeholder content provided to dynamic-list " id))
                                          v)
-                        :on-change     #(do
-                                          (println "lookup=" options-lookup
-                                                   "\nvalue=" (forms/value-of %))
-                                          (save! id (clojure.core/get @options-lookup (forms/value-of %))))})
+                        :on-change     #(save! id (clojure.core/get @options-lookup (forms/value-of %)))})
 
                      (->> options
                           (filter #(if-let [visible (:visible? (second %))]

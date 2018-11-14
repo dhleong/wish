@@ -1735,7 +1735,6 @@
 
       ; legacy compat
       (when-let [existing (->> sheet :abilities vals seq)]
-        (println (:abilities sheet))
         (when (not= #{8 10 12 13 14 15}
                     (set existing))
           :manual))
