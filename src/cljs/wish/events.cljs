@@ -259,7 +259,11 @@
   [trim-v]
   (fn-traced [{:keys [db]} [sheet-id sheet]]
     {:db (-> db
-             (assoc-in [:sheets sheet-id] sheet)
+             (update-in [:sheets sheet-id]
+                        (fn [old-value]
+                          (merge
+                            (select-keys old-value [:type])
+                            sheet)))
              (reset-sheet-err sheet-id))
 
      ; NOTE: we're probably on a :sheet page, and we might not have
