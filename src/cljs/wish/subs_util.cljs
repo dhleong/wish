@@ -8,6 +8,7 @@
                      (:page db))]
     (let [[page args] page-vec]
       (case page
+        :campaign (first args)
         :sheet args
         :sheet-builder (first args)
 

@@ -99,6 +99,7 @@
 (reg-sub :sheets-filters :sheets-filters)
 (reg-sub :sheet-sources :sheet-sources)
 
+; sheets
 (reg-meta-sub :meta/sheet :sheet)
 (reg-meta-sub :meta/sources :sources)
 (reg-meta-sub :meta/kind :kind)
@@ -109,6 +110,9 @@
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub :meta/items :items)
 (reg-meta-sub :meta/equipped :equipped)
+
+; campaigns
+(reg-meta-sub :meta/players :players)
 
 (reg-sub
   :active-sheet-source-ids
@@ -705,3 +709,18 @@
     (when (and sheet-id
                (not (contains? my-sheets sheet-id)))
       (into #{sheet-id} source-ids))))
+
+
+; ======= Campaign-related ================================
+
+(reg-sub
+  :campaign-members
+  :<- [:meta/players]
+  :<- [:sheets]
+  (fn [[char-sheet-ids sheets]]
+    (->> char-sheet-ids
+         (map (fn [id]
+                (or (assoc (get sheets id)
+                           :id id)
+                    {:id id})))
+         (sort-by :name))))
