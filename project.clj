@@ -5,7 +5,7 @@
                  [org.clojure/tools.reader "1.3.2"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]
-                 [secretary "1.2.3"]
+                 [clj-commons/secretary "1.2.4"]
                  [re-pressed "0.2.2"]
 
                  [kibu/pushy "0.3.8"]
