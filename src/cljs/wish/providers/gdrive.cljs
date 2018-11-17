@@ -58,7 +58,8 @@
   (go (let [[error resp] (<! (apply f args))]
         (cond
           (and error
-               (= 401 (.-code error)))
+               (= 401 (or (.-code error)
+                          (.-status error))))
           ; refresh creds and retry
           (let [_ (log/info "Refreshing auth before retrying " f "...")
                 [refresh-err refresh-resp] (<! (refresh-auth))]
