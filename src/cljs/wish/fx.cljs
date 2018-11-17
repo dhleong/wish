@@ -11,7 +11,8 @@
             [wish.push :as push]
             [wish.providers :as providers :refer [load-sheet! save-sheet!]]
             [wish.sheets :as sheets]
-            [wish.util :refer [>evt]]))
+            [wish.util :refer [>evt]]
+            [wish.util.nav :as nav]))
 
 ; ======= html stuff =======================================
 
@@ -38,30 +39,9 @@
 
 ; ======= support back button to close overlays ===========
 
-(def ^:private overlay-suffix "?overlay")
-
-(defn- dismiss-from-event []
-  (set! js/window.onpopstate nil)
-  (>evt [:toggle-overlay nil]))
-
 (reg-fx
-  :make-overlay-closable!
-  (fn [closable?]
-    (cond
-      closable?
-      (do
-        ; such hacks: navigate to the same url but with a trivial suffix
-        ; appended (so it doesn't register as a different page) then
-        ; hook onpopstate
-        (set! js/window.location (str js/window.location overlay-suffix))
-        (set! js/window.onpopstate dismiss-from-event))
-
-      ; closing manually; if we have the ?overlay url, go back to remove it
-      (str/ends-with? (str js/window.location) overlay-suffix)
-      (do
-        ; stop listening to onpopstate
-        (set! js/window.onpopstate nil)
-        (js/history.go -1)))))
+  :make-overlay-closeable!
+  nav/make-overlay-closeable!)
 
 
 ; ======= provider-related =================================

@@ -61,8 +61,8 @@
 
            ; always dismiss
            (assoc db :showing-overlay nil))
-     :make-overlay-closable! (and overlay-spec
-                                  (nil? (:showing-overlay db)))}))
+     :make-overlay-closeable! (and overlay-spec
+                                   (nil? (:showing-overlay db)))}))
 
 (reg-event-fx
   :title!
