@@ -2,7 +2,8 @@
       :doc "fx"}
   wish.fx
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [reg-fx]]
+  (:require [clojure.string :as str]
+            [re-frame.core :refer [reg-fx]]
             [re-pressed.core :as rp]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.db :as db]
@@ -33,6 +34,34 @@
             ; otherwise, just clear
             nil)]
       (>evt [::rp/set-keydown-rules new-keymaps]))))
+
+
+; ======= support back button to close overlays ===========
+
+(def ^:private overlay-suffix "?overlay")
+
+(defn- dismiss-from-event []
+  (set! js/window.onpopstate nil)
+  (>evt [:toggle-overlay nil]))
+
+(reg-fx
+  :make-overlay-closable!
+  (fn [closable?]
+    (cond
+      closable?
+      (do
+        ; such hacks: navigate to the same url but with a trivial suffix
+        ; appended (so it doesn't register as a different page) then
+        ; hook onpopstate
+        (set! js/window.location (str js/window.location overlay-suffix))
+        (set! js/window.onpopstate dismiss-from-event))
+
+      ; closing manually; if we have the ?overlay url, go back to remove it
+      (str/ends-with? (str js/window.location) overlay-suffix)
+      (do
+        ; stop listening to onpopstate
+        (set! js/window.onpopstate nil)
+        (js/history.go -1)))))
 
 
 ; ======= provider-related =================================

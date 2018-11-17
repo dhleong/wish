@@ -44,23 +44,25 @@
                           sheet-kind]}))
 
 ; expects a full reagent form, eg: [#'hp-overlay]
-(reg-event-db
+(reg-event-fx
   :toggle-overlay
   [trim-v]
-  (fn-traced [db [[overlay-fn & args :as overlay-spec] & {:keys [scrollable?] :as opts}]]
-    (if overlay-spec
-      (update db
-              :showing-overlay
-              (fn [old new-spec]
-                (when-not old
-                  new-spec))
-              [(if scrollable?
-                 "overlay-scrollable"
-                 "overlay")
-               overlay-spec])
+  (fn-traced [{:keys [db]} [[overlay-fn & args :as overlay-spec] & {:keys [scrollable?] :as opts}]]
+    {:db (if overlay-spec
+           (update db
+                   :showing-overlay
+                   (fn [old new-spec]
+                     (when-not old
+                       new-spec))
+                   [(if scrollable?
+                      "overlay-scrollable"
+                      "overlay")
+                    overlay-spec])
 
-      ; always dismiss
-      (assoc db :showing-overlay nil))))
+           ; always dismiss
+           (assoc db :showing-overlay nil))
+     :make-overlay-closable! (and overlay-spec
+                                  (nil? (:showing-overlay db)))}))
 
 (reg-event-fx
   :title!
