@@ -190,7 +190,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
   :name "Otherworldly Patron: The Fiend"
   :desc "You have made a pact with a fiend from the lower planes of existence, a being whose aims are evil, even if you strive against those aims. Such beings desire the corruption or destruction of all things, ultimately including you. Fiends powerful enough to forge a pact include demon lords such as Demogorgon, Orcus, Fraz’Urb-luu, and Baphomet; archdevils such as Asmodeus, Dispater, Mephistopheles, and Belial; pit fiends and balors that are especially mighty; and ultroloths and other lords of the yugoloths."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        [:spell/burning-hands
         :spell/command
         :spell/blindness-deafness
@@ -445,7 +445,7 @@ When you cast _eldritch blast_, its range is 300 feet."
   :name "Fiendish Vigor"
   :desc "You can cast _false life_ on yourself at will as a 1st-level spell, without expending a spell slot or material components."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/false-life]
 
       [:!provide-attr
@@ -472,7 +472,7 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
   :name "Mask of Many Faces"
   :desc "You can cast _disguise self_ at will, without expending a spell slot."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/disguise-self]
 
       [:!provide-attr
@@ -486,7 +486,7 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
   :desc "_Prerequisite:_ 15th level
 You can cast alter self at will, without expending a spell slot."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/alter-self]
 
       [:!provide-attr
@@ -500,7 +500,7 @@ You can cast alter self at will, without expending a spell slot."
   :desc "_Prerequisite:_ 9th level
 You can cast _conjure elemental_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/alter-self]
 
       [:!provide-attr
@@ -521,7 +521,7 @@ You can cast _conjure elemental_ once using a warlock spell slot. You can’t do
 You can cast _slow_ once using a warlock spell slot.
 You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/slow]
 
       [:!provide-attr
@@ -538,7 +538,7 @@ You can’t do so again until you finish a long rest."
   :name "Misty Visions"
   :desc "You can cast _silent image_ at will, without expending a spell slot or material components."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/silent-image]
 
       [:!provide-attr
@@ -562,7 +562,7 @@ When you are in an area of dim light or darkness, you can use your action to bec
   :desc "_Prerequisite:_ 9th level
 You can cast _jump_ on yourself at will, without expending a spell slot or material components."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/jump]
 
       [:!provide-attr
@@ -584,7 +584,7 @@ When you hit a creature with eldritch blast, you can push the creature up to 10 
   :desc "_Prerequisite:_ 7th level
 You can cast _polymorph_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/polymorph]
 
       [:!provide-attr
@@ -604,7 +604,7 @@ You can cast _polymorph_ once using a warlock spell slot. You can’t do so agai
   :desc "_Prerequisite:_ 5th level
 You can cast _bestow curse_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/bestow-curse]
 
       [:!provide-attr
@@ -621,7 +621,7 @@ You can cast _bestow curse_ once using a warlock spell slot. You can’t do so a
   :name "Thief of Five Fates"
   :desc "You can cast _bane_ once using a warlock spell slot. You can’t do so again until you finish a long rest."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/bane]
 
       [:!provide-attr
@@ -649,7 +649,7 @@ You can attack with your pact weapon twice, instead of once, whenever you take t
   :desc "_Prerequisite:_ 15th level
 You can cast _arcane eye_ at will, without expending a spell slot."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/arcane-eye]
 
       [:!provide-attr
@@ -670,7 +670,7 @@ You can communicate telepathically with your familiar and perceive through your 
   :desc "_Prerequisite:_ 9th level
 You can cast _speak with dead_ at will, without expending a spell slot."
   :! [[:!add-to-list
-       :warlock/spells-list
+       :warlock/extra-spells
        :spell/speak-with-dead]
 
       [:!provide-attr
