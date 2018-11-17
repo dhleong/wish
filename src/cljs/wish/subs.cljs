@@ -6,7 +6,7 @@
             [wish.db :as db]
             [wish.inventory :as inv]
             [wish.providers :as providers]
-            [wish.subs-util :refer [active-sheet-id]]
+            [wish.subs-util :refer [active-sheet-id reg-id-sub]]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [apply-directives inflate]]
             [wish.sources.compiler.lists :as lists]
@@ -87,7 +87,7 @@
   ; each part of the sheet-meta, to avoid a small edit to HP,
   ; for example, causing all of the spell lists and features
   ; (which rely on classes, etc.) to be re-calculated
-  (reg-sub
+  (reg-id-sub
     id
     :<- [:sheet-meta]
     (fn [sheet _]
@@ -122,8 +122,14 @@
 (reg-sub
   :active-sheet-id
   :<- [:page]
-  (fn [page-vec _]
-    (active-sheet-id nil page-vec)))
+  (fn [page-vec [_ ?requested-id]]
+    ; NOTE: subscriptions created with wish.sub-util/reg-id-sub
+    ; can accept an extra param in their query vector that will
+    ; get passed down to us as ?requested-id, if provided; if
+    ; not, we just do the normal thing and extract the
+    ; active-sheet-id from the page vector
+    (or ?requested-id
+        (active-sheet-id nil page-vec))))
 
 (reg-sub
   :sharable-sheet-id
@@ -205,7 +211,7 @@
 
 ; if a specific sheet-id is not provided, loads
 ; for the active sheet id
-(reg-sub
+(reg-id-sub
   :sheet-source
   :<- [:sheet-sources]
   :<- [:active-sheet-id]
@@ -228,14 +234,14 @@
 
 ; ======= Accessors for the active sheet ===================
 
-(reg-sub
+(reg-id-sub
   :sheet-meta
   :<- [:sheets]
   :<- [:active-sheet-id]
   (fn [[sheets id]]
     (get sheets id)))
 
-(reg-sub
+(reg-id-sub
   :classes
   :<- [:meta/kind]
   :<- [:sheet-source]
@@ -258,7 +264,7 @@
 ; A single class instance, or nil if none at all; if any
 ; class is marked primary, that class is returned. If none
 ; are so marked, then nil is returned
-(reg-sub
+(reg-id-sub
   :primary-class
   :<- [:classes]
   (fn [classes]
@@ -267,13 +273,13 @@
          first)))
 
 ; sum of levels from all classes
-(reg-sub
+(reg-id-sub
   :total-level
   :<- [:classes]
   (fn [classes _]
     (apply + (map :level classes))))
 
-(reg-sub
+(reg-id-sub
   :races
   :<- [:sheet-meta]
   :<- [:sheet-source]
@@ -300,7 +306,7 @@
                         :race))))))))
 
 ; combines :attrs from all classes and races into a single map
-(reg-sub
+(reg-id-sub
   :all-attrs
   :<- [:classes]
   :<- [:races]
@@ -470,7 +476,7 @@
      sheet
      data-source]))
 
-(reg-sub
+(reg-id-sub
   :class-features
   :<- [:classes]
   get-features)
@@ -497,12 +503,12 @@
      (subscribe [:sheet-source])])
   only-feature-options)
 
-(reg-sub
+(reg-id-sub
   :race-features
   :<- [:races]
   get-features)
 
-(reg-sub
+(reg-id-sub
   :inflated-race-features
   :<- [:race-features]
   :<- [:meta/options]
@@ -511,7 +517,7 @@
   :<- [:sheet-source]
   inflate-feature-options)
 
-(reg-sub
+(reg-id-sub
   :race-features-with-options
   :<- [:race-features]
   :<- [:meta/options]
@@ -521,7 +527,7 @@
   only-feature-options)
 
 ; semantic convenience for single-race systems
-(reg-sub
+(reg-id-sub
   :race
   :<- [:races]
   (fn [races _]
@@ -537,7 +543,7 @@
                      :wish/context-type kind
                      :wish/context entity)))))
 
-(reg-sub
+(reg-id-sub
   :limited-uses
   :<- [:classes]
   :<- [:races]
@@ -553,7 +559,7 @@
              vals
              (map (partial uses-with-context :item)))))))
 
-(reg-sub
+(reg-id-sub
   :limited-uses-map
   :<- [:limited-uses]
   (fn [limited-uses]
@@ -589,7 +595,7 @@
 ; will always be the (surprise) item-id.
 ; In addition, every item in :equipped will have the :wish/equipped?
 ; set to true
-(reg-sub
+(reg-id-sub
   :inventory-map
   :<- [:meta/kind]
   :<- [:meta/inventory]
@@ -622,7 +628,7 @@
       raw-inventory)))
 
 ; sorted list of inflated inventory items
-(reg-sub
+(reg-id-sub
   :inventory-sorted
   :<- [:inventory-map]
   (fn [inventory-map]
@@ -631,7 +637,7 @@
          (sort-by :name))))
 
 ; sorted list of inflated + equipped inventory items
-(reg-sub
+(reg-id-sub
   :equipped-sorted
   :<- [:inventory-sorted]
   (fn [inventory-sorted]
@@ -662,7 +668,6 @@
   (fn [source [_ entity-kind]]
     (src/list-entities source entity-kind)))
 
-
 (reg-sub
   :options->
   :<- [:meta/options]
@@ -673,6 +678,7 @@
                instanced-value)
         instanced-value
         v))))
+
 
 ; ======= Save state =======================================
 
@@ -717,7 +723,7 @@
   :campaign-members
   :<- [:meta/players]
   :<- [:sheets]
-  (fn [[char-sheet-ids sheets]]
+  (fn [[char-sheet-ids sheets] qv]
     (->> char-sheet-ids
          (map (fn [id]
                 (or (assoc (get sheets id)
