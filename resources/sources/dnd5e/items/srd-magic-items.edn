@@ -1722,7 +1722,24 @@ This potion’s transparent liquid has floating in it a sliver of fingernail fro
   :desc "When you drink this potion, you gain the “enlarge” effect of the _enlarge/reduce _spell for 1d4 hours (no concentration required). The red in the potion’s liquid continuously expands from a tiny bead to color the clear liquid around it and then contracts. Shaking the bottle fails to interrupt this process."}
  {:name "Potion of Healing"
   :id :potion-of-healing
-  :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated."}
+  :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
+
+**HP Regained**: 2d4 + 2"}
+ {:name "Potion of Greater Healing"
+  :id :potion-of-greater-healing
+  :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
+
+**HP Regained**: 4d4 + 4"}
+ {:name "Potion of Superior Healing"
+  :id :potion-of-superior-healing
+  :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
+
+**HP Regained**: 8d4 + 8"}
+ {:name "Potion of Supreme Healing"
+  :id :potion-of-supreme-healing
+  :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
+
+**HP Regained**: 10d4 + 20"}
  {:name "Potion of Heroism"
   :id :potion-of-heroism
   :desc "For 1 hour after drinking it, you gain 10 temporary hit points that last for 1 hour. For the same duration, you are under the effect of the _bless _spell (no concentration required). This blue potion bubbles and steams as if boiling."}
