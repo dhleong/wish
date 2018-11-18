@@ -2,7 +2,9 @@
       :doc "campaign.chars-carousel"}
   wish.views.campaign.chars-carousel
   (:require [wish.util :refer [<sub >evt]]
-            [wish.views.error-boundary :refer [error-boundary]]))
+            [wish.util.nav :refer [sheet-url]]
+            [wish.views.error-boundary :refer [error-boundary]]
+            [wish.views.widgets :refer [link]]))
 
 (defn- sheet-loader [sheet]
   [:div "Loading " (:name sheet) "..."])
@@ -36,10 +38,12 @@
 
       (for [c members]
         ^{:key (:id c)}
-        [:div.card
-         [char-sheet-loader
-          (:id c)
-          chars-card-view]])]]
+        [link {:href (sheet-url (:id c))
+               :class "card"}
+         [:div.card
+          [char-sheet-loader
+           (:id c)
+           chars-card-view]]])]]
 
     [:div.empty-carousel
      "No characters in this campaign... yet!"]))

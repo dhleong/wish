@@ -16,7 +16,7 @@
       :else "WISH")))
 
 (defn- has-footer? [page]
-  (not (contains? #{:sheet :splash}
+  (not (contains? #{:campaign :sheet :splash}
                   page)))
 
 (defn router

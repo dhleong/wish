@@ -318,6 +318,68 @@ a {
 }
 
 //
+// Campaign screen widgets
+
+.carousel-container {
+    width: 100%;
+    overflow-x: auto;
+
+    .carousel {
+        .flex();
+
+        a.card {
+            color: inherit;
+            margin: 8px 4px;
+            padding: 0px;
+        }
+        div.card {
+            background-color: #eee;
+            border-radius: 4px;
+            padding: 8px;
+            text-align: center;
+            width: 220px;
+
+            &:hover {
+                background-color: #ddd;
+            }
+
+            &:active {
+                background-color: #ccc;
+            }
+        }
+    }
+}
+
+.hp-bar {
+    @height: 32pt;
+
+    position: relative;
+    background-color: #fcfcfc;
+    border-radius: 4px;
+    height: @height;
+    margin: 8px 0;
+
+    .bar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background-color: #00cc33;
+        border-radius: 4px;
+    }
+
+    .label {
+        font-size: 16pt;
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        line-height: @height;
+    }
+}
+
+//
 // shared widgets
 
 .clickable {
