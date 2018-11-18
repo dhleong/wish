@@ -111,27 +111,6 @@
 (defn sheet-url
   "Generate the url to a sheet, optionally with
    extra path sections after it"
-  [kind id & extra-sections]
-  (apply str "/" kind
-         "/" (namespace id)
-         "/" (name id)
-         (when extra-sections
-           (interleave (repeat "/")
-                       (map
-                         #(if (keyword? %)
-                            (name %)
-                            (str %))
-                         extra-sections)))))
-
-(defn campaign-url
-  "Generate the url to a campaign, optionally with
-   extra path sections after it"
-  [id & extra-sections]
-  (apply base-sheet-url "campaigns" id extra-sections))
-
-(defn sheet-url
-  "Generate the url to a sheet, optionally with
-   extra path sections after it"
   [id & extra-sections]
   (apply base-sheet-url "sheets" id extra-sections))
 
