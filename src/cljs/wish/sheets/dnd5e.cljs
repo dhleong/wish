@@ -5,6 +5,7 @@
                    [wish.util.log :as log])
   (:require [clojure.string :as str]
             [reagent.core :as r]
+            [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt click>reset!
                                invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
@@ -521,16 +522,27 @@
 
 (defn usage-box-many
   "Render a box for specifying how many uses remain"
-  [item uses-left]
+  [item uses-left uses-max]
   [:div.many
    [:a.modify {:href "#"
+               :class (when (<= uses-left 0)
+                        "disabled")
                :on-click (click>evt [:+use (:id item) 1])}
     (icon :remove-circle)]
 
-   ; TODO should this be a text box?
-   uses-left
+   [bind-fields
+    [:input.uses-left {:field :fast-numeric
+                       :id :uses}]
+
+    {:get #(:uses-left (<sub [::subs/limited-use (:id item)]))
+     :save! (fn [_ v]
+              (let [used (max 0 (min uses-max
+                                     (- uses-max v)))]
+                (>evt [:set-used! (:id item) used])))}]
 
    [:a.modify {:href "#"
+               :class (when (>= uses-left uses-max)
+                        "disabled")
                :on-click (click>evt [:+use (:id item) -1])}
     (icon :add-circle)]])
 
@@ -542,8 +554,7 @@
   [:div.usage
    (cond
      (= 1 uses) [usage-box-single item (> used-count 0)]
-     :else (let [uses-left (- uses used-count)]
-             [usage-box-many item uses-left]))])
+     :else [usage-box-many item (- uses used-count) uses])])
 
 
 (def trigger-labels

@@ -438,11 +438,22 @@
                                  1)))))
 
 ; add some number of uses
+; NOTE: it might be neat to use inject-cofx with :limited-uses for all the
+; following use-setting events so we can verify the new amount is in the
+; correct range, but ignoring it currently allows for unknown homebrew
+; effects to happen, which might be nice, so....
 (reg-event-fx
   :+use
   [trim-v]
   (fn-traced [cofx [use-id amount]]
     (update-uses cofx use-id + amount)))
+
+; set the number of times a limited-use has been used
+(reg-event-fx
+  :set-used!
+  [trim-v]
+  (fn-traced [cofx [use-id amount]]
+    (update-uses cofx use-id (fn [_] amount))))
 
 ; accepts a map of use-id -> amount
 (reg-event-fx

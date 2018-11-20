@@ -664,8 +664,14 @@
      [:&.selected {:background-color "#ddd"}
       [:&:hover {:background-color "#eee"}]]]
 
+    [:input.uses-left (merge text-center
+                             {:width "3em"})]
+
     [:.many flex/center
-     [:.modify {:padding "8px"}]]]])
+     [:.modify {:padding "8px"}
+      [:&.disabled {:font-style 'italic
+                    :color "rgba(1,1,1, 0.25) !important"
+                    :cursor 'default} ]]]]])
 
 (defstyled spells-section
   [:.spell-slot-level flex/center
