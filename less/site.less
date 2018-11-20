@@ -320,12 +320,24 @@ a {
 //
 // Campaign screen widgets
 
+.add-chars-overlay {
+    padding: 32px;
+}
+
 .carousel-container {
     width: 100%;
     overflow-x: auto;
 
     .carousel {
         .flex();
+
+        a.add-button {
+            .flex();
+            .flex-direction(row);
+            .align-items(center);
+
+            padding: 8px;
+        }
 
         a.card {
             color: inherit;

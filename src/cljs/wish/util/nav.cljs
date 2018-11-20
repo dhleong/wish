@@ -8,6 +8,7 @@
             [goog.events :as gevents]
             [goog.history.EventType :as HistoryEventType]
             [pushy.core :as pushy]
+            [wish.config :as config]
             [wish.util :refer [is-ios? >evt]])
   (:import goog.History))
 
@@ -107,6 +108,16 @@
    extra path sections after it"
   [id & extra-sections]
   (apply base-sheet-url "campaigns" id extra-sections))
+
+(defn campaign-invite-url
+  "Generate the url to join a campaign"
+  [campaign-id invited-sheet-url]
+  (str
+    config/full-url-root
+    (prefix
+      (base-sheet-url "join-campaign" campaign-id
+                      "as"
+                      (namespace invited-sheet-url) invited-sheet-url))))
 
 (defn sheet-url
   "Generate the url to a sheet, optionally with

@@ -100,6 +100,7 @@
 (reg-sub :sheet-sources :sheet-sources)
 
 ; sheets
+(reg-meta-sub :meta/name :name)
 (reg-meta-sub :meta/sheet :sheet)
 (reg-meta-sub :meta/sources :sources)
 (reg-meta-sub :meta/kind :kind)
@@ -718,6 +719,17 @@
 
 
 ; ======= Campaign-related ================================
+; TODO can these be broken out to a separate file?
+
+(reg-sub
+  :campaign-add-char-candidates
+  :<- [:meta/players]
+  :<- [:known-sheets]
+  (fn [[current-members sheets]]
+    (->> sheets
+         (remove :mine?)
+         (remove (comp current-members :id))
+         )))
 
 (reg-sub
   :campaign-members

@@ -2,9 +2,9 @@
       :doc "campaign.chars-carousel"}
   wish.views.campaign.chars-carousel
   (:require [wish.util :refer [<sub >evt]]
-            [wish.util.nav :refer [sheet-url]]
+            [wish.util.nav :as nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
-            [wish.views.widgets :refer [link]]))
+            [wish.views.widgets :refer [icon link link>evt]]))
 
 (defn- sheet-loader [sheet]
   [:div "Loading " (:name sheet) "..."])
@@ -31,10 +31,45 @@
         (>evt [:load-sheet! sheet-id])
         [sheet-loader sheet]))))
 
+(defn add-chars-overlay []
+  (let [campaign-id (<sub [:active-sheet-id])]
+    [:div.add-chars-overlay
+     [:div.title
+      "Add characters to "
+      (<sub [:meta/name])]
+
+     [:div.candidates
+      (for [c (<sub [:campaign-members])]
+        ^{:key (:id c)}
+        [:div.character
+         (:name c)
+
+         [:input.invite-url
+          {:type :text
+           :value (nav/campaign-invite-url
+                    campaign-id
+                    (:id c))}
+          ]
+         ])
+
+      (for [c (<sub [:campaign-add-char-candidates])]
+        ^{:key (:id c)}
+        [:div.character
+         (:name c)
+
+         [:div
+          "INVITE (todo)"]
+         ])]
+     ]))
+
 (defn chars-carousel [chars-card-view]
   (if-let [members (seq (<sub [:campaign-members]))]
     [:div.carousel-container
      [:div.carousel
+
+      [link>evt {:> [:toggle-overlay [#'add-chars-overlay]]
+                 :class "add-button"}
+       (icon :add)]
 
       (for [c members]
         ^{:key (:id c)}

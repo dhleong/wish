@@ -21,6 +21,9 @@
   (defroute #"/campaigns/([a-z0-9-]+/[^/]+)" [id]
     (navigate! :campaign [(keyword id)]))
 
+  (defroute #"/join-campaign/([a-z0-9-]+/[^/]+)/as/(.*)" [campaign-id sheet-id]
+    (navigate! :join-campaign [(keyword campaign-id) (keyword sheet-id)]))
+
   (defroute "/sheets" []
     (navigate! :sheet-browser))
 
