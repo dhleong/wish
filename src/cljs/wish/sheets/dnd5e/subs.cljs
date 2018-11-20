@@ -319,7 +319,7 @@
 
          (sort-by :name))))
 
-(reg-id-sub
+(reg-sub
   ::limited-use
   :<- [::limited-uses]
   :<- [:limited-used]
