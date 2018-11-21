@@ -6,6 +6,7 @@
    [wish.sheets :as sheets]
    [wish.subs :as subs]
    [wish.util :refer [<sub click>evt]]
+   [wish.views.error-boundary :refer [error-boundary]]
    [wish.views.home :refer [home]]
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
@@ -54,7 +55,8 @@
     "(max-width: 479px)" [:set-device :smartphone]
     [:set-device :default]]
 
-   [router pages]
+   [error-boundary
+    [router pages]]
 
    [overlay]
 

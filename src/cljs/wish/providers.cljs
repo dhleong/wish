@@ -22,6 +22,7 @@
     :name "Google Drive"
     :config #'gdrive-config/view
     :error-resolver #'gdrive-errors/view
+    :errors #{:no-shared-sheets}
     :share! #'gdrive/share!
     :inst (with-caching
             (gdrive/create-provider))}
@@ -55,11 +56,29 @@
     [:div.error "No config for this provider"]))
 
 (defn error-resolver-view
-  [{:keys [provider id] :as data}]
-  (if-let [error-resolver (provider-key provider :error-resolver)]
-    [error-resolver data]
+  [error]
+  (cond
+    ; if it's a map then it's either a provider-specific error,
+    ; or a generic exception-type error
+    (map? error)
+    (let [{:keys [provider id] :as data} error]
 
-    [widgets/error-box data]))
+      (if-let [error-resolver (provider-key provider :error-resolver)]
+        [error-resolver data]
+
+        [widgets/error-box data]))
+
+    ; if it's a keyword, it's an internal, wish-specific, cross-provider error
+    (keyword? error)
+    (let [error-handling-providers (->> providers
+                                        vals
+                                        (filter (comp error :errors)))]
+      [:div.error-resolvers
+       (for [p error-handling-providers]
+         ^{:key (:id p)}
+         [:div
+          [:div (:name p)]
+          [(:error-resolver p) {:state error}]]) ])))
 
 (defn init! []
   (log/info "init!")

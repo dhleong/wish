@@ -188,6 +188,12 @@
   (fn-traced [cofx]
     {:providers/query-data-sources :query}))
 
+(reg-event-fx
+  :providers/query-sheets
+  [trim-v]
+  (fn-traced [_ [provider-id]]
+    {:providers/query-sheets provider-id}))
+
 
 ; ======= data source management ===========================
 

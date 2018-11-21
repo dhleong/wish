@@ -25,11 +25,13 @@
    [:div.metadata
      "If there's no such button then, sadly, the file doesn't exist."]])
 
-(defn- request-global-read []
+(defn- request-global-read [& [specific-file?]]
   (r/with-let [requested? (r/atom false)]
     [:<>
-     [:div "It may have been shared with you, but we'll need a bit more access
-            to your Google Drive account in order to see it."]
+     (when specific-file?
+       [:div "It may have been shared with you, but we'll need a bit more access
+              to your Google Drive account in order to see it."])
+
      [:div
       [:a {:href "#"
            :on-click (fn-click
@@ -39,8 +41,12 @@
                        (go (when-not (first (<! (gdrive/request-read!)))
                              ; on success, try again
                              (log "Granted read scope!")
-                             (>evt [:retry-current-sheet!]))))}
-       "Let's do it!"]]
+                             (if specific-file?
+                               (>evt [:retry-current-sheet!])
+                               (>evt [:providers/query-sheets :gdrive])))))}
+       (if specific-file?
+         "Let's do it!"
+         "Grant access to browse shared sheets")]]
 
      (when @requested?
        [:<>
@@ -55,7 +61,7 @@
    (if (has-global-read?)
      [request-file-access id]
 
-     [request-global-read]) ])
+     [request-global-read :specific-file!]) ])
 
 (defn resolve-signed-out []
   [:div.error-resolver
@@ -72,6 +78,9 @@
     (= :unavailable state)
     [:div.error-resolver
      [:h4 "Google Drive is not available right now"]]
+
+    (= :no-shared-sheets state)
+    [request-global-read]
 
     (= :signed-out state)
     [resolve-signed-out]
