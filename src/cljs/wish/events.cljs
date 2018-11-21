@@ -30,6 +30,12 @@
      :dispatch-n [[::update-keymap page-spec]
                   [:push/check]]}))
 
+(reg-event-fx
+  :nav/replace!
+  [trim-v]
+  (fn-traced [_ [new-location]]
+    {:nav/replace! new-location}))
+
 (reg-event-db
   :set-device
   [trim-v]
@@ -765,8 +771,23 @@
 
 ; ======= Campaign-related ================================
 
+;; can also be passed nil to leave a campaign
 (reg-event-fx
   :join-campaign
   [trim-v (inject-cofx ::inject/sub [:active-sheet-id])]
-  (fn [{:keys [active-sheet-id] :as cofx} [campaign-id]]
-    (log/todo "Join " campaign-id " as " active-sheet-id)))
+  (fn [{:keys [active-sheet-id] :as cofx} [campaign-id ?campaign-name]]
+    (if campaign-id
+      (let [info {:id campaign-id
+                  :name ?campaign-name}]
+        (log/info "Joining " campaign-id)
+        (update-sheet-path cofx [] assoc :campaign info)
+
+        ; TODO raise a notifier
+        )
+
+      (do
+        (log/info "Leaving campaign")
+        (update-sheet-path cofx [] dissoc :campaign))
+
+        ; TODO raise a notifier
+        )))

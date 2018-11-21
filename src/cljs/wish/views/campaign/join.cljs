@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Join a campaign as a player"}
   wish.views.campaign.join
-  (:require [wish.util :refer [<sub >evt click>evt]]))
+  (:require [wish.util :refer [<sub >evt click>evts]]
+            [wish.util.nav :refer [sheet-url]]))
 
 (defn page [[campaign-id sheet-id ?campaign-name]]
   [:div
@@ -18,7 +19,9 @@
    [:div
     [:h4 "Would you like to join?"]
 
-    [:div.button {:on-click (click>evt [:join-campaign campaign-id])}
+    [:div.button {:on-click (click>evts
+                              [:join-campaign campaign-id ?campaign-name]
+                              [:nav/replace! (sheet-url sheet-id)])}
      "Yes! Join " (or ?campaign-name
                       "the campaign")]
     ]
