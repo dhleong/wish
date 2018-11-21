@@ -762,3 +762,11 @@
       ; trigger sheet data reload
       {:load-sheet! active-sheet-id})))
 
+
+; ======= Campaign-related ================================
+
+(reg-event-fx
+  :join-campaign
+  [trim-v (inject-cofx ::inject/sub [:active-sheet-id])]
+  (fn [{:keys [active-sheet-id] :as cofx} [campaign-id]]
+    (log/todo "Join " campaign-id " as " active-sheet-id)))
