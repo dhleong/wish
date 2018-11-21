@@ -32,11 +32,11 @@
         [sheet-loader sheet]))))
 
 (defn add-chars-overlay []
-  (let [campaign-id (<sub [:active-sheet-id])]
+  (let [campaign-id (<sub [:active-sheet-id])
+        campaign-name (<sub [:meta/name])]
     [:div.add-chars-overlay
      [:div.title
-      "Add characters to "
-      (<sub [:meta/name])]
+      "Add characters to " campaign-name]
 
      [:div.candidates
       (for [c (<sub [:campaign-members])]
@@ -46,9 +46,11 @@
 
          [:input.invite-url
           {:type :text
+           :read-only true
            :value (nav/campaign-invite-url
                     campaign-id
-                    (:id c))}
+                    (:id c)
+                    campaign-name)}
           ]
          ])
 

@@ -11,6 +11,7 @@
     (let [[page args] page-vec]
       (case page
         :campaign (first args)
+        :join-campaign (second args)
         :sheet args
         :sheet-builder (first args)
 

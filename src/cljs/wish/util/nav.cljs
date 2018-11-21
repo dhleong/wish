@@ -111,13 +111,16 @@
 
 (defn campaign-invite-url
   "Generate the url to join a campaign"
-  [campaign-id invited-sheet-url]
-  (str
-    config/full-url-root
-    (prefix
-      (base-sheet-url "join-campaign" campaign-id
-                      "as"
-                      (namespace invited-sheet-url) invited-sheet-url))))
+  ([campaign-id invited-sheet-url]
+   (campaign-invite-url campaign-id invited-sheet-url nil))
+  ([campaign-id invited-sheet-url campaign-name]
+   (str
+     config/full-url-root
+     (prefix
+       (base-sheet-url "join-campaign" campaign-id
+                       "n" (js/encodURIComponent campaign-name)
+                       "as"
+                       (namespace invited-sheet-url) invited-sheet-url)))))
 
 (defn sheet-url
   "Generate the url to a sheet, optionally with
