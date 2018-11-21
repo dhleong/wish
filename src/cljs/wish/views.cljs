@@ -46,7 +46,8 @@
       ; finally, the overlay itself
       [:div.scroll-host
        [:div.wrapper
-        overlay-spec]]]]))
+        [error-boundary
+         overlay-spec]]]]]))
 
 (defn main []
   [:<>
