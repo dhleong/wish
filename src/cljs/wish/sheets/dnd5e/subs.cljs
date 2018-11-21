@@ -1277,9 +1277,18 @@
                 extra-spells (->> extra-spells
                                   (map #(assoc % :always-prepared? true)))
 
-                ; only selected spells from the main list
-                selected-spells (expand-list data-source spells-list
-                                             (get options spells-option []))
+                selected-spell-ids (get options spells-option [])
+
+                ; only selected spells from the main list (including those
+                ; added by class features, eg warlock)
+                selected-spells (concat
+                                  (expand-list data-source spells-list
+                                               selected-spell-ids)
+
+                                  ; for class features: (if selected)
+                                  (->>
+                                    (get-in attrs [:wish/container :lists spells-list])
+                                    (filter (comp selected-spell-ids :id))))
 
                 ; for :acquires? spellcasters, their acquired
                 ; cantrips are always prepared
