@@ -183,6 +183,8 @@ You choose additional favored terrain types at 6th and 10th level."
                 {:id :ranger/primeval-awareness
                  :name "Primeval Awareness"
                  :desc "You can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn’t reveal the creatures’ location or number."
+                 :spell-level 1 ; min spell slot level
+                 :consumes :*spell-slot
                  :! [[:!provide-attr
                       [:action :ranger/primeval-awareness]
                       true]]}
