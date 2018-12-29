@@ -1,5 +1,5 @@
 (ns ^{:author "Daniel Leong"
-      :doc "Utils for generating formatted hiccup from text"}
+      :doc "Utils for generating hiccup from formatted text"}
   wish.util.formatted
   (:require [clojure.string :as str]))
 
@@ -135,11 +135,50 @@
       (apply maybe-span
              (expand-formats line)))))
 
+(declare ->hiccup)
+
+(defn- format-row
+  [element-type row]
+  (->> row
+       (map (fn [item]
+              (->> (->hiccup item)
+                   (into element-type))))
+       (into [:tr])))
 
 (defn ->hiccup
   [text]
-  (let [lines (str/split text "\n")]
-    (->> lines
-         (map wrap-line)
-         (reduce collapse-lists [])
-         vec)))
+  (when text
+    (cond
+      ; base case: formatted strings
+      (string? text)
+      (let [lines (str/split text "\n")]
+        (->> lines
+             (map wrap-line)
+             (reduce collapse-lists [])))
+
+      ; tables
+      (and (map? text)
+           (or (:rows text)
+               (:headers text)))
+      (->> [:table
+            (when-let [headers (:headers text)]
+              [:thead
+               (format-row [:th] headers)])
+
+            (when-let [rows (:rows text)]
+              (->> rows
+                   (map (partial format-row [:td]))
+                   (into [:tbody])))
+            ]
+           (filterv identity)
+
+           ; wrap in an outer sequence
+           (vector))
+
+      ; sequence of entries (can be any of the above)
+      (vector? text)
+      (->> text
+           (mapcat ->hiccup))
+
+      :else
+      (throw (js/Error. (str "Unknown format:\n" text))))))

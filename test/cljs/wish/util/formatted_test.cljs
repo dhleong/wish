@@ -4,9 +4,11 @@
 
 (deftest basic-->hiccup-test
   (testing "Simple pass-through"
+    (is (nil? (->hiccup nil)))
     (is (= ["world"]
            (->hiccup
              "world"))))
+
   (testing "Boldify"
     (is (= [[:b "itskaylee"]]
            (->hiccup
@@ -54,3 +56,62 @@
            (->hiccup
              "1. itskaylee")))))
 
+(deftest table->hiccup-test
+  (testing "No headers table"
+    (is (= [[:table
+             [:tbody
+              [:tr
+               [:td "mreynolds"]
+               [:td "wishwash"]]]]]
+
+           (->hiccup
+             {:rows [["mreynolds" "wishwash"]]}))))
+
+  (testing "Table with headers"
+    (is (= [[:table
+             [:thead
+              [:tr
+               [:th "Captain"]
+               [:th "Pilot"]]]
+             [:tbody
+              [:tr
+               [:td "mreynolds"]
+               [:td "wishwash"]]]]]
+
+           (->hiccup
+             {:headers ["Captain" "Pilot"]
+              :rows [["mreynolds" "wishwash"]]}))))
+
+  (testing "Formatted text in tables"
+    (is (= [[:table
+             [:thead
+              [:tr
+               [:th [:b "mreynolds"]]
+               [:th [:i "wishwash"]]]]]]
+
+           (->hiccup
+             {:headers ["**mreynolds**" "_wishwash_"]})))))
+
+(deftest vector->hiccup-test
+  (testing "Vectors -> paragraphs"
+    (is (= ["mreynolds" "itskaylee"]
+           (->hiccup
+             ["mreynolds", "itskaylee"]))))
+
+  (testing "Table in vectors"
+    (is (= ["Crew members:"
+            [:table
+             [:tbody
+              [:tr
+               [:td [:b "Captain"]]
+               [:td "Mal Reynolds"]]
+              [:tr
+               [:td [:b "Pilot"]]
+               [:td "Hoban Washburne"]]]]
+            "Serenity"]
+
+           (->hiccup
+             ["Crew members:"
+              {:rows [["**Captain**" "Mal Reynolds"]
+                      ["**Pilot**" "Hoban Washburne"]]}
+              "Serenity"])))))
