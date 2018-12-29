@@ -320,10 +320,12 @@ If you cast the spell two or more times before completing your next long rest, t
    :id :spell/awaken
    :name "Awaken"
    :time "8 hours"
-   :range ""
-   :duration ""
+   :range "Touch"
+   :duration "Instantaneous"
    :school :trx
-   :desc "The awakened beast or plant is charmed by you for 30 days or until you or your companions do anything harmful to it. When the charmed condition ends, the awakened creature chooses whether to remain friendly to you, based on how you treated it while it was charmed."
+   :desc "After spending the casting time tracing magical pathways within a precious gemstone, you touch a Huge or smaller beast or plant. The target must have either no Intelligence score or an Intelligence of 3 or less. The target gains an Intelligence of 10. The target also gains the ability to speak one language you know. If the target is a plant, it gains the ability to move its limbs, roots, vines, creepers, and so forth, and it gains senses similar to a human’s. Your GM chooses statistics appropriate for the awakened plant, such as the statistics for the awakened shrub or the awakened tree.
+The awakened beast or plant is charmed by you for 30 days or until you or your companions do anything harmful to it. When the charmed condition ends, the awakened creature chooses whether to remain friendly to you, based on how you treated it while it was charmed."
+   :comp [:vs "an agate worth at least 1,000 gp, which the spell consumes"]
    }
 
   {:spell-level 1
@@ -2939,12 +2941,16 @@ You can create any floor plan you like, but the space can’t exceed 50 cubes, e
    :id :spell/major-image
    :name "Major Image"
    :time "1 action"
-   :range ""
-   :duration ""
+   :range "120 feet"
+   :duration "Concentration, up to 10 minutes"
    :school :ill
-   :desc "As long as you are within range of the illusion, you can use your action to cause the image to move to any other spot within range. As the image changes location, you can alter its appearance so that its movements appear natural for the image. For example, if you create an image of a creature and move it, you can alter the image so that it appears to be walking. Similarly, you can cause the illusion to make different sounds at different times, even making it carry on a conversation, for example.
+   :desc "You create the image of an object, a creature, or some other visible phenomenon that is no larger than a 20-foot cube. The image appears at a spot that you can see within range and lasts for the duration. It seems completely real, including sounds, smells, and temperature appropriate to the thing depicted. You can’t create sufficient heat or cold to cause damage, a sound loud enough to deal thunder damage or deafen a creature, or a smell that might sicken a creature (like a troglodyte’s stench).
+As long as you are within range of the illusion, you can use your action to cause the image to move to any other spot within range. As the image changes location, you can alter its appearance so that its movements appear natural for the image. For example, if you create an image of a creature and move it, you can alter the image so that it appears to be walking. Similarly, you can cause the illusion to make different sounds at different times, even making it carry on a conversation, for example.
 Physical interaction with the image reveals it to be an illusion, because things can pass through it. A creature that uses its action to examine the image can determine that it is an illusion with a successful Intelligence (Investigation) check against your spell save DC. If a creature discerns the illusion for what it is, the creature can see through the image, and its other sensory qualities become faint to the creature.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the spell lasts until dispelled, without requiring your concentration."
+   :comp [:vs "a bit of fleece"]
+   :con? true
+   :aoe [:cube 20, 20]
    }
 
   {:spell-level 5
@@ -3235,10 +3241,12 @@ Similarly, this spell doesn’t directly affect plant growth. The moved earth ca
    :id :spell/passwall
    :name "Passwall"
    :time "1 action"
-   :range ""
-   :duration ""
+   :range "30 feet"
+   :duration "1 hour"
    :school :trx
-   :desc "When the opening disappears, any creatures or objects still in the passage created by the spell are safely ejected to an unoccupied space nearest to the surface on which you cast the spell."
+   :desc "A passage appears at a point of your choice that you can see on a wooden, plaster, or stone surface (such as a wall, a ceiling, or a floor) within range, and lasts for the duration. You choose the opening’s dimensions: up to 5 feet wide, 8 feet tall, and 20 feet deep. The passage creates no instability in a structure surrounding it.
+When the opening disappears, any creatures or objects still in the passage created by the spell are safely ejected to an unoccupied space nearest to the surface on which you cast the spell."
+   :comp [:vs "a pinch of sesame seeds"]
    }
 
   {:spell-level 4
@@ -3575,10 +3583,9 @@ The protection grants several benefits. Creatures of those types have disadvanta
    :range "Touch"
    :duration "1 hour"
    :school :abj
-   :comp :vs
    :desc "You touch a creature. If it is poisoned, you neutralize the poison. If more than one poison afflicts the target, you neutralize one poison that you know is present, or you neutralize one at random.
-
 For the duration, the target has advantage on saving throws against being poisoned, and it has resistance to poison damage."
+   :comp :vs
    }
 
   {:spell-level 1
