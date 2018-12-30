@@ -816,10 +816,16 @@ A creature killed by this spell becomes a frozen statue until it thaws.
    :range "90 feet"
    :duration "Concentration, up to 1 minute"
    :school :enc
-   :desc "This spell assaults and twists creatures’ minds, spawning delusions and provoking uncontrolled action. Each creature in a 10-foot-radius sphere centered on a point you choose within range must succeed on a Wisdom saving throw when you cast this spell or be affected by it.
-An affected target can’t take reactions and must roll a d10 at the start of each of its turns to determine its behavior for that turn.
-At the end of each of its turns, an affected target can make a Wisdom saving throw. If it succeeds, this effect ends for that target.
-**_At Higher Levels. _**When you cast this spell using a spell slot of 5th level or higher, the radius of the sphere increases by 5 feet for each slot level above 4th."
+   :desc [
+"This spell assaults and twists creatures’ minds, spawning delusions and provoking uncontrolled action. Each creature in a 10-foot-radius sphere centered on a point you choose within range must succeed on a Wisdom saving throw when you cast this spell or be affected by it."
+"An affected target can’t take reactions and must roll a d10 at the start of each of its turns to determine its behavior for that turn."
+{:headers ["**d10**" "**Behavior**"]
+ :rows [["1" "The creature uses all its movement to move in a random direction. To determine the direction, roll a d8 and assign a direction to each die face. The creature doesn’t take an action this turn."]
+        ["2–6" "The creature doesn’t move or take actions this turn."]
+        ["7–8" "The creature uses its action to make a melee attack against a randomly determined creature within its reach. If there is no creature within its reach, the creature does nothing this turn."]
+        ["9–10" "The creature can act and move normally."]]}
+"At the end of each of its turns, an affected target can make a Wisdom saving throw. If it succeeds, this effect ends for that target."
+"**_At Higher Levels. _**When you cast this spell using a spell slot of 5th level or higher, the radius of the sphere increases by 5 feet for each slot level above 4th."]
    :comp [:vs "three nut shells"]
    :con? true
    :save :wis
@@ -4414,13 +4420,13 @@ Until the spell ends, the targets can communicate telepathically through the bon
 "or carried by an unwilling creature."
 "The destination you choose must be known to you, and it must be on the same plane of existence as you. Your familiarity with the destination determines whether you arrive there successfully. The GM rolls d100 and consults the table."
 {:headers ["**Familiarity**" "**Mishap**" "**Similar Area**" "**Off Target**" "**On Target**"]
- :rows [["Permanent circle" "—" "—" "— 01" "–100"]
-        ["Associated object" "—" "—" "— 01" "–100"]
-        ["Very familiar" "01–05" "06–13 14" "–24 25" "–100"]
-        ["Seen casually" "01–33" "34–43 44" "–53 54" "–100"]
-        ["Viewed once" "01–43" "44–53 54" "–73 74" "–100"]
-        ["Description" "01–43" "44–53 54" "–73 74" "–100"]
-        ["False destination" "01–50 51" "–100" "—" "—"]]}
+ :rows [["Permanent circle" "—" "—" "—" "01–100"]
+        ["Associated object" "—" "—" "—" "01–100"]
+        ["Very familiar" "01–05" "06–13" "14–24" "25–100"]
+        ["Seen casually" "01–33" "34–43" "44–53" "54–100"]
+        ["Viewed once" "01–43" "44–53" "54–73" "74–100"]
+        ["Description" "01–43" "44–53" "54–73" "74–100"]
+        ["False destination" "01–50" "51–100" "—" "—"]]}
 "**_Familiarity. _**“Permanent circle” means a permanent teleportation circle whose sigil sequence you know. “Associated object” means that you possess an object taken from the desired destination within the last six months, such as a book from a wizard’s library, bed linen from a royal suite, or a chunk of marble from a lich’s secret tomb."
 "“Very familiar” is a place you have been very often, a place you have carefully studied, or a place you can see when you cast the spell. “Seen casually” is someplace you have seen more than once but with which you aren’t very familiar. “Viewed once” is a place you have seen once, possibly using magic. “Description” is a place whose location and appearance you know through someone else’s description, perhaps from a map."
 "“False destination” is a place that doesn’t exist. Perhaps you tried to scry an enemy’s sanctum but instead viewed an illusion, or you are attempting to teleport to a familiar location that no longer exists."
