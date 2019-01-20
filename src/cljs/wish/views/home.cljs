@@ -14,7 +14,8 @@
       [link {:href "/sheets/new"}
        "New sheet"]]
 
-     (when can-use-sheets?
+     (when (or can-use-sheets?
+               (seq (<sub [:filtered-known-sheets])))
        [:div
         [link {:href "/sheets"}
          "Open a sheet"]] )
