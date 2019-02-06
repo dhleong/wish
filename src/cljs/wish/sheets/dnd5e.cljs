@@ -620,7 +620,11 @@
                              "upcast")}
          (invoke-callable
            (assoc s :spell-level level)
-           :dice)]
+           :dice)
+         (when-let [buffs (:buffs s)]
+           (when-let [buff (buffs s)]
+             (str " + " buff)))
+         ]
 
         (:save s)
         [:div.dice

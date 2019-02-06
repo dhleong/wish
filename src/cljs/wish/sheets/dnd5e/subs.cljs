@@ -1231,8 +1231,9 @@
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
+  :<- [::spell-buffs]
   :<- [:meta/options]
-  (fn [[spellcasters data-source modifiers attack-bonuses options]]
+  (fn [[spellcasters data-source modifiers attack-bonuses spell-buffs options]]
     (when (seq spellcasters)
       (reduce
         (fn [m attrs]
@@ -1317,6 +1318,10 @@
                                :save-label (when-let [k (:save %)]
                                              (str/upper-case
                                                (name k)))
+
+                               :buffs (if (:damage %)
+                                        (:dmg spell-buffs)
+                                        (:healing spell-buffs))
 
                                ; save dc is attack modifier + 8
                                :save-dc (+ (get attack-bonuses caster-id)
@@ -1551,6 +1556,45 @@
         (assoc m class-or-race-id (+ proficiency-bonus modifier)))
       {}
       modifiers)))
+
+(defn comp-buffs
+  "Returns a composed function that computes the buffs
+   for a given spell"
+  [all-buffs]
+  (let [consts (->> all-buffs
+                    (filter number?)
+                    (apply +))
+        fns (->> all-buffs
+                 (filter fn?))]
+    (fn compute-buffs [s]
+      (let [buffs (+ consts
+                     (reduce
+                       (fn [total f]
+                         (+ total (f s)))
+                       0
+                       fns))]
+        (when-not (= 0 buffs)
+          buffs)))))
+
+(def ^:private compile-spell-buff (memoize ->callable))
+(reg-sub
+  ::spell-buffs
+  :<- [:all-attrs]
+  (fn [attrs]
+    (->> attrs
+         :buffs
+         :spells
+         (reduce-kv
+           (fn [m kind buffs-map]
+             (assoc m kind
+                    (->> buffs-map
+                         vals
+                         (map #(if (number? %)
+                                 %
+                                 (compile-spell-buff %)))
+                         comp-buffs
+                         )))
+           {}))))
 
 (defn- standard-spell-slots? [c]
   (= :standard (:slots-type c :standard)))

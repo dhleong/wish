@@ -259,6 +259,9 @@
                                  (assoc :spell-level base-level)
                                  (update :spell-mod #(or % "(spell mod)")))
                              :dice))
+               buff-extras (when-let [buffs (:buffs s)]
+                             (when-let [buff (buffs s)]
+                               (str " + " buff)))
                upcast-class (when (not= base-dice
                                         dice-value)
                               upcast-class)]
@@ -270,7 +273,8 @@
 
             [:td
              [:u.dice upcast-class
-              dice-value]
+              dice-value
+              buff-extras]
 
              (if-let [dam-type (stringify-dam-type damage)]
                (str " " dam-type)

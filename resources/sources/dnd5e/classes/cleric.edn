@@ -156,7 +156,10 @@ Beginning at 6th level, you can use your Channel Divinity twice between rests, a
         :name "Disciple of Life"
         :desc "Also starting at 1st level, your healing spells are more effective. Whenever you use a spell of 1st level or higher to restore hit points to a creature, the creature regains additional hit points equal to 2 + the spell’s level."
 
-        ; TODO can we surface this somehow? that would be VERY fancy...
+        :! [[:!provide-attr
+             [:buffs :spells :healing :cleric/disciple-of-life]
+             (fn [spell-level]
+               (+ 2 spell-level))]]
         }]]
 
   :&levels {2 {:+! [[:!provide-feature
