@@ -263,13 +263,19 @@ a {
     margin-top: 12px;
 }
 
-.update-notifier {
+.notifiers {
     @media @smartphones {
         left: 0;
         right: 0;
         bottom: 0;
     }
 
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+}
+
+.notifier {
     @keyframes slide-in {
         from {
             transform: translateY(100%);
@@ -286,12 +292,10 @@ a {
     background-color: #666666;
     color: #fff;
 
-    position: fixed;
-    right: 24px;
-    bottom: 24px;
-
     padding: 4px;
     vertical-align: center;
+
+    margin-top: 8px;
 
     .ignore {
         .justify-content(center);
@@ -311,7 +315,7 @@ a {
         .flex-grow();
     }
 
-    .update {
+    .action {
         margin-right: 8px;
         padding: 8px;
     }

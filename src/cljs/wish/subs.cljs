@@ -17,6 +17,14 @@
 (reg-sub :showing-overlay :showing-overlay)
 
 (reg-sub
+  :notifications
+  (fn [db]
+    (->> db
+         :notifications
+         vals
+         (sort-by :created))))
+
+(reg-sub
   :update-available?
   (fn [{{:keys [latest ignored]} :updates} _]
     (and (not (nil? ignored)) ; if nil, this is a fresh run

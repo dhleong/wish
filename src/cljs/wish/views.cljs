@@ -16,7 +16,7 @@
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
    [wish.views.splash :as splash]
-   [wish.views.update-notifier :refer [update-notifier]]
+   [wish.views.notifiers :refer [notifiers]]
    [wish.views.widgets :refer [link] :refer-macros [icon]]
    [wish.views.widgets.media-tracker :refer [media-tracker]]
    ))
@@ -69,4 +69,4 @@
 
    [overlay]
 
-   [update-notifier]])
+   [notifiers]])

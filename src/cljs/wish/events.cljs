@@ -141,6 +141,36 @@
                               :ready)}))
 
 
+; ======= notifications ===================================
+
+(reg-event-fx
+  :notify!
+  [trim-v]
+  (fn [{:keys [db]} [{:keys [duration duration-ms content
+                             dismissable?]
+                      :or {dismissable? true}}]]
+    (let [created (js/Date.now)
+          id (keyword (str created))]
+      {:db (assoc-in db [:notifications id]
+                     {:id id
+                      :created created
+                      :content content
+                      :dismiss-event (when (or (nil? duration)
+                                               dismissable?)
+                                       [::remove-notify! id])})
+       :dispatch-later [(when (or duration duration-ms)
+                          {:ms (case duration
+                                 :short 3000
+                                 :long 7500
+                                 duration-ms)
+                           :dispatch [::remove-notify! id]})]})))
+
+(reg-event-db
+  ::remove-notify!
+  [trim-v (path :notifications)]
+  (fn-traced [notifications [id]]
+    (dissoc notifications id)))
+
 
 ; ======= Provider management ==============================
 
