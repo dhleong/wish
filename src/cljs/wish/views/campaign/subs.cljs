@@ -9,9 +9,11 @@
   :<- [:meta/players]
   :<- [:known-sheets]
   (fn [[current-members sheets]]
-    (->> sheets
-         (remove (comp current-members :id))
-         )))
+    (let [by-mine (->> sheets
+                       (remove (comp current-members :id))
+                       (group-by :mine?))]
+      (concat (get by-mine false)
+              (get by-mine true)))))
 
 (reg-sub
   ::campaign-members
