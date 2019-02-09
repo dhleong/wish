@@ -118,7 +118,7 @@
      config/full-url-root
      (prefix
        (base-sheet-url "join-campaign" campaign-id
-                       "n" (js/encodURIComponent campaign-name)
+                       "n" (js/encodeURIComponent campaign-name)
                        "as"
                        (namespace invited-sheet-url) invited-sheet-url)))))
 
