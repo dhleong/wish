@@ -724,29 +724,3 @@
     (when (and sheet-id
                (not (contains? my-sheets sheet-id)))
       (into #{sheet-id} source-ids))))
-
-
-; ======= Campaign-related ================================
-; TODO can these be broken out to a separate file?
-
-(reg-sub
-  :campaign-add-char-candidates
-  :<- [:meta/players]
-  :<- [:known-sheets]
-  (fn [[current-members sheets]]
-    (->> sheets
-         (remove :mine?)
-         (remove (comp current-members :id))
-         )))
-
-(reg-sub
-  :campaign-members
-  :<- [:meta/players]
-  :<- [:sheets]
-  (fn [[char-sheet-ids sheets] qv]
-    (->> char-sheet-ids
-         (map (fn [id]
-                (or (assoc (get sheets id)
-                           :id id)
-                    {:id id})))
-         (sort-by :name))))

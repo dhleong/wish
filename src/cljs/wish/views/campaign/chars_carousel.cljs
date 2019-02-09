@@ -4,7 +4,9 @@
   (:require [wish.util :refer [<sub >evt]]
             [wish.util.nav :as nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
-            [wish.views.widgets :refer [icon link link>evt]]))
+            [wish.views.widgets :refer [icon link link>evt]]
+            [wish.views.campaign.events :as events]
+            [wish.views.campaign.subs :as subs]))
 
 (defn- sheet-loader [sheet]
   [:div "Loading " (:name sheet) "..."])
@@ -39,10 +41,10 @@
       "Add characters to " campaign-name]
 
      [:div.candidates
-      (for [c (<sub [:campaign-members])]
+      (for [c (<sub [::subs/campaign-members])]
         ^{:key (:id c)}
         [:div.character
-         (:name c)
+         [:div.name (:name c)]
 
          [:input.invite-url
           {:type :text
@@ -50,22 +52,26 @@
            :value (nav/campaign-invite-url
                     campaign-id
                     (:id c)
-                    campaign-name)}
-          ]
+                    campaign-name)}]
+
+         [:div.remove
+          [link>evt [::events/remove-player (:id c)]
+           (icon :close)]]
          ])
 
-      (for [c (<sub [:campaign-add-char-candidates])]
+      (for [c (<sub [::subs/add-char-candidates])]
         ^{:key (:id c)}
         [:div.character
-         (:name c)
+         [:div.name (:name c)]
 
-         [:div
-          "INVITE (todo)"]
+         [:div.add
+          [link>evt [::events/add-player (:id c)]
+           "Add to campaign"]]
          ])]
      ]))
 
 (defn chars-carousel [chars-card-view]
-  (if-let [members (seq (<sub [:campaign-members]))]
+  (if-let [members (seq (<sub [::subs/campaign-members]))]
     [:div.carousel-container
      [:div.carousel
 

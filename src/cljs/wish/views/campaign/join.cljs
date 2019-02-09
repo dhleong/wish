@@ -2,7 +2,8 @@
       :doc "Join a campaign as a player"}
   wish.views.campaign.join
   (:require [wish.util :refer [<sub >evt click>evts]]
-            [wish.util.nav :refer [sheet-url]]))
+            [wish.util.nav :refer [sheet-url]]
+            [wish.views.campaign.events :as events]))
 
 (defn page [[campaign-id sheet-id ?campaign-name]]
   [:div
@@ -20,7 +21,7 @@
     [:h4 "Would you like to join?"]
 
     [:div.button {:on-click (click>evts
-                              [:join-campaign campaign-id ?campaign-name]
+                              [::events/join-campaign campaign-id ?campaign-name]
                               [:nav/replace! (sheet-url sheet-id)])}
      "Yes! Join " (or ?campaign-name
                       "the campaign")]

@@ -797,36 +797,3 @@
     (when (contains? changed-ids active-sheet-id)
       ; trigger sheet data reload
       {:load-sheet! active-sheet-id})))
-
-
-; ======= Campaign-related ================================
-
-;; can also be passed nil to leave a campaign
-(reg-event-fx
-  :join-campaign
-  [trim-v (inject-cofx ::inject/sub [:active-sheet-id])]
-  (fn [{:keys [active-sheet-id] :as cofx} [campaign-id ?campaign-name]]
-    (if campaign-id
-      (let [info {:id campaign-id
-                  :name ?campaign-name}]
-        (log/info "Joining " campaign-id)
-
-        (-> cofx
-            (update-sheet-path [] assoc :campaign info)
-
-            ; raise a notifier
-            (assoc :dispatch [:notify! {:duration :short
-                                        :content (str "Joined "
-                                                      (or (:name info)
-                                                          "the campaign")
-                                                      " successfully!")}])))
-
-      (do
-        (log/info "Leaving campaign")
-
-        (-> cofx
-            (update-sheet-path [] dissoc :campaign)
-
-            ; raise a notifier
-            (assoc :dispatch [:notify! {:duration :short
-                                       :content "Left the campaign successfully."}]))))))
