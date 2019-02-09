@@ -89,10 +89,6 @@
     [:div.carousel-container
      [:div.carousel
 
-      [link>evt {:> [:toggle-overlay [#'add-chars-overlay]]
-                 :class "add-button"}
-       (icon :add)]
-
       (for [c members]
         ^{:key (:id c)}
         [link {:href (sheet-url (:id c))
@@ -100,7 +96,13 @@
          [:div.card
           [char-sheet-loader
            (:id c)
-           chars-card-view]]])]]
+           chars-card-view]]])
+
+      [link>evt {:> [:toggle-overlay [#'add-chars-overlay]]
+                 :class "add-button"}
+       (icon :add)]
+
+      ]]
 
     [:div.empty-carousel
      "No characters in this campaign... yet!"]))
