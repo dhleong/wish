@@ -40,6 +40,12 @@
      [:div.title
       "Add characters to " campaign-name]
 
+     [:div.desc
+      [:ol
+       [:li "Request players share their sheet with you."]
+       [:li "When they do, add them to the campaign, below. (You may need to refresh this page.)"]
+       [:li "Send the invite link that appears to the character's owner."]]]
+
      [:div.candidates
       (for [c (<sub [::subs/campaign-members])]
         ^{:key (:id c)}
@@ -49,6 +55,14 @@
          [:input.invite-url
           {:type :text
            :read-only true
+           :on-click (fn [e]
+                       (.select (.-target e))
+                       (try
+                         (js/document.execCommand "copy")
+                         (>evt [:notify! {:duration :short
+                                          :content "Copied to clipboard!"}])
+                         (catch :default e
+                           (println "Unable to copy to clipboard"))))
            :value (nav/campaign-invite-url
                     campaign-id
                     (:id c)
