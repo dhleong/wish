@@ -810,14 +810,23 @@
       (let [info {:id campaign-id
                   :name ?campaign-name}]
         (log/info "Joining " campaign-id)
-        (update-sheet-path cofx [] assoc :campaign info)
 
-        ; TODO raise a notifier
-        )
+        (-> cofx
+            (update-sheet-path [] assoc :campaign info)
+
+            ; raise a notifier
+            (assoc :dispatch [:notify! {:duration :short
+                                        :content (str "Joined "
+                                                      (or (:name info)
+                                                          "the campaign")
+                                                      " successfully!")}])))
 
       (do
         (log/info "Leaving campaign")
-        (update-sheet-path cofx [] dissoc :campaign))
 
-        ; TODO raise a notifier
-        )))
+        (-> cofx
+            (update-sheet-path [] dissoc :campaign)
+
+            ; raise a notifier
+            (assoc :dispatch [:notify! {:duration :short
+                                       :content "Left the campaign successfully."}]))))))
