@@ -16,9 +16,10 @@
     (when-let [create-matcher js/window.matchMedia]
       (log "Attach media trackers")
       (r/with-let [pairs (partition-all 2 clauses)
-                   has-default? (= 1 (count (last pairs)))
+                   last-pair (last pairs)
+                   has-default? (= 1 (count last-pair))
                    default (when has-default?
-                             (first (last pairs)))
+                             (first last-pair))
                    pairs (if has-default?
                            (drop-last pairs)
                            pairs)

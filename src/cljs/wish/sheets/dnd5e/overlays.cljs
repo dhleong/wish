@@ -825,7 +825,7 @@
 
            (and (vector? v)
                 (= :count (first v)))
-           [equipment-count (second v) (last v)]
+           [equipment-count (second v) (peek v)]
 
            ; single item
            :else

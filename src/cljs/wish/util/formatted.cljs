@@ -60,14 +60,14 @@
     :else (concat result [item])))
 
 (defn- conj-in
-  "(conj) in a nested structure with a depth based
+  "(conj) in a nested (vector-based) structure with a depth based
    on the stack"
   [coll stack value]
   (letfn [(conj-path [coll stack-height base-path]
             (if (<= stack-height 0)
               base-path
               (recur
-                (last coll)
+                (peek coll)
                 (dec stack-height)
                 (conj base-path (dec (count coll))))))]
     (let [stack-height (count stack)
@@ -97,7 +97,7 @@
                   "**" :b
                   "_" :i
                   tok)
-            stack-top (last stack)]
+            stack-top (peek stack)]
         (cond
           (= tok stack-top)
           (recur

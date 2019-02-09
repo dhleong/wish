@@ -1698,7 +1698,7 @@
     (reduce-kv
       (fn [m id used]
         (let [id-ns (namespace id)
-              level (-> id name last int)]
+              level (-> id name wstr/last-char int)]
           (cond
             (= "slots" id-ns)
             (assoc-in m [:standard level] used)
