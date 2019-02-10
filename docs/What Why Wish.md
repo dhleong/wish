@@ -65,7 +65,7 @@ So, WISH is hosted as a Github Page, and you host your own data.
 
 Now, this does not mean that you shouldn't support the creators of the systems whose sheets can be used here. [Wizards of the Coast][7] did an amazing job with 5th Edition, and it's incredible that they released enough of the system for us to freely create what we've created here. If you enjoy using their system, you should absolutely buy their books and support them! That's why WISH generally has somewhat less of the rules hand-holding than Wizards' official [D&D Beyond][8].
 
-In fact, go ahead and check out [D&D Beyond][8]—it's great! When I started WISH it did not work nearly as well as it does not, or I might not have kept going with WISH. If you find yourself coming back to WISH, awesome! If you like D&D Beyond better, that's awesome too! As long as you've found a way to get involved in this awesome hobby, WISH has done its job.
+In fact, go ahead and check out [D&D Beyond][8]—it's great! When I started WISH it did not work nearly as well as it does now, or I might not have kept going with WISH. If you find yourself coming back to WISH, awesome! If you like D&D Beyond better, that's awesome too! As long as you've found a way to get involved in this awesome hobby, WISH has done its job.
 
 [1]: https://github.com/dhleong/sheater
 [2]: https://greenroninstore.com/products/fantasy-age-basic-rulebook
