@@ -2,7 +2,8 @@
       :doc "subs-util"}
   wish.subs-util
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]
+            [wish.providers.util :refer [provider-id?]]))
 
 (defn active-sheet-id
   [db & [page-vec]]
@@ -25,15 +26,21 @@
         (contains? @id-subs query-id))))
 
 (defn query-vec->preferred-id [query-vec]
-  ; TODO handle normal arguments? We can't
-  ; just use (last), since if no args are passed
+  ; NOTE: We can't just use (last), since if no args are passed
   ; that will just return the query-id
-  (second query-vec))
+  (let [candidate (second query-vec)]
+    ; make sure it's actually a sheet id
+    (when (and (keyword? candidate)
+               (provider-id? (keyword (namespace candidate)))
+               (= "w" (first (name candidate))))
+      candidate)))
 
 (defn inject-preferred-id [vec preferred-sheet-id]
-  (if preferred-sheet-id
-    (conj vec preferred-sheet-id)
-    vec))
+  (let [v (if preferred-sheet-id
+            (conj vec preferred-sheet-id)
+            vec)]
+    (println vec " + " preferred-sheet-id " -> " v)
+    v))
 
 (defn reg-id-sub
   "This is a drop-in replacement for a subscription which

@@ -157,8 +157,11 @@
 (reg-id-sub
   ::class-level
   :<- [::class->level]
-  (fn [classes [_ class-id]]
-    (get classes class-id)))
+  (fn [classes [_ ?sheet-id ?class-id]]
+    ; NOTE: when called normally, ?sheet-id is actually the class-id.
+    ; when called as an id-sub, we use ?class-id
+    (get classes (or ?class-id
+                     ?sheet-id))))
 
 (reg-id-sub
   ::abilities-raw

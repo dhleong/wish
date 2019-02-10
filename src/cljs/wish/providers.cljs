@@ -16,6 +16,8 @@
             [wish.util :refer [>evt]]
             [wish.views.widgets :as widgets]))
 
+; NOTE: If you add a provider, make sure to also add
+; its IDs to wish.providers.util/provider-id?
 (def ^:private providers
   {:gdrive
    {:id :gdrive
