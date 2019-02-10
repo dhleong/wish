@@ -35,6 +35,9 @@
                         ["https://www.googleapis.com/auth/drive.file"
                          "https://www.googleapis.com/auth/drive.install"]))
 
+(def ^:private campaign-desc "WISH Campaign")
+(def ^:private campaign-mime "application/edn")
+(def ^:private campaign-props {:wish-type "wish-campaign"})
 (def ^:private sheet-desc "WISH Character Sheet")
 (def ^:private sheet-mime "application/edn")
 (def ^:private sheet-props {:wish-type "wish-sheet"})
@@ -431,18 +434,25 @@
 
 ; ======= Provider def =====================================
 
+(defn- meta-for [kind file-name]
+  (let [base (case kind
+               :campaign {:description campaign-desc
+                          :mimeType campaign-mime
+                          :appProperties campaign-props}
+               :sheet {:description sheet-desc
+                       :mimeType sheet-mime
+                       :appProperties sheet-props})]
+    (assoc base :name file-name)))
+
 (deftype GDriveProvider []
   IProvider
   (id [this] :gdrive)
 
-  (create-sheet [this file-name data]
-    (log/info "Create sheet " file-name)
+  (create-file [this kind file-name data]
+    (log/info "Create " kind ": " file-name)
     (go (let [[err resp] (<! (upload-data
                                :create
-                               {:name file-name
-                                :description sheet-desc
-                                :mimeType sheet-mime
-                                :appProperties sheet-props}
+                               (meta-for kind file-name)
                                (str data)))]
           (if err
             [err nil]
@@ -500,7 +510,9 @@
   (query-sheets [this]
     (when-gapi-available
       query-files
-      "appProperties has { key='wish-type' and value='wish-sheet' }"))
+      #_"appProperties has { key='wish-type' and value='wish-sheet' }"
+      (str "(appProperties has { key='wish-type' and value='wish-sheet' }) "
+           "or (appProperties has { key='wish-type' and value='wish-campaign' })")))
 
   (register-data-source [this]
     ; TODO sanity checks galore

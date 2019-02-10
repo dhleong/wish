@@ -3,10 +3,11 @@
   wish.sheets
   (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
+            [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
             [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
-            [wish.providers :refer [create-sheet-with-data
+            [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
             [wish.views.error-boundary :refer [error-boundary]]
@@ -20,6 +21,7 @@
   {:dnd5e {:name "D&D 5E"
            :fn #'dnd5e/sheet
            :builder #'dnd5e-builder/view
+           :campaign #'dnd5e-campaign/view
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
@@ -63,6 +65,25 @@
     ; no processor for this sheet; pass through
     data))
 
+(defn stub-campaign
+  "Create the initial data for a new campaign"
+  [kind campaign-name]
+  (let [kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
+
+    {:v [compiler-version (:v kind-meta)]  ; wish + sheet version numbers
+     :updated (.getTime (js/Date.))  ; date
+     :kind kind
+
+     :name campaign-name
+
+     :sources (:default-sources kind-meta)
+
+     :players #{}
+     }))
+
 (defn stub-sheet
   "Create the initial data for a new sheet"
   [kind sheet-name]
@@ -87,13 +108,21 @@
      :equipped #{}
      }))
 
+(defn create-campaign!
+  "Returns a channel that emits [err sheet-id] on success"
+  [campaign-name provider-id sheet-kind]
+  {:pre [(not (nil? provider-id))
+         (not (nil? sheet-kind))]}
+  (create-file-with-data :campaign campaign-name provider-id
+                         (stub-campaign sheet-kind campaign-name)))
+
 (defn create-sheet!
   "Returns a channel that emits [err sheet-id] on success"
   [sheet-name provider-id sheet-kind]
   {:pre [(not (nil? provider-id))
          (not (nil? sheet-kind))]}
-  (create-sheet-with-data sheet-name provider-id
-                          (stub-sheet sheet-kind sheet-name)))
+  (create-file-with-data :sheet sheet-name provider-id
+                         (stub-sheet sheet-kind sheet-name)))
 
 ; ======= Views ============================================
 
@@ -169,12 +198,19 @@
   [[sheet-id section]]
   (ensuring-loaded
     sheet-id
-    (fn [sheet-info]
-      [(:builder sheet-info) section])))
+    (fn [{view :builder}]
+      [view section])))
+
+(defn campaign
+  [[campaign-id section]]
+  (ensuring-loaded
+    campaign-id
+    (fn [{view :campaign}]
+      [view section])))
 
 (defn viewer
   [sheet-id]
   (ensuring-loaded
     sheet-id
-    (fn [sheet-info]
-      [(:fn sheet-info)])))
+    (fn [{view :fn}]
+      [view])))

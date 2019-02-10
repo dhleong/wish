@@ -22,6 +22,10 @@
     (log "document.title <-" title)
     (set! js/document.title title)))
 
+(reg-fx
+  :nav/replace!
+  nav/replace!)
+
 
 ; ======= keymaps =========================================
 

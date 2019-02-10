@@ -8,6 +8,7 @@
             [goog.events :as gevents]
             [goog.history.EventType :as HistoryEventType]
             [pushy.core :as pushy]
+            [wish.config :as config]
             [wish.util :refer [is-ios? >evt]])
   (:import goog.History))
 
@@ -86,19 +87,46 @@
   (js/window.location.replace
     (prefix new-location)))
 
+
+(defn- base-sheet-url
+  "Generate the url to a sheet, optionally with
+   extra path sections after it"
+  [kind id & extra-sections]
+  (apply str "/" kind
+         "/" (namespace id)
+         "/" (name id)
+         (when extra-sections
+           (interleave (repeat "/")
+                       (map
+                         #(if (keyword? %)
+                            (name %)
+                            (str %))
+                         extra-sections)))))
+
+(defn campaign-url
+  "Generate the url to a campaign, optionally with
+   extra path sections after it"
+  [id & extra-sections]
+  (apply base-sheet-url "campaigns" id extra-sections))
+
+(defn campaign-invite-url
+  "Generate the url to join a campaign"
+  ([campaign-id invited-sheet-url]
+   (campaign-invite-url campaign-id invited-sheet-url nil))
+  ([campaign-id invited-sheet-url campaign-name]
+   (str
+     config/full-url-root
+     (prefix
+       (base-sheet-url "join-campaign" campaign-id
+                       "n" (js/encodeURIComponent campaign-name)
+                       "as"
+                       (namespace invited-sheet-url) invited-sheet-url)))))
+
 (defn sheet-url
   "Generate the url to a sheet, optionally with
    extra path sections after it"
   [id & extra-sections]
-  (apply str "/sheets/" (namespace id)
-       "/" (name id)
-       (when extra-sections
-         (interleave (repeat "/")
-                     (map
-                       #(if (keyword? %)
-                          (name %)
-                          (str %))
-                       extra-sections)))))
+  (apply base-sheet-url "sheets" id extra-sections))
 
 
 ; ======= support back button to close overlays ===========
@@ -129,4 +157,3 @@
       ; stop listening to onpopstate
       (set! js/window.onpopstate nil)
       (js/history.go -1))))
-

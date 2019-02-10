@@ -39,4 +39,6 @@
 
    ::save-errors #{}
    ::pending-saves #{}
-   ::processing-saves #{}})
+   ::processing-saves #{}
+
+   :notifications {}})

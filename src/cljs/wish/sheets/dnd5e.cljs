@@ -58,14 +58,16 @@
          (icon :radio-button-unchecked.icon {:class icon-class}))
        {:key i}))])
 
-(defn- hp-death-saving-throws []
-  (let [{:keys [saves fails]} (<sub [::subs/death-saving-throws])]
-    [:<>
-     [save-indicators "😇" :save saves]
-     [save-indicators "☠️" :fail fails]]))
+(defn hp-death-saving-throws
+  ([] (hp-death-saving-throws nil))
+  ([sheet-id]
+   (let [{:keys [saves fails]} (<sub [::subs/death-saving-throws sheet-id])]
+     [:<>
+      [save-indicators "😇" :save saves]
+      [save-indicators "☠️" :fail fails]])))
 
 (defn hp []
-  (let [[hp max-hp] (<sub [::subs/hp]) ]
+  (let [[hp max-hp] (<sub [::subs/hp])]
     [:div.clickable.hp.col
      {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
 
@@ -154,26 +156,33 @@
    [:wis "WIS"]
    [:cha "CHA"]])
 
+(defn abilities-display
+  ([abilities] (abilities-display abilities false))
+  ([abilities clickable?]
+   [:<>
+    (for [[id label] labeled-abilities]
+      (let [{:keys [score modifier mod]} (get abilities id)]
+        ^{:key id}
+        [:div.ability {:class (when mod
+                                (case mod
+                                  :buff "buffed"
+                                  :nerf "nerfed"))
+                       :on-click (when clickable?
+                                   (click>evt [:toggle-overlay
+                                               [#'overlays/ability-tmp
+                                                id
+                                                label]]))}
+         [:div.label label]
+         [:div.mod modifier]
+         [:div.score "(" score ")"]
+         ]))]))
+
 (defn abilities-section []
   (let [abilities (<sub [::subs/ability-info])
         save-extras (<sub [::subs/ability-extras])]
     [:div styles/abilities-section
      [:div.abilities
-      (for [[id label] labeled-abilities]
-        (let [{:keys [score modifier mod]} (get abilities id)]
-          ^{:key id}
-          [:div.ability {:class (when mod
-                                  (case mod
-                                    :buff "buffed"
-                                    :nerf "nerfed"))
-                         :on-click (click>evt [:toggle-overlay
-                                               [#'overlays/ability-tmp
-                                                id
-                                                label]])}
-           [:div.label label]
-           [:div.mod modifier]
-           [:div.score "(" score ")"]
-           ]))]
+      [abilities-display abilities :clickable]]
 
      [:div.info "Saves"]
 

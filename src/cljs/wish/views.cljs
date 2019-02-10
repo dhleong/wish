@@ -7,18 +7,26 @@
    [wish.subs :as subs]
    [wish.util :refer [<sub click>evt]]
    [wish.views.error-boundary :refer [error-boundary]]
+   [wish.views.campaign-browser :as campaign-browser]
+   [wish.views.campaign.join :as join-campaign]
+   [wish.views.error-boundary :refer [error-boundary]]
    [wish.views.home :refer [home]]
+   [wish.views.new-campaign :as new-campaign]
    [wish.views.new-sheet :refer [new-sheet-page]]
    [wish.views.router :refer [router]]
    [wish.views.sheet-browser :as sheet-browser]
    [wish.views.splash :as splash]
-   [wish.views.update-notifier :refer [update-notifier]]
+   [wish.views.notifiers :refer [notifiers]]
    [wish.views.widgets :refer [link] :refer-macros [icon]]
    [wish.views.widgets.media-tracker :refer [media-tracker]]
    ))
 
 (def pages
-  {:home #'home
+  {:campaign #'sheets/campaign
+   :campaign-browser #'campaign-browser/page
+   :home #'home
+   :join-campaign #'join-campaign/page
+   :new-campaign #'new-campaign/page
    :new-sheet #'new-sheet-page
    :sheet #'sheets/viewer
    :sheet-browser #'sheet-browser/page
@@ -61,4 +69,4 @@
 
    [overlay]
 
-   [update-notifier]])
+   [notifiers]])

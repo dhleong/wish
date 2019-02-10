@@ -11,6 +11,7 @@
                                                      mod->str]]
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
+            [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
             [wish.util :refer [<sub invoke-callable ->map]]
             [wish.util.string :as wstr]))
 
@@ -91,7 +92,7 @@
   "Convenience for creating a sub that just gets a specific
    field from the :sheet key of the sheet-meta"
   [id getter]
-  (reg-sub
+  (reg-id-sub
     id
     :<- [:meta/sheet]
     (fn [sheet _]
@@ -143,7 +144,7 @@
 
 ; ======= class and level ==================================
 
-(reg-sub
+(reg-id-sub
   ::class->level
   :<- [:classes]
   (fn [classes _]
@@ -153,19 +154,19 @@
       {}
       classes)))
 
-(reg-sub
+(reg-id-sub
   ::class-level
   :<- [::class->level]
   (fn [classes [_ class-id]]
     (get classes class-id)))
 
-(reg-sub
+(reg-id-sub
   ::abilities-raw
   :<- [:meta/sheet]
   (fn [sheet]
     (:abilities sheet)))
 
-(reg-sub
+(reg-id-sub
   ::abilities-improvements
   :<- [:classes]
   :<- [:races]
@@ -175,7 +176,7 @@
          (map (comp :buffs :attrs))
          (apply merge-with +))))
 
-(reg-sub
+(reg-id-sub
   ::abilities-racial
   :<- [:race]
   (fn [race]
@@ -188,7 +189,7 @@
 ; TODO when we do handle equippable item buffs here, we need
 ; to make sure ::available-classes doesn't use it (only ability
 ; score improvements and racial bonuses ...)
-(reg-sub
+(reg-id-sub
   ::abilities-base
   :<- [::abilities-raw]
   :<- [::abilities-racial]
@@ -199,7 +200,7 @@
                 race
                 improvements)))
 
-(reg-sub
+(reg-id-sub
   ::abilities
   :<- [::abilities-base]
   :<- [:meta/sheet]
@@ -208,7 +209,7 @@
                 base
                 (:ability-tmp sheet))))
 
-(reg-sub
+(reg-id-sub
   ::ability-modifiers
   :<- [::abilities]
   (fn [abilities]
@@ -218,7 +219,7 @@
      {}
      abilities)))
 
-(reg-sub
+(reg-id-sub
   ::ability-saves
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
@@ -238,7 +239,7 @@
       {}
       modifiers)))
 
-(reg-sub
+(reg-id-sub
   ::ability-info
   :<- [::abilities]
   :<- [::abilities-base]
@@ -262,7 +263,7 @@
       {}
       abilities)))
 
-(reg-sub
+(reg-id-sub
   ::skill-info
   :<- [::ability-modifiers]
   :<- [::skill-expertise]
@@ -294,7 +295,7 @@
       {}
       data/skill-id->ability)))
 
-(reg-sub
+(reg-id-sub
   ::limited-uses
   :<- [:limited-uses]
   :<- [:total-level]
@@ -355,13 +356,17 @@
        :max-slots (:total input)}
       )))
 
-(reg-sub
+(reg-id-sub
   ::rolled-hp
   :<- [:meta/sheet]
   (fn [sheet [_ ?path]]
     (get-in sheet (concat
                     [:hp-rolled]
-                    ?path))))
+
+                    ; NOTE: as an id-sub, we can also be called
+                    ; where the var at this position is the sheet id
+                    (when (coll? ?path)
+                      ?path)))))
 
 (reg-sheet-sub
   ::temp-hp
@@ -372,7 +377,7 @@
   :temp-max-hp)
 
 (def ^:private compile-hp-buff (memoize ->callable))
-(reg-sub
+(reg-id-sub
   ::max-hp-buffs
   :<- [:race]
   :<- [:classes]
@@ -391,7 +396,7 @@
                  entity)))
          (apply +))))
 
-(reg-sub
+(reg-id-sub
   ::max-hp-mode
   :<- [:meta/sheet]
   (fn [sheet]
@@ -404,7 +409,7 @@
         ; default to :average for new users
         :average)))
 
-(reg-sub
+(reg-id-sub
   ::max-hp-rolled
   :<- [::rolled-hp]
   :<- [::class->level]
@@ -431,7 +436,7 @@
 
          (apply +))))
 
-(reg-sub
+(reg-id-sub
   ::max-hp-average
   :<- [:classes]
   (fn [classes]
@@ -456,24 +461,23 @@
       0 ; start at 0
       classes)))
 
-; NOTE: we use reg-sub-raw here since it feels wrong to 
-(reg-sub
+(reg-id-sub
   ::max-hp
-  (fn []
+  (fn [query-vec]
     [; NOTE: this <sub is kinda gross but I *think* it's okay?
      ; subscriptions are de-dup'd so...?
      ; The only other way would be to always subscribe to both,
      ; and that seems worse
-     (case (<sub [::max-hp-mode])
-       :manual (subscribe [::max-hp-rolled])
-       :average (subscribe [::max-hp-average]))
+     (case (<sub [::max-hp-mode (query-vec->preferred-id query-vec)])
+       :manual [::max-hp-rolled]
+       :average [::max-hp-average])
 
-     (subscribe [::temp-max-hp])
-     (subscribe [::abilities])
-     (subscribe [:total-level])
-     (subscribe [::max-hp-buffs])
+     [::temp-max-hp]
+     [::abilities]
+     [:total-level]
+     [::max-hp-buffs]
      ])
-  (fn [[base-max temp-max abilities total-level buffs]]
+  (fn [[base-max temp-max abilities total-level buffs :as in]]
     (+ base-max
 
        temp-max
@@ -485,7 +489,7 @@
 
        buffs)))
 
-(reg-sub
+(reg-id-sub
   ::hp
   :<- [::temp-hp]
   :<- [::max-hp]

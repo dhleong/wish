@@ -21,7 +21,7 @@
 (deftype WishProvider []
   IProvider
   (id [this] :wish)
-  (create-sheet [this file-name data]
+  (create-file [this kind file-name data]
     (to-chan [[(js/Error. "Not implemented") nil]]))
 
   (init! [this]

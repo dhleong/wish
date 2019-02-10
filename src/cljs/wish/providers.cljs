@@ -111,15 +111,20 @@
   (let [[provider-id _] (unpack-id sheet-id)]
     (provider-key provider-id :share!)))
 
-(defn create-sheet-with-data
-  "Returns a channel that emits [err sheet-id] on success"
-  [sheet-name provider-id data]
+(defn create-file-with-data
+  "Returns a channel that emits [err sheet-id] on success.
+   `kind` may be one of:
+    - :campaign
+    - :sheet"
+  [kind sheet-name provider-id data]
   {:pre [(not (nil? provider-id))
-         (not (nil? data))]}
+         (not (nil? data))
+         (contains? #{:campaign :sheet} kind)]}
   (if-let [inst (provider-key provider-id :inst)]
-    (provider/create-sheet inst
-                           sheet-name
-                           data)
+    (provider/create-file inst
+                          kind
+                          sheet-name
+                          data)
 
     (throw (js/Error. (str "No provider instance for " provider-id)))))
 
