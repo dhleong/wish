@@ -15,7 +15,9 @@
             [wish.style :refer-macros [defclass defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
-            [wish.views.sheet-builder-util :refer [data-source-manager router
+            [wish.views.sheet-builder-util :refer [campaign-manager
+                                                   data-source-manager
+                                                   router
                                                    count-max-options]]
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
@@ -82,18 +84,22 @@
 
 (defn home-page []
   [:div
-   [:h3 "Home"
-    [bind-fields
-     [:div
-      [:input {:field :text
-               :id :name}] ]
+   [:h3 "Home"]
+   [bind-fields
+    [:div
+     [:input {:field :text
+              :id :name}] ]
 
-     {:get #(get-in (<sub [:sheet-meta]) %)
-      :save! (fn [path v]
-               (>evt [:update-meta path (constantly v)]))}]
+    {:get #(get-in (<sub [:sheet-meta]) %)
+     :save! (fn [path v]
+              (>evt [:update-meta path (constantly v)]))}]
 
-    ; data source mgmt
-    [data-source-manager]]])
+   ; campaign mgmt
+   [campaign-manager]
+
+   ; data source mgmt
+   [data-source-manager]
+   ])
 
 (defn- feature-option
   [option selected?]

@@ -54,7 +54,7 @@
                (vector? evt-or-opts) (assoc base :on-click (click>evt evt-or-opts))
 
                ; map with :on-click, the easy case
-               (:on-click evt-or-opts) evt-or-opts
+               (:on-click evt-or-opts) (merge base evt-or-opts)
 
                ; fancy case; merge in all the provided opts, in case they
                ; provided, eg :class

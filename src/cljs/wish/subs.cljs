@@ -119,6 +119,7 @@
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub :meta/items :items)
 (reg-meta-sub :meta/equipped :equipped)
+(reg-meta-sub :meta/campaign :campaign)
 
 ; campaigns
 (reg-meta-sub :meta/players :players)

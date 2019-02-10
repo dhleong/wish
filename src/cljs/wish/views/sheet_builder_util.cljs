@@ -6,7 +6,7 @@
             [wish.util :refer [<sub >evt click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.providers :as providers]
-            [wish.views.widgets :refer [link save-state] :refer-macros [icon]]))
+            [wish.views.widgets :refer [link link>evt save-state] :refer-macros [icon]]))
 
 (defn- find-section
   [candidates target-id]
@@ -88,6 +88,40 @@
          [link {:href (sheet-url sheet-id)}
           "Let's play!"])]]]))
 
+(defn campaign-manager []
+  (when-let [campaign-info (<sub [:meta/campaign])]
+    (r/with-let [wants-to-leave? (r/atom false)]
+      [:<>
+       [:h3 "Campaign"]
+
+       [:div.group
+        (<sub [:meta/name])
+        " is currently part of "
+        (or [:b (:name campaign-info)]
+            "a campaign")
+        "."]
+
+       (if @wants-to-leave?
+         [:div.warning
+          [:div.group
+           "This does NOT revoke your DM's access to this sheet. You will have to do that via the share menu. "
+           (when-let [sheet-id (<sub [:sharable-sheet-id])]
+             [:<>
+              [link>evt [:share-sheet! sheet-id]
+               "Click here"]
+              " to do this now."]) ]
+
+          [:div.group
+           [:input {:type 'button
+                    :on-click (click>evt [:join-campaign])
+                    :value "I understand; leave the campaign"}]]]
+
+         [:div.group
+          [link>evt {:on-click (fn-click
+                                 (swap! wants-to-leave? not))}
+           "Click here if you want to leave this campaign."]
+          ])])))
+
 (defn data-source-manager []
   (let [original-ids (<sub [:active-sheet-source-ids])
         selected-source-ids (r/atom original-ids)]
@@ -95,7 +129,7 @@
       (>evt [:query-data-sources])
       (let [sheet-id (<sub [:active-sheet-id])
             this-source-ids @selected-source-ids]
-        [:div
+        [:<>
          [:h3 "Data Sources"]
          [:div
           (if-let [sources (<sub [:data-sources])]
