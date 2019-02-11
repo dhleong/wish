@@ -716,12 +716,24 @@
   :<- [:active-sheet-id]
   :<- [:active-sheet-source-ids]
   :<- [:my-sheets]
-  (fn [[sheet-id source-ids my-sheets] _]
-    ; NOTE: currently, we're only interested in changes
-    ; to sheets we *don't* own.
-    ; We could later listen to changes in the sources for
-    ; a sheet we own, in which case we wouldn't be interested
-    ; in sheet-id
-    (when (and sheet-id
-               (not (contains? my-sheets sheet-id)))
-      (into #{sheet-id} source-ids))))
+  :<- [:meta/players]
+  (fn [[sheet-id source-ids my-sheets campaign-players] _]
+    (cond
+      ; in campaign mode we're interested in all the player sheets, and
+      ; all of our sources. In the future, we might want to get all the
+      ; sources of all the player sheets. We could potentially also
+      ; subscribe to the campaign ID for real-time communication from
+      ; players
+      campaign-players
+      (into campaign-players
+            source-ids)
+
+      ; NOTE: currently, we're only interested in changes to sheets we
+      ; *don't* own.
+      ; We could later listen to changes in the sources for a sheet we
+      ; own, in which case we wouldn't be interested in sheet-id
+      (and sheet-id
+           (not (contains? my-sheets sheet-id)))
+      (into #{sheet-id} source-ids)
+
+      :else nil)))
