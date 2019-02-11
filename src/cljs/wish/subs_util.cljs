@@ -36,11 +36,9 @@
       candidate)))
 
 (defn inject-preferred-id [vec preferred-sheet-id]
-  (let [v (if preferred-sheet-id
-            (conj vec preferred-sheet-id)
-            vec)]
-    (println vec " + " preferred-sheet-id " -> " v)
-    v))
+  (if preferred-sheet-id
+    (conj vec preferred-sheet-id)
+    vec))
 
 (defn reg-id-sub
   "This is a drop-in replacement for a subscription which
