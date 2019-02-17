@@ -54,3 +54,38 @@
  :notes
  [[1234 "Note"]]}
 
+; campaign-specific
+{; ...
+
+ ; set of player's sheet IDs
+ :players #{:sheet-id}
+
+ :npcs {:ancient-red-dragon/thordak {:id :ancient-red-dragon
+                                     :name "Thordak"
+                                     :notes "Etc."
+                                     ; or whatever other state:
+                                     :hp 2700}
+        :custom/mreynolds {:id :mreynolds
+                           :name "Mal Reynolds"
+
+                           ; monster def inline
+                           :abilities {:str 15}}}
+
+ ; we don't want to impose any specific method of organization on a GM's
+ ; campaign notes. But, we want to support many options, while being as
+ ; space-efficient as possible, so here we go:
+ ;
+ ; :notes is a map whose keys are IDs and the values are notes
+ ; The ID of a note ALWAYS has the namespace `n`
+ :notes {:n/id [{:n "Note Name"
+                 :m modified-timestamp}
+                [:link]]}
+
+ ; :folders is a map whose keys are IDs and the values are folders
+ ; the ID of a folder ALWAYS has the namespace `f`
+ :folders {:f/id [{:n "Folder name"
+                   :s :sort-type}
+                  :n/1
+                  :n/2
+                  :f/3]}
+ }

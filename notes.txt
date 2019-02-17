@@ -64,3 +64,17 @@ Custom backgrounds get:
 - 1 background feature
 - 1 set of background characteristics (for choosing things like
     Personality Traits, Ideals, Bonds, Flaws)
+
+
+* ======= Campaigns =======================================
+
+- Custom monsters, items, etc. live in a Data Source
+- NPCs work like "item instances"; they can be based on a monster, or
+  completely custom and in-sheet; they have state tracking (HP, etc.)
+  as well as a simple note field.
+- Notes support markdown; they should be organizable and easily locatable.
+    - Notes should be able to *link* to things, esp Encounters, other notes/note folders
+    - "Placemarker" within a note to indicate progress within a campaign/session
+- Encounters should support "groups" of combatants that can be added separately
+    - They can reference specific NPCs, or any declared monsters directly
+        - Override any stats, including max HP
