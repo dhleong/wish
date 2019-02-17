@@ -91,4 +91,17 @@
                   :n/1
                   :n/2
                   :f/3]}
+
+ ; what's currently on the workspace?
+ ; The Workspace consists of a single "primary" column and a single
+ ; "secondary" column. Things in the "secondary" column are associated
+ ; with an entry in the "primary" column for quick reference. On mobile,
+ ; they may be accessible via a side-swipe; on desktop or tablet, they
+ ; are placed adjacent to the primary column
+ :workspace [[:primary/1 :secondary/1 :secondary/2]
+
+             ; each item in the workspace is wrapped in a vector; the
+             ; first entry is the primary column item, and anything else
+             ; goes in the secondary column
+             [:primary/2 :secondary/1]]
  }

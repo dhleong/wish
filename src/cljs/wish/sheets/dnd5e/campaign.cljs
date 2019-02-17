@@ -25,7 +25,12 @@
       [abilities-display info])]
    ])
 
+(defn entity-card [e]
+  ; TODO
+  [:div (str e)])
+
 (defn view
   [section]
   [base/campaign-page section
-   :char-card char-card])
+   :char-card char-card
+   :entity-card entity-card])

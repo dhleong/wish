@@ -3,6 +3,20 @@
   wish.views.campaign.subs
   (:require [re-frame.core :refer [reg-sub]]))
 
+(defn- reg-meta-sub
+  [id getter]
+  (reg-sub
+    id
+    :<- [:sheet-meta]
+    (fn [sheet _]
+      (getter sheet))))
+
+(reg-meta-sub :meta/workspace :workspace)
+
+;;
+;; Campaign members
+;;
+
 (reg-sub
   ::add-char-candidates
   :<- [:meta/players]
