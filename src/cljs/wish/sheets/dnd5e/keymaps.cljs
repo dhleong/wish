@@ -8,21 +8,21 @@
   [;; hide any open overlay
    [[:toggle-overlay nil]
     ; via esc:
-    [{:which 27}]]
+    [{:keyCode 27}]]
 
    ;; open notes
    [[:toggle-overlay [#'overlays/notes-overlay]]
 
     ; via:
     [; press `n`
-     {:which 78}]]
+     {:keyCode 78}]]
 
    ;; open health management
    [[:toggle-overlay [#'overlays/hp-overlay]]
 
     ; via:
     [; press `h`
-     {:which 72
+     {:keyCode 72
       :ctrlKey false}]]
 
    ;; show "actions"
@@ -30,28 +30,28 @@
 
     ; via:
     [; press `a`
-     {:which 65}]]
+     {:keyCode 65}]]
 
    ;; show "spells"
    [[::events/page! :spells]
 
     ; via:
     [; press `a`
-     {:which 83}]]
+     {:keyCode 83}]]
 
    ;; show "inventory"
    [[::events/page! :inventory]
 
     ; via:
     [; press `i`
-     {:which 73}]]
+     {:keyCode 73}]]
 
    ;; show "features"
    [[::events/page! :features]
 
     ; via:
     [; press `f`
-     {:which 70}]]
+     {:keyCode 70}]]
    ])
 
 (def maps {:event-keys event-keys})
