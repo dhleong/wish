@@ -331,6 +331,20 @@ Sneak Attack. Sneak Attack does not consume any time on its own, but is
 used in conjunction with an action.
 See [`:action`](#action) above for format and usage.
 
+Instead of the normal `true` value, you can also provide special flags as
+a map, for example `{:combat true}`, or, for a single flag, use the shortcut
+of suppling the flag directly, eg:
+
+```clojure
+[:!provide-attr
+ [:special-action :paladin/divine-smite]
+ :combat]
+```
+
+Supported flags:
+
+- `:combat` The action will be displayed on the "Combat" section of the "Actions" page. This is useful for things like Divine Smite or Sneak Attack that add to the damage dealt by a normal attack.
+
 ## `:spells`
 
 Modify the attributes of a spell. Very commonly used by Warlock Eldritch Invocations, but might also be used by racial traits.

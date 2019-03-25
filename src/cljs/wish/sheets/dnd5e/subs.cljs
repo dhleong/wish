@@ -1081,8 +1081,14 @@
 
 ; ======= combat ==========================================
 
+(def ^:private compile-dice-fn (memoize ->callable))
+
+(defn- maybe-compile-dice [entity]
+  (when entity
+    (update entity :dice compile-dice-fn)))
+
 (reg-sub
-  ::combat-actions
+  ::actions-for-type
   :<- [:sheet-source]
   :<- [:classes]
   :<- [:races]
@@ -1092,19 +1098,30 @@
          flatten
          (mapcat
            (fn [c]
-             (let [ids (keys (get-in c [:attrs filter-type]))]
-               (map
-                 (fn [id]
-                   (or (when (= id (:id c))
-                         ; attuned equipment, probably
-                         c)
-                       (get-in c [:features id])
-                       (src/find-feature data-source id)))
-                 ids))))
+             (map (fn [[id flags]]
+                    (with-meta
+                      (maybe-compile-dice
+                        (or (when (= id (:id c))
+                              ; attuned equipment, probably
+                              c)
+                            (get-in c [:features id])
+                            (src/find-feature data-source id)))
+                      (cond
+                        (map? flags) flags
+                        (keyword? flags) {flags true}
+                        :else nil)))
+                  (get-in c [:attrs filter-type]))))
          (keep identity)
          (sort-by :name))))
 
-(def ^:private compile-dice-fn (memoize ->callable))
+(reg-sub
+  ::special-combat-actions
+  :<- [::actions-for-type :special-action]
+  (fn [actions _]
+    (filter
+      #(:combat (meta %))
+      actions)))
+
 (def ^:private compile-save-fn (memoize ->callable))
 (reg-sub
   ::other-attacks
