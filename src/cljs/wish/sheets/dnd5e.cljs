@@ -620,7 +620,7 @@
         level (or cast-level base-level)]
     [expandable
      [:div.spell
-      [cast-button s]
+      [cast-button {:nested? true} s]
 
       [:div.spell-info
        [:div.name (:name s)]

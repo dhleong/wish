@@ -430,6 +430,8 @@
           :margin "0 8px 0 0"})
   [:&.upcast {:position 'relative
               :border (str "2px solid " color-accent2)}
+   [:&:hover {:background-color "#f0f0f0"
+              :color "#333"}]
    [:&:hover>.upcast-level
     {:background (color/lighten color-accent2 20)}]
    [:.upcast-level {:position 'absolute
@@ -441,14 +443,16 @@
                     :bottom "-0.7em"
                     :font-size "0.5em"
                     :transform "translate(50%, 0)"}]]
+  [:.uses-remaining {:padding "0.1em"
+                     :font-size "0.7em"
+                     :font-style 'italic}]
 
   [:&.button
    [:&.disabled {:font-style 'italic
                  :color "rgba(1,1,1, 0.25) !important"
                  :cursor 'default} ]
-   [:&:hover {:background-color "#f0f0f0"
-              :color "#333"}
-    [:&.disabled {:background-color "#ccc"}]]])
+   [:&.nested:hover {:background-color "#f0f0f0"
+                     :color "#333"}]])
 
 (defstyled spell-card
   {:max-width "300px"}

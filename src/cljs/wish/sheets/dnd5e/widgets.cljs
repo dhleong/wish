@@ -112,7 +112,7 @@
   "Renders a button to cast the given spell at its current level.
    Renders a box with 'At Will' if the spell is a cantrip"
   ([s] (cast-button nil s))
-  ([{:keys [base-level upcastable?]
+  ([{:keys [base-level upcastable? nested?]
      :or {upcastable? true}} s]
    (let [cantrip? (= 0 (:spell-level s))
          at-will? (or cantrip?
@@ -129,6 +129,7 @@
          ; (the sub handles the check)
          {slot-level :level
           slot-kind :kind
+          slot-remain :unused
           slot-total :total} (<sub [::subs/usable-slot-for s])
 
          castable-level (if cantrip?
@@ -138,14 +139,22 @@
                                        slot-level))
                             slot-level))
 
+         uses-left (when use-id
+                     (:uses-left (<sub [::subs/limited-use use-id])))
+
          has-uses? (or cantrip?
                        (if use-id
-                         (when-let [{:keys [uses-left]} (<sub [::subs/limited-use use-id])]
+                         (when uses-left
                            (> uses-left 0))
 
                          ; normal spell; if there's a castable-level for it,
                          ; we're good to go
                          (not (nil? castable-level))))
+
+         uses-remaining (when-not cantrip?
+                          (if use-id
+                            uses-left
+                            slot-remain))
 
          upcast? (when has-uses?
                    (> castable-level base-level))]
@@ -157,6 +166,8 @@
 
        [:div.cast.button
         {:class [styles/cast-spell
+                 (when nested?
+                   "nested")
                  (when-not has-uses?
                    "disabled")
                  (when upcast?
@@ -177,6 +188,10 @@
         (if (or use-id use-slot?)
           "Use"
           "Cast")
+
+        (when uses-remaining
+          [:div.uses-remaining
+           uses-remaining " left"])
 
         (when upcast?
           [:span.upcast-level
