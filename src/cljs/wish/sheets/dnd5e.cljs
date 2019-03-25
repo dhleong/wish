@@ -384,7 +384,17 @@
       [:h4 "Other Attacks"]
       (for [a attacks]
         ^{:key (:id a)}
-        [attack-block a])])])
+        [attack-block a])])
+
+   (when-let [actions (seq (<sub [::subs/special-combat-actions]))]
+     [:div.special
+      [:h4 "Special Attack Actions"]
+      (for [a actions]
+        ^{:key (:id a)}
+        [:div.clickable
+         {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
+         (:name a)])])
+   ])
 
 (defn- action-block
   [a]
@@ -404,7 +414,7 @@
 
 (defn- actions-for-type [filter-type]
   (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
-        actions (seq (<sub [::subs/combat-actions filter-type]))]
+        actions (seq (<sub [::subs/actions-for-type filter-type]))]
     (if (or spells actions)
       [:<>
        (when spells

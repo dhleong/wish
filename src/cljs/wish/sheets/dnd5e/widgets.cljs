@@ -18,28 +18,29 @@
 
 (defn stringify-components
   [{components :comp}]
-  (letfn [(vs-parts [k]
-            (case k
-              :v "V"
-              :s "S"
-              :vs "V, S"))
-          (m-part [p]
-            (str "M (" p ")"))]
-    (cond
-      (keyword? components)
-      (vs-parts components)
+  (when components
+    (letfn [(vs-parts [k]
+              (case k
+                :v "V"
+                :s "S"
+                :vs "V, S"))
+            (m-part [p]
+              (str "M (" p ")"))]
+      (cond
+        (keyword? components)
+        (vs-parts components)
 
-      ; are any material only?
-      (string? components)
-      (m-part components)
+        ; are any material only?
+        (string? components)
+        (m-part components)
 
-      (= 1 (count components))
-      (m-part (first components))
+        (= 1 (count components))
+        (m-part (first components))
 
-      :else
-      (str (vs-parts (first components))
-           ", "
-           (m-part (second components))))))
+        :else
+        (str (vs-parts (first components))
+             ", "
+             (m-part (second components)))))))
 
 (defn- stringify-dam-type
   [t]
@@ -119,7 +120,9 @@
          base-level (or base-level
                         (:spell-level s))
 
-         use-id (:consumes s)
+         use-slot? (= (:consumes s) :*spell-slot)
+         use-id (when-not use-slot?
+                  (:consumes s))
 
          ; if it's not at-will (or consumes a limited-use)
          ; try to figure out what slot we can use
@@ -171,7 +174,7 @@
                                   slot-kind slot-level slot-total])))))}
 
         ; div content:
-        (if use-id
+        (if (or use-id use-slot?)
           "Use"
           "Cast")
 
@@ -208,6 +211,12 @@
        [:span.tag "R"])
      ]))
 
+(defn- opt-row [s key-fn title]
+  (when-let [v (key-fn s)]
+    [:tr
+     [:td.header title]
+     [:td v]]))
+
 (defn- the-spell-card
   [{:keys [update-level! base-level]}
    {:keys [spell-level] :as s}]
@@ -224,29 +233,17 @@
     [:div styles/spell-card
      [:table.info
       [:tbody
-       [:tr
-        [:th.header "Casting Time"]
-        [:td (:time s)]]
-       [:tr
-        [:th.header "Range"]
-        [:td (:range s)]]
+       (opt-row s :time "Casting Time")
+       (opt-row s :range "Range")
 
        (when-let [aoe (:aoe s)]
          [:tr
           [:th.header "Area of Effect"]
           [:td [spell-aoe aoe]]])
 
-       [:tr
-        [:th.header "Components"]
-        [:td (stringify-components s)]]
-       [:tr
-        [:th.header "Duration"]
-        [:td (:duration s)]]
-
-       (when-let [tags (spell-tags s)]
-         [:tr
-          [:th.header "Properties"]
-          [:td tags]])
+       (opt-row s stringify-components "Components")
+       (opt-row s :duration "Duration")
+       (opt-row s spell-tags "Properties")
 
        (when-let [dice (:dice s)]
          (let [{:keys [damage]} s
