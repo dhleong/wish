@@ -9,7 +9,7 @@
             [goog.history.EventType :as HistoryEventType]
             [pushy.core :as pushy]
             [wish.config :as config]
-            [wish.util :refer [is-ios? >evt]])
+            [wish.util :refer [is-safari? >evt]])
   (:import goog.History))
 
 (goog-define ^boolean LOCAL false)
@@ -69,8 +69,8 @@
 (defn navigate!
   [& args]
   (let [evt (into [:navigate!] args)]
-    (if (is-ios?)
-      ; NOTE: on iOS we do some whacky shit to prevent awful flashes
+    (if (is-safari?)
+      ; NOTE: on Safari we do some whacky shit to prevent awful flashes
       ;  when swiping back. hopefully there's a more efficient way
       ;  to do this, but for now... this works
       (do

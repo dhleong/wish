@@ -120,11 +120,11 @@
    (fn-click
      (swap! a f x y))))
 
-(def is-ios?
+(def is-safari?
   (memoize
-    (fn is-ios? []
-      (and (boolean js/navigator.platform)
-           (re-find #"iPad|iPhone|iPod" js/navigator.platform)))))
+    (fn is-safari? []
+      (and (boolean js/navigator.vendor)
+           (re-find #"Apple" js/navigator.vendor)))))
 
 (defn invoke-callable
   "Invoke a callable in the context of the given entity,
