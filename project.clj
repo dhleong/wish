@@ -23,7 +23,7 @@
 
                  ; sheet-specific inline css
                  [cljs-css-modules "0.2.1"]
-                 [garden "1.3.6"] ; override older version in cljs-css-modules
+                 [garden "1.3.9"] ; override older version in cljs-css-modules
 
                  ; ::inject/sub cofx (for subscriptions in event handlers)
                  [re-frame-utils "0.1.0"]]
@@ -75,10 +75,10 @@
   :profiles
   {:dev
    {:dependencies [[binaryage/devtools "0.9.10"]
-                   [day8.re-frame/re-frame-10x "0.3.7-react16"]
+                   [day8.re-frame/re-frame-10x "0.4.0"]
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.18"]
-                   [cider/piggieback "0.4.0"]
+                   [cider/piggieback "0.4.1"]
 
                    [ring "1.7.1"]
                    [ring/ring-defaults "0.3.2"]
