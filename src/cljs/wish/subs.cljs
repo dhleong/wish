@@ -553,8 +553,12 @@
                      :wish/context-type kind
                      :wish/context entity)))))
 
+;; NOTE: this used to be called `:limited-uses` as it gathered all the
+;; available :limited-uses keys from all possible sources, but that's
+;; easy to confuse with the `:limited-uses` key in a sheet, whose
+;; subscription is called `:limited-used`.
 (reg-id-sub
-  :limited-uses
+  :all-limited-use-configs
   :<- [:classes]
   :<- [:races]
   :<- [:inventory-map]
@@ -569,15 +573,19 @@
              vals
              (map (partial uses-with-context :item)))))))
 
+;; NOTE: this used to be `:limited-uses-map`, but for clarity
+;; (and to better distinguish from the map called :limited-uses
+;; in the character sheet) it's been renamed to more semantically
+;; represent what it is
 (reg-id-sub
-  :limited-uses-map
-  :<- [:limited-uses]
-  (fn [limited-uses]
+  :limited-use-config
+  :<- [:all-limited-use-configs]
+  (fn [limited-use-configs]
     (reduce
       (fn [m v]
         (assoc m (:id v) v))
       {}
-      limited-uses)))
+      limited-use-configs)))
 
 (defn inflate-item
   "Given the character's :items map and datasource,

@@ -424,13 +424,25 @@
                                 actual)))
 
 (defn apply-limited-use-trigger
-  [limited-used-map limited-uses trigger]
+  "limited-used is a map whose keys are limited-use item ids and whose values
+   are the number of times that limited-use item has been used, and should
+   normally come from the :limited-uses key in a sheet (or the `:limited-used.`
+   subscription).
+
+   limited-use-config is a map that combines all the limited-uses entries from
+   all possible sources, whose keys are limited-use item ids and whose values
+   are the config maps for that limited use, and should normally come from
+   the `:limited-use-config` subscription.
+
+   trigger is, of course, the restore trigger to apply
+   "
+  [limited-used limited-use-config trigger]
   (reduce-kv
     (fn [m use-id used]
-      (if-let [use-obj (get limited-uses use-id)]
+      (if-let [use-obj (get limited-use-config use-id)]
         (if (restore-trigger-matches?
               (:restore-trigger use-obj)
-               trigger)
+              trigger)
           (let [restore-amount (invoke-callable
                                  use-obj
                                  :restore-amount
@@ -453,25 +465,35 @@
           ; avoid accidentally munging potentially-useful data.
           (js/console.warn "Found unrelated limited-use " use-id " !!")
           m)))
-    limited-used-map
-    limited-used-map))
+    limited-used
+    limited-used))
+
+(defn apply-limited-use-triggers
+  "Apply one or more restore triggers; `triggers` can be a collection of or
+   a single keyword"
+  [limited-used limited-use-config triggers]
+  (reduce
+    (fn [limited-used trigger]
+      (apply-limited-use-trigger
+        limited-used
+        limited-use-config
+        trigger))
+    limited-used
+    (if (coll? triggers)
+      triggers
+      [triggers])))
 
 (reg-event-fx
   :trigger-limited-use-restore
   [trim-v
-   (inject-cofx ::inject/sub ^:ignore-dispose [:limited-uses-map])
-   (inject-cofx ::inject/sub [:active-sheet-id])]
-  (fn-traced [{:keys [db limited-uses-map active-sheet-id]} [triggers]]
-    {:db (reduce
-           (fn [db trigger]
-             (update-in db [:sheets active-sheet-id :limited-uses]
-                        apply-limited-use-trigger
-                        limited-uses-map
-                        trigger))
-           db
-           (if (coll? triggers)
-             triggers
-             [triggers]))}))
+   (inject-cofx ::inject/sub ^:ignore-dispose [:limited-use-config])]
+  (fn-traced [{:keys [limited-use-config] :as cofx} [triggers]]
+    (update-sheet-path
+      cofx
+      [:limited-uses]
+      apply-limited-use-triggers
+      limited-use-config
+      triggers)))
 
 ; toggle whether a single-use limited-use item has been used
 (reg-event-fx

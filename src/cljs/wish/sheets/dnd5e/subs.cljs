@@ -299,8 +299,8 @@
       data/skill-id->ability)))
 
 (reg-id-sub
-  ::limited-uses
-  :<- [:limited-uses]
+  ::limited-use-configs
+  :<- [:all-limited-use-configs]
   :<- [:total-level]
   :<- [::ability-modifiers]
   :<- [::attuned-ids]
@@ -324,7 +324,7 @@
 
 (reg-sub
   ::limited-use
-  :<- [::limited-uses]
+  :<- [::limited-use-configs]
   :<- [:limited-used]
   (fn [[items used] [_ id]]
     (->> items

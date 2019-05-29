@@ -29,6 +29,19 @@
                  :other)))))
 
 (deftest apply-limited-use-trigger-test
+  (testing "Apply matching trigger"
+    (is (= {:gas#uses 0
+            :cargo#stored 0}
+           (apply-limited-use-trigger
+             {:gas#uses 2
+              :cargo#stored 3}
+             {:gas#uses {:restore-amount (constantly 2)
+                         :restore-trigger :completed-job}
+              :cargo#stored {:restore-amount (fn [{:keys [used]}]
+                                               used)
+                             :restore-trigger :completed-job}}
+             :completed-job))))
+
   (testing "Do nothing for mismatched triggers"
     (is (= {:gas#uses 2}
            (apply-limited-use-trigger
