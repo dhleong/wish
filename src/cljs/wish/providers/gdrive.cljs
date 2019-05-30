@@ -492,6 +492,9 @@
             :else
             (<! state)))))
 
+  (disconnect! [this]
+    (signout!))
+
   (load-raw
     [this id]
     (when-gapi-available do-load-raw id))
@@ -510,7 +513,6 @@
   (query-sheets [this]
     (when-gapi-available
       query-files
-      #_"appProperties has { key='wish-type' and value='wish-sheet' }"
       (str "(appProperties has { key='wish-type' and value='wish-sheet' }) "
            "or (appProperties has { key='wish-type' and value='wish-campaign' })")))
 

@@ -3,7 +3,7 @@
   wish.providers.caching
   (:require-macros [cljs.core.async :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [alt! chan timeout put! <!]]
+  (:require [clojure.core.async :refer [alt! chan close! timeout put! <! >!]]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.providers.core :as provider :refer [IProvider signed-out-err?]]
             [wish.sheets.util :refer [make-id]]
@@ -65,6 +65,13 @@
             ; if base is unavailable, we can take over
             :cache-only))))
 
+  (disconnect! [this]
+    ; clear cache
+    (reset! storage nil)
+
+    ; delegate to base
+    (provider/disconnect! base))
+
   (load-raw
     [this id]
     (go (let [is-dirty? (contains? @dirty?-storage id)
@@ -107,22 +114,29 @@
     (provider/query-data-sources base))
 
   (query-sheets [this]
-    (go (let [[err sheets :as result] (or (<! (<!timeout (provider/query-sheets base)))
+    (let [ch (chan)
+          from-cache (get @storage ::sheets)]
+      (go
+        (when from-cache
+          (log/info "loaded sheets from cache")
+          (>! ch [nil from-cache]))
+
+        (let [[err sheets :as result] (or (<! (<!timeout (provider/query-sheets base)))
                                           [:timeout])]
           (log "query-sheets: " err (count sheets))
           (if-not err
             (do
               ; cache sheets
               (swap! storage assoc ::sheets sheets)
-              result)
+              (>! ch result))
 
             ; fetch from cache
-            (or (when-let [from-cache (get @storage ::sheets)]
-                  (log/info "loaded sheets from cache")
-                  [nil from-cache])
+            (when-not from-cache
+              (log/info "no sheets in cache")))
 
-                (log/info "no sheets in cache")
-                result)))))
+          ; either way, close the channel
+          (close! ch)))
+      ch))
 
   (register-data-source [this]
     (provider/register-data-source base))

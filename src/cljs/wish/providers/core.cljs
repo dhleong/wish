@@ -25,6 +25,10 @@
       - :sheet
       - :campaign")
 
+  (disconnect!
+    [this]
+    "Called when the user requested to disconnect this provider")
+
   (load-raw
     [this id]
     "Load raw data with the given provider-specific `id`.

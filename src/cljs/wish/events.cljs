@@ -11,7 +11,8 @@
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.providers :as providers]
-            [wish.sheets.util :refer [update-uses update-sheet update-sheet-path]]
+            [wish.sheets.util :refer [update-uses update-sheet update-sheet-path
+                                      unpack-id]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
@@ -229,6 +230,23 @@
   [trim-v]
   (fn-traced [_ [provider-id]]
     {:providers/query-sheets provider-id}))
+
+(reg-event-fx
+  :providers/disconnect!
+  [trim-v]
+  (fn-traced [{:keys [db]} [provider-id]]
+    {:db (update db :sheets
+                 ; filter out sheets provided by this provider
+                 (partial
+                   reduce-kv
+                   (fn [m sheet-id sheet]
+                     (let [[sheet-provider-id] (unpack-id sheet-id)]
+                       (if (not= provider-id sheet-provider-id)
+                         (assoc m sheet-id sheet)
+                         m)))
+                   {}))
+     :providers/disconnect! provider-id}))
+
 
 
 ; ======= data source management ===========================
