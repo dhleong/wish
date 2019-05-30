@@ -510,7 +510,6 @@
   (query-sheets [this]
     (when-gapi-available
       query-files
-      #_"appProperties has { key='wish-type' and value='wish-sheet' }"
       (str "(appProperties has { key='wish-type' and value='wish-sheet' }) "
            "or (appProperties has { key='wish-type' and value='wish-campaign' })")))
 

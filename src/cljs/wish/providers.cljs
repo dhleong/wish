@@ -196,13 +196,24 @@
   "Start querying the given provider-id for its sheets"
   [provider-id]
   (if-let [inst (provider-key provider-id :inst)]
-    (go (let [[err sheets] (<! (provider/query-sheets inst))]
-          (if err
-            (log/warn "Failed to query " provider-id ": " err)
-            (>evt [:add-sheets sheets]))
+    (let [results-chan (provider/query-sheets inst)]
+      (go-loop [[err sheets] (<! results-chan)]
+        (if sheets
+          (do
+            (println "got sheets" sheets "; recur @" results-chan)
+            (>evt [:add-sheets sheets])
 
-          ; either way, we're done querying:
-          (>evt [:mark-provider-listing! provider-id false])))
+            ; the channel might emit more than one event
+            (recur (<! results-chan)))
+
+          ; either there's an error or the channel was closed...
+          (do
+            (if err
+              (log/warn "Failed to query " provider-id ": " err)
+              (log/info "Done querying " provider-id))
+
+            ; ... either way, we're done querying:
+            (>evt [:mark-provider-listing! provider-id false])))))
 
     (log/err "No such provider to query: " provider-id)))
 
