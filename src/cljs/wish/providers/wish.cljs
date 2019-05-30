@@ -28,6 +28,10 @@
     ; we're always ready immediately
     (to-chan [:ready]))
 
+  (disconnect! [this]
+    ; not supported
+    nil)
+
   (load-raw
     [this id]
     (if-let [url (str data-root (:path (builtin-sources id)))]

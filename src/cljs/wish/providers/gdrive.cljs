@@ -492,6 +492,9 @@
             :else
             (<! state)))))
 
+  (disconnect! [this]
+    (signout!))
+
   (load-raw
     [this id]
     (when-gapi-available do-load-raw id))

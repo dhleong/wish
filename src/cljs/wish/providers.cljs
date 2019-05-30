@@ -107,6 +107,13 @@
         ; still waiting
         (recur new-chs)))))
 
+(defn disconnect! [provider-id]
+  (log "provider disconnect! " provider-id)
+  (if-let [inst (provider-key provider-id :inst)]
+    (provider/disconnect! inst)
+
+    (throw (js/Error. (str "No provider instance for " provider-id)))))
+
 (defn sharable? [sheet-id]
   (let [[provider-id _] (unpack-id sheet-id)]
     (provider-key provider-id :share!)))

@@ -56,6 +56,10 @@
                                   (when provider-id
                                     (providers/query-sheets provider-id))))
 
+(reg-fx :providers/disconnect! (fn [provider-id]
+                                  (when provider-id
+                                    (providers/disconnect! provider-id))))
+
 
 ; ======= sheet load requests ==============================
 

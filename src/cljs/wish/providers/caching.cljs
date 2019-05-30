@@ -65,6 +65,13 @@
             ; if base is unavailable, we can take over
             :cache-only))))
 
+  (disconnect! [this]
+    ; clear cache
+    (reset! storage nil)
+
+    ; delegate to base
+    (provider/disconnect! base))
+
   (load-raw
     [this id]
     (go (let [is-dirty? (contains? @dirty?-storage id)

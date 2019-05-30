@@ -5,7 +5,7 @@
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.styles :as styles]
             [wish.style :refer [asset]]
-            [wish.util :refer [<sub]]
+            [wish.util :refer [<sub >evt]]
             [wish.views.widgets :refer [icon link]]))
 
 (def ^:private src-set-kinds [["" "1x"]
@@ -47,7 +47,7 @@
        "Open a sheet"]]
 
      [:div.button
-      {:on-click gdrive/signout!}
+      {:on-click #(>evt [:providers/disconnect! :gdrive])}
 
       [:div "Disconnect Google Account"]
       (when-let [e (:email user)]
