@@ -23,6 +23,27 @@ a {
     height: 100vh;
 }
 
+#splash-container {
+    .flex();
+
+    height: 100vh;
+    justify-content: center;
+
+    .splash {
+        .flex();
+        .flex-direction(column);
+
+        justify-content: center;
+        align-items: center;
+
+        .logo {
+            height: 72px;
+            width: 72px;
+            margin: 12px;
+        }
+    }
+}
+
 #footer-container {
     .flex();
     .flex-direction(column);
