@@ -587,7 +587,7 @@
     (str uses " uses / " (trigger-labels trigger))))
 
 (defn limited-use-section []
-  (let [items (<sub [::subs/limited-uses])
+  (let [items (<sub [::subs/limited-use-configs])
         used (<sub [:limited-used])]
     [:div styles/limited-use-section
      (if-not (empty? items)
