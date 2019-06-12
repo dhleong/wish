@@ -401,16 +401,26 @@
   (when-let [use-id (:consumes consumable)]
     (when-let [{:keys [name uses-left] :as info}
                (<sub [::subs/consumable consumable])]
-      [:div styles/consumable-use-block
+      (if (= :*spell-slot use-id)
+        ; consuming spell slots is a special case
+        [:div styles/consumable-use-block
+         (if (<= uses-left 0)
+           [:div.uses "0 spell slots left"]
+           [:div.button
+            {:on-click (click>evt [:toggle-overlay [#'overlays/info consumable]])}
+            (str uses-left " spell slots left")])]
 
-       (when (not= name omit-name)
-         [:div.name name])
+        ; normal case:
+        [:div styles/consumable-use-block
 
-       [:div.uses uses-left " left"]
-       (when (> uses-left 0)
-         [:div.button
-          {:on-click (click>evt [::events/+use info 1])}
-          "Use 1"])])))
+         (when (not= name omit-name)
+           [:div.name name])
+
+         [:div.uses uses-left " left"]
+         (when (> uses-left 0)
+           [:div.button
+            {:on-click (click>evt [::events/+use info 1])}
+            "Use 1"])]))))
 
 (defn- action-block [a]
   [:div.action
