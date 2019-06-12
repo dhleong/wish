@@ -494,6 +494,14 @@
 (defstyled swipeable-page
   {:min-height "60vh"})
 
+(defstyled consumable-use-block
+  (merge flex/center
+         {:font-size "80%"
+          :margin-bottom "1em"
+          :padding "8px 8px 0 8px"})
+
+  [:.uses {:padding "4px"}])
+
 ;;
 ;; Sections
 ;;
@@ -584,11 +592,6 @@
    [:.name {:font-size "90%"
             :font-weight 'bold
             :font-style 'italic}]
-   [:.consumable (merge flex/center
-                        {:font-size "80%"
-                         :margin-bottom 0
-                         :padding "8px 8px 0 8px"})
-    [:.uses {:padding "4px"}]]
    [:.desc metadata]])
 
 (def single-column-skills [:.base-ability

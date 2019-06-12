@@ -396,20 +396,26 @@
          (:name a)])])
    ])
 
-(defn- action-block
-  [a]
+(defn- consume-use-block
+  [consumable {:keys [omit-name]}]
+  (when-let [use-id (:consumes consumable)]
+    (when-let [{:keys [name uses-left] :as info}
+               (<sub [::subs/consumable consumable])]
+      [:div styles/consumable-use-block
+
+       (when (not= name omit-name)
+         [:div.name name])
+
+       [:div.uses uses-left " left"]
+       (when (> uses-left 0)
+         [:div.button
+          {:on-click (click>evt [::events/+use info 1])}
+          "Use 1"])])))
+
+(defn- action-block [a]
   [:div.action
    [:div.name (:name a)]
-   (when-let [use-id (:consumes a)]
-     (when-let [{:keys [name uses-left] :as info}
-                (<sub [::subs/consumable a])]
-       [:div.consumable
-        [:div.name name]
-        [:div.uses uses-left " left"]
-        (when (> uses-left 0)
-          [:div.button
-           {:on-click (click>evt [::events/+use info 1])}
-           "Use 1"])]))
+   [consume-use-block a]
    [formatted-text :div.desc (:desc a)]])
 
 (defn- actions-for-type [filter-type]
@@ -487,11 +493,8 @@
   (let [values (seq (:values f))]
     [:div.feature
      [:div.name (:name f)]
-     ;; (when values
-     ;;   [:div.chosen (->> values
-     ;;                     (take 4)
-     ;;                     (map :name)
-     ;;                     (str/join " · "))])
+
+     [consume-use-block f {:omit-name (:name f)}]
 
      [formatted-text :div.desc (:desc f)]
 
