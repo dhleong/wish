@@ -189,128 +189,127 @@
       ]]))
 
 (defn hp-overlay []
-  (let [state (r/atom {})]
-    (fn []
-      (let [[hp max-hp] (<sub [::subs/hp])
-            {:keys [heal damage]} @state
-            new-hp (max
-                     0  ; you can't go negative in 5e
-                     (min max-hp
-                          (- (+ hp heal)
-                             damage)))
-            death-saves (<sub [::subs/death-saving-throws])]
-        [:div styles/hp-overlay
-         (when (= 0 hp)
-           [:<>
-            [:h4 "Death Saving Throws"]
-            [:div.sections.spread.centered
+  (r/with-let [state (r/atom {})]
+    (let [[hp max-hp] (<sub [::subs/hp])
+          {:keys [heal damage]} @state
+          new-hp (max
+                   0  ; you can't go negative in 5e
+                   (min max-hp
+                        (- (+ hp heal)
+                           damage)))
+          death-saves (<sub [::subs/death-saving-throws])]
+      [:div styles/hp-overlay
+       (when (= 0 hp)
+         [:<>
+          [:h4 "Death Saving Throws"]
+          [:div.sections.spread.centered
 
-             [:div "Failures"
-              [widgets/slot-use-block
-               {:total 3
-                :used (:fails death-saves)
-                :consume-evt [::events/update-death-saves inc :fails]
-                :restore-evt [::events/update-death-saves dec :fails]}]]
+           [:div "Failures"
+            [widgets/slot-use-block
+             {:total 3
+              :used (:fails death-saves)
+              :consume-evt [::events/update-death-saves inc :fails]
+              :restore-evt [::events/update-death-saves dec :fails]}]]
 
-             [:div "Successes"
-              [widgets/slot-use-block
-               {:total 3
-                :used (:saves death-saves)
-                :consume-evt [::events/update-death-saves inc :saves]
-                :restore-evt [::events/update-death-saves dec :saves]}]]]])
+           [:div "Successes"
+            [widgets/slot-use-block
+             {:total 3
+              :used (:saves death-saves)
+              :consume-evt [::events/update-death-saves inc :saves]
+              :restore-evt [::events/update-death-saves dec :saves]}]]]])
 
-         [:h4 "Hit Points"]
-         [:div.sections
-          [:a {:href "#"
-               :on-click (click>evt [::events/update-hp -1 max-hp])}
-           (icon :remove-circle)]
+       [:h4 "Hit Points"]
+       [:div.sections
+        [:a {:href "#"
+             :on-click (click>evt [::events/update-hp -1 max-hp])}
+         (icon :remove-circle)]
 
-          [:div.current-hp hp]
+        [:div.current-hp hp]
 
-          [:a {:href "#"
-               :on-click (click>evt [::events/update-hp 1 max-hp])}
-           (icon :add-circle)]]
+        [:a {:href "#"
+             :on-click (click>evt [::events/update-hp 1 max-hp])}
+         (icon :add-circle)]]
 
-         [:h5.centered.section-header "Quick Adjust"]
-         [:form#hp-adjust-input
-          {:on-submit (fn-click
-                        (let [{:keys [heal damage]} @state]
-                          (log "Update HP: heal +" heal "  -" damage)
-                          (>evt [::events/update-hp (- heal damage) max-hp])
-                          (>evt [:toggle-overlay nil])))}
-          [:div.sections
+       [:h5.centered.section-header "Quick Adjust"]
+       [:form#hp-adjust-input
+        {:on-submit (fn-click
+                      (let [{:keys [heal damage]} @state]
+                        (log "Update HP: heal +" heal "  -" damage)
+                        (>evt [::events/update-hp (- heal damage) max-hp])
+                        (>evt [:toggle-overlay nil])))}
+        [:div.sections
 
-           [:div.quick-adjust
+         [:div.quick-adjust
 
-            ; left col: damage
-            [:div "Damage"]
-            [bind-fields
-             [:input.number {:field :fast-numeric
-                             :id :damage
-                             :min 0}]
-             {:get #(get-in @state %)
-              :save! #(swap! state (fn [s]
-                                     (-> s
-                                         (assoc-in %1 %2)
-                                         (dissoc :heal))))}]]
+          ; left col: damage
+          [:div "Damage"]
+          [bind-fields
+           [:input.number {:field :fast-numeric
+                           :id :damage
+                           :min 0}]
+           {:get #(get-in @state %)
+            :save! #(swap! state (fn [s]
+                                   (-> s
+                                       (assoc-in %1 %2)
+                                       (dissoc :heal))))}]]
 
-           ; new HP in the middle
-           [:div.new-hp
-            (when (not= new-hp hp)
-              [:<>
-               [:div.label "New HP"]
-               [:div.amount
-                {:class (if (> new-hp hp)
-                          "healing"
-                          "damage")}
-                new-hp] ])]
-
-           ; right col: heal
-           [:div.quick-adjust
-            [:div "Heal"]
-
-            [bind-fields
-             [:input.number {:field :fast-numeric
-                             :id :heal
-                             :min 0}]
-             {:get #(get-in @state %)
-              :save! #(swap! state (fn [s]
-                                     (-> s
-                                         (assoc-in %1 %2)
-                                         (dissoc :damage))))}]]]
+         ; new HP in the middle
+         [:div.new-hp
           (when (not= new-hp hp)
-            [:div.sections
-             [:input.apply {:type 'submit
-                            :value "Apply!"}] ])]
+            [:<>
+             [:div.label "New HP"]
+             [:div.amount
+              {:class (if (> new-hp hp)
+                        "healing"
+                        "damage")}
+              new-hp] ])]
 
-         ; temporary health management
-         [:h5.centered.section-header "Temporary Health"]
-         [:div.sections
-          [:div.quick-adjust
-           [:div "Temp HP"]
+         ; right col: heal
+         [:div.quick-adjust
+          [:div "Heal"]
 
-           [bind-fields
-            [:input.number {:field :fast-numeric
-                            :id :temp-hp
-                            :min 0}]
-            {:get #(<sub [::subs/temp-hp])
-             :save! #(>evt [::events/temp-hp! %2])}]]
+          [bind-fields
+           [:input.number {:field :fast-numeric
+                           :id :heal
+                           :min 0}]
+           {:get #(get-in @state %)
+            :save! #(swap! state (fn [s]
+                                   (-> s
+                                       (assoc-in %1 %2)
+                                       (dissoc :damage))))}]]]
+        (when (not= new-hp hp)
+          [:div.sections
+           [:input.apply {:type 'submit
+                          :value "Apply!"}] ])]
 
-          ; just a spacer
-          [:div.new-hp]
+       ; temporary health management
+       [:h5.centered.section-header "Temporary Health"]
+       [:div.sections
+        [:div.quick-adjust
+         [:div "Temp HP"]
 
-          [:div.quick-adjust
-           [:div "Extra Max HP"]
+         [bind-fields
+          [:input.number {:field :fast-numeric
+                          :id :temp-hp
+                          :min 0}]
+          {:get #(<sub [::subs/temp-hp])
+           :save! #(>evt [::events/temp-hp! %2])}]]
 
-           [bind-fields
-            [:input.number {:field :fast-numeric
-                            :id :temp-max-hp
-                            :min 0}]
-            {:get #(<sub [::subs/temp-max-hp])
-             :save! #(>evt [::events/temp-max-hp! %2])}]]]
+        ; just a spacer
+        [:div.new-hp]
 
-          ; this ought to get its own overlay at some point:
-          [conditions-management]]))))
+        [:div.quick-adjust
+         [:div "Extra Max HP"]
+
+         [bind-fields
+          [:input.number {:field :fast-numeric
+                          :id :temp-max-hp
+                          :min 0}]
+          {:get #(<sub [::subs/temp-max-hp])
+           :save! #(>evt [::events/temp-max-hp! %2])}]]]
+
+; this ought to get its own overlay at some point:
+[conditions-management]])))
 
 
 ; ======= notes ============================================
@@ -413,56 +412,55 @@
          ]))))
 
 (defn short-rest-overlay []
-  (let [state (r/atom {:next-id 0})]
-    (fn []
-      (let [current-state @state
-            amount-to-heal (when-let [dice-totals (->> current-state
-                                                       :values
-                                                       vals
-                                                       (mapcat vals)
-                                                       seq)]
-                             (let [dice-sum (apply + dice-totals)]
-                               (when (> dice-sum 0)
-                                 (let [con-mod (:con (<sub [::subs/ability-modifiers]))
-                                       dice-used (->> dice-totals
-                                                      (keep identity)
-                                                      count)]
-                                   (+ (* dice-used con-mod)
-                                      (:extra current-state)
-                                      dice-sum)))))]
-        [:div styles/short-rest-overlay
-         [:h5 "Short Rest"]
+  (r/with-let [state (r/atom {:next-id 0})]
+    (let [current-state @state
+          amount-to-heal (when-let [dice-totals (->> current-state
+                                                     :values
+                                                     vals
+                                                     (mapcat vals)
+                                                     seq)]
+                           (let [dice-sum (apply + dice-totals)]
+                             (when (> dice-sum 0)
+                               (let [con-mod (:con (<sub [::subs/ability-modifiers]))
+                                     dice-used (->> dice-totals
+                                                    (keep identity)
+                                                    count)]
+                                 (+ (* dice-used con-mod)
+                                    (:extra current-state)
+                                    dice-sum)))))]
+      [:div styles/short-rest-overlay
+       [:h5 "Short Rest"]
 
-         ; SRD description:
-         [:p.desc "A short rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds."]
-         [:p.desc "Tap on hit dice below to use them as part of your short rest."]
+       ; SRD description:
+       [:p.desc "A short rest is a period of downtime, at least 1 hour long, during which a character does nothing more strenuous than eating, drinking, reading, and tending to wounds."]
+       [:p.desc "Tap on hit dice below to use them as part of your short rest."]
 
-         ; TODO support auto-rolling hit dice
-         [:div.sections
-          [dice-pool state]
-          [dice-usage state]]
+       ; TODO support auto-rolling hit dice
+       [:div.sections
+        [dice-pool state]
+        [dice-usage state]]
 
-         ; TODO support (or at least surface) things like arcane recovery?
+       ; TODO support (or at least surface) things like arcane recovery?
 
-         [:div.button
-          {:on-click (click>evts [:trigger-limited-use-restore :short-rest]
-                                 [:+uses (reduce-kv
-                                           (fn [m die-size rolls]
-                                             (assoc m
-                                                    (->die-use-kw
-                                                      die-size)
-                                                    (->> rolls
-                                                         (keep second)
-                                                         count)))
-                                           {}
-                                           (:values @state))]
-                                 [::events/update-hp
-                                  amount-to-heal
-                                  (<sub [::subs/max-hp])]
-                                 [:toggle-overlay nil])}
-          "Take a short rest"
-          (when (> amount-to-heal 0)
-            (str "; heal +" amount-to-heal))]]))))
+       [:div.button
+        {:on-click (click>evts [:trigger-limited-use-restore :short-rest]
+                               [:+uses (reduce-kv
+                                         (fn [m die-size rolls]
+                                           (assoc m
+                                                  (->die-use-kw
+                                                    die-size)
+                                                  (->> rolls
+                                                       (keep second)
+                                                       count)))
+                                         {}
+                                         (:values @state))]
+                               [::events/update-hp
+                                amount-to-heal
+                                (<sub [::subs/max-hp])]
+                               [:toggle-overlay nil])}
+        "Take a short rest"
+        (when (> amount-to-heal 0)
+          (str "; heal +" amount-to-heal))]])))
 
 
 ; ======= long rest =======================================
@@ -494,39 +492,35 @@
     [spell-tags s]]] )
 
 (defn- spell-block
-  [_s {:keys [_selectable?
-              _source-list
-              _verb]}]
+  [s {:keys [selectable?
+             source-list
+             verb]}]
+  (r/with-let [expanded? (r/atom false)]
+    [:div.spell
+     [:div.header
+      [spell-info-header
+       {:on-click (click>swap! expanded? not)}
+       s]
+      (if (:always-prepared? s)
+        [:div.prepare.disabled
+         {:title "Always Prepared"}
+         (icon :check-circle-outline)]
 
-  (let [expanded? (r/atom false)]
-    (fn [s {:keys [selectable?
-                   source-list
-                   verb]}]
-      [:div.spell
-       [:div.header
-        [spell-info-header
-         {:on-click (click>swap! expanded? not)}
-         s]
-        (if (:always-prepared? s)
-          [:div.prepare.disabled
-           {:title "Always Prepared"}
-           (icon :check-circle-outline)]
+        [:div.prepare
+         {:class (when-not (or (:prepared? s)
+                               (selectable? s))
+                   "disabled")
+          :on-click (click>evt [:update-option-set source-list
+                                (if (:prepared? s)
+                                  disj
+                                  conj)
+                                (:id s)])}
+         (if (:prepared? s)
+           (icon :check-circle)
+           verb)])]
 
-          [:div.prepare
-           {:class (when-not (or (:prepared? s)
-                                 (selectable? s))
-                     "disabled")
-            :on-click (click>evt [:update-option-set source-list
-                                  (if (:prepared? s)
-                                    disj
-                                    conj)
-                                  (:id s)])}
-           (if (:prepared? s)
-             (icon :check-circle)
-             verb)])]
-
-       (when @expanded?
-         [spell-card s])])))
+     (when @expanded?
+       [spell-card s])]))
 
 (defn spell-management
   [spellcaster & {:keys [mode]
@@ -627,87 +621,86 @@
 ; ======= currency =========================================
 
 (defn currency-manager []
-  (let [quick-adjust (r/atom {})]
-    (fn []
-      [bind-fields
-       [:form
-        {:on-submit (fn-click
-                      (when-let [v (:adjust @quick-adjust)]
-                        (log "Adjust currency: " v)
-                        (>evt [::events/adjust-currency v]))
-                      (>evt [:toggle-overlay nil]))}
-        [:input {:type 'submit
-                 :style {:display 'none}}]
-        [:div styles/currency-manager-overlay
-         [:h5 "Currency"]
-         [:table
-          [:tbody
-           [:tr
-            [:th.header.p "Platinum"]
-            [:th.header.g "Gold"]
-            [:th.header.e "Electrum"]
-            [:th.header.s "Silver"]
-            [:th.header.c "Copper"]]
+  (r/with-let [quick-adjust (r/atom {})]
+    [bind-fields
+     [:form
+      {:on-submit (fn-click
+                    (when-let [v (:adjust @quick-adjust)]
+                      (log "Adjust currency: " v)
+                      (>evt [::events/adjust-currency v]))
+                    (>evt [:toggle-overlay nil]))}
+      [:input {:type 'submit
+               :style {:display 'none}}]
+      [:div styles/currency-manager-overlay
+       [:h5 "Currency"]
+       [:table
+        [:tbody
+         [:tr
+          [:th.header.p "Platinum"]
+          [:th.header.g "Gold"]
+          [:th.header.e "Electrum"]
+          [:th.header.s "Silver"]
+          [:th.header.c "Copper"]]
 
-           ; current values
-           [:tr
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :platinum}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :gold}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :electrum}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :silver}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :copper}]]]
+         ; current values
+         [:tr
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :platinum}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :gold}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :electrum}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :silver}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :copper}]]]
 
-           [:tr
-            [:td.meta {:col-span 5}
-             "Adjust totals directly"]]
+         [:tr
+          [:td.meta {:col-span 5}
+           "Adjust totals directly"]]
 
-           [:tr
-            [:th {:col-span 5
-                  :style {:padding-top "1em"}}
-             "Quick Adjust"]]
+         [:tr
+          [:th {:col-span 5
+                :style {:padding-top "1em"}}
+           "Quick Adjust"]]
 
-           [:tr
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :adjust.platinum}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :adjust.gold}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :adjust.electrum}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :adjust.silver}]]
-            [:td
-             [:input.amount {:field :fast-numeric
-                             :id :adjust.copper}]]]
+         [:tr
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :adjust.platinum}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :adjust.gold}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :adjust.electrum}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :adjust.silver}]]
+          [:td
+           [:input.amount {:field :fast-numeric
+                           :id :adjust.copper}]]]
 
-           [:tr
-            [:td.meta {:col-span 5}
-             "Add or subtract amounts by inputting above and pressing 'enter'"]]
+         [:tr
+          [:td.meta {:col-span 5}
+           "Add or subtract amounts by inputting above and pressing 'enter'"]]
 
-           ]]]]
+         ]]]]
 
-       {:get #(if (= :adjust (first %))
-                (get-in @quick-adjust %)
-                (get-in (<sub [::subs/currency]) %))
+     {:get #(if (= :adjust (first %))
+              (get-in @quick-adjust %)
+              (get-in (<sub [::subs/currency]) %))
 
-        :save! (fn [path v]
-                 (if (not= :adjust (first path))
-                   (>evt [::events/set-currency (first path) v])
+      :save! (fn [path v]
+               (if (not= :adjust (first path))
+                 (>evt [::events/set-currency (first path) v])
 
-                   (swap! quick-adjust assoc-in path v)))}])))
+                 (swap! quick-adjust assoc-in path v)))}]))
 
 
 ; ======= custom item creation =============================
@@ -909,32 +902,31 @@
        [choice]))))
 
 (defn starting-equipment-adder []
-  (let [state (r/atom {})]
-    (fn []
-      (let [{primary-class :class
-             choices :choices} (<sub [::subs/starting-eq])
-            this-state @state]
-        [:div styles/starting-equipment-overlay
-         [:h5 (:name primary-class) " Starting Equipment"]
+  (r/with-let [state (r/atom {})]
+    (let [{primary-class :class
+           choices :choices} (<sub [::subs/starting-eq])
+          this-state @state]
+      [:div styles/starting-equipment-overlay
+       [:h5 (:name primary-class) " Starting Equipment"]
 
-         (for [[i [kind values]] (map-indexed list choices)]
-           (with-meta
-             (case kind
-               :or [equipment-or state [i] values]
-               :and [equipment-and state [i] values
-                     (when (get this-state i)
-                       :chosen!)])
-             {:key i}))
+       (for [[i [kind values]] (map-indexed list choices)]
+         (with-meta
+           (case kind
+             :or [equipment-or state [i] values]
+             :and [equipment-and state [i] values
+                   (when (get this-state i)
+                     :chosen!)])
+           {:key i}))
 
-         (when (some :chosen (vals this-state))
-           [:div.accept
-            [:a {:href "#"
-                 :on-click (fn-click
-                             (let [items (expand-starting-eq
-                                           choices
-                                           @state)]
-                               (log "State:" @state)
-                               (log "Add items: " items)
-                               (>evt [:inventory-add-n items])
-                               (>evt [:toggle-overlay nil])))}
-             "I'll take it!"]])]))))
+       (when (some :chosen (vals this-state))
+         [:div.accept
+          [:a {:href "#"
+               :on-click (fn-click
+                           (let [items (expand-starting-eq
+                                         choices
+                                         @state)]
+                             (log "State:" @state)
+                             (log "Add items: " items)
+                             (>evt [:inventory-add-n items])
+                             (>evt [:toggle-overlay nil])))}
+           "I'll take it!"]])])))
