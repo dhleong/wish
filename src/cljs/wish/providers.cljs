@@ -61,7 +61,7 @@
     ; if it's a map then it's either a provider-specific error,
     ; or a generic exception-type error
     (map? error)
-    (let [{:keys [provider id] :as data} error]
+    (let [{:keys [provider] :as data} error]
 
       (if-let [error-resolver (provider-key provider :error-resolver)]
         [error-resolver data]

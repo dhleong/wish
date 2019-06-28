@@ -5,7 +5,7 @@
             [wish.views.error-boundary :refer [error-boundary]]))
 
 (defn campaign-page
-  [section & {:keys [char-card]}]
+  [_section & {:keys [char-card]}]
   [error-boundary
    [:div.campaign
     [chars-carousel char-card]

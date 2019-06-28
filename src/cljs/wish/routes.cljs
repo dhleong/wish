@@ -1,7 +1,6 @@
 (ns wish.routes
   (:require-macros [secretary.core :refer [defroute]])
-  (:require [pushy.core :as pushy]
-            [secretary.core :as secretary]
+  (:require [secretary.core :as secretary]
             [wish.util.nav :as nav :refer [hook-browser-navigation!
                                            navigate!]]))
 

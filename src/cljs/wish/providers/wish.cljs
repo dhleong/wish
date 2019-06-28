@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "Builtin provider for data sources"}
   wish.providers.wish
-  (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [wish.config :as config]
             [wish.providers.core :refer [IProvider]]

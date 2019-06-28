@@ -84,7 +84,7 @@
    called with a bool indicating whether it's currently expanded,
    in case you want to change rendering based on that.
    header-fn and expanded-fn may also just be forms"
-  [header-fn expanded-fn & [{:keys [start-expanded?]}]]
+  [_header-fn _expanded-fn & [{:keys [start-expanded?]}]]
   (let [expanded? (r/atom start-expanded?)]
     (fn [header-fn expanded-fn]
       (let [now-expanded? @expanded?]
@@ -102,7 +102,7 @@
               expanded-fn)])]))))
 
 (defn search-bar
-  [{:keys [placeholder class filter-key auto-focus] :as opts}]
+  [{:keys [placeholder filter-key auto-focus]}]
   [:div.search-bar
    [bind-fields
     [:input.search {:field :text

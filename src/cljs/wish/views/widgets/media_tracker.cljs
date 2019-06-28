@@ -37,12 +37,10 @@
                                     (>evt default))
 
                                   (.-matches candidate)
-                                  (do
-                                    (>evt event))
+                                  (>evt event)
 
                                   :else
-                                  (do
-                                    (recur (next candidates))))))
+                                  (recur (next candidates)))))
 
                    _ (doseq [matcher (keys queries)]
                        (.addListener matcher handler))

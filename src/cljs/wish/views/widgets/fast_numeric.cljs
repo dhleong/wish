@@ -2,9 +2,7 @@
       :doc ":fast-numeric widget for react-forms"}
   wish.views.widgets.fast-numeric
   (:require-macros [reagent-forms.macros :refer [render-element]])
-  (:require [clojure.string :as str]
-            [reagent.core :as r]
-            [reagent-forms.core :as forms]))
+  (:require [reagent-forms.core :as forms]))
 
 (defn- limit-value
   [attrs v]

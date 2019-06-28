@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
-  (:require-macros [wish.util :refer [fn-click]]
-                   [wish.util.log :as log])
+  (:require-macros [wish.util :refer [fn-click]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -187,7 +186,7 @@
      [:div.info "Saves"]
 
      [:div.abilities
-      (for [[id label] labeled-abilities]
+      (for [[id _label] labeled-abilities]
         (let [{:keys [save proficient?]} (get abilities id)]
           ^{:key id}
           [:span.save
@@ -228,8 +227,7 @@
     [:survival "Survival"]]])
 
 (defn skill-box
-  [label {:keys [ability modifier expert? half? proficient?]
-          :as skill}]
+  [label {:keys [ability modifier expert? half? proficient?]}]
   [:div.skill
    [:div.base-ability
     (str "(" (name ability) ")")]
@@ -299,7 +297,7 @@
        :class "clickable"})
     (:name s) ]
 
-   (when-let [use-id (:consumes s)]
+   (when (:consumes s)
      (when-let [{:keys [uses-left] :as info}
                 (<sub [::subs/consumable s])]
        (if (> uses-left 0)
@@ -751,7 +749,7 @@
 
 (defn- inventory-entry
   [item can-attune?]
-  (let [{:keys [attrs type]
+  (let [{:keys [type]
          quantity :wish/amount} item
         stacks? (inv/stacks? item)]
     [expandable
@@ -887,7 +885,7 @@
 (defn- main-section
   "Call this as a function instead of a reagent form,
    since it adds the ^{:key}"
-  [page id opts content]
+  [_page id opts content]
   ^{:key id}
   [:div.section opts
    content])

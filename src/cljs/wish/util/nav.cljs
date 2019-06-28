@@ -44,7 +44,7 @@
     (let [history (pushy/pushy
                     secretary/dispatch!
                     (fn [x]
-                      (let [[uri-path query-string]
+                      (let [[uri-path _query-string]
                             (str/split (uri-without-prefix x) #"\?")
                             uri-path (uri-with-leading-slash uri-path)]
                         (when (secretary/locate-route uri-path)

@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "Core types, etc for DataSource"}
   wish.sources.core
-  (:require-macros [wish.util.log :as log])
   (:require [wish.util :refer [->set]]))
 
 (defprotocol IDataSource

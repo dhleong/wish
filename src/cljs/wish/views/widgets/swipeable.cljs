@@ -84,7 +84,7 @@
                                            (set-key! (get index->key index)))))
 
                        ; hide the other view *after* the swipe animation settles
-                       :on-transition-end (fn [& args]
+                       :on-transition-end (fn [& _args]
                                             (set-indicies! #{@pending-index}))})
 
           ; the current index (and, by extension, the visible indicies) can be changed

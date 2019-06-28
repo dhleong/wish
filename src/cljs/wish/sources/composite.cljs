@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "composite"}
   wish.sources.composite
-  (:require-macros [wish.util.log :as log])
   (:require [wish.sources.compiler :refer [install-features]]
             [wish.sources.compiler.race :refer [install-deferred-subraces]]
             [wish.sources.core :refer [->CompositeDataSource ->DataSource raw]]

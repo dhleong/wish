@@ -1,7 +1,6 @@
 (ns wish.events
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [clojure.string :as str]
-            [re-frame.core :refer [dispatch reg-event-db reg-event-fx
+  (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
                                    path
                                    inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]

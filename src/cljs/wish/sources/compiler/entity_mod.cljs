@@ -10,7 +10,7 @@
 
 (declare apply-entity-mod)
 
-(defn- newest-value [a b] b)
+(defn- newest-value [_ b] b)
 
 (defn idempotent-append
   [^String a ^String b]

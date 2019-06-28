@@ -100,7 +100,7 @@
 (defn wrap-unknown-fn
   [sym]
   (let [sym-string (str sym)]
-    (fn [& args]
+    (fn [& _]
       (js/console.warn
         "UNKNOWN or UNEXPOSED function: "
         sym-string)
@@ -347,7 +347,7 @@
       ; already callable
       (fn? form) form
 
-      (seq? form) (let [[_fn args & body] form]
+      (seq? form) (let [[_fn args & _] form]
                     (if (and (= "fn" (str _fn))
                              (vector? args))
                       (let [fn-form (fn-ify form)

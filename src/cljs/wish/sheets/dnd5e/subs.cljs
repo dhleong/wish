@@ -114,9 +114,9 @@
   :<- [:active-sheet-id]
   :<- [::spellcaster-blocks]
   :<- [:device-type]
-  (fn [[sheet->page sheet-id
+  (fn [[_sheet->page _sheet-id
         spell-classes device-type
-        :as input] [_ default :as params]]
+        :as input] _]
     (let [smartphone? (= :smartphone device-type)
           default (if smartphone?
                     :abilities
@@ -345,7 +345,7 @@
 
       ; special case
       (subscribe [::usable-slot-for entity])))
-  (fn [input [_ {id :consumes :as info}]]
+  (fn [input [_ {id :consumes}]]
     (if (not= :*spell-slot id)
       ; easy case
       input
@@ -480,7 +480,7 @@
      [:total-level]
      [::max-hp-buffs]
      ])
-  (fn [[base-max temp-max abilities total-level buffs :as in]]
+  (fn [[base-max temp-max abilities total-level buffs]]
     (+ base-max
 
        temp-max
@@ -847,7 +847,7 @@
 (reg-sub
   ::ammunition-for
   :<- [::inventory-sorted]
-  (fn [items [_ weapon]]
+  (fn [items [_ _weapon]]
     (->> items
          (filter (comp (partial = :ammunition) :type))
          seq)))
@@ -929,14 +929,13 @@
 (reg-sub
   ::finesse-weapon-kinds
   :<- [:classes]
-  :<- [:sheet-source]
-  (fn [[classes source]]
+  (fn [classes]
     (->> classes
          ; combine all class-specific lists
          (mapcat (comp :finesse-weapon-kinds :lists))
 
          (map (fn [{:keys [id]}]
-                (if-let [n (namespace id)]
+                (if (namespace id)
                   ; unpack eg :proficiency/longsword
                   (keyword (name id))
 

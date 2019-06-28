@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheet-browser"}
   wish.views.sheet-browser
-  (:require [reagent.core :as r]
-            [reagent-forms.core :refer [bind-fields]]
+  (:require [reagent-forms.core :refer [bind-fields]]
             [wish.providers :as providers]
             [wish.util :refer [>evt <sub]]
             [wish.util.nav :refer [sheet-url]]

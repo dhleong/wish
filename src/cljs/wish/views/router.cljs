@@ -1,9 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "router"}
   wish.views.router
-  (:require [reagent.core :as r]
-            [re-frame.core :as rf]
-            [wish.util :refer [<sub >evt]]
+  (:require [wish.util :refer [<sub >evt]]
             [wish.views.footer :refer [footer]]))
 
 (defn- pick-page-title []

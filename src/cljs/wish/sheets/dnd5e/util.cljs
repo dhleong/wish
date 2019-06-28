@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
-  (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [wish.sheets.dnd5e.data :as data]
             [wish.sources.core :as src]
@@ -162,7 +161,7 @@
     entity))
 
 (defn post-process
-  [entity data-source entity-kind]
+  [entity _data-source _entity-kind]
   (-> entity
       install-spell-uses
       compile-ac-sources

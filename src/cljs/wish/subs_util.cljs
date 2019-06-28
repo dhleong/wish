@@ -7,17 +7,16 @@
 
 (defn active-sheet-id
   [db & [page-vec]]
-  (let [page-vec (or page-vec
+  (let [[page args] (or page-vec
                      (:page db))]
-    (let [[page args] page-vec]
-      (case page
-        :campaign (first args)
-        :join-campaign (second args)
-        :sheet args
-        :sheet-builder (first args)
+    (case page
+      :campaign (first args)
+      :join-campaign (second args)
+      :sheet args
+      :sheet-builder (first args)
 
-        ; else, no sheet
-        nil))))
+      ; else, no sheet
+      nil)))
 
 (defonce ^:private id-subs (atom #{}))
 (defn- id-sub? [query-vec]

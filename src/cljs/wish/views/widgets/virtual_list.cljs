@@ -41,7 +41,7 @@
            :row-count (count items)
            :row-height (.-rowHeight cache)
            :row-renderer (fn [row]
-                           (let [{:keys [index key parent style] :as row} (js->clj row :keywordize-keys true)]
+                           (let [{:keys [index key parent style]} (js->clj row :keywordize-keys true)]
                              (r/as-element
                                [cell-measurer
                                 {:cache cache

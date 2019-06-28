@@ -8,6 +8,7 @@
             [wish.views :as views]
             [wish.config :as config]
             [wish.fx]
+            [wish.subs]
             [wish.util.netwatcher :as netwatcher]
             [wish.util.worker :as worker]))
 

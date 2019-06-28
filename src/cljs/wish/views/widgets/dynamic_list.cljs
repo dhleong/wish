@@ -4,9 +4,7 @@
             Note that you MUST provide a unique placeholder content value"}
   wish.views.widgets.dynamic-list
   (:require-macros [reagent-forms.macros :refer [render-element]])
-  (:require [clojure.string :as str]
-            [reagent.core :as r]
-            [reagent-forms.core :as forms]))
+  (:require [reagent-forms.core :as forms]))
 
 ; Much of this code is based off code from reagent-forms, licensed
 ; under the Eclipse Public License and (c) 2018 Dimitri Sotnikov

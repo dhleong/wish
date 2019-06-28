@@ -77,7 +77,7 @@
 
 ; ======= push event handling =============================
 
-(defmulti on-push! (fn [session-id evt] (-> evt :event keyword)))
+(defmulti on-push! (fn [_session-id evt] (-> evt :event keyword)))
 
 ;;
 ;; "need-watch" handling
@@ -109,7 +109,7 @@
       (>evt [:reload-changed! changed-ids]))))
 
 (defmethod on-push! :changed
-  [session-id {{:keys [id]} :data}]
+  [_ {{:keys [id]} :data}]
   (let [changed-id (keyword id)]
     (log "Sheet changed" changed-id)
     (reload-changed changed-id)))
@@ -118,7 +118,7 @@
 ;; fallback
 
 (defmethod on-push! :default
-  [session-id evt]
+  [_ evt]
   (log/warn "Unknown push event: " evt))
 
 

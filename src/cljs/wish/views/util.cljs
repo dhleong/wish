@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "View/widget utils"}
-  wish.views.util
-  (:require [goog.events :as gevents]))
+  wish.views.util)
 
 (defn dispatch-change-from-keyup
   "Event handler that be used for :on-key-up
