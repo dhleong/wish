@@ -18,7 +18,7 @@
   [sheet-id content-fn]
   (let [sheet (<sub [:provided-sheet sheet-id])]
     (if (:sources sheet)
-      (if-let [source (<sub [:sheet-source sheet-id])]
+      (if (<sub [:sheet-source sheet-id])
         ; sheet is ready; render!
         [error-boundary
          [content-fn sheet]]
@@ -61,7 +61,7 @@
                          (js/document.execCommand "copy")
                          (>evt [:notify! {:duration :short
                                           :content "Copied to clipboard!"}])
-                         (catch :default e
+                         (catch :default _
                            (println "Unable to copy to clipboard"))))
            :value (nav/campaign-invite-url
                     campaign-id

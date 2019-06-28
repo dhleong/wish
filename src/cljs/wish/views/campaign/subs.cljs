@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Campaign-specific subs"}
   wish.views.campaign.subs
-  (:require [clojure.string :as str]
-            [re-frame.core :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub subscribe]]))
 
 (reg-sub
   ::add-char-candidates
@@ -19,7 +18,7 @@
   ::campaign-members
   :<- [:meta/players]
   :<- [:sheets]
-  (fn [[char-sheet-ids sheets] qv]
+  (fn [[char-sheet-ids sheets] _]
     (->> char-sheet-ids
          (map (fn [id]
                 (or (assoc (get sheets id)

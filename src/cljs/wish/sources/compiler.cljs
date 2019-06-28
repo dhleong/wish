@@ -129,8 +129,8 @@
                                              (filter :!)
                                              seq))
 
-             ; TODO apply filters?
-             filters (filter vector? args)
+             ;; ; TODO apply filters?
+             ;; filters (filter vector? args)
 
              ; install new features always
              state (update state :features
@@ -435,13 +435,12 @@
                                       options-map)]
       (if (empty? applyable)
         ; nothing else to be done
-        (do
-          ; NOTE it's okay if some options aren't applied, like spellcaster lists, or if
-          ; the feature is for a different class/race, so we don't warn by default. But
-          ; this could be useful to uncomment for debugging issues
-          ;; (when (seq not-applyable)
-          ;;   (log/warn "Unable to apply " (map first not-applyable) " to " (:id state)))
-          state)
+        ; NOTE it's okay if some options aren't applied, like spellcaster lists, or if
+        ; the feature is for a different class/race, so we don't warn by default. But
+        ; this could be useful to uncomment for debugging issues
+        ;; (when (seq not-applyable)
+        ;;   (log/warn "Unable to apply " (map first not-applyable) " to " (:id state)))
+        state
 
         (recur
           ; NOTE apply all currently applyable at once to avoid extra (reduce) steps above

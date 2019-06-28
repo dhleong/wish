@@ -34,7 +34,7 @@
   (let [races (:deferred-subraces s)
         s (reduce-kv
 
-            (fn [state subrace-id subrace-map]
+            (fn [state _subrace-id subrace-map]
               (let [parent-race-id (:subrace-of subrace-map)]
                 (if-let [installed-state (install-subrace state parent-race-id subrace-map)]
                   (update installed-state :deferred-subraces dissoc)

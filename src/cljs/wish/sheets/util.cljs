@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Sheet-related utils"}
   wish.sheets.util
-  (:require [clojure.string :as str]
-            [wish.subs-util :refer [active-sheet-id]]))
+  (:require [wish.subs-util :refer [active-sheet-id]]))
 
 (defn unpack-id
   "Unpack a sheet id into its provider and
@@ -43,7 +42,7 @@
    references to 'sheet' in the other method names refer to the :sheet
    key inside a sheet-meta map."
   [{:keys [db]} path f & args]
-  (let [sheet-id (active-sheet-id db)]
+  (when-let [sheet-id (active-sheet-id db)]
     (let [new-db (apply update-in db
                         (concat [:sheets sheet-id]
                                 path)

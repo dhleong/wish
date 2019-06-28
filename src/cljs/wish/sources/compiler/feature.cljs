@@ -4,8 +4,7 @@
   (:require-macros [wish.util.log :as log])
   (:require [wish.sources.core :as src]
             [wish.sources.compiler.entity :refer [compile-entity]]
-            [wish.sources.compiler.fun :refer [->callable]]
-            [wish.util :refer [->map]]))
+            [wish.sources.compiler.fun :refer [->callable]]))
 
 (defn- attrs->availability
   [attrs availability-attr]

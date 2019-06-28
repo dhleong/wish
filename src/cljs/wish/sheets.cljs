@@ -176,7 +176,7 @@
     (if (:sources sheet)
       (let [kind (:kind sheet)]
         (if-let [sheet-info (get sheets (keyword kind))]
-          (if-let [source (<sub [:sheet-source sheet-id])]
+          (if (<sub [:sheet-source sheet-id])
             ; sheet is ready; render!
             [error-boundary
              (content-fn sheet-info)]

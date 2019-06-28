@@ -7,8 +7,7 @@
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
             [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
-                                      update-sheet-path]]
-            [wish.util :refer [process-map]]))
+                                      update-sheet-path]]))
 
 
 ; ======= 5e-specific nav =================================

@@ -1,15 +1,14 @@
 (ns ^{:author "Daniel Leong"
       :doc "error-boundary"}
   wish.views.error-boundary
-  (:require [clojure.string :as str]
-            [reagent.core :as r]))
+  (:require [reagent.core :as r]))
 
-(defn error-boundary [& children]
+(defn error-boundary [& _]
   (r/with-let [err (r/atom nil)]
     (r/create-class
      {:display-name "Error Boundary"
 
-      :component-did-catch (fn [this error info]
+      :component-did-catch (fn [_this error info]
                              (js/console.warn error info)
                              (reset! err error))
 

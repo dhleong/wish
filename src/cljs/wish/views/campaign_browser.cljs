@@ -1,9 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign-browser"}
   wish.views.campaign-browser
-  (:require [reagent.core :as r]
-            [reagent-forms.core :refer [bind-fields]]
-            [wish.util :refer [>evt <sub]]
+  (:require [wish.util :refer [>evt <sub]]
             [wish.util.nav :refer [campaign-url]]
             [wish.views.widgets :refer [icon link]]))
 

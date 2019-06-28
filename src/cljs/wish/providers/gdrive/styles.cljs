@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Gdrive config styles"}
   wish.providers.gdrive.styles
-  (:require [cljs-css-modules.macro :refer [defstyle]]
-            [wish.style :refer-macros [defclass defstyled]]))
+  (:require [wish.style :refer-macros [defclass defstyled]]))
 
 (defstyled signin-button
   {:cursor 'pointer

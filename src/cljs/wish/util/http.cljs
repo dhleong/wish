@@ -1,7 +1,6 @@
 (ns ^{:author "Daniel Leong"
       :doc "core.async http wrapper"}
   wish.util.http
-  (:require-macros [wish.util.log :refer [log]])
   (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
             [ajax.core :as ajax]))
 

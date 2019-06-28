@@ -335,7 +335,7 @@
 ; ======= file picker ======================================
 
 (defn- do-pick-file
-  [{:keys [mimeType description props]}]
+  [{:keys [description props]}]
   ; NOTE: I don't love using camel case in my clojure code,
   ; but since we're using it everywhere else for easier compat
   ; with google docs, let's just use it here for consistency.
@@ -400,7 +400,7 @@
 ; ======= file loading ====================================
 
 (defn- do-load-raw [id]
-  (go (let [[err resp :as r] (<! (get-file id))]
+  (go (let [[err :as r] (<! (get-file id))]
         (if err
           (let [status (.-status err)]
             (log/err "ERROR loading " id err)

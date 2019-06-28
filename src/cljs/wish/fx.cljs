@@ -2,8 +2,7 @@
       :doc "fx"}
   wish.fx
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [clojure.string :as str]
-            [re-frame.core :refer [reg-fx]]
+  (:require [re-frame.core :refer [reg-fx]]
             [re-pressed.core :as rp]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.db :as db]
@@ -31,7 +30,7 @@
 
 (reg-fx
   ::update-keymaps
-  (fn [[[page-id :as page] sheet-kind]]
+  (fn [[[page-id :as _] sheet-kind]]
     (let [new-keymaps
           (case page-id
             :sheet (sheets/get-keymaps sheet-kind)

@@ -19,7 +19,6 @@
                                                spell-tags]]
             [wish.util :refer [<sub >evt click>evt click>evts click>swap!
                                dec-dissoc toggle-in]]
-            [wish.views.util :refer [dispatch-change-from-keyup]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text link]]
@@ -118,7 +117,7 @@
                         :id :ability-tmp}]]
 
        {:get #(get-in (<sub [:meta/sheet]) [:ability-tmp id])
-        :save! (fn [path v]
+        :save! (fn [_path v]
                  (>evt [:update-meta
                         [:sheet :ability-tmp]
                         assoc id v]))}]]]))
@@ -127,7 +126,7 @@
 ; ======= hit points =======================================
 
 (defn- condition-widget
-  [[id level] on-delete]
+  [[id level] _on-delete]
   (let [c (get data/conditions id)]
     [:div.condition
      [expandable
@@ -190,8 +189,7 @@
       ]]))
 
 (defn hp-overlay []
-  (let [[starting-hp _] (<sub [::subs/hp])
-        state (r/atom {})]
+  (let [state (r/atom {})]
     (fn []
       (let [[hp max-hp] (<sub [::subs/hp])
             {:keys [heal damage]} @state
@@ -496,9 +494,9 @@
     [spell-tags s]]] )
 
 (defn- spell-block
-  [s {:keys [selectable?
-             source-list
-             verb]}]
+  [_s {:keys [_selectable?
+              _source-list
+              _verb]}]
 
   (let [expanded? (r/atom false)]
     (fn [s {:keys [selectable?
@@ -914,8 +912,7 @@
   (let [state (r/atom {})]
     (fn []
       (let [{primary-class :class
-             choices :choices
-             :as info} (<sub [::subs/starting-eq])
+             choices :choices} (<sub [::subs/starting-eq])
             this-state @state]
         [:div styles/starting-equipment-overlay
          [:h5 (:name primary-class) " Starting Equipment"]

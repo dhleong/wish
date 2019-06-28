@@ -1,10 +1,7 @@
 (ns wish.views
   (:require
-   [re-frame.core :as re-frame]
-   [re-pressed.core :as rp]
    [wish.providers :as providers]
    [wish.sheets :as sheets]
-   [wish.subs :as subs]
    [wish.util :refer [<sub click>evt]]
    [wish.views.error-boundary :refer [error-boundary]]
    [wish.views.campaign-browser :as campaign-browser]

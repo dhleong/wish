@@ -11,7 +11,6 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.sheets.dnd5e.util :refer [with-range]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [formatted-text link>evt]]))
@@ -98,7 +97,7 @@
                       :min 0}]
 
     {:get #(<sub [::subs/item-quantity (:id item)])
-     :save! (fn [path v]
+     :save! (fn [_path v]
               (>evt [:inventory-set-amount item v]))}]
 
    [:a.modify {:href "#"
@@ -260,7 +259,7 @@
        (opt-row s :duration "Duration")
        (opt-row s spell-tags "Properties")
 
-       (when-let [dice (:dice s)]
+       (when (:dice s)
          (let [{:keys [damage]} s
                dice-value (invoke-callable
                             (update s :spell-mod #(or % "(spell mod)"))
@@ -361,7 +360,6 @@
                  ; since we need to skip over fully-used
                  ; slot levels :\
                  (let [slots (<sub [::subs/usable-slots-for s])
-                       max-level (->> slots last :level)
                        old-index (->> slots
                                       (keep-indexed
                                         (fn [i {:keys [level]}]

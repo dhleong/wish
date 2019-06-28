@@ -2,7 +2,6 @@
       :doc "builder"}
   wish.sheets.dnd5e.builder
   (:require-macros [wish.util :refer [fn-click]]
-                   [wish.util.log :refer [log]]
                    [wish.views.widgets :refer [icon]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
@@ -236,7 +235,7 @@
 (defn feature-options-selection [sub-vector extra-info]
   (if-let [features (seq (<sub sub-vector))]
     [:div feature-options-style
-     (for [[feature-id f :as entry] features]
+     (for [[feature-id f] features]
        (let [instance-id (or (:wish/instance-id f)
                              feature-id)
              ;; extra-info (dissoc source-info :features :limited-uses :&levels)
@@ -497,12 +496,12 @@
                                :id ability}
             (for [[score cost] data/score-point-cost]
               [:option {:key score
-                        :visible? (fn [doc]
+                        :visible? (fn [_doc]
                                     (let [available (<sub [::subs/point-buy-remaining])
                                           delta (<sub [::subs/point-buy-delta ability cost])]
                                       (>= (+ available delta)
                                           0)))
-                        :content (fn [doc]
+                        :content (fn [_doc]
                                    (let [delta (<sub [::subs/point-buy-delta ability cost])
                                          delta-mod (if (> delta 0)
                                                      "+"

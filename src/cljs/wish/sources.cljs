@@ -31,7 +31,7 @@
       directives)))
 
 (defn- compile-raw-source
-  [{:keys [kind] :as sheet} id raw]
+  [{:keys [kind]} id raw]
   (let [directives (if (= (subs raw 0 2) "[[")
                      (do
                        (log "Read transit for " id)
