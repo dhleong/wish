@@ -1409,7 +1409,7 @@
 (reg-sub
   ::preparable-spell-list
 
-  (fn [[_ spellcaster list-id]]
+  (fn [[_ spellcaster _list-id]]
     [(subscribe [:sheet-source])
      (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id spellcaster)])
@@ -1976,12 +1976,12 @@
 
 (reg-sub
   ::available-feature-options
-  (fn [[_ source-sub feature-id instance-id]]
+  (fn [[_ source-sub _feature-id instance-id]]
     [(subscribe source-sub)
      (subscribe [:options-> (if (seq? instance-id)
                               instance-id
                               [instance-id])])])
-  (fn [[features options] [_ _ feature-id instance-id]]
+  (fn [[features options] [_ _ feature-id _instance-id]]
     ; options are available either if we have it selected,
     ; or if it is explicitly available. This way, feature options
     ; that are shared across features but which should not be
@@ -2033,7 +2033,7 @@
     {}
     keyseq))
 
-(defmulti unpack-eq-choices (fn [source packs choices]
+(defmulti unpack-eq-choices (fn [_source _packs choices]
                               (cond
                                 (vector? choices) :and
                                 (list? choices) :or
@@ -2050,7 +2050,7 @@
   [source packs choices]
   [:and (map (partial unpack-eq-choices source packs) choices)])
 (defmethod unpack-eq-choices :filter
-  [source packs choices]
+  [source _ choices]
   (if-let [id (:id choices)]
     ; single item with a :count
     [:count (src/find-item source id) (:count choices)]
@@ -2124,11 +2124,10 @@
 (reg-sub
   ::features-for
   (fn [[_ sub-vec]]
-    [(subscribe [:sheet-source])
-     (subscribe sub-vec)
+    [(subscribe sub-vec)
      (subscribe [:meta/options])
      (subscribe [::selected-option-ids])])
-  (fn [[data-source sources options selected-options]]
+  (fn [[sources options selected-options]]
     (->> sources
          ; the sub-vec :class-features or :race-features
          ; returns a seq of map entries; we just want the values

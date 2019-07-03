@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "dev-server"}
   wish.dev-server
-  (:require [clojure.java.io :as io]
-            [compojure.route :as route]
+  (:require [compojure.route :as route]
             [compojure.core :refer [GET ANY defroutes]]
             [ring.middleware.defaults :refer [wrap-defaults site-defaults]]
             [ring.util.response :as response]))

@@ -49,7 +49,7 @@
   :<- [:provider-states]
   (fn [states _]
     (->> states
-         (remove (fn [[k v]]
+         (remove (fn [[k _]]
                    (= :wish k))))))
 
 (reg-sub
@@ -70,7 +70,7 @@
         ; hasn't yet been called/finished executing
         (empty? (:provider-states db))
 
-        (some (fn [[id state]]
+        (some (fn [[_id state]]
                 (nil? state))
               (:provider-states db)))))
 
@@ -348,7 +348,7 @@
 
        ; remove features that only the primary class should have
        ; if we're not the primary
-       (remove (fn [[id f :as entry]]
+       (remove (fn [[_id f :as entry]]
                  (when (:primary-only? f)
                    (let [primary? (->> entry
                                        meta

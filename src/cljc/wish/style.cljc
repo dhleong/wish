@@ -28,7 +28,7 @@
           [(into [root-key] styles)])))))
 
 (defn- prepare-style
-  [style-id [fst :as style]]
+  [style-id [_fst :as style]]
   ; based on the default css/defstyle, but without server support
   ; because we don't use it, and a bit more opinionated because it's
   ; easier—in particular: the optional first map is never a compiler

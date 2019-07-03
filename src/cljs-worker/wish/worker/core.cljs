@@ -281,14 +281,14 @@
                (.addAll cache files-to-cache)))
       (.then #(log "Successfully installed!"))))
 
-(defn activate-service-worker [ev]
+(defn activate-service-worker [_ev]
   (log/info "Activated.")
   (purge-old-caches))
 
 
 ; ======= message receiver ================================
 
-(defn receive! [client [msg-type & args :as msg]]
+(defn receive! [client [msg-type & _args :as msg]]
   (log "SW.receive! " msg-type)
   (case msg-type
     :ready (when-let [last-modified @shell-last-modified-changed]

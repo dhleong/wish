@@ -9,10 +9,8 @@
             [wish.fx :as fx]
             [wish.inventory :as inv]
             [wish.push :as push]
-            [wish.providers :as providers]
             [wish.sheets.util :refer [update-uses update-sheet update-sheet-path
                                       unpack-id]]
-            [wish.subs-util :refer [active-sheet-id]]
             [wish.util :refer [invoke-callable]]))
 
 (reg-event-fx
