@@ -35,7 +35,10 @@
       candidate)))
 
 (defn inject-preferred-id [vec preferred-sheet-id]
-  (if preferred-sheet-id
+  ; NOTE: things *seemed* to work fine without the id-sub? check, but it's
+  ; probably a good idea to not just insert it into every subscription vec
+  (if (and preferred-sheet-id
+           (id-sub? vec))
     (conj vec preferred-sheet-id)
     vec))
 
@@ -79,8 +82,7 @@
                     ; multiple sugar pairs
                     (let [pairs (partition 2 input-args)
                           markers (map first pairs)
-                          vecs (map last pairs)
-                          any-id-subs? (some id-sub? vecs)]
+                          vecs (map last pairs)]
                       (when-not (and (every? #{:<-} markers) (every? vector? vecs))
                         (log/err err-header "expected pairs of :<- and vectors, got:" pairs))
 
