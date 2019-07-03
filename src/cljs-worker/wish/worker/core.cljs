@@ -78,7 +78,7 @@
                                (.abort abort-controller)
                                (preject (js/Error.
                                           "Request failed (network delay / timed out)")))
-                             default-network-timeout-ms)]
+                             timeout-ms)]
          (-> (js/fetch req
                        #js {:signal (.-signal abort-controller)
 
