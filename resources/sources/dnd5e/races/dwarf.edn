@@ -56,6 +56,7 @@
 
   :+features
   [{:id :dwarf/dwarven-toughness
+    :name "Dwarven Toughness"
     :desc "Your hit point maximum increases by 1 and increases by 1 again every time you gain a level."
     :! [[:!provide-attr
          [:buffs :hp-max :dwarf/dwarven-toughness]
