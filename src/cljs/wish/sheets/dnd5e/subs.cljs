@@ -155,12 +155,15 @@
   ::buffs
   :<- [::ability-modifiers]
   :<- [:total-level]
-  :<- [:classes]
   :<- [:races]
-  (fn [[modifiers total-level classes races] [_ buff-id]]
-    (->> classes
+  :<- [:classes]
+  :<- [::attuned-eq]
+  (fn [[modifiers total-level races & entity-lists] [_ buff-id]]
+    (->> entity-lists
+
          ; NOTE some racial abilities buff based on the total class level
          (concat (map #(assoc % :level total-level) races))
+
          flatten
          (map (fn [entity]
                 (let [buffs (->> entity :attrs :buffs buff-id)]
@@ -270,7 +273,7 @@
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
   :<- [::save-proficiencies]
-  :<- [::save-buffs]
+  :<- [::buffs :saves]
   (fn [[modifiers prof-bonus save-proficiencies save-buffs]]
     (reduce-kv
       (fn [m ability modifier]
@@ -547,18 +550,6 @@
          (map (comp keyword name first))
          (into #{}))))
 
-; returns a const number
-(reg-sub
-  ::save-buffs
-  :<- [:races]
-  :<- [:classes]
-  :<- [::attuned-eq]
-  (fn [entity-lists _]
-    (->> entity-lists
-         flatten
-         (mapcat (comp vals :saves :buffs :attrs))
-         (apply +))))
-
 (def ^:private static-resistances
   #{:acid :cold :fire :lightning :poison})
 
@@ -714,21 +705,10 @@
 (reg-sub
   ::speed
   :<- [:race]
-  :<- [:classes]
-  (fn [[race classes]]
-    (apply +
-           (-> race :attrs :5e/speed)
-           (->> classes
-                (map (juxt (comp vals :speed :buffs :attrs)
-                           :level))
-                (mapcat
-                  (fn [[values level]]
-                    (map
-                      (fn [v]
-                        (if (number? v)
-                          v
-                          (v {:level level})))
-                      values)))))))
+  :<- [::buffs :speed]
+  (fn [[race buffs]]
+    (+ (-> race :attrs :5e/speed)
+       buffs)))
 
 
 ; ======= combat ===========================================
