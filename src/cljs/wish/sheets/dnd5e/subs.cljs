@@ -730,15 +730,13 @@
   :<- [:classes]
   :<- [::attuned-eq]
   :<- [::ability-modifiers]
+  :<- [::buffs :ac]
   :<- [::armor-equipped?]
-  (fn [[classes equipped modifiers armor? shield?]]
+  :<- [::shield-equipped?]
+  (fn [[classes equipped modifiers ac-buff armor? shield?]]
     (let [ac-sources (->> (concat classes
                                   equipped)
                           (mapcat (comp vals :5e/ac :attrs)))
-          ac-buff (->> (concat classes
-                               equipped)
-                       (mapcat (comp vals :ac :buffs :attrs))
-                       (apply +))
           fn-context {:modifiers modifiers
                       :armor? armor?
                       :shield? shield?}]
@@ -750,8 +748,7 @@
                 (+ 10
                    (:dex modifiers))
 
-                (map #(% fn-context) ac-sources)
-                )))))
+                (map #(% fn-context) ac-sources))))))
 
 (reg-sub
   ::initiative
