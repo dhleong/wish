@@ -142,6 +142,47 @@
   page-specific-sheet)
 
 
+; ======= utility subs ====================================
+
+(def ^:private compile-buff (memoize ->callable))
+(defn- compute-buff [entity buff-entry]
+  ((compile-buff buff-entry) entity))
+
+; the ::buffs sub takes a single :buff type ID (not including an ability,
+; since some buffs depend on ability modifiers) and computes and combines
+; all attributed buffs across classes and races
+(reg-id-sub
+  ::buffs
+  :<- [::ability-modifiers]
+  :<- [:total-level]
+  :<- [:classes]
+  :<- [:races]
+  (fn [[modifiers total-level classes races] [_ buff-id]]
+    (->> classes
+         ; NOTE some racial abilities buff based on the total class level
+         (concat (map #(assoc % :level total-level) races))
+         flatten
+         (map (fn [entity]
+                (let [buffs (->> entity :attrs :buffs buff-id)]
+                  (cond
+                    (nil? buffs) 0
+                    (number? buffs) buffs
+                    (map? buffs) (reduce (fn [total b]
+                                           (+ total (compute-buff
+                                                      (assoc entity
+                                                             :modifiers modifiers)
+                                                      b)))
+                                         0
+                                         (vals buffs))
+
+                    :else (throw (js/Error.
+                                   (str "Unexpected buffs value for "
+                                        buff-id
+                                        ": " (type buffs)
+                                        " -> `" buffs "`")))))))
+         (apply +))))
+
+
 ; ======= class and level ==================================
 
 (reg-id-sub
@@ -169,6 +210,8 @@
   (fn [sheet]
     (:abilities sheet)))
 
+; NOTE: we compute these buffs by hand because we (potentially) need the
+; dependent sub to compute other buffs
 (reg-id-sub
   ::abilities-improvements
   :<- [:classes]
@@ -379,26 +422,6 @@
   ::temp-max-hp
   :temp-max-hp)
 
-(def ^:private compile-hp-buff (memoize ->callable))
-(reg-id-sub
-  ::max-hp-buffs
-  :<- [:race]
-  :<- [:classes]
-  (fn [entity-lists _]
-    (->> entity-lists
-         flatten
-         (map (juxt (comp vals :hp-max :buffs :attrs)
-                    identity))
-         (mapcat (fn [[hp-max-items entity]]
-                   (when hp-max-items
-                     (keep #(when %
-                              [% entity])
-                           hp-max-items))))
-         (map (fn [[hp-max entity]]
-                ((->callable hp-max)
-                 entity)))
-         (apply +))))
-
 (reg-id-sub
   ::max-hp-mode
   :<- [:meta/sheet]
@@ -478,7 +501,7 @@
      [::temp-max-hp]
      [::abilities]
      [:total-level]
-     [::max-hp-buffs]
+     [::buffs :hp-max]
      ])
   (fn [[base-max temp-max abilities total-level buffs]]
     (+ base-max
@@ -755,12 +778,14 @@
   :<- [::ability-modifiers]
   :<- [::skill-half-proficiencies]
   :<- [::proficiency-bonus]
-  (fn [[abilities half-proficiencies prof-bonus]]
-    ; TODO other initiative mods?
+  :<- [::buffs :initiative]
+  (fn [[abilities half-proficiencies prof-bonus buffs]]
     (+ (:dex abilities)
 
        (when (contains? half-proficiencies :initiative)
-         (Math/floor (/ prof-bonus 2))))))
+         (Math/floor (/ prof-bonus 2)))
+
+       buffs)))
 
 (def ^:private compile-attacks-per (memoize ->callable))
 (reg-sub
