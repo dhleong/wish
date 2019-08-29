@@ -1635,9 +1635,10 @@
           schedule (or (when (keyword? schedule)
                          (schedule spell-slot-schedules))
                        schedule)]
-      (when-not (= :none schedule)
+      (if-not (= :none schedule)
         {kind {:label label
-               :slots (get schedule level)}}))
+               :slots (get schedule level)}}
+        (select-keys spellcaster [:cantrips])))
 
     (let [std-level (apply
                       +
@@ -1680,22 +1681,27 @@
   (fn [spellcaster]
     (spell-slots [spellcaster])))
 
+(defn highest-spell-level-for-slots [slots]
+  (or (when (map? (:slots slots))
+        (some->> slots
+                 :slots
+
+                 ; highest spell level available
+                 keys
+                 (apply max)))
+
+      (when (> (some->> slots :cantrips second) 0)
+        0)))
+
 (reg-sub
   ::highest-spell-level-for-spellcaster-id
   (fn [[_ spellcaster-id]]
     (subscribe [::spell-slots-for-spellcaster-id spellcaster-id]))
-  (fn [spell-slots]
-    (->> spell-slots
-
-         ; only one slot type since there's only one class
-         vals
-         first
-
-         :slots
-
-         ; highest spell level available
-         keys
-         (apply max))))
+  (fn [slots-by-type]
+    (highest-spell-level-for-slots
+      ; NOTE: we only have one slot type to look at since we're looking
+      ; at a specific spellcaster type
+      (some->> slots-by-type vals first))))
 
 (reg-sub
   ::highest-spell-level

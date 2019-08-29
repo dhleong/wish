@@ -1,13 +1,13 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs :refer [knowable-spell-counts-for
-                                            level->proficiency-bonus
-                                            available-classes
-                                            available-slots
-                                            spell-slots
-                                            calculate-weapon
-                                            unpack-eq-choices
-                                            usable-slots-for]]
+            [wish.sheets.dnd5e.subs :as subs :refer [knowable-spell-counts-for
+                                                     level->proficiency-bonus
+                                                     available-classes
+                                                     available-slots
+                                                     spell-slots
+                                                     calculate-weapon
+                                                     unpack-eq-choices
+                                                     usable-slots-for]]
             [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as src :refer [->DataSource]]))
 
@@ -113,7 +113,7 @@
 
 (deftest spell-slots-test
   (testing "No slots"
-    (is (nil? (spell-slots [{:slots :none}]))))
+    (is (nil? (:slots (spell-slots [{:slots :none}])))))
   (testing "Single class, standard"
     (is (= (->standard {1 4, 2 3, 3 3, 4 1})
            (spell-slots [{:level 7}]))))
@@ -434,9 +434,26 @@
   (testing "All classes available to be primary"
     (is (= [{:id :rogue}
             {:id :pilot}]
-           (available-classes
+           (#'available-classes
              [{:id :rogue}
               {:id :pilot}]
              []  ; none selected
              nil ; none primary
              {})))))
+
+(defn- slots-at-level [schedule level]
+  {:slots (get-in subs/spell-slot-schedules [schedule level])})
+
+(deftest highest-spell-level-for-slots-test
+  (testing "Standard spell slots"
+    (is (= 1 (subs/highest-spell-level-for-slots
+               (slots-at-level :standard 1))))
+    (is (= 2 (subs/highest-spell-level-for-slots
+               (slots-at-level :standard 3))))
+    (is (= 5 (subs/highest-spell-level-for-slots
+               (slots-at-level :standard 10)))))
+
+  (testing "Cantrip-only slots"
+    (is (= 0 (subs/highest-spell-level-for-slots
+               {:cantrips [0 1]
+                :slots :none})))))
