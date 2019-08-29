@@ -51,6 +51,9 @@ A map of `spellcaster-id -> spellcaster-block` where `spellcaster-block` looks l
  :acquired-label "Spellbook"  ; label for the :acquired-spells list
  :acquires?-spells :<class>/acquires  ; id of a feature whose selected options provide
                                       ; available spells for an :acquires? spellcaster.
+ :prepared-spells :list-id  ; (optional) if present, the ID of feature on which to store
+                            ; the chosen spells when different from :spells. This is for
+                            ; spellcasters who use another class's spell list
  }
 ```
 

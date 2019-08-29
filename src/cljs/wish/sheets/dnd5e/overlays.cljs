@@ -578,9 +578,12 @@
         can-select-spells? (or (nil? spells-limit)
                                (< prepared-spells-count spells-limit))
         can-select-cantrips? (< prepared-cantrips-count cantrips-limit)
+        ; respect the :prepared-spells option if given
+        source-list (:prepared-spells spellcaster
+                                      available-list)
         spell-opts (assoc spellcaster
                           :verb prepare-verb
-                          :source-list available-list
+                          :source-list source-list
                           :selectable? (fn [{:keys [spell-level]}]
                                          (if (= 0 spell-level)
                                            can-select-cantrips?

@@ -1274,12 +1274,19 @@
                 spell-mods (get-in c [:attrs :spells caster-id])
 
                 ; if we acquire AND prepare spells, the source list is still
-                ; the same, but the we use the :acquires?-spells option-list
-                ; to determine which are actually prepared (the normal :spells
+                ; the same, but we use the :acquires?-spells option-list to
+                ; determine which are actually prepared (the normal :spells
                 ; list just indicates which spells are *acquired*)
-                spells-option (if (and acquires? prepares?)
+                spells-option (cond
+                                ; if an explicit list was provided, use it
+                                (:prepared-spells attrs)
+                                (:prepared-spells attrs)
+
+                                (and acquires? prepares?)
                                 (:acquires?-spells attrs)
-                                spells-list)
+
+                                ; the normal list
+                                :else spells-list)
 
                 ; FIXME it should actually be the intersection of acquired
                 ; and prepared, in case they un-learn a spell but forget

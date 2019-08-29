@@ -37,7 +37,8 @@
     {:cantrips [0 1]
      :slots :none
      :ability :int
-     :spells :wizard/spells-list}}}
+     :spells :wizard/spells-list
+     :prepared-spells :high-elf/cantrip}}}
 
   :+features
   [{:id :high-elf/cantrip
