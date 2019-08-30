@@ -122,57 +122,69 @@
            "Click here if you want to leave this campaign."]
           ])])))
 
+(defn- data-source [selected-source-ids {:keys [id] :as s}]
+  (let [sheet-id (<sub [:active-sheet-id])
+        selected? (contains? @selected-source-ids id)]
+    [:div
+     [:div.refresh-button
+      (if selected?
+        [link>evt [:reload-sheet-source! sheet-id id]
+         (icon :refresh)]
+
+        ; for spacing:
+        (icon :refresh.invisible))]
+
+     [:input {:id id
+              :name 'sources
+              :type 'checkbox
+              :on-change (fn [e]
+                           (let [m (if (.. e -target -checked)
+                                     conj
+                                     disj)]
+                             (swap! selected-source-ids
+                                    m
+                                    id)))
+              :checked selected?}]
+     [:label {:for id}
+      (:name s)]]))
+
 (defn data-source-manager []
-  (let [original-ids (<sub [:active-sheet-source-ids])
-        selected-source-ids (r/atom original-ids)]
-    (fn -data-source-manager []
-      (>evt [:query-data-sources])
-      (let [sheet-id (<sub [:active-sheet-id])
-            this-source-ids @selected-source-ids]
-        [:<>
-         [:h3 "Data Sources"]
-         [:div
-          (if-let [sources (<sub [:data-sources])]
-            (for [s sources]
-              (let [{:keys [id]} s]
-                ^{:key id}
-                [:div
-                 [:input {:id id
-                          :name 'sources
-                          :type 'checkbox
-                          :on-change (fn [e]
-                                       (let [m (if (.. e -target -checked)
-                                                 conj
-                                                 disj)]
-                                         (swap! selected-source-ids
-                                                m
-                                                id)))
-                          :checked (contains? this-source-ids id)}]
-                 [:label {:for id}
-                  (:name s)]]))
+  (r/with-let [original-ids (<sub [:active-sheet-source-ids])
+               selected-source-ids (r/atom original-ids)]
+    (>evt [:query-data-sources])
+    (let [sheet-id (<sub [:active-sheet-id])
+          this-source-ids @selected-source-ids]
+      [:<>
+       [:h3 "Data Sources"]
+       [:div
+        (if-let [sources (<sub [:data-sources])]
+          (for [{:keys [id] :as s} sources]
+            ^{:key id}
+            [data-source selected-source-ids s])
 
-            [:<> "No data sources available"])
-          (when-not (= original-ids this-source-ids)
-            [:<>
-             (when-not (some #(= "wish" (namespace %)) this-source-ids)
-               [:p.warning
-                "Warning! Removing the builtin data source may cause problems!"])
-             [:input {:type 'button
-                      :on-click (click>evt [:set-sheet-data-sources
-                                            sheet-id
-                                            this-source-ids])
-                      :value "Save Changes"}]])]
+          [:<> "No data sources available"])
 
-         [:h5 "Add New Data Source on:"]
-         [:div
+        (when-not (= original-ids this-source-ids)
+          [:<>
+           (when-not (some #(= "wish" (namespace %)) this-source-ids)
+             [:p.warning
+              "Warning! Removing the builtin data source may cause problems!"])
+           [:input {:type 'button
+                    :on-click (click>evt [:set-sheet-data-sources
+                                          sheet-id
+                                          this-source-ids])
+                    :value "Save Changes"}]])]
 
-          (for [[provider-id state] (<sub [:provider-states])]
-            ^{:key provider-id}
-            [:div
-             [:a {:href "#"
-                  :on-click (fn-click
-                              (providers/register-data-source provider-id))}
-              (:name (providers/get-info provider-id))]
-             (when (not= state :ready)
-               [link {:href (str "/providers/" (name provider-id) "/config")}
-                "Configure"])])]]))))
+       [:h5 "Add New Data Source on:"]
+       [:div
+
+        (for [[provider-id state] (<sub [:provider-states])]
+          ^{:key provider-id}
+          [:div
+           [:a {:href "#"
+                :on-click (fn-click
+                            (providers/register-data-source provider-id))}
+            (:name (providers/get-info provider-id))]
+           (when (not= state :ready)
+             [link {:href (str "/providers/" (name provider-id) "/config")}
+              "Configure"])])]])))

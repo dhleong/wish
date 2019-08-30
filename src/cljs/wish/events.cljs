@@ -386,6 +386,19 @@
               {:loaded? true
                :source source})))
 
+(reg-event-fx
+  :reload-sheet-source!
+  [trim-v]
+  (fn-traced [{:keys [db]} [sheet-id source-id]]
+    ; NOTE: this is a multi-step process:
+    ;  - unload the source from our cache
+    ;  - update the DB removing the :sheet-source
+    ;  - sheets/ensuring-loaded detects the missing
+    ;    source and triggers a load
+    {:sources/unload! source-id
+     :db (update db :sheet-sources dissoc sheet-id)}))
+
+
 ; Internal event triggered by the :schedule-save fx
 (reg-event-fx
   ::fx/save-sheet!

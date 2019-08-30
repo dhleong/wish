@@ -67,6 +67,8 @@
         (fn [[sheet sources]]
           (sources/load! sheet sources)))
 
+(reg-fx :sources/unload! sources/unload!)
+
 
 ; ======= Sheet persistence ================================
 

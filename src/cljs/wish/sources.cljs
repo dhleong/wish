@@ -122,3 +122,6 @@
                         (partial not= port)
                         source-chs)
                        new-resolved)))))))))
+
+(defn unload! [source-id]
+  (swap! loaded-sources dissoc source-id))
