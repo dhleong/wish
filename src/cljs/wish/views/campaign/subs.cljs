@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Campaign-specific subs"}
   wish.views.campaign.subs
-  (:require [re-frame.core :refer [reg-sub subscribe]]))
+  (:require [re-frame.core :refer [reg-sub]]))
 
 (reg-sub
   ::add-char-candidates
