@@ -63,7 +63,11 @@
                           ["cljsbuild" "once" "min"]
                           ["cljsbuild" "once" "worker-min"]
                           ["less" "once"]]
-            "test" ["do" "test"
+            "lint" ["run" "-m" "clj-kondo.main"
+                    "--lint" "src"
+                    "--config" "{:linters {:unresolved-symbol {:level :off}}}"]
+            "test" ["do" "lint"
+                         "test"
                          ["doo" "chrome-headless" "test" "once"]]}
 
   :profiles
@@ -73,6 +77,7 @@
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.18"]
                    [cider/piggieback "0.4.1"]
+                   [clj-kondo "2019.06.29-alpha"]
 
                    [ring "1.7.1"]
                    [ring/ring-defaults "0.3.2"]
