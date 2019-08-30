@@ -21,7 +21,7 @@
                                dec-dissoc toggle-in]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [expandable formatted-text link]]
+             :refer [expandable formatted-text]]
             [wish.views.widgets.fast-numeric]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 

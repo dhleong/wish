@@ -10,7 +10,7 @@
             [wish.providers :as providers]
             [wish.sheets :as sheets]
             [wish.sources.compiler :refer [compile-directives]]
-            [wish.sources.core :as sources :refer [IDataSource ->DataSource id]]
+            [wish.sources.core :as sources :refer [->DataSource id]]
             [wish.sources.composite :refer [composite-source]]
             [wish.util :refer [>evt]]))
 

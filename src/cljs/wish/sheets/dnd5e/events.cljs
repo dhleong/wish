@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e-specific events"}
   wish.sheets.dnd5e.events
-  (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
+  (:require [re-frame.core :refer [reg-event-db reg-event-fx
                                    trim-v]]
-            [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+            [day8.re-frame.tracing :refer-macros [fn-traced]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
             [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
@@ -12,8 +12,9 @@
 
 ; ======= 5e-specific nav =================================
 
-(defn- page-nav [nav-key]
+(defn- page-nav
   "Create the event-db fn that navigates with the given nav-key"
+  [nav-key]
   (fn-traced [db [new-page]]
     (let [sheet-id (active-sheet-id db)]
       (assoc-in db [nav-key sheet-id] new-page))))

@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "core.async http wrapper"}
   wish.util.http
-  (:require [clojure.core.async :refer [chan put! to-chan <! >!]]
+  (:require [clojure.core.async :refer [chan put!]]
             [ajax.core :as ajax]))
 
 (defn GET

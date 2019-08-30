@@ -4,7 +4,7 @@
   (:require [wish.sources.compiler :refer [install-features]]
             [wish.sources.compiler.race :refer [install-deferred-subraces]]
             [wish.sources.core :refer [->CompositeDataSource ->DataSource raw]]
-            [wish.util :refer [->set process-map]]))
+            [wish.util :refer [process-map]]))
 
 ; ======= last-step deferred combinations =================
 

@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Google Drive powered Provider"}
   wish.providers.gdrive
-  (:require-macros [cljs.core.async :refer [go go-loop]]
+  (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :refer [promise-chan close! put! to-chan <!]]

@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "notifiers"}
   wish.views.notifiers
-  (:require [wish.util :refer [>evt <sub]]
+  (:require [wish.util :refer [<sub]]
             [wish.views.widgets :refer [icon link>evt]]))
 
 (defn notifier

@@ -77,7 +77,7 @@
                    [day8.re-frame/tracing "0.5.1"]
                    [figwheel-sidecar "0.5.18"]
                    [cider/piggieback "0.4.1"]
-                   [clj-kondo "2019.06.29-alpha"]
+                   [clj-kondo "2019.08.21-alpha"]
 
                    [ring "1.7.1"]
                    [ring/ring-defaults "0.3.2"]

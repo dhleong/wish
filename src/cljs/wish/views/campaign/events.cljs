@@ -1,11 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Campaign-specific events"}
   wish.views.campaign.events
-  (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
-                                   path
-                                   inject-cofx trim-v]]
-            [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+  (:require-macros [wish.util.log :as log])
+  (:require [re-frame.core :refer [reg-event-fx trim-v]]
+            [day8.re-frame.tracing :refer-macros [fn-traced]]
             [wish.sheets.util :refer [update-sheet-path]]))
 
 ;; can also be passed nil to leave a campaign

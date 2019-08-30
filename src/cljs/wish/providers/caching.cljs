@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "caching"}
   wish.providers.caching
-  (:require-macros [cljs.core.async :refer [go go-loop]]
+  (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [alt! chan close! timeout put! <! >!]]
+  (:require [clojure.core.async :refer [alt! chan close! timeout <! >!]]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.providers.core :as provider :refer [IProvider signed-out-err?]]
             [wish.sheets.util :refer [make-id]]

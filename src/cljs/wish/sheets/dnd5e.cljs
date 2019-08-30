@@ -1,11 +1,10 @@
 (ns ^{:author "Daniel Leong"
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
-  (:require-macros [wish.util :refer [fn-click]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
-            [wish.util :refer [>evt <sub click>evt click>reset!
+            [wish.util :refer [>evt <sub click>evt
                                invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
@@ -13,7 +12,7 @@
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.util :refer [ability->mod equippable? mod->str]]
+            [wish.sheets.dnd5e.util :refer [equippable? mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
                                                cast-button
                                                currency-preview

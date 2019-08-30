@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async.macros :refer [go]]
                    [wish.util :refer [fn-click]]
                    [wish.util.log :as log])
-  (:require [clojure.core.async :refer [chan <!]]
+  (:require [clojure.core.async :refer [<!]]
             [clojure.string :as str]
             [reagent.core :as r]
             [wish.providers :as providers]

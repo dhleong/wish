@@ -1,10 +1,10 @@
 (ns ^{:author "Daniel Leong"
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
-  (:require-macros [wish.util.log :as log :refer [log]])
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
-            [wish.sources.core :as src :refer [expand-list find-class find-race]]
+            [wish.sources.core :as src :refer [expand-list]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw

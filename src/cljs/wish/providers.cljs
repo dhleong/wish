@@ -4,7 +4,6 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :as async :refer [<!]]
-            [clojure.string :as str]
             [cljs.reader :as edn]
             [wish.providers.caching :refer [with-caching]]
             [wish.providers.gdrive :as gdrive]

@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "DataSource compiler"}
   wish.sources.compiler
-  (:require-macros [wish.util.log :as log :refer [log]])
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.data :refer [diff]]
             [wish.sources.compiler.entity :refer [compile-entity]]
             [wish.sources.compiler.entity-mod :refer [apply-entity-mod merge-mods]]

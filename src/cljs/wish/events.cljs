@@ -1,16 +1,15 @@
 (ns wish.events
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [dispatch reg-event-db reg-event-fx
+  (:require [re-frame.core :refer [reg-event-db reg-event-fx
                                    path
                                    inject-cofx trim-v]]
-            [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+            [day8.re-frame.tracing :refer-macros [fn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.inventory :as inv]
             [wish.push :as push]
-            [wish.sheets.util :refer [update-uses update-sheet update-sheet-path
-                                      unpack-id]]
+            [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
             [wish.util :refer [invoke-callable]]))
 
 (reg-event-fx

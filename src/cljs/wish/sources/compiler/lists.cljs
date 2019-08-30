@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Lists"}
   wish.sources.compiler.lists
-  (:require-macros [wish.util.log :as log :refer [log]])
+  (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [wish.sources.core :as src]
             [wish.sources.compiler.entity :refer [compile-entity]]

@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign-browser"}
   wish.views.campaign-browser
-  (:require [wish.util :refer [>evt <sub]]
+  (:require [wish.util :refer [<sub]]
             [wish.util.nav :refer [campaign-url]]
             [wish.views.widgets :refer [icon link]]))
 

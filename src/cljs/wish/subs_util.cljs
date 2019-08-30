@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "subs-util"}
   wish.subs-util
-  (:require-macros [wish.util.log :as log :refer [log]])
+  (:require-macros [wish.util.log :as log])
   (:require [re-frame.core :refer [reg-sub subscribe]]
             [wish.providers.util :refer [provider-id?]]))
 

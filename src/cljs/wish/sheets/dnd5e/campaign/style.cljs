@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign.style"}
   wish.sheets.dnd5e.campaign.style
-  (:require [wish.style :refer [defclass defstyled]]
+  (:require [wish.style :refer [defstyled]]
             [wish.style.flex :as flex :refer [flex]]))
 
 (defstyled char-card

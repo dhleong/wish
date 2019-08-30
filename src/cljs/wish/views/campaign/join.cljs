@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Join a campaign as a player"}
   wish.views.campaign.join
-  (:require [wish.util :refer [<sub >evt click>evts]]
+  (:require [wish.util :refer [click>evts]]
             [wish.util.nav :refer [sheet-url]]
             [wish.views.campaign.events :as events]))
 

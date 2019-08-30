@@ -6,7 +6,7 @@
             [wish.sheets.dnd5e.campaign.style :as style]
             [wish.views.campaign.base :as base]
             [wish.views.campaign.hp-bar :refer [hp-bar]]
-            [wish.util :refer [<sub >evt]]))
+            [wish.util :refer [<sub]]))
 
 (defn char-card [{:keys [id] :as c}]
   [:div style/char-card

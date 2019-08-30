@@ -11,7 +11,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
-            [wish.style :refer-macros [defclass defstyled]]
+            [wish.style :refer-macros [defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [campaign-manager

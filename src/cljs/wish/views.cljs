@@ -6,7 +6,6 @@
    [wish.views.error-boundary :refer [error-boundary]]
    [wish.views.campaign-browser :as campaign-browser]
    [wish.views.campaign.join :as join-campaign]
-   [wish.views.error-boundary :refer [error-boundary]]
    [wish.views.home :refer [home]]
    [wish.views.new-campaign :as new-campaign]
    [wish.views.new-sheet :refer [new-sheet-page]]
@@ -14,7 +13,7 @@
    [wish.views.sheet-browser :as sheet-browser]
    [wish.views.splash :as splash]
    [wish.views.notifiers :refer [notifiers]]
-   [wish.views.widgets :refer [link] :refer-macros [icon]]
+   [wish.views.widgets :refer-macros [icon]]
    [wish.views.widgets.media-tracker :refer [media-tracker]]
    ))
 
