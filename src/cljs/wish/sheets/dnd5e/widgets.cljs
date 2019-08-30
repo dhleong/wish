@@ -240,7 +240,9 @@
         max-level (->> all-slots last :level)
         {cast-level :level} (<sub [::subs/usable-slot-for s])
         spell-level (max cast-level spell-level)
-        s (assoc s :spell-level spell-level)
+        s (-> s
+              (assoc :spell-level spell-level)
+              (update :spell-mod #(or % "(spell mod)")))
         upcast? (not= spell-level base-level)
         upcast-class {:class (when upcast?
                                "upcast")}]
@@ -261,9 +263,7 @@
 
        (when (:dice s)
          (let [{:keys [damage]} s
-               dice-value (invoke-callable
-                            (update s :spell-mod #(or % "(spell mod)"))
-                            :dice)
+               dice-value (invoke-callable s :dice)
                base-dice (if (not= spell-level base-level)
                            (invoke-callable
                              (-> s

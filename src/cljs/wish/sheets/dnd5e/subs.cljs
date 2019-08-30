@@ -1250,120 +1250,136 @@
   (fn [counts [_ class-id]]
     (get counts class-id)))
 
+; NOTE: this function is an absolute beast, and could benefit from
+; some unit testing for sure, and probably some refactoring. It's
+; responsible for handling all the possible caster types, different
+; ways of acquiring spells (IE: in spellbook, provided by class
+; features, etc)
+(defn inflate-prepared-spells-for-caster
+  [total-level data-source modifiers
+   attack-bonuses spell-buffs options
+   caster-attrs]
+  (let [attrs caster-attrs
+        caster-id (:id attrs)
+        c (:wish/container attrs)
+        {:keys [acquires? prepares?]} attrs
+        spells-list (:spells attrs)
+        extra-spells-list (:extra-spells attrs)
+
+        ; NOTE: we namespace spell mods by the class/race id in case
+        ; we ever want to combine all :attrs of a character into
+        ; a single map.
+        spell-mods (get-in c [:attrs :spells caster-id])
+
+        ; if we acquire AND prepare spells, the source list is still
+        ; the same, but we use the :acquires?-spells option-list to
+        ; determine which are actually prepared (the normal :spells
+        ; list just indicates which spells are *acquired*)
+        spells-option (cond
+                        ; if an explicit list was provided, use it
+                        (:prepared-spells attrs)
+                        (:prepared-spells attrs)
+
+                        (and acquires? prepares?)
+                        (:acquires?-spells attrs)
+
+                        ; the normal list
+                        :else spells-list)
+
+        ; FIXME it should actually be the intersection of acquired
+        ; and prepared, in case they un-learn a spell but forget
+        ; to un-prepare it. This is an edge case, but we should
+        ; be graceful about it. Alternatively, unlearning a spell
+        ; should also eagerly un-prepare it.
+
+        ; all spells from the extra-spells list
+        ; NOTE: because extra spells are provided
+        ; by features and levels, we can't find them
+        ; in the data source.
+        ; ... unless it's a collection of spell ids
+        extra-spells (or (get-in c [:lists extra-spells-list])
+                         (when (coll? extra-spells-list)
+                           (map (partial
+                                  src/find-list-entity
+                                  data-source)
+                                extra-spells-list)))
+
+        ; extra spells are always prepared
+        extra-spells (->> extra-spells
+                          (map #(assoc % :always-prepared? true)))
+
+        selected-spell-ids (get options spells-option [])
+
+        ; only selected spells from the main list (including those
+        ; added by class features, eg warlock)
+        selected-spells (concat
+                          (expand-list data-source spells-list
+                                       selected-spell-ids)
+
+                          ; for class features: (if selected)
+                          (->>
+                            (get-in attrs [:wish/container :lists spells-list])
+                            (filter (comp selected-spell-ids :id))))
+
+        ; for :acquires? spellcasters, their acquired
+        ; cantrips are always prepared
+        selected-spells (if acquires?
+                          (->> (expand-list data-source spells-list
+                                            (get options spells-list []))
+                               (filter #(= 0 (:spell-level %)))
+                               (map #(assoc % :always-prepared? true))
+
+                               ; plus manually prepared spells
+                               (concat selected-spells))
+
+                          selected-spells)]
+
+    (->> (concat
+           extra-spells
+           selected-spells)
+
+         (map #(-> %
+                   (assoc
+                     ::source caster-id
+                     :total-level total-level
+                     :spell-mod (get modifiers caster-id)
+                     :save-label (when-let [k (:save %)]
+                                   (str/upper-case
+                                     (name k)))
+
+                     :buffs (if (:damage %)
+                              (:dmg spell-buffs)
+                              (:healing spell-buffs))
+
+                     ; save dc is attack modifier + 8
+                     :save-dc (+ (get attack-bonuses caster-id)
+                                 8))
+                   (merge (get spell-mods (:id %)))))
+
+         ; sort by level, then name
+         (sort-by (juxt :spell-level :name)))))
+
 (reg-sub
   ::prepared-spells-by-class
   :<- [::spellcaster-blocks]
+  :<- [:total-level]
   :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
   :<- [::spell-buffs]
   :<- [:meta/options]
-  (fn [[spellcasters data-source modifiers attack-bonuses spell-buffs options]]
-    (when (seq spellcasters)
-      (reduce
-        (fn [m attrs]
-          (let [caster-id (:id attrs)
-                c (:wish/container attrs)
-                {:keys [acquires? prepares?]} attrs
-                spells-list (:spells attrs)
-                extra-spells-list (:extra-spells attrs)
-
-                ; NOTE: we namespace spell mods by the class/race id in case
-                ; we ever want to combine all :attrs of a character into
-                ; a single map.
-                spell-mods (get-in c [:attrs :spells caster-id])
-
-                ; if we acquire AND prepare spells, the source list is still
-                ; the same, but we use the :acquires?-spells option-list to
-                ; determine which are actually prepared (the normal :spells
-                ; list just indicates which spells are *acquired*)
-                spells-option (cond
-                                ; if an explicit list was provided, use it
-                                (:prepared-spells attrs)
-                                (:prepared-spells attrs)
-
-                                (and acquires? prepares?)
-                                (:acquires?-spells attrs)
-
-                                ; the normal list
-                                :else spells-list)
-
-                ; FIXME it should actually be the intersection of acquired
-                ; and prepared, in case they un-learn a spell but forget
-                ; to un-prepare it. This is an edge case, but we should
-                ; be graceful about it. Alternatively, unlearning a spell
-                ; should also eagerly un-prepare it.
-
-                ; all spells from the extra-spells list
-                ; NOTE: because extra spells are provided
-                ; by features and levels, we can't find them
-                ; in the data source.
-                ; ... unless it's a collection of spell ids
-                extra-spells (or (get-in c [:lists extra-spells-list])
-                                 (when (coll? extra-spells-list)
-                                   (map (partial
-                                          src/find-list-entity
-                                          data-source)
-                                        extra-spells-list)))
-
-                ; extra spells are always prepared
-                extra-spells (->> extra-spells
-                                  (map #(assoc % :always-prepared? true)))
-
-                selected-spell-ids (get options spells-option [])
-
-                ; only selected spells from the main list (including those
-                ; added by class features, eg warlock)
-                selected-spells (concat
-                                  (expand-list data-source spells-list
-                                               selected-spell-ids)
-
-                                  ; for class features: (if selected)
-                                  (->>
-                                    (get-in attrs [:wish/container :lists spells-list])
-                                    (filter (comp selected-spell-ids :id))))
-
-                ; for :acquires? spellcasters, their acquired
-                ; cantrips are always prepared
-                selected-spells (if acquires?
-                                  (->> (expand-list data-source spells-list
-                                                    (get options spells-list []))
-                                       (filter #(= 0 (:spell-level %)))
-                                       (map #(assoc % :always-prepared? true))
-
-                                       ; plus manually prepared spells
-                                       (concat selected-spells))
-
-                                  selected-spells)
-                ]
-
-            (assoc
-              m caster-id
-              (->> (concat
-                     extra-spells
-                     selected-spells)
-
-                   (map #(-> %
-                             (assoc
-                               ::source caster-id
-                               :spell-mod (get modifiers caster-id)
-                               :save-label (when-let [k (:save %)]
-                                             (str/upper-case
-                                               (name k)))
-
-                               :buffs (if (:damage %)
-                                        (:dmg spell-buffs)
-                                        (:healing spell-buffs))
-
-                               ; save dc is attack modifier + 8
-                               :save-dc (+ (get attack-bonuses caster-id)
-                                           8))
-                             (merge (get spell-mods (:id %)))))
-
-                   ; sort by level, then name
-                   (sort-by (juxt :spell-level :name))))))
-        {}
-        spellcasters))))
+  (fn [[spellcasters total-level data-source modifiers
+        attack-bonuses spell-buffs options]]
+    (some->> spellcasters
+             seq
+             (reduce
+               (fn [m {caster-id :id :as attrs}]
+                 (assoc m caster-id
+                        (inflate-prepared-spells-for-caster
+                          total-level data-source modifiers
+                          attack-bonuses spell-buffs options
+                          attrs)))
+               {}))))
 
 ; just (get [::prepared-spells-by-class] class-id)
 (reg-sub
