@@ -540,6 +540,11 @@
                        (= :acquisition mode) "Acquire"
                        prepares? "Prepare"
                        :else "Learn")
+        prepared-verb (cond
+                        ; TODO we could add an :acquired-verb...
+                        (= :acquisition mode) "acquired"
+                        prepares? "prepared"
+                        :else "learned")
 
         title (case mode
                 :default (str "Manage "
@@ -572,6 +577,10 @@
         all-prepared (<sub [::subs/my-prepared-spells-by-type (:id spellcaster)])
         prepared-spells-count (count (:spells all-prepared))
         prepared-cantrips-count (count (:cantrips all-prepared))
+        total-spells-count (when (and (not spells-limit)
+                                      acquires?)
+                             (<sub [::subs/acquired-spells-count
+                                    available-list]))
 
         spells (<sub [::subs/preparable-spell-list spellcaster available-list])
 
@@ -591,9 +600,13 @@
 
     [:div styles/spell-management-overlay
      [:h5 title
-      (when spells-limit
+      (if spells-limit
         [:div.limit
-         "Spells " prepared-spells-count " / " spells-limit])
+         "Spells " prepared-spells-count " / " spells-limit]
+        [:div.limit
+         "Spells (" (or total-spells-count
+                        prepared-spells-count)
+         " " prepared-verb ")"])
       (when (> cantrips-limit 0)
         [:div.limit
          "Cantrips " prepared-cantrips-count " / " cantrips-limit])]

@@ -1381,6 +1381,19 @@
                           attrs)))
                {}))))
 
+; count of explicitly acquired (IE not added by class features, etc.)
+; spells in the given spells-list
+(reg-sub
+  ::acquired-spells-count
+  :<- [:sheet-source]
+  :<- [:meta/options]
+  (fn [[data-source options] [_ spells-list]]
+    (let [selected-ids (get options spells-list)]
+      (->> (expand-list data-source spells-list
+                        selected-ids)
+           (filter #(not= 0 (:spell-level %)))
+           count))))
+
 ; just (get [::prepared-spells-by-class] class-id)
 (reg-sub
   ::prepared-spells
