@@ -72,3 +72,8 @@
   "Update the uses count for the given use-id"
   [cofx use-id f & args]
   (apply update-sheet-path cofx [:limited-uses use-id] f args))
+
+(defn get-uses
+  [{:keys [db]} use-id]
+  (when-let [sheet-id (active-sheet-id db)]
+    (get-in db [:sheets sheet-id :limited-uses use-id])))

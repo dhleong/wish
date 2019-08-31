@@ -6,8 +6,9 @@
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
-            [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
-                                      update-sheet-path]]))
+            [wish.sheets.util :refer [update-sheet update-in-sheet
+                                      update-sheet-path
+                                      get-uses update-uses]]))
 
 
 ; ======= 5e-specific nav =================================
@@ -135,6 +136,11 @@
     ; TODO use ::inject/sub not have to supply max-slots
     (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] inc)))
 
+(defn- build-effect-add-event [effect]
+  (cond
+    (keyword? effect) [:effect/add effect]
+    (vector? effect) (into [:effect/add] effect)))
+
 (reg-event-fx
   ::+use
   [trim-v]
@@ -143,15 +149,22 @@
       ; easy case
       {:dispatch-n (list [:+use (:id info) 1]
                          (when-let [effect (:adds-effect info)]
-                           (cond
-                             (keyword? effect) [:effect/add effect]
-                             (vector? effect) (into [:effect/add] effect))))}
+                           (build-effect-add-event effect)))}
 
       ; special case for spells
       {:dispatch [::use-spell-slot
                   (:slot-kind info)
                   (:slot-level info)
                   (:max-slots info)]})))
+
+(reg-event-fx
+  ::toggle-used
+  [trim-v]
+  (fn-traced [cofx [info]]
+    {:dispatch-n (list [:toggle-used (:id info)]
+                       (when-let [effect (:adds-effect info)]
+                         (when (= (get-uses cofx (:id info)) 0)
+                           (build-effect-add-event effect))))}))
 
 (reg-event-fx
   ::restore-spell-slot

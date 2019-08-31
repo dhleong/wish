@@ -563,7 +563,7 @@
   [:div.button
    {:class (when used?
              "selected")
-    :on-click (click>evt [:toggle-used (:id item)])}
+    :on-click (click>evt [::events/toggle-used item])}
    (if used?
      "Used"
      "Use")])
