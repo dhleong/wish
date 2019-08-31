@@ -366,7 +366,7 @@
       "Affected by: "
       (for [effect effects]
         ^{:key (:id effect)}
-        [link>evt [:toggle-overlay [#'overlays/info effect]]
+        [link>evt [:toggle-overlay [#'overlays/effect-info effect]]
          [:span.item
           (:name effect)]])])
 

@@ -103,6 +103,29 @@
         [item-quantity-manager entity])]) ])
 
 
+; ======= effects =========================================
+
+(defn effect-info [entity]
+  [:div styles/info-overlay
+   [:div.name (:name entity)]
+
+   (generic-info entity)
+
+   (when-let [d (:desc entity)]
+     [formatted-text :div.desc d])
+
+   (when-let [effects (seq (:effects entity))]
+     [:ul
+      (for [effect effects]
+        ^{:key effect}
+        [:li effect])])
+
+   [:div.button {:on-click (click>evts
+                             [:effect/remove (:id entity)]
+                             [:toggle-overlay nil])}
+    "End Effect"]])
+
+
 ; ======= ability info/tmp mods ============================
 
 (defn ability-tmp
