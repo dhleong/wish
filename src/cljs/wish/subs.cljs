@@ -309,6 +309,13 @@
       (src/list-entities source :effects))))
 
 (reg-id-sub
+  :all-effects/sorted
+  :<- [:all-effects]
+  (fn [effects _]
+    (sort-by :name effects)))
+
+
+(reg-id-sub
   :effects
   :<- [:sheet-meta]
   :<- [:sheet-source]

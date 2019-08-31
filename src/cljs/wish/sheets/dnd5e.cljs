@@ -575,7 +575,7 @@
    [:a.modify {:href "#"
                :class (when (<= uses-left 0)
                         "disabled")
-               :on-click (click>evt [:+use (:id item) 1])}
+               :on-click (click>evt [::events/+use item])}
     (icon :remove-circle)]
 
    [bind-fields

@@ -257,13 +257,13 @@
 
 (reg-sub
   ::all-effects
-  :<- [:all-effects]
+  :<- [:all-effects/sorted]
   :<- [:effect-ids-set]
   :<- [:5e/effects-filter]
   (fn [[items active-ids filter-str]]
     (->> items
-         (filter-by-str filter-str)
-         (remove (comp active-ids :id)))))
+         (remove (comp active-ids :id))
+         (filter-by-str filter-str))))
 
 
 ; ======= class and level ==================================

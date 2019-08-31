@@ -141,7 +141,11 @@
   (fn-traced [cofx [info]]
     (if (not= :*spell-slot (:id info))
       ; easy case
-      {:dispatch [:+use (:id info) 1]}
+      {:dispatch-n (list [:+use (:id info) 1]
+                         (when-let [effect (:adds-effect info)]
+                           (cond
+                             (keyword? effect) [:effect/add effect]
+                             (vector? effect) (into [:effect/add] effect))))}
 
       ; special case for spells
       {:dispatch [::use-spell-slot
