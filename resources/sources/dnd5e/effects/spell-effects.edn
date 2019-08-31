@@ -37,16 +37,40 @@
       [:!provide-attr [:buffs :dmg :any :spell/enlarge]
        {:dice "1d4"}]]}
 
- {:id :spell/enlarge
+ {:id :spell/reduce
   :name "Reduce"
   :duration "Concentration, up to 1 minute"
   :effects ["Your size is halved in all dimensions, and your weight is one-eight of normal"
             "You have disadvantage on Strength checks and Strength saving throws"
             "Your weapons are shurnk, and deal 1d4 less damage"]
-  :! [[:!provide-attr [:saves :spell/enlarge]
-       {:desc "You have advantage on Strength checks and Strength saving throws"}]
-      [:!provide-attr [:buffs :dmg :any :spell/enlarge]
+  :! [[:!provide-attr [:saves :spell/reduce]
+       {:desc "You have disadvantage on Strength checks and Strength saving throws"}]
+      [:!provide-attr [:buffs :dmg :any :spell/reduce]
        {:dice "-1d4"}]]}
+
+ {:id :spell/foresight
+  :name "Foresight"
+  :duration "8 hours"
+  :effects ["You can't be surprised"
+            "You have advantage on attack rolls, ability checks, and saving throws"
+            "Other creatures have disadvantage on attack rolls against you"]
+  :! [[:!provide-attr [:saves :spell/foresight] true]]}
+
+ {:id :spell/freedom-of-movement
+  :name "Freedom of Movement"
+  :duration "1 hour"
+  :effects ["Your movement is unaffected by difficult terrain"
+            "Spells and other magical effects can neither reduce your speed nor cause you to be paralyzed or restrained"
+            "You can spend 5 feet of movement to automatically escape from nonmagical restraints"
+            "Being underwater imposes no penalties on your movement or attacks"]
+  :! [[:!provide-attr [:saves :spell/freedom-of-movement] true]]}
+
+ {:id :spell/glibness
+  :name "Glibness"
+  :duration "1 hour"
+  :effects ["When you make a Charisma check, you can replace the number you roll with a 15"
+            "No matter what you say, magic that would determine if you are telling the truth indicates that you are being truthful."]
+  :! [[:!provide-attr [:saves :spell/glibness] true]]}
 
  {:id :spell/haste
   :name "Haste"
@@ -56,4 +80,35 @@
             "You have advantage on DEX saving throws"
             "You have an additional action on each of your turns; it may only be used to take the Attack (one weapon attack only), Dash, Disengage, Hide, or Use an Object action."]
   :! [[:!provide-attr [:buffs :ac :spell/haste] 2]
-      [:!provide-attr [:buffs :speed :spell/haste] (fn [speed] speed)]]}]
+      [:!provide-attr [:buffs :speed :spell/haste] (fn [speed] speed)]]}
+
+ {:id :spell/heroes-feast
+  :name "Heroes’ Feast"
+  :duration "24 hours"
+  :effects ["You are immune to poison and being frightened"
+            "You make all Wisdom saving throws with advantage"]
+  :! [[:!provide-attr [:saves :spell/heroes-feast] true]]}
+
+ {:id :spell/heroism
+  :name "Heroism"
+  :duration "Concentration, up to 1 minute"
+  :effects ["You are immune to being frightened"
+            "You gain temporary hit points equal to the caster's spellcasting ability modifier at the start of each of your turns"]
+  :! [[:!provide-attr [:saves :spell/heroism] true]]}
+
+ {:id :spell/longstrider
+  :name "Longstrider"
+  :duration "1 hour"
+  :effects ["Your speed is increased by 10 feet"]
+  :! [[:!provide-attr [:buffs :speed :spell/longstrider] 10]]}
+
+ {:id :spell/mage-armor
+  :name "Mage Armor"
+  :duration "1 hour"
+  :effects ["Your base AC is 13 + Dex"]
+  :! [[:!provide-attr [:5e/ac :spell/mage-armor]
+       (fn [modifiers armor?]
+         (when-not armor?
+           (+ 13 (:dex modifiers))))]]}
+
+ ]

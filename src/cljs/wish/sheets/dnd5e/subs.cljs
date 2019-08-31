@@ -673,9 +673,19 @@
                       ; got it!
                       f
 
-                      ; halp
-                      {:id id
-                       :desc (str "Unknown: " id " / " extra)}))
+                      ; okay... effect?
+                      (if-let [e (src/find-effect data-source id)]
+                        {:id id
+                         :desc [:<>
+                                (:name e) ":"
+                                [:ul
+                                 (for [line (:effects e)]
+                                   ^{:key line}
+                                   [:li line])]]}
+
+                        ; halp
+                        {:id id
+                         :desc (str "Unknown: " id " / " extra)})))
 
                   ; full feature
                   (:id extra)
@@ -822,13 +832,15 @@
 (reg-sub
   ::ac
   :<- [:classes]
+  :<- [:effects]
   :<- [::attuned-eq]
   :<- [::ability-modifiers]
   :<- [::buffs :ac]
   :<- [::armor-equipped?]
   :<- [::shield-equipped?]
-  (fn [[classes equipped modifiers ac-buff armor? shield?]]
+  (fn [[classes effects equipped modifiers ac-buff armor? shield?]]
     (let [ac-sources (->> (concat classes
+                                  effects
                                   equipped)
                           (mapcat (comp vals :5e/ac :attrs)))
           fn-context {:modifiers modifiers
