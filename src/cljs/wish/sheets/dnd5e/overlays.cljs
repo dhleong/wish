@@ -520,7 +520,7 @@
            verb)])]
 
      (when @expanded?
-       [spell-card s])]))
+       [spell-card (update s :prepared? #(or % false))])]))
 
 (defn spell-management
   [spellcaster & {:keys [mode]

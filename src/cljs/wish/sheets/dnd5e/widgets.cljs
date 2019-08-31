@@ -233,7 +233,7 @@
 
 (defn- the-spell-card
   [{:keys [update-level! base-level]}
-   {:keys [spell-level] :as s}]
+   {:keys [spell-level prepared?] :as s}]
   (let [cantrip? (= 0 spell-level)
         all-slots (<sub [::subs/usable-slots-for (assoc s :spell-level base-level)])
         min-castable-level (->> all-slots first :level)
@@ -338,8 +338,10 @@
              (icon :add-circle)])]]]
        ]]
 
-     [:div.cast-container
-      [cast-button {:base-level base-level} s]]
+     (when (or cantrip?
+               (not= false prepared?))
+       [:div.cast-container
+        [cast-button {:base-level base-level} s]])
 
      [formatted-text :div.desc (:desc s)]]))
 
