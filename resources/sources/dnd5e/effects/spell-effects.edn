@@ -119,4 +119,46 @@
             "You leave behind no tracks or other traces of your passage"]
   :! [[:!provide-attr [:buffs :stealth :spell/pass-without-trace] 10]]}
 
+ {:id :spell/protection-from-evil-and-good
+  :name "Protection from Evil and Good"
+  :duration "Concentration, up to 10 minutes"
+  :effects ["You are protected against: aberrations, celestials, elementals, fey, fiends, and undead"
+            "Creatures of these types have disadvantage on attack rolls against you"
+            "You can't be charmed, frightened, or possed by theme"]
+  :! [[:!provide-attr [:saves :spell/protection-from-evil-and-good] true]]}
+
+ {:id :spell/protection-from-poison
+  :name "Protection from Poison"
+  :duration "1 hour"
+  :effects ["You have advantage on saving throws against being poisoned"
+            "You have resistance to poison damage"]
+  :! [[:!provide-attr [:saves :spell/protection-from-poison] true]]}
+
+ {:id :spell/shield-of-faith
+  :name "Shield of Faith"
+  :duration "Concentration, up to 10 minutes"
+  :effects ["You have +2 to AC"]
+  :! [[:!provide-attr [:buffs :ac :spell/shield-of-faith] 2]]}
+
+ {:id :spell/slow
+  :name "Slow"
+  :duration "Concentration, up to 1 minute"
+  :effects ["Your speed is halved"
+            "You have -2 to AC and Dexterity saving throws"
+            "On your turn, you can use either an action or bonus action, but not both"
+            "You cannot make more than one melee or ranged attack during your turn"]
+  :! [[:!provide-attr [:buffs :speed :spell/slow] (fn [speed] (/ speed 2))]
+      [:!provide-attr [:buffs :ac :spell/slow] -2]
+      ; TODO dex saves?
+      ]}
+
+ {:id :spell/warding-bond
+  :name "Warding Bond"
+  :duration "1 hour, and while within 60 feet of the caster"
+  :effects ["You have +1 to AC and saving throws"
+            "You have resistance to all damage"
+            "Each time you take damage, the caster takes the same amount"]
+  :! [[:!provide-attr [:buffs :ac :spell/warding-bond] 1]
+      [:!provide-attr [:buffs :saves :spell/warding-bond] 1]]}
+
  ]
