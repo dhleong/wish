@@ -37,13 +37,19 @@
 
 ; ======= Top bar ==========================================
 
+(defn- buff-kind->attrs [buff-kind]
+  (when buff-kind
+    {:class (str (name buff-kind) "ed")}))
+
 (defn- hp-normal [hp max-hp]
-  [:<>
-   [:div.label [:span.content "Hit Points"]]
-   [:div.value
-    [:div.now hp]
-    [:div.divider " / "]
-    [:div.max max-hp]]])
+  (let [buff-kind (<sub [::subs/effect-change-for :hp-max])]
+    [:<>
+     [:div.label [:span.content "Hit Points"]]
+     [:div.value
+      [:div.now hp]
+      [:div.divider " / "]
+      [:div.max (buff-kind->attrs buff-kind)
+       max-hp]]]))
 
 (defn- save-indicators
   [prefix icon-class used]
@@ -77,8 +83,7 @@
 (defn buffable-stat [stat-id label & content]
   (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
     [:div.col
-     (into [:div.stat (when buff-kind
-                        {:class (str (name buff-kind) "ed")})]
+     (into [:div.stat (buff-kind->attrs buff-kind)]
            content)
      [:div.label label]]))
 

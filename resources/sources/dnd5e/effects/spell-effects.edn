@@ -1,7 +1,18 @@
 [:!declare-effects
 
+ {:id :spell/aid
+  :name "Aid"
+  :duration "8 hours"
+  :effects ["Your hit point maximum increases by 5 * spell level"]
+  :from-spell [2 9]
+  :! [[:!provide-attr
+       [:buffs :hp-max :spell/aid]
+       (fn [spell-level]
+         (* 5 (dec (or spell-level 2))))]]}
+
  {:id :spell/haste
   :name "Haste"
+  :duration "1 minute (Concentration)"
   :effects ["Your speed is doubled"
             "You have a +2 bonus to AC"
             "You have advantage on DEX saving throws"
