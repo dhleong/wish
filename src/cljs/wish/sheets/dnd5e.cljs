@@ -73,6 +73,14 @@
        [hp-normal hp max-hp]
        [hp-death-saving-throws])]))
 
+(defn buffable-stat [stat-id label & content]
+  (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
+    [:div.col
+     (into [:div.stat (when buff-kind
+                        {:class (str (name buff-kind) "ed")})]
+           content)
+     [:div.label label]]))
+
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
@@ -115,22 +123,19 @@
                      (<sub [::subs/proficiency-bonus]))]
         [:div.label "Proficiency"]]
 
-       [:div.col
-        [:div.stat (<sub [::subs/ac])]
-        [:div.label "AC"]]
+       [buffable-stat :ac "AC"
+        (<sub [::subs/ac])]
 
-       [:div.col
-        [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
-        [:div.label "Speed"]]
+       [buffable-stat :speed "Speed"
+        (<sub [::subs/speed]) [:span.unit " ft"]]
 
        [:div.col
         [:div.stat (<sub [::subs/passive-perception])]
         [:div.label "Pass. Perc."]]
 
-       [:div.col
-        [:div.stat (mod->str
-                     (<sub [::subs/initiative]))]
-        [:div.label "Initiative"]]
+       [buffable-stat :initiative "Initiative"
+        (mod->str
+          (<sub [::subs/initiative]))]
 
        [hp]]
       ]]))
@@ -355,6 +360,15 @@
       [:span.item
        (:name info) ": " (:value info)])
     ]
+
+   (when-let [effects (seq (<sub [:effects]))]
+     [:div.effects.combat-info
+      "Affected by: "
+      (for [effect effects]
+        ^{:key (:id effect)}
+        [link>evt [:toggle-overlay [#'overlays/info effect]]
+         [:span.item
+          (:name effect)]])])
 
    (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike

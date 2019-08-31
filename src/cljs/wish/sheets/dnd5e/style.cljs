@@ -195,6 +195,7 @@
     [:.save-state {:margin-right "12px"}]
 
     [:.stat {:font-size "140%"}
+     [:&.buffed {:color color-accent2}]
      [:.unit {:font-size "60%"}]]]]
 
   [:.label {:font-size "80%"}]
@@ -558,6 +559,9 @@
 
   [:.combat-info (merge metadata
                         {:margin-bottom "8px"})
+   [:&.effects {:color color-accent2}
+    [:a {:color color-accent2}
+     [:&:hover {:color (color/lighten color-accent2 20)}]]]
    [:.item
     ["&:not(:first-child)" {:padding-right "0.5em"}
      [:&:before {:content "'·'"

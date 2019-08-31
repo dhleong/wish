@@ -93,6 +93,12 @@
       (when-let [d (:desc entity)]
         [formatted-text :div.desc d])
 
+      (when-let [effects (seq (:effects entity))]
+        [:ul
+         (for [effect effects]
+           ^{:key effect}
+           [:li effect])])
+
       (when (inv/stacks? entity)
         [item-quantity-manager entity])]) ])
 

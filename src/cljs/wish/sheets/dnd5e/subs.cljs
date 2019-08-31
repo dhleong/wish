@@ -148,6 +148,12 @@
 (defn- compute-buff [entity buff-entry]
   ((compile-buff buff-entry) entity))
 
+(defn- compute-buffs [entity buffs-map]
+  (reduce (fn [total b]
+            (+ total (compute-buff entity b)))
+          0
+          (vals buffs-map)))
+
 ; the ::buffs sub takes a single :buff type ID (not including an ability,
 ; since some buffs depend on ability modifiers) and computes and combines
 ; all attributed buffs across classes and races
@@ -155,45 +161,82 @@
   ::buffs
   :<- [::ability-modifiers]
   :<- [:total-level]
+  :<- [::base-speed]
   :<- [:races]
   :<- [:classes]
-  :<- [:effects]
   :<- [::attuned-eq]
-  (fn [[modifiers total-level races & entity-lists] [_ buff-id]]
+  :<- [:effects]
+  (fn [[modifiers total-level base-speed races & entity-lists]
+       [_ buff-id]]
     (->> entity-lists
 
          ; NOTE some racial abilities buff based on the total class level
          (concat (map #(assoc % :level total-level) races))
 
          flatten
-         (map (fn [entity]
+
+         (reduce
+           (fn [^number total-buff entity]
+             (+ total-buff
                 (let [buffs (->> entity :attrs :buffs buff-id)]
                   (cond
                     (nil? buffs) 0
                     (number? buffs) buffs
-                    (map? buffs) (reduce (fn [total b]
-                                           (+ total (compute-buff
-                                                      (assoc entity
-                                                             :modifiers modifiers)
-                                                      b)))
-                                         0
-                                         (vals buffs))
+                    (map? buffs) (compute-buffs
+                                   (assoc entity
+                                          ; hopefully there are few other things
+                                          ; that can be doubled...
+                                          :speed (+ base-speed
+                                                    (when (= buff-id :speed)
+                                                      total-buff))
+                                          :modifiers modifiers)
+                                   buffs)
 
                     :else (throw (js/Error.
                                    (str "Unexpected buffs value for "
                                         buff-id
                                         ": " (type buffs)
                                         " -> `" buffs "`")))))))
-         (apply +))))
+           0))))
 
-; returns a set of ids that are currently buffed by effects
+; returns a map of id -> {buff-id -> n}
 (reg-sub
-  ::effect-buffed
+  ::effect-buffs-map
   :<- [:effects]
   (fn [effects _]
     (->> effects
-         (mapcat (comp keys :buffs :attrs))
-         set)))
+         (map (comp :buffs :attrs))
+         (apply merge-with merge))))
+
+(reg-sub
+  ::effect-buffs-values-map
+  :<- [::effect-buffs-map]
+  :<- [::ability-modifiers]
+  :<- [::base-speed]
+  (fn [[effects modifiers speed] _]
+    ; NOTE: for now it is okay that we don't necessarily get
+    ; the complete buff value for speed...
+    (let [entity {:modifiers modifiers
+                  :speed speed}]
+      (reduce-kv
+        (fn [m effect-id buffs-map]
+          (assoc m effect-id
+                 (compute-buffs
+                   entity
+                   buffs-map)))
+        {}
+        effects))))
+
+; :buff, :nerf, or nil for the given ID
+(reg-sub
+  ::effect-change-for
+  :<- [::effect-buffs-values-map]
+  (fn [buffs-map [_ id]]
+    (when-let [value (get buffs-map id)]
+      (cond
+        (> value 0) :buff
+        (< value 0) :nerf
+        :else nil))))
 
 
 ; ======= class and level ==================================
@@ -716,12 +759,17 @@
          prof-bonus))))
 
 (reg-sub
-  ::speed
+  ::base-speed
   :<- [:race]
+  (fn [race]
+    (-> race :attrs :5e/speed)))
+
+(reg-sub
+  ::speed
+  :<- [::base-speed]
   :<- [::buffs :speed]
-  (fn [[race buffs]]
-    (+ (-> race :attrs :5e/speed)
-       buffs)))
+  (fn [[base buffs]]
+    (+ base buffs)))
 
 
 ; ======= combat ===========================================
