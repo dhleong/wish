@@ -10,9 +10,47 @@
        (fn [spell-level]
          (* 5 (dec (or spell-level 2))))]]}
 
+ {:id :spell/beacon-of-hope
+  :name "Beacon of Hope"
+  :duration "Concentration, up to 1 minute"
+  :effects ["You have advantage on Wisdom saving throws and death saving throws"
+            "You regain the maximum number of hit points possible from any healing."]
+  :! [[:!provide-attr [:saves :spell/beacon-of-hope]
+       {:desc "You have advantage on Wisdom saving throws and death saving throws"}]]}
+
+ ; TODO string buffs to :atk?
+ {:id :spell/bless
+  :name "Bless"
+  :duration "Concentration, up to 1 minute"
+  :effects ["You may add a d4 to any attack roll or saving throw"]}
+
+ ; TODO enhance ability?
+
+ {:id :spell/enlarge
+  :name "Enlarge"
+  :duration "Concentration, up to 1 minute"
+  :effects ["Your size is doubled in all dimensions, and your weight is multiplied by eight"
+            "You have advantage on Strength checks and Strength saving throws"
+            "Your weapons are enlarged, and deal 1d4 extra damage"]
+  :! [[:!provide-attr [:saves :spell/enlarge]
+       {:desc "You have advantage on Strength checks and Strength saving throws"}]
+      [:!provide-attr [:buffs :dmg :any :spell/enlarge]
+       {:dice "1d4"}]]}
+
+ {:id :spell/enlarge
+  :name "Reduce"
+  :duration "Concentration, up to 1 minute"
+  :effects ["Your size is halved in all dimensions, and your weight is one-eight of normal"
+            "You have disadvantage on Strength checks and Strength saving throws"
+            "Your weapons are shurnk, and deal 1d4 less damage"]
+  :! [[:!provide-attr [:saves :spell/enlarge]
+       {:desc "You have advantage on Strength checks and Strength saving throws"}]
+      [:!provide-attr [:buffs :dmg :any :spell/enlarge]
+       {:dice "-1d4"}]]}
+
  {:id :spell/haste
   :name "Haste"
-  :duration "1 minute (Concentration)"
+  :duration "Concentration, up to 1 minute"
   :effects ["Your speed is doubled"
             "You have a +2 bonus to AC"
             "You have advantage on DEX saving throws"

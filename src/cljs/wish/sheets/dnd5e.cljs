@@ -187,8 +187,7 @@
          ]))]))
 
 (defn abilities-section []
-  (let [abilities (<sub [::subs/ability-info])
-        save-extras (<sub [::subs/ability-extras])]
+  (let [abilities (<sub [::subs/ability-info])]
     [:div styles/abilities-section
      [:div.abilities
       [abilities-display abilities :clickable]]
@@ -207,7 +206,7 @@
 
      ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
-     (when save-extras
+     (when-let [save-extras (<sub [::subs/ability-extras])]
        [:ul.extras
         (for [item save-extras]
           ^{:key (:id item)}
