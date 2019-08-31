@@ -641,7 +641,9 @@
     [:.base-ability (merge metadata
                            {:width "100%"})]
     [:.label flex/grow]
-    [:.score {:padding "0 4px"}]
+    [:.score {:padding "0 4px"}
+     [:&.buffed {:color color-accent2}]
+     [:&.nerfed {:color color-accent-nerf}]]
 
     (proficiency-style
       :transform "translate(0, 34%)")]])

@@ -104,11 +104,19 @@
 
  {:id :spell/mage-armor
   :name "Mage Armor"
-  :duration "1 hour"
+  :duration "8 hour"
   :effects ["Your base AC is 13 + Dex"]
   :! [[:!provide-attr [:5e/ac :spell/mage-armor]
        (fn [modifiers armor?]
          (when-not armor?
            (+ 13 (:dex modifiers))))]]}
+
+ {:id :spell/pass-without-trace
+  :name "Pass without Trace"
+  :duration "Concentration, up to 1 hour"
+  :effects ["You have a +10 bonus to Dexterity (Stealth) checks"
+            "You can't be tracked except by magical means"
+            "You leave behind no tracks or other traces of your passage"]
+  :! [[:!provide-attr [:buffs :stealth :spell/pass-without-trace] 10]]}
 
  ]

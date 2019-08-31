@@ -236,12 +236,18 @@
     [:survival "Survival"]]])
 
 (defn skill-box
-  [label {:keys [ability modifier expert? half? proficient?]}]
+  [id label {:keys [ability modifier expert? half? proficient?]}]
   [:div.skill
    [:div.base-ability
     (str "(" (name ability) ")")]
    [:div.label label]
-   [:div.score (mod->str modifier)]
+
+   (let [buffs (<sub [::subs/buffs id])]
+     [:div.score (buff-kind->attrs (cond
+                                     (> buffs 0) :buff
+                                     (< buffs 0) :nerf))
+      (mod->str (+ modifier
+                   buffs))])
    [:div.proficiency
     {:class [(when (and half?
                         (not (or expert? proficient?)))
@@ -259,7 +265,7 @@
              [:div.skill-col
               (for [[skill-id label] col]
                 ^{:key skill-id}
-                [skill-box label (get skills skill-id)])]))
+                [skill-box skill-id label (get skills skill-id)])]))
          (into [:div.sections]))))
 
 
