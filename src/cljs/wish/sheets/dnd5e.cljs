@@ -376,9 +376,9 @@
       "Affected by: "
       (for [effect effects]
         ^{:key (:id effect)}
-        [link>evt [:toggle-overlay [#'overlays/effect-info effect]]
-         [:span.item
-          (:name effect)]])])
+        [link>evt {:class :item
+                   :> [:toggle-overlay [#'overlays/effect-info effect]]}
+         (:name effect)])])
 
    (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike
