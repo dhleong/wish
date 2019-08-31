@@ -50,6 +50,12 @@
              assoc
              (:id class-map) (compile-entity class-map)))
 
+   :!declare-effects
+   (fn declare-effects [state & effect-maps]
+     (update state :effects
+             :merge
+             (->map effect-maps)))
+
    :!declare-race
    declare-race
 

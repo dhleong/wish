@@ -1,0 +1,5 @@
+[:!declare-effects
+
+ {:id :spell/haste
+  :name "Haste"
+  :! [[:!provide-attr [:buffs :ac :spell/haste] 2]]}]

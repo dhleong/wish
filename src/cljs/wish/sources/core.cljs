@@ -8,6 +8,7 @@
   (id [this])
   (expand-list [this id options])
   (find-class [this id])
+  (find-effect [this id])
   (find-feature [this id])
   (find-item [this id])
   (find-list-entity [this id] "Find an entity that was in a list")
@@ -34,6 +35,9 @@
 
   (find-class [this id]
     (key-by-id this :classes id))
+
+  (find-effect [this id]
+    (key-by-id this :effects id))
 
   (find-feature [this id]
     (key-by-id this :features id))
@@ -77,6 +81,9 @@
 
   (find-class [this id]
     (first-delegate-by-id this find-class id))
+
+  (find-effect [this id]
+    (first-delegate-by-id this find-effect id))
 
   (find-feature [this id]
     ; merge features to pull in alternate options from

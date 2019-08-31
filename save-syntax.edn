@@ -44,6 +44,9 @@
  {:shortsword/inst1 {:id :shortsword}
   :custom/weird-rock {:name "Weird Rock"}}
 
+ ; map of effect-id -> (true | args map | args vector)
+ :effects {}
+
  ; set of inst-ids that are currently equipped
  :equipped #{}
 

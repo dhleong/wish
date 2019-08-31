@@ -157,6 +157,7 @@
   :<- [:total-level]
   :<- [:races]
   :<- [:classes]
+  :<- [:effects]
   :<- [::attuned-eq]
   (fn [[modifiers total-level races & entity-lists] [_ buff-id]]
     (->> entity-lists
@@ -219,6 +220,7 @@
   ::abilities-improvements
   :<- [:classes]
   :<- [:races]
+  :<- [:effects]
   (fn [entity-lists]
     (->> entity-lists
          flatten
@@ -560,6 +562,7 @@
   :<- [:races]
   :<- [:classes]
   :<- [::attuned-eq]
+  :<- [:effects]
   (fn [[data-source & entity-lists] _]
     (->> entity-lists
          flatten
@@ -677,6 +680,7 @@
   :<- [:sheet-source]
   :<- [:races]
   :<- [:classes]
+  :<- [:effects]
   (fn [[data-source & entity-lists] _]
     (->> entity-lists
          flatten
@@ -1094,6 +1098,7 @@
   :<- [:classes]
   :<- [:races]
   :<- [::attuned-eq]
+  :<- [:effects]
   (fn [[data-source & entity-lists] [_ filter-type]]
     (->> entity-lists
          flatten
@@ -1133,6 +1138,7 @@
   :<- [:total-level]
   :<- [:races]
   :<- [:classes]
+  :<- [:effects]
   (fn [[data-source options modifiers
         prof-bonus total-level
         & entity-lists] _]

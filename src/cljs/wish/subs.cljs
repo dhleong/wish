@@ -118,6 +118,7 @@
 (reg-meta-sub :meta/options :options)
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub :meta/items :items)
+(reg-meta-sub :meta/effects :effects)
 (reg-meta-sub :meta/equipped :equipped)
 (reg-meta-sub :meta/campaign :campaign)
 
@@ -289,6 +290,39 @@
   (fn [classes _]
     (apply + (map :level classes))))
 
+(defn- inflate-effect [effect args]
+  (cond
+    (map? args)
+    [(merge effect args)]
+
+    (seq args)
+    (map (fn [arg] (inflate-effect effect arg)) args)
+
+    :else
+    effect))
+
+(reg-id-sub
+  :effects
+  :<- [:sheet-meta]
+  :<- [:sheet-source]
+  :<- [:meta/options]
+  :<- [:meta/effects]
+  (fn [[sheet-meta source options effects] _]
+    (when source
+      (->> effects
+           (mapcat (fn [[effect-id args]]
+                     (when-let [effect (src/find-effect source effect-id)]
+                       (inflate-effect effect args))))
+           (map (fn [effect]
+                  (-> effect
+
+                      (inflate source options)
+
+                      (sheets/post-process
+                        (:kind sheet-meta)
+                        source
+                        :effect))))))))
+
 (reg-id-sub
   :races
   :<- [:sheet-meta]
@@ -320,6 +354,7 @@
   :all-attrs
   :<- [:classes]
   :<- [:races]
+  :<- [:effects]
   (fn [entity-lists _]
     (->> entity-lists
          flatten
