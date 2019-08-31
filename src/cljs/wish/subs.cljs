@@ -302,6 +302,13 @@
     [effect]))
 
 (reg-id-sub
+  :all-effects
+  :<- [:sheet-source]
+  (fn [source _]
+    (when source
+      (src/list-entities source :effects))))
+
+(reg-id-sub
   :effects
   :<- [:sheet-meta]
   :<- [:sheet-source]
@@ -321,6 +328,14 @@
                         (:kind sheet-meta)
                         source
                         :effect))))))))
+
+(reg-id-sub
+  :effect-ids-set
+  :<- [:effects]
+  (fn [effects _]
+    (->> effects
+         (map :id)
+         (into #{}))))
 
 (reg-id-sub
   :races

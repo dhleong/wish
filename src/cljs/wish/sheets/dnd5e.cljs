@@ -9,6 +9,7 @@
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
@@ -359,7 +360,11 @@
       ^{:key (:name info)}
       [:span.item
        (:name info) ": " (:value info)])
-    ]
+
+    [:a.effects {:href "#"
+                 :on-click (click>evt [:toggle-overlay
+                                       [#'effects-manager/overlay]])}
+     "Add Effect"]]
 
    (when-let [effects (seq (<sub [:effects]))]
      [:div.effects.combat-info

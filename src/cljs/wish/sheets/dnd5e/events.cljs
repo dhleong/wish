@@ -56,14 +56,14 @@
 
 ; ======= search/filter ===================================
 
-(defn- reg-filter-event
-  [k]
+(defn- reg-filter-event [k]
   (reg-event-db
     k
     [trim-v]
     (fn-traced [db [filter-str]]
       (assoc db k filter-str))))
 
+(reg-filter-event :5e/effects-filter)
 (reg-filter-event :5e/items-filter)
 (reg-filter-event :5e/spells-filter)
 

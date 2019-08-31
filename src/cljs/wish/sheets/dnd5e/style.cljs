@@ -567,7 +567,9 @@
      [:&:before {:content "'·'"
                  :display 'inline-block
                  :text-align 'center
-                 :width "1em"}]]]]
+                 :width "1em"}]]]
+   [:.effects
+    {:float 'right}]]
 
   [:.attack flex/center
    [:.name flex/grow]

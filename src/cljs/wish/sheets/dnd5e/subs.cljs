@@ -98,6 +98,15 @@
     (fn [sheet _]
       (getter sheet))))
 
+(defn filter-by-str
+  "Filter's by :name using the given str"
+  [filter-str coll]
+  (if-not (str/blank? filter-str)
+    (->> coll
+         (filter (fn [{n :name}]
+                   (wstr/includes-any-case? n filter-str))))
+    coll))
+
 
 ; ======= 5e-specific nav =================================
 
@@ -199,6 +208,14 @@
                                         " -> `" buffs "`")))))))
            0))))
 
+
+; ======= effects =========================================
+
+(reg-sub
+  :5e/effects-filter
+  (fn [db]
+    (:5e/effects-filter db nil)))
+
 ; returns a map of id -> {buff-id -> n}
 (reg-sub
   ::effect-buffs-map
@@ -237,6 +254,16 @@
         (> value 0) :buff
         (< value 0) :nerf
         :else nil))))
+
+(reg-sub
+  ::all-effects
+  :<- [:all-effects]
+  :<- [:effect-ids-set]
+  :<- [:5e/effects-filter]
+  (fn [[items active-ids filter-str]]
+    (->> items
+         (filter-by-str filter-str)
+         (remove (comp active-ids :id)))))
 
 
 ; ======= class and level ==================================
@@ -921,15 +948,6 @@
   :5e/items-filter
   (fn [db]
     (:5e/items-filter db nil)))
-
-(defn filter-by-str
-  "Filter's by :name using the given str"
-  [filter-str coll]
-  (if-not (str/blank? filter-str)
-    (->> coll
-         (filter (fn [{n :name}]
-                   (wstr/includes-any-case? n filter-str))))
-    coll))
 
 (reg-sub
   ::all-items
