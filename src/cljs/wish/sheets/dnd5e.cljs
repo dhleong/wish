@@ -9,6 +9,7 @@
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
@@ -73,6 +74,14 @@
        [hp-normal hp max-hp]
        [hp-death-saving-throws])]))
 
+(defn buffable-stat [stat-id label & content]
+  (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
+    [:div.col
+     (into [:div.stat (when buff-kind
+                        {:class (str (name buff-kind) "ed")})]
+           content)
+     [:div.label label]]))
+
 (defn header []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
@@ -115,22 +124,19 @@
                      (<sub [::subs/proficiency-bonus]))]
         [:div.label "Proficiency"]]
 
-       [:div.col
-        [:div.stat (<sub [::subs/ac])]
-        [:div.label "AC"]]
+       [buffable-stat :ac "AC"
+        (<sub [::subs/ac])]
 
-       [:div.col
-        [:div.stat (<sub [::subs/speed]) [:span.unit " ft"]]
-        [:div.label "Speed"]]
+       [buffable-stat :speed "Speed"
+        (<sub [::subs/speed]) [:span.unit " ft"]]
 
        [:div.col
         [:div.stat (<sub [::subs/passive-perception])]
         [:div.label "Pass. Perc."]]
 
-       [:div.col
-        [:div.stat (mod->str
-                     (<sub [::subs/initiative]))]
-        [:div.label "Initiative"]]
+       [buffable-stat :initiative "Initiative"
+        (mod->str
+          (<sub [::subs/initiative]))]
 
        [hp]]
       ]]))
@@ -354,7 +360,20 @@
       ^{:key (:name info)}
       [:span.item
        (:name info) ": " (:value info)])
-    ]
+
+    [:a.effects {:href "#"
+                 :on-click (click>evt [:toggle-overlay
+                                       [#'effects-manager/overlay]])}
+     "Add Effect"]]
+
+   (when-let [effects (seq (<sub [:effects]))]
+     [:div.effects.combat-info
+      "Affected by: "
+      (for [effect effects]
+        ^{:key (:id effect)}
+        [link>evt [:toggle-overlay [#'overlays/effect-info effect]]
+         [:span.item
+          (:name effect)]])])
 
    (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike
@@ -544,7 +563,7 @@
   [:div.button
    {:class (when used?
              "selected")
-    :on-click (click>evt [:toggle-used (:id item)])}
+    :on-click (click>evt [::events/toggle-used item])}
    (if used?
      "Used"
      "Use")])
@@ -556,7 +575,7 @@
    [:a.modify {:href "#"
                :class (when (<= uses-left 0)
                         "disabled")
-               :on-click (click>evt [:+use (:id item) 1])}
+               :on-click (click>evt [::events/+use item])}
     (icon :remove-circle)]
 
    [bind-fields

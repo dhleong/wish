@@ -1,0 +1,10 @@
+[:!declare-effects
+
+ {:id :spell/haste
+  :name "Haste"
+  :effects ["Your speed is doubled"
+            "You have a +2 bonus to AC"
+            "You have advantage on DEX saving throws"
+            "You have an additional action on each of your turns; it may only be used to take the Attack (one weapon attack only), Dash, Disengage, Hide, or Use an Object action."]
+  :! [[:!provide-attr [:buffs :ac :spell/haste] 2]
+      [:!provide-attr [:buffs :speed :spell/haste] (fn [speed] speed)]]}]

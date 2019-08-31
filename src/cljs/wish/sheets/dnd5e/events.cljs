@@ -6,8 +6,9 @@
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
-            [wish.sheets.util :refer [update-sheet update-in-sheet update-uses
-                                      update-sheet-path]]))
+            [wish.sheets.util :refer [update-sheet update-in-sheet
+                                      update-sheet-path
+                                      get-uses update-uses]]))
 
 
 ; ======= 5e-specific nav =================================
@@ -56,14 +57,14 @@
 
 ; ======= search/filter ===================================
 
-(defn- reg-filter-event
-  [k]
+(defn- reg-filter-event [k]
   (reg-event-db
     k
     [trim-v]
     (fn-traced [db [filter-str]]
       (assoc db k filter-str))))
 
+(reg-filter-event :5e/effects-filter)
 (reg-filter-event :5e/items-filter)
 (reg-filter-event :5e/spells-filter)
 
@@ -135,19 +136,35 @@
     ; TODO use ::inject/sub not have to supply max-slots
     (update-uses cofx (->slot-kw kind level) with-range [0 max-slots] inc)))
 
+(defn- build-effect-add-event [effect]
+  (cond
+    (keyword? effect) [:effect/add effect]
+    (vector? effect) (into [:effect/add] effect)))
+
 (reg-event-fx
   ::+use
   [trim-v]
   (fn-traced [cofx [info]]
     (if (not= :*spell-slot (:id info))
       ; easy case
-      {:dispatch [:+use (:id info) 1]}
+      {:dispatch-n (list [:+use (:id info) 1]
+                         (when-let [effect (:adds-effect info)]
+                           (build-effect-add-event effect)))}
 
       ; special case for spells
       {:dispatch [::use-spell-slot
                   (:slot-kind info)
                   (:slot-level info)
                   (:max-slots info)]})))
+
+(reg-event-fx
+  ::toggle-used
+  [trim-v]
+  (fn-traced [cofx [info]]
+    {:dispatch-n (list [:toggle-used (:id info)]
+                       (when-let [effect (:adds-effect info)]
+                         (when (= (get-uses cofx (:id info)) 0)
+                           (build-effect-add-event effect))))}))
 
 (reg-event-fx
   ::restore-spell-slot
