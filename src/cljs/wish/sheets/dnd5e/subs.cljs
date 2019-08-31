@@ -262,6 +262,7 @@
   :<- [:5e/effects-filter]
   (fn [[items active-ids filter-str]]
     (->> items
+         (remove :feature-only?)
          (remove (comp active-ids :id))
          (filter-by-str filter-str))))
 
