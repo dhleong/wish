@@ -8,6 +8,7 @@
 
 (def color-accent "#fbc02d")
 (def color-accent2 "#6f49b9")
+(def color-accent-nerf "#b9496f")
 
 (def color-proficient "#77E731")
 (def color-expert "#E8E154")
@@ -36,6 +37,10 @@
 (def base-overlay {:padding "32px"})
 (def overlay (merge base-overlay
                     {:width "300px"}))
+
+(def disabled-button {:font-style 'italic
+                      :color "rgba(1,1,1, 0.25) !important"
+                      :cursor 'default})
 
 (defn proficiency-style [& {:as extra}]
   [:.proficiency
@@ -196,6 +201,7 @@
 
     [:.stat {:font-size "140%"}
      [:&.buffed {:color color-accent2}]
+     [:&.nerfed {:color color-accent-nerf}]
      [:.unit {:font-size "60%"}]]]]
 
   [:.label {:font-size "80%"}]
@@ -209,7 +215,10 @@
    [:.indicators
     [:.icon {:font-size "12px"}
      [:&.save {:color "#00cc00"}]
-     [:&.fail {:color "#aa0000"}]]]]
+     [:&.fail {:color "#aa0000"}]]]
+   [:.max
+    [:&.buffed {:color color-accent2}]
+    [:&.nerfed {:color color-accent-nerf}]]]
 
   [:.space flex/grow])
 
@@ -311,9 +320,7 @@
                   :min-height "2.3em"})
    [:.name flex/grow]
    [:.button {:font-size "60%"}
-    [:&.disabled {:font-style 'italic
-                  :color "rgba(1,1,1, 0.25) !important"
-                  :cursor 'default}]
+    [:&.disabled disabled-button]
     [:&:hover {:background-color "#f0f0f0"
                :color "#333"}
      [:&.disabled {:background-color "#ccc"}]]]] )
@@ -449,9 +456,7 @@
                      :font-style 'italic}]
 
   [:&.button
-   [:&.disabled {:font-style 'italic
-                 :color "rgba(1,1,1, 0.25) !important"
-                 :cursor 'default} ]
+   [:&.disabled disabled-button]
    [:&.nested:hover {:background-color "#f0f0f0"
                      :color "#333"}]])
 
@@ -636,7 +641,9 @@
     [:.base-ability (merge metadata
                            {:width "100%"})]
     [:.label flex/grow]
-    [:.score {:padding "0 4px"}]
+    [:.score {:padding "0 4px"}
+     [:&.buffed {:color color-accent2}]
+     [:&.nerfed {:color color-accent-nerf}]]
 
     (proficiency-style
       :transform "translate(0, 34%)")]])
@@ -682,9 +689,7 @@
 
     [:.many flex/center
      [:.modify {:padding "8px"}
-      [:&.disabled {:font-style 'italic
-                    :color "rgba(1,1,1, 0.25) !important"
-                    :cursor 'default} ]]]]])
+      [:&.disabled disabled-button]]]]])
 
 (defstyled spells-section
   [:.spell-slot-level flex/center
@@ -737,9 +742,7 @@
                       :text-overflow 'ellipsis
                       :white-space 'pre}]]
    [:.button {:font-size "60%"}
-    [:&.disabled {:font-style 'italic
-                  :color "rgba(1,1,1, 0.25) !important"
-                  :cursor 'default}]
+    [:&.disabled disabled-button]
     [:&:hover {:background-color "#f0f0f0"
                :color "#333"}
      [:&.disabled {:background-color "#ccc"}]]]]

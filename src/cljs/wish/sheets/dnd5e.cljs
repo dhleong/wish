@@ -37,13 +37,19 @@
 
 ; ======= Top bar ==========================================
 
+(defn- buff-kind->attrs [buff-kind]
+  (when buff-kind
+    {:class (str (name buff-kind) "ed")}))
+
 (defn- hp-normal [hp max-hp]
-  [:<>
-   [:div.label [:span.content "Hit Points"]]
-   [:div.value
-    [:div.now hp]
-    [:div.divider " / "]
-    [:div.max max-hp]]])
+  (let [buff-kind (<sub [::subs/effect-change-for :hp-max])]
+    [:<>
+     [:div.label [:span.content "Hit Points"]]
+     [:div.value
+      [:div.now hp]
+      [:div.divider " / "]
+      [:div.max (buff-kind->attrs buff-kind)
+       max-hp]]]))
 
 (defn- save-indicators
   [prefix icon-class used]
@@ -77,8 +83,7 @@
 (defn buffable-stat [stat-id label & content]
   (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
     [:div.col
-     (into [:div.stat (when buff-kind
-                        {:class (str (name buff-kind) "ed")})]
+     (into [:div.stat (buff-kind->attrs buff-kind)]
            content)
      [:div.label label]]))
 
@@ -182,8 +187,7 @@
          ]))]))
 
 (defn abilities-section []
-  (let [abilities (<sub [::subs/ability-info])
-        save-extras (<sub [::subs/ability-extras])]
+  (let [abilities (<sub [::subs/ability-info])]
     [:div styles/abilities-section
      [:div.abilities
       [abilities-display abilities :clickable]]
@@ -202,7 +206,7 @@
 
      ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
-     (when save-extras
+     (when-let [save-extras (<sub [::subs/ability-extras])]
        [:ul.extras
         (for [item save-extras]
           ^{:key (:id item)}
@@ -232,12 +236,18 @@
     [:survival "Survival"]]])
 
 (defn skill-box
-  [label {:keys [ability modifier expert? half? proficient?]}]
+  [id label {:keys [ability modifier expert? half? proficient?]}]
   [:div.skill
    [:div.base-ability
     (str "(" (name ability) ")")]
    [:div.label label]
-   [:div.score (mod->str modifier)]
+
+   (let [buffs (<sub [::subs/buffs id])]
+     [:div.score (buff-kind->attrs (cond
+                                     (> buffs 0) :buff
+                                     (< buffs 0) :nerf))
+      (mod->str (+ modifier
+                   buffs))])
    [:div.proficiency
     {:class [(when (and half?
                         (not (or expert? proficient?)))
@@ -255,7 +265,7 @@
              [:div.skill-col
               (for [[skill-id label] col]
                 ^{:key skill-id}
-                [skill-box label (get skills skill-id)])]))
+                [skill-box skill-id label (get skills skill-id)])]))
          (into [:div.sections]))))
 
 
@@ -371,9 +381,9 @@
       "Affected by: "
       (for [effect effects]
         ^{:key (:id effect)}
-        [link>evt [:toggle-overlay [#'overlays/effect-info effect]]
-         [:span.item
-          (:name effect)]])])
+        [link>evt {:class :item
+                   :> [:toggle-overlay [#'overlays/effect-info effect]]}
+         (:name effect)])])
 
    (when-let [s (<sub [::subs/unarmed-strike])]
      [:div.unarmed-strike

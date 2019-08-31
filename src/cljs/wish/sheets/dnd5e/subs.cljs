@@ -208,6 +208,11 @@
                                         " -> `" buffs "`")))))))
            0))))
 
+(reg-id-sub
+  ::buff-attrs
+  :<- [:all-attrs]
+  (fn [attrs [_ buff-id]]
+    (get-in attrs [:buffs buff-id])))
 
 ; ======= effects =========================================
 
@@ -668,9 +673,19 @@
                       ; got it!
                       f
 
-                      ; halp
-                      {:id id
-                       :desc (str "Unknown: " id " / " extra)}))
+                      ; okay... effect?
+                      (if-let [e (src/find-effect data-source id)]
+                        {:id id
+                         :desc [:<>
+                                (:name e) ":"
+                                [:ul
+                                 (for [line (:effects e)]
+                                   ^{:key line}
+                                   [:li line])]]}
+
+                        ; halp
+                        {:id id
+                         :desc (str "Unknown: " id " / " extra)})))
 
                   ; full feature
                   (:id extra)
@@ -817,13 +832,15 @@
 (reg-sub
   ::ac
   :<- [:classes]
+  :<- [:effects]
   :<- [::attuned-eq]
   :<- [::ability-modifiers]
   :<- [::buffs :ac]
   :<- [::armor-equipped?]
   :<- [::shield-equipped?]
-  (fn [[classes equipped modifiers ac-buff armor? shield?]]
+  (fn [[classes effects equipped modifiers ac-buff armor? shield?]]
     (let [ac-sources (->> (concat classes
+                                  effects
                                   equipped)
                           (mapcat (comp vals :5e/ac :attrs)))
           fn-context {:modifiers modifiers
@@ -990,22 +1007,6 @@
            {:kinds {}
             :categories {}}))))
 
-(reg-sub
-  ::attack-bonuses
-  :<- [:classes]
-  (fn [classes]
-    (->> classes
-         (map (comp :atk :buffs :attrs))
-         (apply merge))))
-
-(reg-sub
-  ::damage-bonuses
-  :<- [:classes]
-  (fn [classes]
-    (->> classes
-         (map (comp :dmg :buffs :attrs))
-         (apply merge))))
-
 ; returns a set of weapon kind ids that should always be treated
 ; as "finesse" weapons
 (reg-sub
@@ -1067,7 +1068,8 @@
                         :ranged
                         :melee)
 
-        dmg-bonus-maps (->> dmg-bonuses weap-type-key vals)
+        dmg-bonus-maps (concat (->> dmg-bonuses weap-type-key vals)
+                               (->> dmg-bonuses :any vals))
         atk-bonuses (->> atk-bonuses weap-type-key vals)
 
         ; raw bonus maps {:+,:when-versatile?}
@@ -1121,8 +1123,8 @@
   :<- [::eq-proficiencies]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
-  :<- [::attack-bonuses]
-  :<- [::damage-bonuses]
+  :<- [::buff-attrs :atk]
+  :<- [::buff-attrs :dmg]
   :<- [::finesse-weapon-kinds]
   (fn [[all-equipped proficiencies modifiers
         proficiency-bonus

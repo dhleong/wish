@@ -111,6 +111,20 @@
 
    (generic-info entity)
 
+   (let [{:keys [spell-level duration]} entity]
+     (when (or spell-level duration)
+       [:table.info
+        [:tbody
+         (when spell-level
+           [:tr
+            [:th.header "Spell Level"]
+            [:td spell-level]])
+
+         (when duration
+           [:tr
+            [:th.header "Duration"]
+            [:td duration]])]]))
+
    (when-let [d (:desc entity)]
      [formatted-text :div.desc d])
 

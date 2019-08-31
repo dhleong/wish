@@ -230,7 +230,7 @@ The following kinds can accept a functional number `value`:
  - `:hp-max` Max HP
  - `:speed` Speed, in feet
 
-#### `:dmg :melee` and `:dmg :ranged`
+#### `:dmg :melee`, `:dmg :ranged`, and `:dmg :any`
 
 Damage buffs. The value is a map that looks like:
 

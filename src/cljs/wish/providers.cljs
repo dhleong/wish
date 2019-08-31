@@ -165,7 +165,8 @@
   (go (let [[err data] (<! (load-raw sheet-id))
             [sheet-err sheet] (compile-sheet data)]
         (if-let [e (or err sheet-err)]
-          (do (log/err "Failed to load sheet: " e)
+          (do (log/err "Failed to load sheet" sheet-id ": " e)
+              (log/err "Raw data: " data)
               (>evt [:put-sheet-error! sheet-id
                      {:err e
                       :retry-evt [:load-sheet! sheet-id]}]))
