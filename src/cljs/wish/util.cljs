@@ -15,6 +15,13 @@
     (update m k dec)
     (dissoc m k)))
 
+(defn update-dissoc
+  "Like update, but dissoc's the key if the new value is nil"
+  [m k f x]
+  (if-some [new-value (f (get m k) x)]
+    (assoc m k new-value)
+    (dissoc m k)))
+
 (defn deep-merge
   [v & vs]
   (letfn [(rec-merge [a b]

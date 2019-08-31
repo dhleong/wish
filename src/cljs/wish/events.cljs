@@ -10,7 +10,7 @@
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
-            [wish.util :refer [invoke-callable]]))
+            [wish.util :refer [invoke-callable update-dissoc]]))
 
 (reg-event-fx
   ::initialize-db
@@ -756,6 +756,47 @@
                            (disj equipped inst-id)
                            (conj equipped inst-id)))
                        (:id item))))
+
+
+; ======= Effect management ===============================
+
+(defn effect-add [existing-args new-args]
+  (cond
+    (or (true? new-args)
+        (map? new-args))
+    new-args
+
+    (not (seq new-args))
+    (throw (js/Error. (str "Invalid effect arg: " new-args)))
+
+    (map? existing-args)
+    (throw (js/Error. (str "Incompatible event args: adding `" new-args "` to args `" existing-args)))
+
+    :else
+    (concat existing-args new-args)))
+
+(reg-event-fx
+  :effect/add
+  [trim-v]
+  (fn [cofx [effect-id & [args]]]
+    (let [args (or args true)]
+      (update-sheet-path cofx [:effects]
+                         update effect-id
+                         effect-add args))))
+
+(defn effect-remove [old-args to-remove]
+  (when (seq? old-args)
+    (remove (partial = to-remove)
+            old-args)))
+
+(reg-event-fx
+  :effect/remove
+  [trim-v]
+  (fn [cofx [effect-id & [args]]]
+    (let [args (or args true)]
+      (update-sheet-path cofx [:effects]
+                         update-dissoc effect-id
+                         effect-remove args))))
 
 
 ; ======= Save-state handling ==============================

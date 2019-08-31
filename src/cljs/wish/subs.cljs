@@ -295,19 +295,18 @@
     (map? args)
     [(merge effect args)]
 
-    (seq args)
+    (seq? args)
     (map (fn [arg] (inflate-effect effect arg)) args)
 
     :else
-    effect))
+    [effect]))
 
 (reg-id-sub
   :effects
   :<- [:sheet-meta]
   :<- [:sheet-source]
-  :<- [:meta/options]
   :<- [:meta/effects]
-  (fn [[sheet-meta source options effects] _]
+  (fn [[sheet-meta source effects] _]
     (when source
       (->> effects
            (mapcat (fn [[effect-id args]]
@@ -316,7 +315,7 @@
            (map (fn [effect]
                   (-> effect
 
-                      (inflate source options)
+                      (apply-directives source)
 
                       (sheets/post-process
                         (:kind sheet-meta)

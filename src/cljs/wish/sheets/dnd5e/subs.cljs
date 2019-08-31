@@ -186,6 +186,15 @@
                                         " -> `" buffs "`")))))))
          (apply +))))
 
+; returns a set of ids that are currently buffed by effects
+(reg-sub
+  ::effect-buffed
+  :<- [:effects]
+  (fn [effects _]
+    (->> effects
+         (mapcat (comp keys :buffs :attrs))
+         set)))
+
 
 ; ======= class and level ==================================
 
