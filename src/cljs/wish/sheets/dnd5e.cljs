@@ -41,6 +41,16 @@
   (when buff-kind
     {:class (str (name buff-kind) "ed")}))
 
+(defn- buff-value->kind [buffs]
+  (cond
+    (> buffs 0) :buff
+    (< buffs 0) :nerf))
+
+(defn- buff-kind-attrs-from-path [& path]
+  (->> (<sub (into [::subs/buffs] path))
+       buff-value->kind
+       buff-kind->attrs))
+
 (defn- hp-normal [hp max-hp]
   (let [buff-kind (<sub [::subs/effect-change-for :hp-max])]
     [:<>
@@ -243,9 +253,7 @@
    [:div.label label]
 
    (let [buffs (<sub [::subs/buffs id])]
-     [:div.score (buff-kind->attrs (cond
-                                     (> buffs 0) :buff
-                                     (< buffs 0) :nerf))
+     [:div.score (buff-value->kind buffs)
       (mod->str (+ modifier
                    buffs))])
    [:div.proficiency
@@ -338,7 +346,9 @@
    [:div.info-group
     [:div.label
      "DMG"]
-    [:div.dmg
+    [:div.dmg (buff-kind-attrs-from-path :dmg (if (:ranged? s)
+                                                :ranged
+                                                :melee))
      (or (:base-dice s)
          (:dmg s))]
     (when-let [alt-dice (:alt-dice s)]

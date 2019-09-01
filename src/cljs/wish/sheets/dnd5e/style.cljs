@@ -582,7 +582,10 @@
                         flex/vertical-center
                         {:padding "4px"})
     [:.label {:font-size "60%"}]
-    [:.dmg.alt {:font-size "65%"}]]]
+    [:.dmg
+     [:&.buffed {:color color-accent2}]
+     [:&.nerfed {:color color-accent-nerf}]
+     [:.alt {:font-size "65%"}]]]]
   [:.ammo (merge metadata
                  flex/center
                  button

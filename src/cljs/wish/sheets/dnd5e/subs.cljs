@@ -173,6 +173,7 @@
 ; all attributed buffs across classes and races
 (reg-id-sub
   ::buffs
+  :<- [:effect-ids-set]
   :<- [::ability-modifiers]
   :<- [:total-level]
   :<- [::base-speed]
@@ -180,38 +181,40 @@
   :<- [:classes]
   :<- [::attuned-eq]
   :<- [:effects]
-  (fn [[modifiers total-level base-speed races & entity-lists]
-       [_ buff-id]]
-    (->> entity-lists
+  (fn [[effects-set modifiers total-level base-speed races & entity-lists]
+       [_ & buff-path]]
+    (let [full-buff-path (into [:attrs :buffs] buff-path)]
+      (->> entity-lists
 
-         ; NOTE some racial abilities buff based on the total class level
-         (concat (map #(assoc % :level total-level) races))
+           ; NOTE some racial abilities buff based on the total class level
+           (concat (map #(assoc % :level total-level) races))
 
-         flatten
+           flatten
 
-         (reduce
-           (fn [^number total-buff entity]
-             (+ total-buff
-                (let [buffs (->> entity :attrs :buffs buff-id)]
-                  (cond
-                    (nil? buffs) 0
-                    (number? buffs) buffs
-                    (map? buffs) (compute-buffs
-                                   (assoc entity
-                                          ; hopefully there are few other things
-                                          ; that can be doubled...
-                                          :speed (+ base-speed
-                                                    (when (= buff-id :speed)
-                                                      total-buff))
-                                          :modifiers modifiers)
-                                   buffs)
+           (reduce
+             (fn [^number total-buff entity]
+               (+ total-buff
+                  (let [buffs (get-in entity full-buff-path)]
+                    (cond
+                      (nil? buffs) 0
+                      (number? buffs) buffs
+                      (map? buffs) (compute-buffs
+                                     (assoc entity
+                                            ; hopefully there are few other things
+                                            ; that can be doubled...
+                                            :speed (+ base-speed
+                                                      (when (= buff-path [:speed])
+                                                        total-buff))
+                                            :effects effects-set
+                                            :modifiers modifiers)
+                                     buffs)
 
-                    :else (throw (js/Error.
-                                   (str "Unexpected buffs value for "
-                                        buff-id
-                                        ": " (type buffs)
-                                        " -> `" buffs "`")))))))
-           0))))
+                      :else (throw (js/Error.
+                                     (str "Unexpected buffs value for "
+                                          buff-path
+                                          ": " (type buffs)
+                                          " -> `" buffs "`")))))))
+             0)))))
 
 (reg-id-sub
   ::buff-attrs
@@ -1031,9 +1034,16 @@
                   id)))
          set)))
 
+(defn- compute-bonus [effects modifiers buff]
+  (when (or (fn? buff)
+            (and (list? buff)
+                 (= 'fn (first buff))))
+    (let [f (compile-buff buff)]
+      (f {:effects effects :modifiers modifiers}))))
+
 (defn calculate-weapon
   [proficient-cats proficient-kinds
-   modifiers
+   effects-set modifiers
    ; NOTE we have to provide a type hint for the compiler
    ; here for some reason....
    ^number proficiency-bonus,
@@ -1089,8 +1099,12 @@
                                    (filter :when-versatile?)
                                    (keep :+))
         other-bonus-non-versatile (->> other-bonus
-                                   (remove :when-versatile?)
-                                   (keep :+))
+                                       (remove :when-versatile?)
+                                       (keep :+))
+
+        computed-dmg-bonuses (->> dmg-bonus-maps
+                                  (keep (partial compute-bonus effects-set modifiers))
+                                  (apply +))
 
         ; TODO indicate dmg type?
         other-dice-bonuses (keep :dice dmg-bonus-maps)
@@ -1108,7 +1122,7 @@
         ; all other dice bonuses, etc.
         dam-bonuses (fn [const-bonuses]
                       (let [base (->> (cons
-                                        (apply + dam-bonus const-bonuses)
+                                        (apply + dam-bonus computed-dmg-bonuses const-bonuses)
                                         other-dice-bonuses)
                                       (keep identity)
                                       (str/join " + "))]
@@ -1126,13 +1140,15 @@
   ::equipped-weapons
   :<- [:equipped-sorted]
   :<- [::eq-proficiencies]
-  :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
+  :<- [:effect-ids-set]
+  :<- [::ability-modifiers]
   :<- [::buff-attrs :atk]
   :<- [::buff-attrs :dmg]
   :<- [::finesse-weapon-kinds]
-  (fn [[all-equipped proficiencies modifiers
-        proficiency-bonus
+  (fn [[all-equipped
+        proficiencies proficiency-bonus
+        effects-set modifiers
         atk-bonuses dmg-bonuses
         finesse-weapon-kinds]]
     (let [{proficient-kinds :kinds
@@ -1142,7 +1158,7 @@
            (map
              (partial calculate-weapon
                       proficient-cats proficient-kinds
-                      modifiers
+                      effects-set modifiers
                       proficiency-bonus
                       atk-bonuses dmg-bonuses
                       finesse-weapon-kinds))))))

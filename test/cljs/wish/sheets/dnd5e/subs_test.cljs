@@ -155,10 +155,11 @@
         modifiers {:dex 3 :str 1}
         proficiency-bonus 2
         finesse-weapon-kinds #{:longsword}
-        calc (fn [dmg-bonuses w]
+        calc (fn [dmg-bonuses w & {:keys [effects-set]}]
                (calculate-weapon
                  proficient-cats
                  proficient-kinds
+                 (or effects-set #{})
                  modifiers
                  proficiency-bonus
                  {} dmg-bonuses
@@ -255,7 +256,22 @@
                                 {:dice "1d8"
                                  :versatile "1d10"})
 
-                          [:base-dice :alt-dice :to-hit]))))))
+                          [:base-dice :alt-dice :to-hit]))))
+
+    (testing "Computed bonus from effect"
+      (let [buffs {:melee {:computed '(fn [effects modifiers]
+                                        (when (:magic effects)
+                                          (:dex modifiers)))}}
+            weapon {:dice "1d8"}]
+
+        ; with no effect, does the normal amount of damage
+        (is (= "1d8 + 1"
+               (:base-dice (calc buffs weapon))))
+
+        ; with the effect, it computes the :dex bonus
+        (is (= "1d8 + 4"
+               (:base-dice (calc buffs weapon
+                                 :effects-set #{:magic}))))))))
 
 (deftest unpack-eq-choices-test
   (let [dagger {:id :dagger
