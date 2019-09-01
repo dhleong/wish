@@ -75,23 +75,15 @@ A turned creature must spend its turns trying to move as far away from you as it
             5 {:+features
                [{:id :cleric/destroy-undead
                  :name "Destroy Undead"
-                 :desc "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold."
-                 :levels {
-                          5 {:>>desc "\nAt 5th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
-                          6 {:>>desc "\nAt 6th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
-                          7 {:>>desc "\nAt 7th level, your Destroy Undead destroys undead creatures of CR 1/2 or lower"}
-                          8 {:>>desc "\nAt 8th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
-                          9 {:>>desc "\nAt 9th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
-                          10 {:>>desc "\nAt 10th level, your Destroy Undead destroys undead creatures of CR 1 or lower"}
-                          11 {:>>desc "\nAt 11th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
-                          12 {:>>desc "\nAt 12th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
-                          13 {:>>desc "\nAt 13th level, your Destroy Undead destroys undead creatures of CR 2 or lower"}
-                          14 {:>>desc "\nAt 14th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
-                          15 {:>>desc "\nAt 15th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
-                          16 {:>>desc "\nAt 16th level, your Destroy Undead destroys undead creatures of CR 3 or lower"}
-                          }
-                 :&levels {17 {:>>desc "\nAt 17th level and above, your Destroy Undead destroys undead creatures of CR 4 or lower"}}
-                 }]}
+                 :desc (fn [level] (str "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.
+At " (ordinal level) " level, your Destroy Undead destroys undead creatures of CR "
+                                        (cond
+                                          (< level 8) "1/2"
+                                          (< level 11) "1"
+                                          (< level 14) "2"
+                                          (< level 17) "3"
+                                          :else "4")
+                                        " or lower")) }]}
 
             8 {:+features
                [:abi-or-feat]}
