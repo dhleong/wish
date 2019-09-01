@@ -101,8 +101,14 @@
       (conj directives provide-directive)
       [provide-directive])))
 
-(def compile-desc (memoize ->callable))
+(def compile-desc-memoized (memoize ->callable))
+(def compile-desc (fn [d]
+                    (if (string? d)
+                      d
+                      (compile-desc-memoized d))))
+
 (def compile-values-filter (memoize ->callable))
+
 (defn compile-feature
   "Compile a feature map"
   [fm]
