@@ -1696,13 +1696,26 @@
       spellcasters)))
 
 (reg-sub
+  ::eq-attack-buffs
+  :<- [::attuned-eq]
+  (fn [eq _]
+    (->> eq
+         (filter (fn [{id :id}]
+                   ; hacks?
+                   (some (partial str/starts-with? (name id))
+                         ["rod-" "staff-" "wand-"])))
+         (map :+)
+         (apply +))))
+
+(reg-sub
   ::spell-attack-bonuses
   :<- [::spellcasting-modifiers]
   :<- [::proficiency-bonus]
-  (fn [[modifiers proficiency-bonus]]
+  :<- [::eq-attack-buffs]
+  (fn [[modifiers proficiency-bonus buffs]]
     (reduce-kv
       (fn [m class-or-race-id modifier]
-        (assoc m class-or-race-id (+ proficiency-bonus modifier)))
+        (assoc m class-or-race-id (+ proficiency-bonus modifier buffs)))
       {}
       modifiers)))
 
