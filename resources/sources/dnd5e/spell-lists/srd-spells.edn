@@ -248,6 +248,7 @@ When you cast the spell and as a bonus action on your subsequent turns, you can 
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the damage from the clenched fist option increases by 2d8 and the damage from the grasping hand increases by 2d6 for each slot level above 5th."
    :comp [:vs "an eggshell and a snakeskin glove"]
    :con? true
+   :attack :melee
    :damage :force
    }
 
@@ -274,6 +275,7 @@ While affected by this spell, the object is more difficult to break or force ope
 When the sword appears, you make a melee spell attack against a target of your choice within 5 feet of the sword. On a hit, the target takes 3d10 force damage. Until the spell ends, you can use a bonus action on each of your turns to move the sword up to 20 feet to a spot you can see and repeat this attack against the same target or a different one."
    :comp [:vs "a miniature platinum sword with a grip and pommel of copper and zinc, worth 250 gp"]
    :con? true
+   :attack :melee
    :damage :force
    :dice "3d10"
    }
@@ -1889,6 +1891,7 @@ The flaming blade sheds bright light in a 10-foot radius and dim light for an ad
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for every two slot levels above 2nd."
    :comp [:vs "leaf of sumac"]
    :con? true
+   :attack :melee
    :damage :fire
    :dice "3d6"
    }
@@ -2645,6 +2648,7 @@ The cloud moves 10 feet directly away from you in a direction that you choose at
    :desc "Make a melee spell attack against a creature you can reach. On a hit, the target takes 3d10 necrotic damage.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the damage increases by 1d10 for each slot level above 1st."
    :comp :vs
+   :attack :melee
    :damage :necrotic
    :dice (fn [spell-level]
     (str (+ 2 spell-level) "d10"))
@@ -4040,6 +4044,7 @@ A nonmagical object that isn’t being worn or carried also takes the damage if 
    :desc "Lightning springs from your hand to deliver a shock to a creature you try to touch. Make a melee spell attack against the target. You have advantage on the attack roll if the target is wearing armor made of metal. On a hit, the target takes 1d8 lightning damage, and it can’t take reactions until the start of its next turn.
 The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level (3d8), and 17th level (4d8)."
    :comp :vs
+   :attack :melee
    :damage :lightning
    :dice (fn [total-level]
     (str (cond
@@ -4633,6 +4638,7 @@ If you command the servant to perform a task that would move it more than 60 fee
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the damage increases by 1d6 for each slot level above 3rd."
    :comp :vs
    :con? true
+   :attack :melee
    :damage :necrotic
    :dice (fn [spell-level]
     (str spell-level "d6"))
