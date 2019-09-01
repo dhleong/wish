@@ -12,6 +12,7 @@
             [wish.sources.compiler.race :refer [declare-race declare-subrace install-deferred-subraces]]
             [wish.sources.compiler.util :as util]
             [wish.sources.core :refer [find-feature]]
+            [wish.sources.util :refer [call-with]]
             [wish.util :refer [deep-merge inc-or ->map process-map]]))
 
 ; ======= constants ========================================
@@ -596,6 +597,14 @@
       (apply-current-level data-source find-scaling-fn)
       (apply-all-levels data-source find-scaling-fn)))
 
+(defn expand-descriptions [entity]
+  (update entity :features
+          #(reduce-kv
+            (fn [m id feature]
+              (if (:desc feature)
+                (update-in m [id :desc] call-with entity)
+                m))
+            % %)))
 
 ; ======= Public interface =================================
 
@@ -616,7 +625,10 @@
 
       ; apply levels to limited-use items, since they're
       ; all available now
-      (apply-levels data-source find-limited-use-scaling)))
+      (apply-levels data-source find-limited-use-scaling)
+
+      ; finally, expand functional :descs
+      (expand-descriptions)))
 
 (defn apply-directives
   "Apply all :! directives on an entity to that entity"

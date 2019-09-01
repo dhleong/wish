@@ -11,6 +11,7 @@
             [wish.sources.compiler :refer [apply-directives inflate]]
             [wish.sources.compiler.lists :as lists]
             [wish.sources.core :as src :refer [find-class find-race]]
+            [wish.sources.util :as src-util]
             [wish.util :refer [deep-merge padded-compare]]))
 
 (reg-sub :device-type :device-type)
@@ -442,7 +443,13 @@
                          (repeat nil))))
 
                    ; normal feature
-                   [entry])))))
+                   [entry])))
+
+       (map (fn [[_ f :as entry]]
+              (let [container (:wish/container (meta entry))]
+                (if (:desc f)
+                  (update entry 1 #(src-util/expand-feature container %))
+                  entry))))))
 
 (defn inflate-option-values
   [data-source options feature-id values]

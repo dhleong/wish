@@ -101,13 +101,16 @@
       (conj directives provide-directive)
       [provide-directive])))
 
+(def compile-desc (memoize ->callable))
+(def compile-values-filter (memoize ->callable))
 (defn compile-feature
   "Compile a feature map"
   [fm]
   ; TODO how can sheets declare keys that should be callable?
   (-> fm
+      (update :desc compile-desc)
       (update :max-options compile-max-options)
-      (update :values-filter ->callable)
+      (update :values-filter compile-values-filter)
       (update :available? compile-available fm)
 
       (cond->

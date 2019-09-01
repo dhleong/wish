@@ -8,6 +8,29 @@
   (:require-macros [wish.sources.compiler.fun :refer [expose-fn export-macro export-sym]]))
 
 ;;
+;; Public clojurescript API
+
+(defn ^:export ordinal [n]
+  (str n
+       (if (<= 11 n 19)
+         "th"
+         (let [ones (rem n 10)]
+           (case ones
+             1 "st"
+             2 "nd"
+             3 "rd"
+             "th")))))
+
+(defn ^:export has?
+  "Alias for (some) that can handle sets in production"
+  [vals-set coll]
+  (some
+    (fn [item]
+      (contains? vals-set item))
+    coll))
+
+
+;;
 ;; Clojurescript eval
 
 (def cached-eval-state (atom nil))
@@ -24,21 +47,15 @@
   [args]
   (map ->number args))
 
-(defn ^:export has?
-  "Alias for (some) that can handle sets in production"
-  [vals-set coll]
-  (some
-    (fn [item]
-      (contains? vals-set item))
-    coll))
-
 ; NOTE anything exposed below also needs to get added to the :refer
 
 (def exposed-fns
   (-> { ; these alias directly to JS functions
        'ceil 'js/Math.ceil
        'floor 'js/Math.floor
-       'has? 'wish.sources.compiler.fun/has?}
+
+       'has? 'wish.sources.compiler.fun/has?
+       'ordinal 'wish.sources.compiler.fun/ordinal}
 
       ;;
       ;; Expose!
@@ -89,6 +106,9 @@
       (expose-fn some)
 
       (expose-fn partial)
+
+      ;; ; Wish-specific API
+      ;; (expose-fn ordinal)
 
       ; for debugging
       (expose-fn println)))

@@ -5,6 +5,7 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish.sources.core :as src :refer [expand-list]]
+            [wish.sources.util :as src-util]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
@@ -107,6 +108,10 @@
                    (wstr/includes-any-case? n filter-str))))
     coll))
 
+(defn feature-by-id
+  [data-source container feature-id]
+  (or (get-in container [:features feature-id])
+      (src-util/inflate-feature data-source container feature-id)))
 
 ; ======= 5e-specific nav =================================
 
@@ -1188,8 +1193,7 @@
                         (or (when (= id (:id c))
                               ; attuned equipment, probably
                               c)
-                            (get-in c [:features id])
-                            (src/find-feature data-source id)))
+                            (feature-by-id data-source c id)))
                       (cond
                         (map? flags) flags
                         (keyword? flags) {flags true}
@@ -1243,14 +1247,14 @@
          ; merging in &from-options as necessary
          (map (fn [attack]
                 (let [source-entity (:wish/source attack)
-                      context-feature (or (get-in source-entity [:features (:id attack)])
-                                          (src/find-feature data-source (:id attack)))
+                      context-feature (feature-by-id data-source source-entity (:id attack))
                       attack (if-let [from-option (:&from-option attack)]
                                ; merge in
                                (let [opt (->> options
                                               from-option
                                               first
-                                              (src/find-feature data-source))]
+                                              (src-util/inflate-feature
+                                                data-source source-entity))]
                                  (merge
                                    opt
 
@@ -2239,14 +2243,6 @@
          vals
          flatten
          set)))
-
-(defn inflate-option-by-id
-  [data-source values option-id]
-  (or (src/find-feature data-source option-id)
-      (src/find-list-entity data-source option-id)
-      (->> values
-           (filter #(= option-id (:id %)))
-           first)))
 
 ; hacks?
 (reg-sub
