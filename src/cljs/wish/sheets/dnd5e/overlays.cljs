@@ -234,10 +234,11 @@
 (defn hp-overlay []
   (r/with-let [state (r/atom {})]
     (let [[hp max-hp] (<sub [::subs/hp])
+          temp-hp (<sub [::subs/temp-hp])
           {:keys [heal damage]} @state
           new-hp (max
                    0  ; you can't go negative in 5e
-                   (min max-hp
+                   (min (+ max-hp temp-hp) ; don't collapse temp-hp above max
                         (- (+ hp heal)
                            damage)))
           death-saves (<sub [::subs/death-saving-throws])]

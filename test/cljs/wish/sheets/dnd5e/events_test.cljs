@@ -95,6 +95,22 @@
                updated
                [:sheet])))))
 
+  (testing "Use temp HP first when at max"
+    (let [updated (update-hp
+                    (cofx
+                      {:limited-uses {:hp#uses 0}
+                       :sheet {:temp-hp 5}})
+                    -10 ; damage amt
+                    20)] ; max hp
+      (is (= {:hp#uses 5}
+             (get-in-sheet
+               updated
+               [:limited-uses])))
+      (is (= {:temp-hp 0}
+             (get-in-sheet
+               updated
+               [:sheet])))))
+
   (testing "Don't affect temp-hp when healing"
     (let [updated (update-hp
                     (cofx
