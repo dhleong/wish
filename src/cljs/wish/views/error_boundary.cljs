@@ -13,9 +13,11 @@
                              (reset! err error))
 
       :reagent-render (fn [& children]
-                        (if-let [err @err]
-                          [:div.error
-                           [:h1 "Oops! Something went wrong"]
-                           [:div (str err)]]
+                         (if-let [e @err]
+                           [:div.error
+                            [:h1 "Oops! Something went wrong"]
+                            [:pre (if (ex-message e)
+                                    (.-stack e)
+                                    (str e))]]
 
-                          (into [:<>] children)))})))
+                           (into [:<>] children)))})))
