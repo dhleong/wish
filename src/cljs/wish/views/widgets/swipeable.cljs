@@ -14,7 +14,18 @@
        (map-indexed list)
        (reduce
          (fn [m [index c]]
-           (assoc m (-> c meta :key) index))
+           (assoc m (or
+                      ; easy case:
+                      (-> c meta :key)
+
+                      ; common case:
+                      (when (and (vector? c)
+                                 (> (count c) 2))
+                        (:key (get c 1)))
+
+                      ; warn!
+                      (js/console.warn "NO KEY on [swipeable] child: " c))
+                  index))
          {})))
 
 (defn- unpack-key-ops
