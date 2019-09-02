@@ -264,6 +264,15 @@
                    :font-size "110%"}])
 
 (defstyled hp-overlay
+  (at-media media-smartphones
+            [:.quick-adjust :.new-hp
+             {:width "15vw !important"}]
+            [:.quick-adjust (merge flex/vertical
+                                   flex/align-center)
+             [:.number {:width "15vw !important"}]
+             [:.label {:font-size "80%"
+                       :overflow-x 'visible
+                       :white-space 'nowrap}]])
   overlay
 
   [:.current-hp (merge text-center

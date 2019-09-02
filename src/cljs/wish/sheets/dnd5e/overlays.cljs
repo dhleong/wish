@@ -285,7 +285,7 @@
          [:div.quick-adjust
 
           ; left col: damage
-          [:div "Damage"]
+          [:div.label "Damage"]
           [bind-fields
            [:input.number {:field :fast-numeric
                            :id :damage
@@ -309,7 +309,7 @@
 
          ; right col: heal
          [:div.quick-adjust
-          [:div "Heal"]
+          [:div.label "Heal"]
 
           [bind-fields
            [:input.number {:field :fast-numeric
@@ -329,7 +329,7 @@
        [:h5.centered.section-header "Temporary Health"]
        [:div.sections
         [:div.quick-adjust
-         [:div "Temp HP"]
+         [:div.label "Temp HP"]
 
          [bind-fields
           [:input.number {:field :fast-numeric
@@ -342,7 +342,7 @@
         [:div.new-hp]
 
         [:div.quick-adjust
-         [:div "Extra Max HP"]
+         [:div.label "Extra Max HP"]
 
          [bind-fields
           [:input.number {:field :fast-numeric
