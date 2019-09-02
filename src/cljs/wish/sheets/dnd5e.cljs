@@ -535,6 +535,25 @@
     nil
     pages))
 
+(defn- window-of [pages around-id]
+  (let [page-index (page->index pages around-id)
+        max-index (dec (count pages))
+
+        before (- page-index 2)
+        before-delta (when (< before 0)
+                       (- before))
+
+        after (+ page-index 2)
+        after-delta (when (> after max-index)
+                      (- max-index after))
+
+        start (max 0 (+ before
+                        after-delta))
+        end (inc (min max-index
+                      (+ after
+                         before-delta)))]
+    (subvec pages start end)))
+
 (defn- actions-header [state header-id]
   (let [smartphone? (= :smartphone (<sub [:device-type]))
         available-pages (->> action-pages
@@ -544,19 +563,22 @@
                              vec)
         pages-to-show (if smartphone?
                         ; show subset, for space
-                        (let [page-index (page->index available-pages header-id)
-                              before (max 0 (- page-index 2))
-                              after (min (dec (count available-pages))
-                                         (+ page-index 2))]
-                          (subvec available-pages before (inc after)))
+                        (window-of available-pages header-id)
 
                         ; all pages
                         available-pages)]
     [:div.filters {:ref #(swap! state assoc-in [:elements header-id] %)}
+     (when (not= (ffirst pages-to-show) (ffirst action-pages))
+       [combat-page-link state (ffirst action-pages) "…" false])
+
      (for [[id label] pages-to-show]
        (let [selected? (= id header-id)]
          ^{:key id}
-         [combat-page-link state id label selected?]))]))
+         [combat-page-link state id label selected?]))
+
+     (when (not= (first (peek pages-to-show)) (first (peek action-pages)))
+       [combat-page-link state (first (peek action-pages)) "…" false])
+     ]))
 
 (declare limited-use-section)
 (defn actions-section []
