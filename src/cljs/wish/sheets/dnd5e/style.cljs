@@ -234,11 +234,25 @@
              :width "3em"}])
 
 (defstyled currency-manager-overlay
+  (at-media media-tiny
+            {:padding "0 !important"}
+            [:.p
+             [:span.label {:display 'none}]
+             [:&:after {:content "'Plat'"}]]
+            [:.e
+             [:span.label {:display 'none}]
+             [:&:after {:content "'Elec'"}]])
+
   base-overlay
 
+  [:h5 {:padding-left "16px"}]
   [:.meta (merge metadata
-                 text-center
-                 {:max-width "180px"})]
+                 {:max-width "180px"
+                  :padding-left "16px"})]
+  [:table (merge text-center
+                 flex/vertical
+                 flex/align-center
+                 {:border-collapse 'collapse})]
   [:th.header {:font-size "80%"}
    [:&.p {:background-color color-platinum}]
    [:&.g {:background-color color-gold}]
@@ -246,7 +260,9 @@
    [:&.s {:background-color color-silver}]
    [:&.c {:background-color color-copper}]]
   [:.amount {:width "4em"
-             :text-align 'center}])
+             :text-align 'center}]
+  [:div.apply {:margin-top "12px"
+               :text-align 'center}])
 
 (defstyled custom-item-overlay
   overlay
