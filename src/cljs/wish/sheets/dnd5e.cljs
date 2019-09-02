@@ -8,6 +8,7 @@
                                invoke-callable]
              :refer-macros [fn-click]]
             [wish.util.nav :refer [sheet-url]]
+            [wish.util.scroll :refer [scrolled-amount]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
@@ -25,6 +26,8 @@
              :refer-macros [icon]
              :refer [expandable formatted-text link link>evt]]
             [wish.views.widgets.swipeable :refer [swipeable]]))
+
+(def ^:private nav-ref (atom nil))
 
 (defn rest-buttons []
   [:div styles/rest-buttons
@@ -558,30 +561,25 @@
 (declare limited-use-section)
 (defn actions-section []
   (r/with-let [page-state (r/atom nil)]
-    (let [_page (<sub [::subs/actions-page :combat])]
-      #_(when-let [view-ref (get-in @page-state [:elements page])]
-        (scroll-into-view view-ref))
-      ;; [visibility-tracker {:on-change (fn [el-key]
-      ;;                                   (println "CHANGED <- " el-key))}
-      [:<>
+    [:<>
 
-       [actions-header page-state :combat]
-       [actions-combat]
+     [actions-header page-state :combat]
+     [actions-combat]
 
-       [actions-for-type :action
-        [actions-header page-state :actions]]
+     [actions-for-type :action
+      [actions-header page-state :actions]]
 
-       [actions-for-type :bonus
-        [actions-header page-state :bonuses]]
+     [actions-for-type :bonus
+      [actions-header page-state :bonuses]]
 
-       [actions-for-type :reaction
-        [actions-header page-state :reactions]]
+     [actions-for-type :reaction
+      [actions-header page-state :reactions]]
 
-       [actions-for-type :special-action
-        [actions-header page-state :specials]]
+     [actions-for-type :special-action
+      [actions-header page-state :specials]]
 
-       [actions-header page-state :limited-use]
-       [limited-use-section]])))
+     [actions-header page-state :limited-use]
+     [limited-use-section]]))
 
 
 ; ======= Features =========================================
@@ -956,28 +954,30 @@
 
 (defn- nav-link
   [page id label]
-  ; NOTE: NOT a ratom, else we get an endless render loop
-  (r/with-let [view-ref (atom nil)]
-    (let [selected? (= id page)]
-      (when selected?
-        (when-let [r @view-ref]
-          (.scrollIntoView r #js {:behavior "smooth"
-                                  :block "nearest"
-                                  :inline "center"})))
-      [:h1.section
-       {:class (when selected?
-                 "selected")
-        :on-click (click>evt [::events/page! id])
-        :ref #(reset! view-ref %)}
-       label])))
+  (let [selected? (= id page)]
+    [:h1.section
+     {:class (when selected?
+               "selected")
+      :on-click (click>evt [::events/page! id])}
+     label]))
 
 (defn- main-section
-  "Call this as a function instead of a reagent form,
-   since it adds the ^{:key}"
-  [_page id opts content]
-  ^{:key id}
-  [:div.section opts
-   content])
+  [{id :key} page opts content]
+  ; NOTE: NOT a ratom, else we get an endless render loop
+  (r/with-let [view-ref (atom nil)]
+    (let [selected? (= id page)
+          r @view-ref
+          nav @nav-ref]
+      (when (and selected? r nav)
+        ; if we've scrolled past the nav bar, ensure this view is visible
+        ; (if we're at the top, it is annoying and doesn't matter anyway)
+        (when (>= (scrolled-amount r)
+                  (.-offsetTop nav))
+            (.scrollIntoView r #js {:behavior "smooth"
+                                    :block "nearest"
+                                    :inline "nearest"}))))
+    [:div.section (assoc opts :ref #(reset! view-ref %))
+     content]))
 
 (defn- abilities-pane
   "This is the left side on desktop and tablets, or the
@@ -999,7 +999,7 @@
         smartphone? (= :smartphone (<sub [:device-type]))
         page (<sub [::subs/page])]
     [:<>
-     [:div.nav
+     [:div.nav {:ref #(reset! nav-ref %)}
       (when smartphone?
         [nav-link page :abilities "Abilities"])
       [nav-link page :actions "Actions"]
@@ -1015,26 +1015,26 @@
                   :set-key! #(>evt [::events/page! %])}
 
        (when smartphone?
-         (main-section page :abilities
-                       nil
-                       [abilities-pane]))
+         [main-section {:key :abilities} page
+          nil
+          [abilities-pane]])
 
-       (main-section page :actions
-                     styles/actions-section
-                     [actions-section])
+       [main-section {:key :actions} page
+        styles/actions-section
+        [actions-section]]
 
        (when spellcasters
-         (main-section page :spells
-                       styles/spells-section
-                       [spells-section spellcasters]))
+         [main-section {:key :spells} page
+          styles/spells-section
+          [spells-section spellcasters]])
 
-       (main-section page :inventory
-                     styles/inventory-section
-                     [inventory-section])
+       [main-section {:key :inventory} page
+        styles/inventory-section
+        [inventory-section]]
 
-       (main-section page :features
-                     styles/features-section
-                     [features-section])
+       [main-section {:key :features} page
+        styles/features-section
+        [features-section]]
 
        ]] ]))
 
