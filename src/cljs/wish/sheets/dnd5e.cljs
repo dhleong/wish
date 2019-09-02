@@ -503,8 +503,7 @@
    (if selected?
      [:span.unselectable label]
 
-     [; link>evt [::events/actions-page! id]
-      :a {:href "#"
+     [:a {:href "#"
           :on-click (fn-click
                       (let [el (get-in @state [:elements id])]
                         (scroll-into-view el)))}
