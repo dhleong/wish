@@ -556,14 +556,17 @@
   [:.extras metadata])
 
 (defstyled actions-section
+  (at-media media-smartphones
+            [:.filters {:justify-content 'center}])
   [:.filters (merge flex
                     {:border-bottom "1px solid #333"
                      :margin-bottom "8px"
-                     :overflow-x 'auto})
+                     :overflow-x 'hidden})
    ["&:not(:first-child)"
     {:margin-top "32px"}]
    [:.filter {:padding "4px"}
-    [:a {:font-size "80%"}]]]
+    [:.unselectable {:font-weight 'bold}]
+    [:a {:font-size "75%"}]]]
 
   [:.combat-info (merge metadata
                         {:margin-bottom "8px"})
