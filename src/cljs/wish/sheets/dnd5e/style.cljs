@@ -560,7 +560,10 @@
                     {:border-bottom "1px solid #333"
                      :margin-bottom "8px"
                      :overflow-x 'auto})
-   [:.filter {:padding "4px"}]]
+   ["&:not(:first-child)"
+    {:margin-top "32px"}]
+   [:.filter {:padding "4px"}
+    [:a {:font-size "80%"}]]]
 
   [:.combat-info (merge metadata
                         {:margin-bottom "8px"})

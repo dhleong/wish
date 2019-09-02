@@ -5,7 +5,8 @@
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.util :refer [>evt <sub click>evt
-                               invoke-callable]]
+                               invoke-callable]
+             :refer-macros [fn-click]]
             [wish.util.nav :refer [sheet-url]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -464,11 +465,13 @@
    [consume-use-block a]
    [formatted-text :div.desc (:desc a)]])
 
-(defn- actions-for-type [filter-type]
+(defn- actions-for-type [filter-type header-form]
   (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
         actions (seq (<sub [::subs/actions-for-type filter-type]))]
-    (if (or spells actions)
-      [:<>
+    (when (or spells actions)
+      [:<> {:key filter-type}
+       header-form
+
        (when spells
          [:div.spells
           [:div.section-label "Spells"]
@@ -483,54 +486,92 @@
          [:div.actions
           (for [a actions]
             ^{:key (:id a)}
-            [action-block a])])]
+            [action-block a])])])))
 
-      [:<> "Nothing available."])))
+(defn- scroll-into-view [el]
+  (.scrollIntoView el #js {:behavior "smooth"
+                           :block "start"
+                           :inline "center"}))
 
 (defn- combat-page-link
-  [page id label]
-  (r/with-let [view-ref (atom nil)]
-    (let [selected? (= id page)]
-      (when selected?
-        (when-let [r @view-ref]
-          (.scrollIntoView r #js {:behavior "smooth"
-                                  :block "nearest"
-                                  :inline "center"})))
+  [state id label selected?]
+  [:div.filter {:class (when selected?
+                         "selected")}
+   (if selected?
+     [:span.unselectable label]
 
-      [:div.filter {:class (when selected?
-                             "selected")
-                    :ref #(reset! view-ref %)}
-       (if selected?
-         [:span.unselectable label]
-
-         [link>evt [::events/actions-page! id]
-          label])])))
+     [; link>evt [::events/actions-page! id]
+      :a {:href "#"
+          :on-click (fn-click
+                      (let [el (get-in @state [:elements id])]
+                        (scroll-into-view el)))}
+      label])])
 
 (defn- actions-page [id form]
   ^{:key id}
   [:div styles/swipeable-page
    form])
 
+(def ^:private action-pages
+  [[:combat "Combat"]
+   [:actions "Actions"]
+   [:bonuses "Bonuses"]
+   [:reactions "Reactions"]
+   [:specials "Others"]
+   [:limited-use "Limited"]])
+
+(def ^:private page->index
+  (reduce-kv
+    (fn [m index [page-id _]]
+      (assoc m page-id index))
+    {}
+    action-pages))
+
+(defn- actions-header [state header-id]
+  (let [smartphone? (= :smartphone (<sub [:device-type]))
+        pages-to-show (if smartphone?
+                        ; show subset, for space
+                        (let [page-index (page->index header-id)
+                              before (max 0 (- page-index 2))
+                              after (min (dec (count action-pages))
+                                         (+ page-index 2))]
+                          (subvec action-pages before (inc after)))
+
+                        ; all pages
+                        action-pages)]
+    [:div.filters {:ref #(swap! state assoc-in [:elements header-id] %)}
+     (for [[id label] pages-to-show]
+       (let [selected? (= id header-id)]
+         ^{:key id}
+         [combat-page-link state id label selected?]))]))
+
 (declare limited-use-section)
 (defn actions-section []
-  (let [page (<sub [::subs/actions-page :combat])]
-    [:<>
-     [:div.filters
-      [combat-page-link page :combat "Combat"]
-      [combat-page-link page :actions "Actions"]
-      [combat-page-link page :bonuses "Bonuses"]
-      [combat-page-link page :reactions "Reactions"]
-      [combat-page-link page :specials "Others"]
-      [combat-page-link page :limited-use "Limited"]]
+  (r/with-let [page-state (r/atom nil)]
+    (let [_page (<sub [::subs/actions-page :combat])]
+      #_(when-let [view-ref (get-in @page-state [:elements page])]
+        (scroll-into-view view-ref))
+      ;; [visibility-tracker {:on-change (fn [el-key]
+      ;;                                   (println "CHANGED <- " el-key))}
+      [:<>
 
-     [swipeable {:get-key #(<sub [::subs/actions-page :combat])
-                 :set-key! #(>evt [::events/actions-page! %])}
-      (actions-page :combat [actions-combat])
-      (actions-page :actions [actions-for-type :action])
-      (actions-page :bonuses [actions-for-type :bonus])
-      (actions-page :reactions [actions-for-type :reaction])
-      (actions-page :specials [actions-for-type :special-action])
-      (actions-page :limited-use [limited-use-section])]]))
+       [actions-header page-state :combat]
+       [actions-combat]
+
+       [actions-for-type :action
+        [actions-header page-state :actions]]
+
+       [actions-for-type :bonus
+        [actions-header page-state :bonuses]]
+
+       [actions-for-type :reaction
+        [actions-header page-state :reactions]]
+
+       [actions-for-type :special-action
+        [actions-header page-state :specials]]
+
+       [actions-header page-state :limited-use]
+       [limited-use-section]])))
 
 
 ; ======= Features =========================================
