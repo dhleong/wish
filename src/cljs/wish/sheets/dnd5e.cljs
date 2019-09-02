@@ -514,31 +514,41 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
-   [:actions "Actions"]
-   [:bonuses "Bonuses"]
-   [:reactions "Reactions"]
-   [:specials "Others"]
-   [:limited-use "Limited"]])
+   [:actions "Actions" :when-any-<sub [[::subs/prepared-spells-filtered :action]
+                                       [::subs/actions-for-type :action]]]
+   [:bonuses "Bonuses" :when-any-<sub [[::subs/prepared-spells-filtered :bonus]
+                                       [::subs/actions-for-type :bonus]]]
+   [:reactions "Reactions" :when-any-<sub [[::subs/prepared-spells-filtered :reaction]
+                                           [::subs/actions-for-type :reaction]]]
+   [:specials "Others" :when-any-<sub [[::subs/prepared-spells-filtered :special-action]
+                                       [::subs/actions-for-type :special-action]]]
+   [:limited-use "Limited" :when-any-<sub [[::subs/limited-use-configs]]]])
 
-(def ^:private page->index
+(defn- page->index [pages to-find]
   (reduce-kv
-    (fn [m index [page-id _]]
-      (assoc m page-id index))
-    {}
-    action-pages))
+    (fn [_ index [page-id _]]
+      (when (= to-find page-id)
+        (reduced index)))
+    nil
+    pages))
 
 (defn- actions-header [state header-id]
   (let [smartphone? (= :smartphone (<sub [:device-type]))
+        available-pages (->> action-pages
+                             (filter (fn [[_ _ & {:keys [when-any-<sub]}]]
+                                       (or (nil? when-any-<sub)
+                                           (some (comp seq <sub) when-any-<sub))))
+                             vec)
         pages-to-show (if smartphone?
                         ; show subset, for space
-                        (let [page-index (page->index header-id)
+                        (let [page-index (page->index available-pages header-id)
                               before (max 0 (- page-index 2))
-                              after (min (dec (count action-pages))
+                              after (min (dec (count available-pages))
                                          (+ page-index 2))]
-                          (subvec action-pages before (inc after)))
+                          (subvec available-pages before (inc after)))
 
                         ; all pages
-                        action-pages)]
+                        available-pages)]
     [:div.filters {:ref #(swap! state assoc-in [:elements header-id] %)}
      (for [[id label] pages-to-show]
        (let [selected? (= id header-id)]
