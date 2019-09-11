@@ -1,0 +1,73 @@
+(declare-features
+
+  ;; Racial features
+
+  {:id :darkvision
+   :name "Darkvision"
+   :desc "You can see in dim light within 60 feet of you as if it were bright light, and in darkness as if it were dim light. You can’t discern color in darkness, only shades of gray."}
+
+  {:id :fey-ancestry
+   :name "Fey Ancestry"
+   :desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."
+   :! (on-state
+        (provide-attr
+          [:saves :fey-ancestry]
+          {:desc "You have advantage on saving throws against being charmed, and magic can’t put you to sleep."}))}
+
+  ;; Other common features
+
+ {:id :extra-attack
+  :name "Extra Attack"
+  :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn."
+  :! [[:!provide-attr
+       [:attacks-per-action :extra-attack]
+       2]]}
+
+  ;; Common level-up features
+
+  {:id :abi-or-feat
+   :name "Ability Score Improvement (or Feat)"
+   :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature.
+
+          Alternatively, using the optional feats rule, you can forgo increasing any ability scores to take a feat of your choice instead. A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides. You can take each feat only once, unless the feat’s description says otherwise."
+   :implicit? true
+   :instanced? true
+   :max-options 1
+   :values [{:id :abi-or-feat/abi
+             :name "Ability Score Improvement"
+             :! (on-state
+                  (provide-feature :ability-improvement))}
+            {:id :abi-or-feat/feat
+             :name "Feat"
+             :! (on-state
+                  (provide-feature :feat))}]}
+
+  {:id :ability-improvement
+   :implicit? true
+   :instanced? true
+   :name "Ability Score Improvement"
+   :desc "You can increase one ability score of your choice by 2, or you can increase two ability scores of your choice by 1. As normal, you can’t increase an ability score above 20 using this feature."
+   :max-options 2
+   :multi? true
+   :values
+   (for [abi [["Strength" :str]
+              ["Dexterity" :dex]
+              ["Constitution" :con]
+              ["Intelligence" :wis]
+              ["Wisdom" :wis]
+              ["Charisma" :cha]]]
+     (let [label (abi 0)
+           kw (abi 1)]
+       {:id (keyword "ability" (name kw))
+        :name label
+        :! (on-state
+             (provide-attr
+               [:buffs :str (:wish/instance-id state)] 1))}))}
+
+  {:id :feat
+   :name "Feat"
+   :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides."
+   :instanced? true
+   :max-options 1
+   :values (items-from-list :all-feats)})
+

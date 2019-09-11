@@ -15,7 +15,9 @@ if ! [ -d "scripts" ]; then
     exit 1
 fi
 
-for s in "${sources[@]}"; do
-    echo "Compiling $s"
-    scripts/wish-compiler "resources/sources/$s" "resources/public/sources/$s.transit.json"
-done
+# for s in "${sources[@]}"; do
+#     echo "Compiling $s"
+#     scripts/wish-compiler "resources/sources/$s" "resources/public/sources/$s.transit.json"
+# done
+
+scripts/wish-compiler "resources/sources/dnd5e.v2" "resources/public/sources/dnd5e.edn"

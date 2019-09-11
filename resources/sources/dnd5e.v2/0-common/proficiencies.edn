@@ -1,0 +1,157 @@
+(declare-features
+  (for [ability [:str :dex :con :int :wis :cha]]
+    (let [k (keyword "save-proficiency" (name ability))]
+      {:id k
+       :! (on-state
+            (provide-attr k true))})))
+
+(let [skills [["Acrobatics" :proficiency/acrobatics]
+              ["Animal Handling" :proficiency/animal-handling]
+              ["Arcana" :proficiency/arcana]
+              ["Athletics" :proficiency/athletics]
+              ["Deception" :proficiency/deception]
+              ["History" :proficiency/history]
+              ["Insight" :proficiency/insight]
+              ["Intimidation" :proficiency/intimidation]
+              ["Investigation" :proficiency/investigation]
+              ["Medicine" :proficiency/medicine]
+              ["Nature" :proficiency/nature]
+              ["Perception" :proficiency/perception]
+              ["Performance" :proficiency/performance]
+              ["Persuasion" :proficiency/persuasion]
+              ["Religion" :proficiency/religion]
+              ["Sleight of Hand" :proficiency/sleight-of-hand]
+              ["Stealth" :proficiency/stealth]
+              ["Survival" :proficiency/survival]]]
+
+  (declare-list
+
+    {:id :all-skill-proficiencies
+     :type :feature}
+
+    (for [info skills]
+      (let [label (info 0)
+            kw (info 1)]
+        [{:id kw
+          :name label
+          :implicit? true
+          :availability-attr kw}])))
+
+  (declare-list
+
+    {:id :all-skill-expertise
+     :type :feature}
+
+    (for [info skills]
+      (let [label (info 0)
+            kw (info 1)
+            expertise-kw (keyword "expertise" (name kw))]
+        [{:id expertise-kw
+          :name label
+          :implicit? true
+          :availability-attr expertise-kw
+          :available? (fn [attrs]
+                        (kw attrs))}]))))
+
+(declare-list
+
+  {:id :all-tool-proficiencies
+   :type :feature}
+
+  (for [info [["Alchemist's Supplies" :proficiency/alchemists-supplies]
+              ["Bagpipes" :proficiency/bagpipes]
+              ["Brewer's Supplies" :proficiency/brewers-supplies]
+              ["Calligrapher's Supplies" :proficiency/calligraphers-supplies]
+              ["Carpenter's Tools" :proficiency/carpenters-tools]
+              ["Cartographer's Tools" :proficiency/cartographers-tools]
+              ["Cobbler's Tools" :proficiency/cobblers-tools]
+              ["Cook's Utensils" :proficiency/cooks-utensils]
+              ["Dice Set" :proficiency/dice-set]
+              ["Disguise Kit" :proficiency/disguise-kit]
+              ["Dragonchess Set" :proficiency/dragonchess-set]
+              ["Drum" :proficiency/drum]
+              ["Dulcimer" :proficiency/dulcimer]
+              ["Flute" :proficiency/flute]
+              ["Forgery Kit" :proficiency/forgery-kit]
+              ["Glassblower's Tools" :proficiency/glassblowers-tools]
+              ["Herbalism Kit" :proficiency/herbalism-kit]
+              ["Horn" :proficiency/horn]
+              ["Jeweler's Tools" :proficiency/jewelers-tools]
+              ["Leatherworker's Tools" :proficiency/leatherworkers-tools]
+              ["Lute" :proficiency/lute]
+              ["Lyre" :proficiency/lyre]
+              ["Mason's Tools" :proficiency/masons-tools]
+              ["Navigator's Tools" :proficiency/navigators-tools]
+              ["Painter's Supplies" :proficiency/painters-supplies]
+              ["Pan Flute" :proficiency/pan-flute]
+              ["Playing Card Set" :proficiency/playing-card-set]
+              ["Poisoner's Kit" :proficiency/poisoners-kit]
+              ["Potter's Tools" :proficiency/potters-tools]
+              ["Shawm" :proficiency/shawm]
+              ["Smith's Tools" :proficiency/smiths-tools]
+              ["Thieves' Tools" :proficiency/thieves-tools]
+              ["Three-Dragon Ante Set" :proficiency/three-dragon-ante-set]
+              ["Tinker's Tools" :proficiency/tinkers-tools]
+              ["Vehicles (Land)" :proficiency/vehicles-land]
+              ["Vehicles (Water)" :proficiency/vehicles-water]
+              ["Viol" :proficiency/viol]
+              ["Weaver's Tools" :proficiency/weavers-tools]
+              ["Woodcarver's Tools" :proficiency/woodcarvers-tools]]]
+    (let [label (info 0)
+          kw (info 1)]
+      {:id kw
+       :name label
+       :implicit? true
+       :availability-attr kw})))
+
+; ======= Weapon proficiencies ============================
+
+(declare-list
+  {:id :weapon-kind-proficiencies
+   :type :feature}
+
+  (for [info [["Club" :proficiency/club]
+              ["Dagger" :proficiency/dagger]
+              ["Dart" :proficiency/dart]
+              ["Javelin" :proficiency/javelin]
+              ["Hand Crossbow" :proficiency/hand-crossbow]
+              ["Light Crossbow" :proficiency/light-crossbow]
+              ["Longbow" :proficiency/longbow]
+              ["Longsword" :proficiency/longsword]
+              ["Mace" :proficiency/mace]
+              ["Shortbow" :proficiency/shortbow]
+              ["Shortsword" :proficiency/shortsword]
+              ["Rapier" :proficiency/rapier]
+              ["Scimitar" :proficiency/scimitar]
+              ["Sickle" :proficiency/sickle]
+              ["Sling" :proficiency/sling]
+              ["Spear" :proficiency/spear]
+              ["Quarterstaff" :proficiency/quarterstaff]]]
+    (let [label (info 0)
+          kw (info 1)
+          kind-kw (keyword (name kw))]
+      {:id kw
+       :name label
+       :implicit? true
+       :! (on-state
+            (provide-attr [:weapon-kinds kind-kw] true)
+            (provide-attr kw true))})))
+
+; ======= Armor proficiencies =============================
+
+(declare-list
+  {:id :armor-category-proficiencies
+   :type :feature}
+
+  (for [info [["All Armor" :proficiency/all-armor]
+              ["Light Armor" :proficiency/light-armor]
+              ["Medium Armor" :proficiency/medium-armor]
+              ["Heavy Armor" :proficiency/heavy-armor]
+              ["Shields" :proficiency/shields]]]
+    (let [label (info 0)
+          kw (info 1)]
+      {:id kw
+       :name label
+       :implicit? true
+       :! (on-state
+            (provide-attr kind-kw true))})))

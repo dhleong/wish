@@ -1,0 +1,31 @@
+
+(declare-list
+
+  {:id :all-languages
+   :type :feature}
+
+  (for [info [["Common" :lang/common]
+              ["Aarakocra" :lang/aarakocra]
+              ["Abyssal" :lang/abyssal]
+              ["Aquan" :lang/aquan]
+              ["Auran" :lang/auran]
+              ["Celestial" :lang/celestial]
+              ["Deep Speech" :lang/deep-speech]
+              ["Draconic" :lang/draconic]
+              ["Dwarvish" :lang/dwarvish]
+              ["Elvish" :lang/elvish]
+              ["Giant" :lang/giant]
+              ["Gnomish" :lang/gnomish]
+              ["Goblin" :lang/goblin]
+              ["Halfling" :lang/halfling]
+              ["Infernal" :lang/infernal]
+              ["Orc" :lang/orc]
+              ["Primordial" :lang/primordial]
+              ["Sylvan" :lang/sylvan]
+              ["Undercommon" :lang/undercommon]]]
+    (let [label (info 0)
+          kw (info 1)]
+      {:id kw
+       :name label
+       :availability-attr kw})))
+

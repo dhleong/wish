@@ -49,8 +49,9 @@
       id
       (let [engine (sheets/get-engine kind)
             state (engine/create-state engine)]
-        (engine/load-source engine state (into '(do) directives))
-        state)
+        (engine/load-source engine state directives)
+        {:state state
+         :engine engine})
       #_(->> directives
            (compile-directives)
            (sheets/post-compile kind)))))

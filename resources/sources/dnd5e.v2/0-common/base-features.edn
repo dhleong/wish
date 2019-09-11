@@ -1,0 +1,22 @@
+(declare-features
+  {:id :unarmed-strike
+   :implicit? true
+   :dice (fn [modifiers]
+           (+ 1 (:str modifiers)))}
+
+  {:id :hp
+   :implicit? true
+   :! (on-state
+        (add-limited-use
+          {:id :hp#uses
+           :implicit? true
+           :restore-trigger :long-rest}))}
+
+ {:id :feats
+  :name "Extra Feats"
+  :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides.
+
+You can normally only take feats in place of Ability Score Improvements, but with permission from your DM you may add extra feats here."
+  :primary-only? true
+  :max-options 99
+  :values (items-from-list :all-feats)})

@@ -2,6 +2,7 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
+            [wish-engine.core :as engine]
             [wish.data :as data]
             [wish.db :as db]
             [wish.inventory :as inv]
@@ -260,11 +261,19 @@
   :<- [:meta/options]
   :<- [:meta/classes]
   (fn [[sheet-kind source options metas] _]
+    (println "CLASSES" sheet-kind source options metas)
     (when source
       (->> metas
            (map (fn [m]
+                  (println "APPLY: " m source)
+                  (let [{:keys [state]} (.-data source)
+                        the-class (get-in @state [:classes (:id m)])]
+                    (println "APPLY: " m " / " the-class)
+                    (engine/inflate-entity state the-class m options)
+                    )))
+           #_(map (fn [m]
                   (merge m (find-class source (:id m)))))
-           (map (fn [c]
+           #_(map (fn [c]
                   (-> c
                       (inflate source options)
                       (sheets/post-process
