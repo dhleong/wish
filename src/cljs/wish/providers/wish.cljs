@@ -14,7 +14,8 @@
 (def ^:private builtin-sources
   {"dnd5e-srd" {:name "D&D 5e System Reference Document"
                 ;; :path "/dnd5e.edn.json"
-                :path "/dnd5e.transit.json"
+                ;; :path "/dnd5e.transit.json"
+                :path "/dnd5e.edn"
                 }})
 
 (deftype WishProvider []

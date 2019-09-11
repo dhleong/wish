@@ -8,6 +8,8 @@
                  [clj-commons/secretary "1.2.4"]
                  [re-pressed "0.3.0"]
 
+                 [wish-engine "0.1.0-SNAPSHOT"]
+
                  [kibu/pushy "0.3.8"]
                  [cljs-ajax "0.8.0"]
                  [com.cemerick/url "0.1.1"]

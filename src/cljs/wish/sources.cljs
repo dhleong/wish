@@ -8,9 +8,11 @@
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
             [cognitect.transit :as t]
+            [wish-engine.core :as engine]
+            [wish-engine.edn :refer [edn-readers]]
             [wish.providers :as providers]
             [wish.sheets :as sheets]
-            [wish.sources.compiler :refer [compile-directives]]
+            ;; [wish.sources.compiler :refer [compile-directives]]
             [wish.sources.core :as sources :refer [->DataSource id]]
             [wish.sources.composite :refer [composite-source]]
             [wish.util :refer [>evt]]))
@@ -23,9 +25,10 @@
     (t/read (t/reader :json) raw)))
 
 (defn- read-edn-directives [raw]
-  (loop [reader (string-push-back-reader raw)
+  (edn/read-string {:readers edn-readers} (str "(do " raw ")"))
+  #_(loop [reader (string-push-back-reader raw)
          directives []]
-    (if-let [d (edn/read reader)]
+    (if-let [d #_(edn/read #_{:readers edn-readers} reader)]
       ; keep loading directives
       (recur reader (conj directives d))
 
@@ -44,7 +47,11 @@
                        (read-edn-directives raw)))]
     (->DataSource
       id
-      (->> directives
+      (let [engine (sheets/get-engine kind)
+            state (engine/create-state engine)]
+        (engine/load-source engine state (into '(do) directives))
+        state)
+      #_(->> directives
            (compile-directives)
            (sheets/post-compile kind)))))
 

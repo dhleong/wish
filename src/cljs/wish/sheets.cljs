@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheets"}
   wish.sheets
-  (:require [wish.sheets.dnd5e :as dnd5e]
+  (:require [wish-engine.core :as engine]
+            [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
@@ -25,6 +26,9 @@
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
+           :engine (delay
+                     (engine/create-engine))
+
            :keymaps dnd5e-key/maps
 
            ; extra 5e-specific compile step, run
@@ -40,6 +44,10 @@
 
 
 ; ======= Public interface =================================
+
+(defn get-engine
+  [sheet-kind]
+  (deref (get-in sheets [sheet-kind :engine])))
 
 (defn get-keymaps
   [sheet-kind]
