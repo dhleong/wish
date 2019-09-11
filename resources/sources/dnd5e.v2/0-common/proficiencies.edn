@@ -137,6 +137,24 @@
             (provide-attr [:weapon-kinds kind-kw] true)
             (provide-attr kw true))})))
 
+(declare-list
+ {:id :weapon-category-proficiencies
+  :type :feature}
+
+ {:id :proficiency/martial-weapons
+  :name "Martial Weapons"
+  :implicit? true
+  :! (on-state
+       (provide-attr [:weapon-categories :martial] true)
+       (provide-attr :proficiency/martial-weapons true))}
+ {:id :proficiency/simple-weapons
+  :name "Simple Weapons"
+  :implicit? true
+  :! (on-state
+       (provide-attr [:weapon-categories :simple] true)
+       (provide-attr :proficiency/simple-weapons true))})
+
+
 ; ======= Armor proficiencies =============================
 
 (declare-list
@@ -154,4 +172,4 @@
        :name label
        :implicit? true
        :! (on-state
-            (provide-attr kind-kw true))})))
+            (provide-attr kw true))})))
