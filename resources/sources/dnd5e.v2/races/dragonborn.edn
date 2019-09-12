@@ -1,0 +1,135 @@
+(declare-race
+  {:id :dragonborn
+   :name "Dragonborn"
+   :attrs
+   {:5e/ability-score-increase
+    {:str 2
+     :cha 1}
+    :5e/size :medium
+    :5e/speed 30}
+
+   :! (on-state
+        (provide-features
+          :background
+          :lang/common
+          :lang/draconic
+
+          {:id :dragonborn/ancestry
+           :name "Draconic Ancestry"
+           :desc "You have draconic ancestry. Choose one type of dragon from the Draconic Ancestry table. Your breath weapon and damage resistance are determined by the dragon type, as shown in the table."
+           :max-options 1}
+
+          {:id :dragonborn/breath-weapon
+           :name "Breath Weapon"
+           :desc "You can use your action to exhale destructive energy. Your draconic ancestry determines the size, shape, and damage type of the exhalation.
+                  When you use your breath weapon, each creature in the area of the exhalation must make a saving throw, the type of which is determined by your draconic ancestry. The DC for this saving throw equals 8 + your Constitution modifier + your proficiency bonus. A creature takes 2d6 damage on a failed save, and half as much damage on a successful one. The damage increases to 3d6 at 6th level, 4d6 at 11th level, and 5d6 at 16th level.
+                  After you use your breath weapon, you can’t use it again until you complete a short or long rest."
+           :! (on-state
+                (add-limited-use
+                  {:id :dragonborn/breath-weapon#uses
+                   :name "Dragonborn Breath Weapon"
+                   :uses 1
+                   :restore-trigger :short-rest})
+
+                (provide-attr
+                  [:attacks :dragonborn/breath-weapon]
+                  {:&from-option :dragonborn/ancestry
+                   :name "Dragonborn Breath Weapon"
+                   :consumes :dragonborn/breath-weapon#uses
+                   :dice (fn [level]
+                           (cond
+                             (< level 6) "2d6"
+                             (< level 11) "3d6"
+                             (< level 16) "4d6"
+                             :else "5d6"))
+                   :save-dc (fn [modifiers prof-bonus]
+                              (+ 8 (:con modifiers) prof-bonus))}))}))}
+
+(declare-options
+  :dragonborn/ancestry
+
+  (for [info [{:id :dragonborn/ancestry-black
+               :name "Black"
+               :damage-label "Acid"
+               :save :dex
+               :damage :acid
+               :aoe [:line 30, 5]}
+
+              {:id :dragonborn/ancestry-blue
+               :name "Blue"
+               :damage-label "Lightning"
+               :save :dex
+               :damage :lightning
+               :aoe [:line 30, 5]}
+
+              {:id :dragonborn/ancestry-brass
+               :name "Brass"
+               :damage-label "Fire"
+               :save :dex
+               :damage :fire
+               :aoe [:line 30, 5]}
+
+              {:id :dragonborn/ancestry-bronze
+               :name "Bronze"
+               :damage-label "Lightning"
+               :save :dex
+               :damage :lightning
+               :aoe [:line 30, 5]}
+
+              {:id :dragonborn/ancestry-copper
+               :name "Copper"
+               :damage-label "Acid"
+               :save :dex
+               :damage :acid
+               :aoe [:line 30, 5]}
+
+              {:id :dragonborn/ancestry-gold
+               :name "Gold"
+               :damage-label "Fire"
+               :save :dex
+               :damage :fire
+               :aoe [:cone 15]}
+
+              {:id :dragonborn/ancestry-green
+               :name "Green"
+               :damage-label "Poison"
+               :save :con
+               :damage :poison
+               :aoe [:cone 15]}
+
+              {:id :dragonborn/ancestry-red
+               :name "Red"
+               :damage-label "Fire"
+               :save :dex
+               :damage :fire
+               :aoe [:cone 15]}
+
+              {:id :dragonborn/ancestry-silver
+               :name "Silver"
+               :damage-label "Cold"
+               :save :con
+               :damage :cold
+               :aoe [:cone 15]}
+
+              {:id :dragonborn/ancestry-white
+               :name "White"
+               :damage-label "Cold"
+               :save :con
+               :damage :cold
+               :aoe [:cone 15]}]]
+
+    {:id (:id info)
+     :name (str "Dragonborn: " (:name info) "Dragon Ancestor")
+     :desc (str "Your breath weapon does " (:damage-label info) "damage")
+     :save (:save info)
+     :damage (:damage info)
+     :aoe (:aoe info)
+     :! (on-state
+          (provide-feature
+            {:id :dragonborn/damage-resistance
+             :name "Damage Resistance"
+             :desc (str "You have resistance to the damage type associated with your draconic ancestry (" (:damage-label info) ")")})
+          (provide-attr
+            [:resistances (:damage info)]
+            true))})))
+

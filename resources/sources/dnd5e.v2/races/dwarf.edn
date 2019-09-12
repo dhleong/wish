@@ -1,0 +1,71 @@
+(declare-race
+  {:id :dwarf
+   :name "Dwarf"
+   :attrs
+   {:5e/ability-score-increase
+    {:con 2}
+    :5e/size :medium
+    :5e/speed 25}
+
+   :! (on-state
+        (provide-features
+          :background
+          :lang/common
+          :lang/dwarvish
+          :darkvision
+
+          {:id :dwarf/dwarven-resilience
+           :name "Dwarven Resilience"
+           :desc "You have advantage on saving throws against poison, and you have resistance against poison damage."
+           :! (on-state
+                (provide-attr
+                  [:saves :dwarf/dwarven-resilience-saves]
+                  {:desc "You have advantage on saving throws against poison."})
+                (provide-attr
+                  [:resistances :dwarf/dwarven-resilience-resistances]
+                  {:desc "You have resistance against poison damage."}))}
+
+          {:id :dwarf/dwarven-combat-training
+           :name "Dwarven Combat Training"
+           :desc "You have proficiency with the battleaxe, handaxe, light hammer, and warhammer"
+           :! (on-state
+                (provide-attr [:weapon-kinds :battleaxe] true)
+                (provide-attr [:weapon-kinds :handaxe] true)
+                (provide-attr [:weapon-kinds :light-hammer] true)
+                (provide-attr [:weapon-kinds :warhammer] true)
+                (provide-attr :proficiency/battleaxe true)
+                (provide-attr :proficiency/handaxe true)
+                (provide-attr :proficiency/light-hammer true)
+                (provide-attr :proficiency/warhammer true))}
+
+          {:id :dwarf/tool-proficiency
+           :name "Tool Proficiency"
+           :desc "You gain proficiency with the artisan’s tools of your choice: smith’s tools, brewer’s supplies, or mason’s tools."
+           :max-options 1
+           :values [:proficiency/smiths-tools :proficiency/brewers-supplies :proficiency/masons-tools]}
+
+          {:id :dwarf/stonecunning
+           :name "Stonecunning"
+           :desc "Whenever you make an Intelligence (History) check related to the origin of stonework, you are considered proficient in the History skill and add double your proficiency bonus to the check, instead of your normal proficiency bonus."}))})
+
+(declare-subrace
+
+  :dwarf
+
+  {:id :dwarf/hill-dwarf
+   :name "Hill Dwarf"
+
+   :! (on-state
+        (provide-attr
+          {:5e/ability-score-increase
+           {:wis 1}})
+
+        (provide-features
+          {:id :dwarf/dwarven-toughness
+           :name "Dwarven Toughness"
+           :desc "Your hit point maximum increases by 1 and increases by 1 again every time you gain a level."
+           :! (on-state
+                (provide-attr
+                  [:buffs :hp-max :dwarf/dwarven-toughness]
+                  (fn [level] level)))}))})
+
