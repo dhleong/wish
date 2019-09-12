@@ -1,0 +1,100 @@
+
+(declare-list
+
+  :5e/starter-packs
+
+  {:id :burglers-pack
+   :name "Burgler's Pack"
+   :contents
+   {:backpack 1
+    :ball-bearings 1
+    :string 1
+    :bell 1
+    :candle 5
+    :crowbar 1
+    :hammer 1
+    :piton 10
+    :lantern-hooded 1
+    :oil 2
+    :rations-1-day 5
+    :tinderbox 1
+    :waterskin 1
+    :rope-hempen 1}}
+
+  {:id :diplomats-pack
+   :name "Diplomat's Pack"
+   :contents
+   {:chest 1
+    :case-map-or-scroll 1
+    :clothes-fine 1
+    :ink 1
+    :ink-pen 1
+    :lamp 1
+    :oil 2
+    :paper 5
+    :perfume 1
+    :sealing-wax 1
+    :soap 1}}
+
+  {:id :dungeoneers-pack
+   :name "Dungeoneer's Pack"
+   :contents
+   {:backpack 1
+    :crowbar 1
+    :hammer 1
+    :piton 10
+    :torch 10
+    :tinderbox 1
+    :rations-1-day 10
+    :waterskin 1
+    :rope-hempen 1}}
+
+  {:id :entertainers-pack
+   :name "Entertainer's Pack"
+   :contents
+   {:backpack 1
+    :bedroll 1
+    :clothes-costume 2
+    :candle 5
+    :rations-1-day 5
+    :waterskin 1
+    :disguise-kit 1}}
+
+  {:id :explorers-pack
+   :name "Explorer's Pack"
+   :contents
+   {:backpack 1
+    :bedroll 1
+    :mess-kit 1
+    :tinderbox 1
+    :torch 10
+    :rations-1-day 10
+    :waterskin 1
+    :rope-hempen 1}}
+
+  {:id :priests-pack
+   :name "Priest's Pack"
+   :contents
+   {:backpack 1
+    :blanket 1
+    :candle 10
+    :tinderbox 1
+    :alms-box 1
+    :incense 2
+    :censer 1
+    :vestments 1
+    :rations-1-day 2
+    :waterskin 1}}
+
+  {:id :scholars-pack
+   :name "Scholar's Pack"
+   :contents
+   {:backpack 1
+    :book 1
+    :ink 1
+    :ink-pen 1
+    :parchment 10
+    :bag-of-sand 1
+    :knife-small 1}})
+
+

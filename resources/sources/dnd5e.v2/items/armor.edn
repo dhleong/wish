@@ -1,0 +1,84 @@
+
+(declare-items
+
+ {:type :armor}
+
+ ; light:
+ {:id :padded-armor
+  :kind :padded
+  :name "Padded Armor"
+  :cost [5 :g]
+  :weight 8}
+ {:id :leather-armor
+  :kind :leather
+  :name "Leather Armor"
+  :cost [10 :g]
+  :weight 10}
+ {:id :studded-leather-armor
+  :kind :studded
+  :name "Studded Leather Armor"
+  :cost [45 :g]
+  :weight 13}
+
+ ; med:
+ {:id :hide-armor
+  :kind :hide
+  :name "Hide Armor"
+  :cost [10 :g]
+  :weight 12}
+ {:id :chain-shirt
+  :kind :chain-shirt
+  :name "Chain Shirt"
+  :cost [50 :g]
+  :weight 20}
+ {:id :scale-mail
+  :kind :scale-mail
+  :name "Scale Mail"
+  :cost [50 :g]
+  :weight 45}
+ {:id :breastplate
+  :kind :breastplate
+  :name "Breastplate"
+  :cost [400 :g]
+  :weight 20}
+ {:id :half-plate
+  :kind :half-plate
+  :name "Half Plate"
+  :cost [750 :g]
+  :weight 40}
+
+ ; heavy
+ {:id :ring-mail
+  :name "Ring Mail"
+  :kind :ring-mail
+  :cost [30 :g]
+  :weight 40}
+
+ {:id :chain-mail
+  :name "Chain Mail"
+  :kind :chain-mail
+  :cost [75 :g]
+  :weight 55
+  :str 13}
+
+ {:id :splint-armor
+  :name "Splint Armor"
+  :kind :splint-armor
+  :cost [200 :g]
+  :weight 60
+  :str 15}
+
+ {:id :plate-armor
+  :name "Plate Armor"
+  :kind :plate-armor
+  :cost [1500 :g]
+  :weight 65
+  :str 15}
+
+ ; shield:
+ {:id :shield
+  :name "Shield"
+  :kind :shield
+  :cost [10 :g]
+  :weight 6})
+
