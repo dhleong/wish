@@ -15,11 +15,11 @@
       }}
 
     :5e/starting-eq
-    [(:rapier :longsword {:type :weapon
-                          :category :simple})
-     (:diplomats-pack :entertainers-pack)
-     (:lute {:kind :musical-instrument})
-     [:leather-armor :dagger]]
+    (quote [(:rapier :longsword {:type :weapon
+                                 :category :simple})
+            (:diplomats-pack :entertainers-pack)
+            (:lute {:kind :musical-instrument})
+            [:leather-armor :dagger]])
 
     :5e/multiclass-reqs
     {:cha 13}}
