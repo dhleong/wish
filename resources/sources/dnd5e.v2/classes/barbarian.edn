@@ -86,96 +86,96 @@
                          (:dex modifiers)
                          (:con modifiers))))))}))
 
-   :levels {2 (on-state
-                (provide-features
-                  {:id :barbarian/reckless-attack
-                   :name "Reckless Attack"
-                   :desc "You can throw aside all concern for defense to attack with fierce desperation. When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn."}
+   :levels {2 {:! (on-state
+                    (provide-features
+                      {:id :barbarian/reckless-attack
+                       :name "Reckless Attack"
+                       :desc "You can throw aside all concern for defense to attack with fierce desperation. When you make your first attack on your turn, you can decide to attack recklessly. Doing so gives you advantage on melee weapon attack rolls using Strength during this turn, but attack rolls against you have advantage until your next turn."}
 
-                  {:id :barbarian/danger-sense
-                   :name "Danger Sense"
-                   :desc "You gain an uncanny sense of when things nearby aren’t as they should be, giving you an edge when you dodge away from danger.
-                          You have advantage on Dexterity saving throws against effects that you can see, such as traps and spells. To gain this benefit, you can’t be blinded, deafened, or incapacitated."}))
+                      {:id :barbarian/danger-sense
+                       :name "Danger Sense"
+                       :desc "You gain an uncanny sense of when things nearby aren’t as they should be, giving you an edge when you dodge away from danger.
+                              You have advantage on Dexterity saving throws against effects that you can see, such as traps and spells. To gain this benefit, you can’t be blinded, deafened, or incapacitated."}))}
 
-            3 (on-state
-                (provide-features
-                  {:id :barbarian/path
-                   :name "Primal Path"
-                   :desc "At 3rd level, you choose a path that shapes the nature of your rage."
-                   :max-options 1}))
+            3 {:! (on-state
+                    (provide-features
+                      {:id :barbarian/path
+                       :name "Primal Path"
+                       :desc "At 3rd level, you choose a path that shapes the nature of your rage."
+                       :max-options 1}))}
 
-            4 (on-state
-                (provide-features
-                  :abi-or-feat))
+            4 {:! (on-state
+                    (provide-features
+                      :abi-or-feat))}
 
-            5 (on-state
-                (provide-features
-                  :extra-attack
+            5 {:! (on-state
+                    (provide-features
+                      :extra-attack
 
-                  {:id :barbarian/fast-movement
-                   :name "Fast Movement"
-                   :desc "Your speed increases by 10 feet while you aren’t wearing heavy armor."
-                   :! (on-state
-                        (provide-attr
-                          [:buffs :speed :barbarian/unarmored-movement]
-                          10))}))
+                      {:id :barbarian/fast-movement
+                       :name "Fast Movement"
+                       :desc "Your speed increases by 10 feet while you aren’t wearing heavy armor."
+                       :! (on-state
+                            (provide-attr
+                              [:buffs :speed :barbarian/unarmored-movement]
+                              10))}))}
 
-            7 (on-state
-                (provide-features
-                  {:id :barbarian/feral-instinct
-                   :name "Feral Instinct"
-                   :desc "Your instincts are so honed that you have advantage on initiative rolls.
-Additionally, if you are surprised at the beginning of combat and aren’t incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn."}))
+            7 {:! (on-state
+                    (provide-features
+                      {:id :barbarian/feral-instinct
+                       :name "Feral Instinct"
+                       :desc "Your instincts are so honed that you have advantage on initiative rolls.
+Additionally, if you are surprised at the beginning of combat and aren’t incapacitated, you can act normally on your first turn, but only if you enter your rage before doing anything else on that turn."}))}
 
-            8 (on-state
-                (provide-features :abi-or-feat))
+            8 {:! (on-state
+                    (provide-features :abi-or-feat))}
 
-            9 (on-state
-                (provide-features
-                  {:id :barbarian/brutal-critical
-                   :name "Brutal Critical"
-                   :desc "Beginning at 9th level, you can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack.
-This increases to two additional dice at 13th level and three additional dice at 17th level."}))
+            9 {:! (on-state
+                    (provide-features
+                      {:id :barbarian/brutal-critical
+                       :name "Brutal Critical"
+                       :desc "Beginning at 9th level, you can roll one additional weapon damage die when determining the extra damage for a critical hit with a melee attack.
+This increases to two additional dice at 13th level and three additional dice at 17th level."}))}
 
-            11 (on-state
-                 (provide-features
-                   {:id :barbarian/relentless-rage
-                    :name "Relentless Rage"
-                    :desc "Starting at 11th level, your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you’re raging and don’t die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.
-Each time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10."
-                    ; TODO can we track this somehow?
-                    }))
+            11 {:! (on-state
+                     (provide-features
+                       {:id :barbarian/relentless-rage
+                        :name "Relentless Rage"
+                        :desc "Starting at 11th level, your rage can keep you fighting despite grievous wounds. If you drop to 0 hit points while you’re raging and don’t die outright, you can make a DC 10 Constitution saving throw. If you succeed, you drop to 1 hit point instead.
+                               Each time you use this feature after the first, the DC increases by 5. When you finish a short or long rest, the DC resets to 10."
+                        ; TODO can we track this somehow?
+                        }))}
 
-            12 (on-state (provide-features :abi-or-feat))
+            12 {:! (on-state (provide-features :abi-or-feat))}
 
-            15 (on-state
-                 (provide-features
-                   {:id :barbarian/persistent-rage
-                    :name "Persistent Rage"
-                    :desc "Beginning at 15th level, your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it."}))
+            15 {:! (on-state
+                     (provide-features
+                       {:id :barbarian/persistent-rage
+                        :name "Persistent Rage"
+                        :desc "Beginning at 15th level, your rage is so fierce that it ends early only if you fall unconscious or if you choose to end it."}))}
 
-            16 (on-state (provide-features :abi-or-feat))
+            16 {:! (on-state (provide-features :abi-or-feat))}
 
-            18 (on-state
-                 (provide-features
-                   {:id :barbarian/indomitable-might
-                    :name "Indomitable Might"
-                    :desc "If your total for a Strength check is less than your Strength score, you can use that score in place of the total."}))
+            18 {:! (on-state
+                     (provide-features
+                       {:id :barbarian/indomitable-might
+                        :name "Indomitable Might"
+                        :desc "If your total for a Strength check is less than your Strength score, you can use that score in place of the total."}))}
 
-            19 (on-state (provide-features :abi-or-feat))
+            19 {:! (on-state (provide-features :abi-or-feat))}
 
-            20 (on-state
-                 (provide-features
-                   {:id :barbarian/primal-champion
-                    :name "Primal Champion"
-                    :desc "At 20th level, you embody the power of the wilds. Your Strength and Constitution scores increase by 4. Your maximum for those scores is now 24."
-                    :! (on-state
-                         (provide-attr
-                           [:buffs :str]
-                           4)
-                         (provide-attr
-                           [:buffs :con]
-                           4))}))}})
+            20 {:! (on-state
+                     (provide-features
+                       {:id :barbarian/primal-champion
+                        :name "Primal Champion"
+                        :desc "At 20th level, you embody the power of the wilds. Your Strength and Constitution scores increase by 4. Your maximum for those scores is now 24."
+                        :! (on-state
+                             (provide-attr
+                               [:buffs :str]
+                               4)
+                             (provide-attr
+                               [:buffs :con]
+                               4))}))}}})
 
 (declare-options
   :barbarian/path
