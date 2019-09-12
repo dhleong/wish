@@ -265,22 +265,10 @@
     (when source
       (->> metas
            (map (fn [m]
-                  (println "APPLY: " m source)
                   (let [{:keys [state]} (.-data source)
                         the-class (get-in @state [:classes (:id m)])]
-                    (println "APPLY: " m " / " the-class)
-                    (engine/inflate-entity state the-class m options)
-                    )))
-           #_(map (fn [m]
-                  (merge m (find-class source (:id m)))))
-           #_(map (fn [c]
-                  (-> c
-                      (inflate source options)
-                      (sheets/post-process
-                        sheet-kind
-                        source
-                        :class)))))
-      )))
+                    (engine/inflate-entity
+                      state the-class (merge the-class m) options))))))))
 
 ; A single class instance, or nil if none at all; if any
 ; class is marked primary, that class is returned. If none
@@ -356,29 +344,22 @@
 
 (reg-id-sub
   :races
-  :<- [:sheet-meta]
   :<- [:sheet-source]
   :<- [:meta/options]
   :<- [:total-level]
   :<- [:meta/races]
-  (fn [[sheet-meta source options total-level ids] _]
+  (fn [[source options total-level ids] _]
     (when source
       (->> ids
-           (map (partial find-race source))
-           (map (fn [r]
-                  (-> r
-                      ; provide :level for level-scaling...
-                      (assoc :level total-level)
-
-                      (inflate source options)
-
-                      ; ... then remove
-                      (dissoc :level)
-
-                      (sheets/post-process
-                        (:kind sheet-meta)
-                        source
-                        :race))))))))
+           (map (fn [id]
+                  (let [m {:id id
+                           :level total-level}
+                        {:keys [state]} (.-data source)
+                        the-race (get-in @state [:races id])]
+                    ; TODO handle sub-races; this whole thing probably ought
+                    ; to be a method on the engine
+                    (engine/inflate-entity
+                      state the-race (merge the-race m) options))))))))
 
 ; combines :attrs from all classes and races into a single map
 (reg-id-sub
