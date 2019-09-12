@@ -1,4 +1,4 @@
-(!declare-items
+(declare-items
 
  {:type :weapon
   :ranged? true

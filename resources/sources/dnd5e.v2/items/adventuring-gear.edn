@@ -275,7 +275,7 @@
  {:id :mirror-steel
   :name "Mirror, steel"
   :cost [5 :g]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :oil
   :name "Oil"
@@ -306,7 +306,7 @@
  {:id :piton
   :name "Piton"
   :cost [5 :c]
-  :weight 1/4}
+  :weight 0.25}
 
  {:id :poison-basic
   :name "Poison, basic"
@@ -326,7 +326,7 @@
  {:id :potion-of-healing
   :name "Potion of healing"
   :cost [50 :g]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :pouch
   :name "Pouch"
@@ -379,7 +379,7 @@
  {:id :sack
   :name "Sack"
   :cost [1 :c]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :scale-merchants
   :name "Scale, merchant’s"
