@@ -3,10 +3,10 @@
    :name "Rogue",
    :attrs
    {:5e/starting-eq
-    '[(:rapier :shortsword)
-      ([:shortbow :quiver :arrow] :shortsword)
-      (:burglers-pack :dungeoneers-pack :explorers-pack)
-      [:leather-armor {:id :dagger, :count 2} :thieves-tools]],
+    (quote [(:rapier :shortsword)
+            ([:shortbow :quiver :arrow] :shortsword)
+            (:burglers-pack :dungeoneers-pack :explorers-pack)
+            [:leather-armor {:id :dagger, :count 2} :thieves-tools]]),
     :5e/multiclass-reqs {:dex 13}},
    :!
    (on-state
