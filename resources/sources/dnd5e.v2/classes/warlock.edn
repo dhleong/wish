@@ -1,0 +1,604 @@
+(declare-class
+  {:id :warlock,
+   :name "Warlock",
+   :attrs
+   {:5e/spellcaster
+    {:warlock
+     {:prepares? false,
+      :cantrips [1 2 4 1 10 1],
+      :slots-label "Pact Magic",
+      :multiclass-levels-mod 0,
+      :slots
+      {1 {1 1}, 2 {1 2},
+       3 {2 2}, 4 {2 2},
+       5 {3 2}, 6 {3 2},
+       7 {4 2}, 8 {4 2},
+       9 {5 2}, 10 {5 2},
+       11 {5 3}, 12 {5 3},
+       13 {5 3}, 14 {5 3},
+       15 {5 3}, 16 {5 3},
+       17 {5 4}, 18 {5 4},
+       19 {5 4}, 20 {5 4}},
+      :slots-type :pact-magic,
+      :ability :cha,
+      :spells :warlock/spells-list,
+      :extra-spells :warlock/extra-spells,
+      :restore-trigger :short-rest,
+      :known [2 3 4 5 6 7 8 9 10 10 11 11 12 12 13 13 14 14 15 15]}},
+    :5e/starting-eq
+    (quote [([:light-crossbow :crossbow-bolt] {:type :weapon, :category :simple})
+            (:component-pouch {:kind :arcane-focus})
+            (:scholars-pack :dungeoneers-pack)
+            [:leather-armor {:type :weapon, :category :simple} {:id :dagger, :count 2}]]),
+    :5e/multiclass-reqs {:cha 13}},
+   :!
+   (on-state
+     (provide-features
+       :hit-dice/d8
+       :hp
+       :unarmed-strike
+       :feats
+       :save-proficiency/wis
+       :save-proficiency/cha
+       :proficiency/simple-weapons
+       :proficiency/light-armor
+       {:id :warlock/skill-proficiencies,
+        :implicit? true,
+        :primary-only? true,
+        :max-options 2,
+        :name "Warlock Proficiencies",
+        :values
+        [:proficiency/arcana
+         :proficiency/deception
+         :proficiency/history
+         :proficiency/intimidation
+         :proficiency/investigation
+         :proficiency/nature
+         :proficiency/religion]}
+       {:id :warlock/patron,
+        :name "Otherworldly Patron",
+        :desc "At 1st level, you have struck a bargain with an otherworldly being of your choice.",
+        :max-options 1})),
+   :levels
+   {2
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/eldritch-invocations,
+          :name "Eldritch Invocations",
+          :desc
+          "In your study of occult lore, you have unearthed eldritch invocations, fragments of forbidden knowledge that imbue you with an abiding magical ability.
+At 2nd level, you gain two eldritch invocations of your choice. Your invocation options are detailed at the end of the class description. When you gain certain warlock levels, you gain additional invocations of your choice, as shown in the Invocations Known column of the Warlock table.
+Additionally, when you gain a level in this class, you can choose one of the invocations you know and replace it with another invocation that you could learn at that level.",
+          :max-options
+          (fn [level]
+            (cond
+              (< level 5) 2
+              (< level 7) 3
+              (< level 9) 4
+              (< level 12) 5
+              (< level 15) 6
+              (< level 18) 7
+              :else 8))}))},
+    3
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/pact-boon,
+          :name "Pact Boon",
+          :desc
+          "At 3rd level, your otherworldly patron bestows a gift upon you for your loyal service. You gain one of the following features of your choice.",
+          :max-options 1}))},
+    4 {:! (on-state (provide-features :abi-or-feat))},
+    8 {:! (on-state (provide-features :abi-or-feat))},
+    11
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/mystic-arcanum,
+          :name "Mystic Arcanum",
+          :desc
+          "At 11th level, your patron bestows upon you a magical secret called an arcanum. Choose one 6th-level spell from the warlock spell list as this arcanum.
+You can cast your arcanum spell once without expending a spell slot. You must finish a long rest before you can do so again.
+At higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th-level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
+          :max-options 1,
+          :values (items-from-list :warlock/spells-list),
+          :values-filter (fn [spell-level] (= 6 spell-level)),
+          :!
+          (on-state
+            (add-limited-use
+              {:id :warlock/mystic-arcanum#uses-6th,
+               :name "Mystic Arcanum - 6th Level",
+               :uses 1,
+               :restore-trigger :long-rest}))}))},
+    12 {:! (on-state (provide-features :abi-or-feat))},
+    13
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/mystic-arcanum-7th,
+          :name "Mystic Arcanum - 7th Level",
+          :desc "At Level 13, you can pick one 7th-level spell as another arcanum.",
+          :max-options 1,
+          :values (items-from-list :warlock/spells-list),
+          :values-filter (fn [spell-level] (= 7 spell-level)),
+          :!
+          (on-state
+            (add-limited-use
+              {:id :warlock/mystic-arcanum#uses-7th,
+               :name "Mystic Arcanum - 7th Level",
+               :uses 1,
+               :restore-trigger :long-rest}))}))},
+    15
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/mystic-arcanum-8th,
+          :name "Mystic Arcanum - 8th Level",
+          :desc "At Level 15, you can pick one 8th-level spell as another arcanum.",
+          :max-options 1,
+          :values (items-from-list :warlock/spells-list),
+          :values-filter (fn [spell-level] (= 8 spell-level)),
+          :!
+          (on-state
+            (add-limited-use
+              {:id :warlock/mystic-arcanum#uses-8th,
+               :name "Mystic Arcanum - 8th Level",
+               :uses 1,
+               :restore-trigger :long-rest}))}))},
+    16 {:! (on-state (provide-features :abi-or-feat))},
+    17
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/mystic-arcanum-9th,
+          :name "Mystic Arcanum - 9th Level",
+          :desc "At Level 17, you can pick one 9th-level spell as another arcanum.",
+          :max-options 1,
+          :values (items-from-list :warlock/spells-list),
+          :values-filter (fn [spell-level] (= 9 spell-level)),
+          :!
+          (on-state
+            (add-limited-use
+              {:id :warlock/mystic-arcanum#uses-9th,
+               :name "Mystic Arcanum - 9th Level",
+               :uses 1,
+               :restore-trigger :long-rest}))}))},
+    19 {:! (on-state (provide-features :abi-or-feat))},
+    20
+    {:!
+     (on-state
+       (provide-features
+         {:id :warlock/eldritch-master,
+          :name "Eldritch Master",
+          :desc
+          "At 20th level, you can draw on your inner reserve of mystical power while entreating your patron to regain expended spell slots. You can spend 1 minute entreating your patron for aid to regain all your expended spell slots from your Pact Magic feature. Once you regain spell slots with this feature, you must finish a long rest before you can do so again.",
+          :!
+          (on-state
+            (add-limited-use
+              {:id :warlock/eldritch-master#uses,
+               :name "Eldritch Master",
+               :uses 1,
+               :restore-trigger :long-rest}))}))}}})
+
+(declare-options
+  :warlock/patron
+  {:id :warlock/patron-fiend,
+   :name "Otherworldly Patron: The Fiend",
+   :desc
+   "You have made a pact with a fiend from the lower planes of existence, a being whose aims are evil, even if you strive against those aims. Such beings desire the corruption or destruction of all things, ultimately including you. Fiends powerful enough to forge a pact include demon lords such as Demogorgon, Orcus, Fraz’Urb-luu, and Baphomet; archdevils such as Asmodeus, Dispater, Mephistopheles, and Belial; pit fiends and balors that are especially mighty; and ultroloths and other lords of the yugoloths.",
+   :!
+   (on-state
+     (add-to-list
+       :warlock/spells-list
+       [:spell/burning-hands
+        :spell/command
+        :spell/blindness-deafness
+        :spell/scorching-ray
+        :spell/fireball
+        :spell/stinking-cloud
+        :spell/fire-shield
+        :spell/wall-of-fire
+        :spell/flame-strike
+        :spell/hallow])
+     (provide-feature
+       {:id :warlock/dark-ones-blessing,
+        :name "Dark One's Blessing",
+        :desc
+        "Starting at 1st level, when you reduce a hostile creature to 0 hit points, you gain temporary hit points equal to your Charisma modifier + your warlock level (minimum of 1)."})),
+   :levels
+   {6
+    {:!
+     (on-state
+       (provide-feature
+         {:id :warlock/dark-ones-own-luck,
+          :name "Dark One's Own Luck",
+          :desc
+          "Starting at 6th level, you can call on your patron to alter fate in your favor. When you make an ability check or a saving throw, you can use this feature to add a d10 to your roll. You can do so after seeing the initial roll but before any of the roll’s effects occur.
+Once you use this feature, you can’t use it again until you finish a short or long rest."}))},
+    10
+    {:!
+     (on-state
+       (provide-feature
+         {:id :warlock/fiendish-resilience,
+          :name "Fiendish Resilience",
+          :desc
+          "Starting at 10th level, you can choose one damage type when you finish a short or long rest. You gain resistance to that damage type until you choose a different one with this feature. Damage from magical weapons or silver weapons ignores this resistance."}))},
+    14
+    {:!
+     (on-state
+       (provide-feature
+         {:id :warlock/hurl-through-hell,
+          :name "Hurl Through Hell",
+          :desc
+          "Starting at 14th level, when you hit a creature with an attack, you can use this feature to instantly transport the target through the lower planes. The creature disappears and hurtles through a nightmare landscape.
+At the end of your next turn, the target returns to the space it previously occupied, or the nearest unoccupied space. If the target is not a fiend, it takes 10d10 psychic damage as it reels from its horrific experience.
+Once you use this feature, you can’t use it again until you finish a long rest."}))}}})
+
+(declare-options
+  :warlock/pact-boon
+  {:id :warlock/pact-chain,
+   :name "Pact of the Chain",
+   :desc
+   "You learn the find familiar spell and can cast it as a ritual. The spell doesn’t count against your number of spells known.
+When you cast the spell, you can choose one of the normal forms for your familiar or one of the following special forms: imp, pseudodragon, quasit, or sprite.
+Additionally, when you take the Attack action, you can forgo one of your own attacks to allow your familiar to make one attack of its own with its reaction.",
+   :! (on-state (add-to-list :warlock/extra-spells :spell/find-familiar))}
+  {:id :warlock/pact-blade,
+   :name "Pact of the Blade",
+   :desc
+   "You can use your action to create a pact weapon in your empty hand. You can choose the form that this melee weapon takes each time you create it. You are proficient with it while you wield it. This weapon counts as magical for the purpose of overcoming resistance and immunity to nonmagical attacks and damage.
+Your pact weapon disappears if it is more than 5 feet away from you for 1 minute or more. It also disappears if you use this feature again, if you dismiss the weapon (no action required), or if you die.
+You can transform one magic weapon into your pact weapon by performing a special ritual while you hold the weapon. You perform the ritual over the course of 1 hour, which can be done during a short rest. You can then dismiss the weapon, shunting it into an extradimensional space, and it appears whenever you create your pact weapon thereafter. You can’t affect an artifact or a sentient weapon in this way. The weapon ceases being your pact weapon if you die, if you perform the 1-hour ritual on a different weapon, or if you use a 1-hour ritual to break your bond to it. The weapon appears at your feet if it is in the extradimensional space when the bond breaks.",
+   :! (on-state (provide-attr [:action :warlock/pact-blade] true))}
+  {:id :warlock/pact-tome,
+   :name "Pact of the Tome",
+   :desc
+   "Your patron gives you a grimoire called a Book of Shadows. When you gain this feature, choose three cantrips from any class’s spell list (the three needn’t be from the same list). While the book is on your person, you can cast those cantrips at will. They don’t count against your number of cantrips known. If they don’t appear on the warlock spell list, they are nonetheless warlock spells for you.
+If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a replacement from your patron. This ceremony can be performed during a short or long rest, and it destroys the previous book. The book turns to ash when you die.",
+   :!
+   (on-state
+     (provide-feature
+       {:id :warlock/pact-tome-spells,
+        :name "Pact of the Tome Spells",
+        :max-options 3,
+        :values (items-from-list :all-spells),
+        :values-filter (fn [spell-level] (= 0 spell-level))}))})
+
+(declare-options
+  :warlock/eldritch-invocations
+  {:id :warlock/agonizing-blast,
+   :name "Agonizing Blast",
+   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :desc
+   "_Prerequisite:_ _eldritch blast_ cantrip
+When you cast eldritch blast, add your Charisma modifier to the damage it deals on a hit."}
+
+  {:id :warlock/armor-shadows,
+   :name "Armor of Shadows",
+   :desc
+   "You can cast _mage armor_ on yourself at will, without expending a spell slot or material components.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/mage-armor)
+     (provide-attr [:spells :warlock :spell/mage-armor] {:at-will? true}))}
+
+  {:id :warlock/ascendant-step,
+   :name "Ascendant Step",
+   :available? (fn [level] (>= level 9)),
+   :desc
+   "_Prerequisite:_ 9th level
+You can cast _levitate_ on yourself at will, without expending a spell slot or material components.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/levitate)
+     (provide-attr [:spells :warlock :spell/levitate] {:at-will? true}))}
+
+  {:id :warlock/beast-speech,
+   :name "Beast Speech",
+   :desc "You can cast _speak with animals_ at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/speak-with-animals)
+     (provide-attr [:spells :warlock :spell/speak-with-animals] {:at-will? true}))}
+
+  {:id :warlock/beguiling-influence,
+   :name "Beguiling Influence",
+   :desc "You gain proficiency in the Deception and Persuasion skills.",
+   :! (on-state (provide-feature :proficiency/deception :proficiency/persuasion))}
+
+  {:id :warlock/bewitching-whispers,
+   :name "Bewitching Whispers",
+   :available? (fn [level] (>= level 7)),
+   :desc
+   "_Prerequisite:_ 7th level
+You can cast _compulsion_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/compulsion)
+     (provide-attr
+       [:spells :warlock :spell/compulsion]
+       {:consumes :warlock/bewitching-whispers#uses})
+     (add-limited-use
+       {:id :warlock/bewitching-whispers#uses,
+        :name "Bewitching Whispers",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/book-ancient-secrets,
+   :name "Book of Ancient Secrets",
+   :available? (fn [options] (= [:warlock/pact-tome] (:warlock/pact-boon options))),
+   :desc
+   "_Prerequisite:_ Pact of the Tome feature
+You can now inscribe magical rituals in your Book of Shadows. Choose two 1st-level spells that have the ritual tag from any class’s spell list (the two needn’t be from the same list). The spells appear in the book and don’t count against the number of spells you know. With your Book of Shadows in hand, you can cast the chosen spells as rituals. You can’t cast the spells except as rituals, unless you’ve learned them by some other means. You can also cast a warlock spell you know as a ritual if it has the ritual tag.
+On your adventures, you can add other ritual spells to your Book of Shadows. When you find such a spell, you can add it to the book if the spell’s level is equal to or less than half your warlock level (rounded up) and if you can spare the time to transcribe the spell. For each level of the spell, the transcription process takes 2 hours and costs 50 gp for the rare inks needed to inscribe it.",
+   :!
+   (on-state
+     (provide-attr
+       [:5e/spellcaster :warlock/book-ancient-secrets]
+       {:prepares? false,
+        :multiclass-levels-mod 0,
+        :slots :none,
+        :ability :cha,
+        :name "Book of Ancient Secrets",
+        :spells :all-spells,
+        :id :warlock/book-ancient-secrets,
+        :values-filter
+        (fn [spell-level rit? level] (and rit? (<= spell-level (ceil (/ level 2))))),
+        :acquires? true,
+        :acquired-label "Book of Ancient Secrets"}))}
+
+  {:id :warlock/chains-carceri,
+   :name "Chains of Carceri",
+   :available?
+   (fn 
+     [level options]
+     (and (>= level 15) (= [:warlock/pact-chain] (:warlock/pact-boon options)))),
+   :desc
+   "_Prerequisite:_ 15th level, Pact of the Chain feature
+You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental—without expending a spell slot or material components. You must finish a long rest before you can use this invocation on the same creature again.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/hold-monster)
+     (provide-attr [:spells :warlock :spell/hold-monster] {:at-will? true}))}
+
+  {:id :warlock/devils-sight,
+   :name "Devil's Sight",
+   :desc
+   "You can see normally in darkness, both magical and nonmagical, to a distance of 120 feet."}
+
+  {:id :warlock/dreadful-word,
+   :name "Dreadful Word",
+   :available? (fn [level] (>= level 7)),
+   :desc
+   "_Prerequisite:_ 7th level
+You can cast _confusion_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/confusion)
+     (provide-attr [:spells :warlock :spell/confusion] {:consumes :warlock/dreadful-word#uses})
+     (add-limited-use
+       {:id :warlock/dreadful-word#uses,
+        :name "Dreadful Word",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/eldritch-sight,
+   :name "Eldritch Sight",
+   :desc "You can cast _detect magic_ at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/detect-magic)
+     (provide-attr [:spells :warlock :spell/detect-magic] {:at-will? true}))}
+
+  {:id :warlock/eldritch-spear,
+   :name "Eldritch Spear",
+   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :desc
+   "_Prerequisite:_ _eldritch blast_ cantrip
+When you cast _eldritch blast_, its range is 300 feet."}
+
+  {:id :warlock/eyes-rune-keeper,
+   :name "Eyes of the Rune Keeper",
+   :desc "You can read all writing."}
+
+  {:id :warlock/fiendish-vigor,
+   :name "Fiendish Vigor",
+   :desc
+   "You can cast _false life_ on yourself at will as a 1st-level spell, without expending a spell slot or material components.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/false-life)
+     (provide-attr [:spells :warlock :spell/false-life] {:at-will? true, :upcast? false}))}
+
+  {:id :warlock/gaze-two-minds,
+   :name "Gaze of Two Minds",
+   :desc
+   "You can use your action to touch a willing humanoid and perceive through its senses until the end of your next turn. As long as the creature is on the same plane of existence as you, you can use your action on subsequent turns to maintain this connection, extending the duration until the end of your next turn. While perceiving through the other creature’s senses, you benefit from any special senses possessed by that creature, and you are blinded and deafened to your own surroundings.",
+   :! (on-state (provide-attr [:action :warlock/gaze-two-minds] true))}
+
+  {:id :warlock/lifedrinker,
+   :name "Lifedrinker",
+   :available?
+   (fn [level options]
+     (and (>= level 12) (= [:warlock/pact-blade] (:warlock/pact-boon options)))),
+   :desc
+   "_Prerequisite:_ 12th level, _Pact of the Blade_ feature
+When you hit a creature with your pact weapon, the creature takes extra necrotic damage equal to your Charisma modifier (minimum 1)."}
+
+  {:id :warlock/mask-many-faces,
+   :name "Mask of Many Faces",
+   :desc "You can cast _disguise self_ at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/disguise-self)
+     (provide-attr [:spells :warlock :spell/disguise-self] {:at-will? true}))}
+
+  {:id :warlock/master-myriad-forms,
+   :name "Master of Myriad Forms",
+   :available? (fn [level] (>= level 15)),
+   :desc
+   "_Prerequisite:_ 15th level
+You can cast alter self at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/alter-self)
+     (provide-attr [:spells :warlock :spell/alter-self] {:at-will? true}))}
+
+  {:id :warlock/minions-chaos,
+   :name "Minions of Chaos",
+   :available? (fn [level] (>= level 9)),
+   :desc
+   "_Prerequisite:_ 9th level
+You can cast _conjure elemental_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/alter-self)
+     (provide-attr [:spells :warlock :spell/alter-self] {:consumes :warlock/minions-chaos#uses})
+     (add-limited-use
+       {:id :warlock/minions-chaos#uses,
+        :name "Minions of Chaos",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/mire-mind,
+   :name "Mire the Mind",
+   :available? (fn [level] (>= level 5)),
+   :desc
+   "_Prerequisite:_ 5th level
+You can cast _slow_ once using a warlock spell slot.
+You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/slow)
+     (provide-attr [:spells :warlock :spell/slow] {:consumes :warlock/mire-mind#uses})
+     (add-limited-use
+       {:id :warlock/mire-mind#uses,
+        :name "Mire the Mind",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/misty-visions,
+   :name "Misty Visions",
+   :desc
+   "You can cast _silent image_ at will, without expending a spell slot or material components.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/silent-image)
+     (provide-attr [:spells :warlock :spell/silent-image] {:at-will? true}))}
+
+  {:id :warlock/one-with-shadows,
+   :name "One with Shadows",
+   :available? (fn [level] (>= level 5)),
+   :desc
+   "_Prerequisite:_ 5th level
+When you are in an area of dim light or darkness, you can use your action to become invisible until you move or take an action or a reaction.",
+   :! (on-state (provide-attr [:action :warlock/one-with-shadows] true))}
+
+  {:id :warlock/otherworldly-leap,
+   :name "Otherworldly Leap",
+   :available? (fn [level] (>= level 9)),
+   :desc
+   "_Prerequisite:_ 9th level
+You can cast _jump_ on yourself at will, without expending a spell slot or material components.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/jump)
+     (provide-attr [:spells :warlock :spell/jump] {:at-will? true}))}
+
+  {:id :warlock/repelling-blast,
+   :name "Repelling Blast",
+   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :desc
+   "_Prerequisite: eldritch blast_ cantrip
+When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line."}
+
+  {:id :warlock/sculptor-flesh,
+   :name "Sculptor of Flesh",
+   :available? (fn [level] (>= level 7)),
+   :desc
+   "_Prerequisite:_ 7th level
+You can cast _polymorph_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/polymorph)
+     (provide-attr [:spells :warlock :spell/polymorph] {:consumes :warlock/sculptor-flesh#uses})
+     (add-limited-use
+       {:id :warlock/sculptor-flesh#uses,
+        :name "Sculptor of Flesh",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/sign-ill-omen,
+   :name "Sign of Ill Omen",
+   :available? (fn [level] (>= level 5)),
+   :desc
+   "_Prerequisite:_ 5th level
+You can cast _bestow curse_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/bestow-curse)
+     (provide-attr [:spells :warlock :spell/bestow-curse] {:consumes :warlock/sign-ill-omen#uses})
+     (add-limited-use
+       {:id :warlock/sign-ill-omen#uses,
+        :name "Sign of Ill Omen",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/thief-five-fates,
+   :name "Thief of Five Fates",
+   :desc
+   "You can cast _bane_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/bane)
+     (provide-attr [:spells :warlock :spell/bane] {:consumes :warlock/thief-five-fates#uses})
+     (add-limited-use
+       {:id :warlock/thief-five-fates#uses,
+        :name "Thief of Five Fates",
+        :uses 1,
+        :restore-trigger :long-rest}))}
+
+  {:id :warlock/thirsting-blade,
+   :name "Thirsting Blade",
+   :available?
+   (fn [level options] (and (>= level 5) (= [:warlock/pact-blade] (:warlock/pact-boon options)))),
+   :desc
+   "_Prerequisite:_ 5th level, _Pact of the Blade_ feature
+You can attack with your pact weapon twice, instead of once, whenever you take the Attack action on your turn."}
+
+  {:id :warlock/visions-distant-realms,
+   :name "Visions of Distant Realms",
+   :available? (fn [level] (>= level 15)),
+   :desc
+   "_Prerequisite:_ 15th level
+You can cast _arcane eye_ at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/arcane-eye)
+     (provide-attr [:spells :warlock :spell/arcane-eye] {:at-will? true}))}
+
+  {:id :warlock/voice-chain-master,
+   :name "Voice of the Chain Master",
+   :available? (fn [options] (= [:warlock/pact-chain] (:warlock/pact-boon options))),
+   :desc
+   "_Prerequisite: Pact of the Chain_ feature
+You can communicate telepathically with your familiar and perceive through your familiar’s senses as long as you are on the same plane of existence. Additionally, while perceiving through your familiar’s senses, you can also speak through your familiar in your own voice, even if your familiar is normally incapable of speech."}
+
+  {:id :warlock/whispers-grave,
+   :name "Whispers of the Grave",
+   :available? (fn [level] (>= level 9)),
+   :desc
+   "_Prerequisite:_ 9th level
+You can cast _speak with dead_ at will, without expending a spell slot.",
+   :!
+   (on-state
+     (add-to-list :warlock/extra-spells :spell/speak-with-dead)
+     (provide-attr [:spells :warlock :spell/speak-with-dead] {:at-will? true}))}
+
+  {:id :warlock/witch-sight,
+   :name "Witch Sight",
+   :available? (fn [level] (>= level 15)),
+   :desc
+   "_Prerequisite:_ 15th level
+You can see the true form of any shapechanger or creature concealed by illusion or transmutation magic while the creature is within 30 feet of you and within line of sight."})
