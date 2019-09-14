@@ -148,7 +148,7 @@ At 18th level, the range of this aura increases to 30 feet."}))}
             8 {:! (on-state (provide-features
                               :abi-or-feat))}
 
-            10 {:! (on-stat
+            10 {:! (on-state
                      (provide-features
                        {:id :paladin/aura-courage
                         :name "Aura of Courage"
@@ -169,7 +169,7 @@ At 18th level, the range of this aura increases to 30 feet."}))}
             12 {:! (on-state (provide-features
                                :abi-or-feat))}
 
-            14 {:! (on-stat
+            14 {:! (on-state
                      (provide-features
                        {:id :paladin/cleansing-touch
                         :name "Cleansing Touch"
@@ -192,7 +192,7 @@ At 18th level, the range of this aura increases to 30 feet."}))}
             19 {:! (on-state (provide-features
                                :abi-or-feat))}}})
 
-(provide-options
+(declare-options
   :paladin/oath
 
   {:id :paladin/oath-devotion
