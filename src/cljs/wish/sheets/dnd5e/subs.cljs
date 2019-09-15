@@ -1409,21 +1409,8 @@
         ; by features and levels, we can't find them
         ; in the data source.
         ; ... unless it's a collection of spell ids
-        extra-spells (or #_(get-in c [:lists extra-spells-list])
-                         #_(when (coll? extra-spells-list)
-                           (map (partial
-                                  src/find-list-entity
-                                  data-source)
-                                extra-spells-list))
-                         (cond
-                           (keyword? extra-spells-list)
-                           (engine-api/inflate-list
-                             engine-state extra-spells-list)
-
-                           (coll? extra-spells-list)
-                           (engine/inflate-entities
-                             engine-state extra-spells-list)
-                           ))
+        extra-spells (engine/inflate-list
+                       engine-state c extra-spells-list)
 
         ; extra spells are always prepared
         extra-spells (->> extra-spells
@@ -1484,14 +1471,14 @@
 
 (reg-sub
   ::prepared-spells-by-class
+  :<- [:sheet-engine-state]
   :<- [::spellcaster-blocks]
   :<- [:total-level]
-  :<- [:sheet-engine-state]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
   :<- [::spell-buffs]
   :<- [:meta/options]
-  (fn [[spellcasters total-level engine-state modifiers
+  (fn [[engine-state spellcasters total-level modifiers
         attack-bonuses spell-buffs options]]
     (some->> spellcasters
              seq

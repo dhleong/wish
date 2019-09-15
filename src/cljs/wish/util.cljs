@@ -147,15 +147,17 @@
    "
   [entity k & extra-kvs]
   (let [context (or (:wish/context entity)
-                    entity)]
+                    entity)
+        f (k entity)]
     (try
       ((k entity) (apply assoc context extra-kvs))
       (catch js/Error e
-        (throw (js/Error. (str "Error invoking " k " on "
+        (throw (ex-info (str "Error invoking " k "(" f ") on "
                                (or (when-let [id (:id context)]
                                      (str "{:id " id " ...}"))
-                                   context)
-                               "\n\nOriginal " e)))))))
+                                   context))
+                        {}
+                        e))))))
 
 (defn ->map
   "Given a seq of entities, return a map of :id -> entity"
