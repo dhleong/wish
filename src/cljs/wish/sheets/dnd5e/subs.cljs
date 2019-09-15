@@ -5,7 +5,6 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
-            [wish-engine.scripting-api :as engine-api]
             [wish.sources.core :as src :refer [expand-list]]
             [wish.sources.util :as src-util]
             [wish.sources.compiler.fun :refer [->callable]]
@@ -1421,9 +1420,8 @@
         ; only selected spells from the main list (including those
         ; added by class features, eg warlock)
         selected-spells (concat
-                          [] ; STOPSHIP
-                          #_(expand-list data-source spells-list
-                                       selected-spell-ids)
+                          (engine/inflate-list
+                            engine-state c selected-spell-ids)
 
                           ; for class features: (if selected)
                           (->>
@@ -1433,9 +1431,8 @@
         ; for :acquires? spellcasters, their acquired
         ; cantrips are always prepared
         selected-spells (if acquires?
-                          (->> [] ; STOPSHIP
-                               #_(expand-list data-source spells-list
-                                            (get options spells-list []))
+                          (->> (engine/inflate-list
+                                 engine-state c (get options spells-list []))
                                (filter #(= 0 (:spell-level %)))
                                (map #(assoc % :always-prepared? true))
 
@@ -1558,13 +1555,13 @@
   ::preparable-spell-list
 
   (fn [[_ spellcaster _list-id]]
-    [(subscribe [:sheet-source])
+    [(subscribe [:sheet-engine-state])
      (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id spellcaster)])
      (subscribe [::highest-spell-level-for-spellcaster-id (:id spellcaster)])
      (subscribe [:5e/spells-filter])])
 
-  (fn [[data-source options prepared-spells highest-spell-level
+  (fn [[engine-state options prepared-spells highest-spell-level
         filter-str]
        [_ spellcaster list-id]]
     (let [; is this the prepared list for an acquires? spellcaster?
@@ -1601,15 +1598,17 @@
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
                    ; NOTE: do we need to concat class-provided lists?
-                   (expand-list data-source
-                                (:spells spellcaster)
-                                (get options (:spells spellcaster) #{}))
+                   (->> (engine/inflate-list
+                          engine-state (:spells spellcaster))
+                        (filter (comp
+                                  (get options (:spells spellcaster) #{})
+                                  :id)))
 
                    ; normal case:
                    (concat
                      ; include any added by class features (eg: warlock)
                      (get-in spellcaster [:wish/container :lists list-id])
-                     (expand-list data-source list-id nil)))
+                     (engine/inflate-list engine-state list-id)))
 
           spells-filter (if-let [filter-fn (:values-filter spellcaster)]
                           ; let the spellcaster determine the filter
