@@ -108,7 +108,7 @@
                        :! (on-state
                             (provide-attr
                               [:attacks-per-action :fighter/extra-attack]
-                              (fn [level]
+                              (fn [#{level}]
                                 (cond
                                   (< level 11) 2
                                   (< level 20) 3
@@ -129,7 +129,7 @@
                             (add-limited-use
                               {:id :fighter/indomitable#uses
                                :name "Indomitable"
-                               :uses (fn [level]
+                               :uses (fn [#{level}]
                                        (cond
                                          (< level 13) 1
                                          (< level 17) 2

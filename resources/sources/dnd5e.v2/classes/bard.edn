@@ -73,7 +73,7 @@ Your Bardic Inspiration die changes when you reach certain levels in this class.
                    :restore-trigger (if (>= (:level state) 5)
                                       :short-rest
                                       :long-rest)
-                   :uses (fn [modifiers]
+                   :uses (fn [#{modifiers}]
                            (:cha modifiers))}))}))
 
    :levels {2 {:! (on-state
@@ -150,7 +150,7 @@ Your Bardic Inspiration die changes when you reach certain levels in this class.
                         :desc "You have plundered magical knowledge from a wide spectrum of disciplines. Choose two spells from any class, including this one. A spell you choose must be of a level you can cast, as shown on the Bard table, or a cantrip.
                                The chosen spells count as bard spells for you and are included in the number in the Spells Known column of the Bard table.
                                You learn two additional spells from any class at 14th level and again at 18th level."
-                        :max-options (fn [level]
+                        :max-options (fn [#{level}]
                                        (cond
                                          (< level 14) 2
                                          (< level 18) 4

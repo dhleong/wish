@@ -76,7 +76,7 @@
                     (provide-features
                       {:id :cleric/destroy-undead
                        :name "Destroy Undead"
-                       :desc (fn [level] (str "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.
+                       :desc (fn [#{level}] (str "Starting at 5th level, when an undead fails its saving throw against your Turn Undead feature, the creature is instantly destroyed if its challenge rating is at or below a certain threshold.
 
 At " (ordinal level) " level, your Destroy Undead destroys undead creatures of CR "
 
@@ -128,7 +128,7 @@ At " (ordinal level) " level, your Destroy Undead destroys undead creatures of C
           {:id :channel-divinity#uses
            :name "Channel Divinity"
            :restore-trigger :short-rest
-           :uses (fn [level]
+           :uses (fn [#{level}]
                    (cond
                      (>= level 16) 3
                      (>= level 6) 2
@@ -157,7 +157,7 @@ At " (ordinal level) " level, your Destroy Undead destroys undead creatures of C
           :! (on-state
                (provide-attr
                  [:buffs :spells :healing :cleric/disciple-of-life]
-                 (fn [spell-level]
+                 (fn [#{spell-level}]
                    (+ 2 spell-level))))
           }))
 
@@ -199,7 +199,7 @@ At " (ordinal level) " level, your Destroy Undead destroys undead creatures of C
                       :name "Divine Strike"
                       :desc "At 8th level, you gain the ability to infuse your weapon strikes with divine energy. Once on each of your turns when you hit a creature with a weapon attack, you can cause the attack to deal an extra 1d8 radiant damage to the target. When you reach 14th level, the extra damage increases to 2d8."
                       :damage :radiant
-                      :dice (fn [level]
+                      :dice (fn [#{level}]
                               (if (< level 14)
                                 "1d8"
                                 "2d8"))

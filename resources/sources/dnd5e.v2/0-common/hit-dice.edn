@@ -11,8 +11,8 @@
              :name (str "D" die)
              :implicit? true
              :restore-trigger :long-rest
-             :restore-amount (fn [trigger used level]
+             :restore-amount (fn [#{trigger used level}]
                                (min used
                                     (ceil (/ level 2))))
-             :uses (fn [level]
+             :uses (fn [#{level}]
                      level)}))}))

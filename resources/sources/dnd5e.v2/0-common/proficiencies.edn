@@ -50,7 +50,7 @@
          :name label
          :implicit? true
          :availability-attr expertise-kw
-         :available? (fn [attrs]
+         :available? (fn [#{attrs}]
                        (kw attrs))}))))
 
 (declare-list

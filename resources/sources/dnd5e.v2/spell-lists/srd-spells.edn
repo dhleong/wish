@@ -17,7 +17,7 @@
    :comp [:vs "powdered rhubarb leaf and an adder’s stomach"]
    :attack :ranged
    :damage :acid
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 2 spell-level) "d4"))
    }
 
@@ -33,7 +33,7 @@ This spell’s damage increases by 1d6 when you reach 5th level (2d6), 11th leve
    :comp :vs
    :save :dex
    :damage :acid
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -474,7 +474,7 @@ If you target a nonmagical plant that isn’t a creature, such as a tree or shru
    :comp :vs
    :save :con
    :damage :necrotic
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 4 spell-level) "d8"))
    }
 
@@ -527,7 +527,7 @@ While on the Ethereal Plane, you can see and hear the plane you originated from,
    :comp :v
    :con? true
    :damage :radiant
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d6"))
    }
 
@@ -545,7 +545,7 @@ The fire ignites any flammable objects in the area that aren’t being worn or c
    :save :dex
    :aoe [:cone 15]
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 2 spell-level) "d6"))
    }
 
@@ -564,7 +564,7 @@ If you are outdoors in stormy conditions when you cast this spell, the spell giv
    :con? true
    :save :dex
    :damage :lightning
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d10"))
    }
 
@@ -626,7 +626,7 @@ This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th leve
    :comp :vs
    :attack :ranged
    :damage :necrotic
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -648,7 +648,7 @@ This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th leve
    :save :con
    :aoe [:sphere 60]
    :damage :necrotic
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 8 (* 2 (- spell-level 6))) "d6"))
    }
 
@@ -694,7 +694,7 @@ The fog moves 10 feet away from you at the start of each of your turns, rolling 
    :save :con
    :aoe [:sphere 20]
    :damage :poison
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d8"))
    }
 
@@ -806,7 +806,7 @@ A creature killed by this spell becomes a frozen statue until it thaws.
    :save :con
    :aoe [:cone 60]
    :damage :cold
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 3 spell-level) "d8"))
    }
 
@@ -1130,7 +1130,7 @@ The creature is under your control for 24 hours, after which it stops obeying an
    :desc "A creature you touch regains a number of hit points equal to 1d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the healing increases by 1d8 for each slot level above 1st."
    :comp :vs
-   :dice (fn [spell-level spell-mod]
+   :dice (fn [#{spell-level spell-mod}]
     (str spell-level "d8 + " spell-mod))
    }
 
@@ -1331,7 +1331,7 @@ This spell automatically disintegrates a Large or smaller nonmagical object or a
    :comp [:vs "a lodestone and a pinch of dust"]
    :save :dex
    :damage :force
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 10 (* 3 (- spell-level 6))) "d6"))
    }
 
@@ -1822,7 +1822,7 @@ The fire spreads around corners. It ignites flammable objects in the area that a
    :save :dex
    :aoe [:sphere 20]
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 5 spell-level) "d6"))
    }
 
@@ -1838,7 +1838,7 @@ This spell's damage increases by 1d10 when you reach 5th level (2d10), 11th leve
    :comp :vs
    :attack :ranged
    :damage :fire
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -1907,7 +1907,7 @@ The flaming blade sheds bright light in a 10-foot radius and dim light for an ad
    :comp [:vs "pinch of sulfur"]
    :save :dex
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ -1 spell-level) "d6"))
    }
 
@@ -1926,7 +1926,7 @@ When you move the sphere, you can direct it over barriers up to 5 feet tall and 
    :con? true
    :save :dex
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d6"))
    }
 
@@ -2058,7 +2058,7 @@ You can refrain from firing the globe after completing the spell, if you wish. A
    :save :con
    :aoe [:sphere 60]
    :damage :cold
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 4 spell-level) "d6"))
    }
 
@@ -2295,7 +2295,7 @@ You can create a permanently guarded and warded structure by casting this spell 
    :comp :vs
    :attack :ranged
    :damage :radiant
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 3 spell-level) "d6"))
    }
 
@@ -2389,7 +2389,7 @@ When the spell ends, the target can’t move or take actions until after its nex
    :desc "Choose a creature that you can see within range. A surge of positive energy washes through the creature, causing it to regain 70 hit points. This spell also ends blindness, deafness, and any diseases affecting the target. This spell has no effect on constructs or undead.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 7th level or higher, the amount of healing increases by 10 for each slot level above 6th."
    :comp :vs
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 70 (* 10 (- spell-level 6)))))
    }
 
@@ -2403,7 +2403,7 @@ When the spell ends, the target can’t move or take actions until after its nex
    :desc "A creature of your choice that you can see within range regains hit points equal to 1d4 + your spellcasting ability modifier. This spell has no effect on undead or constructs.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 2nd level or higher, the healing increases by 1d4 for each slot level above 1st."
    :comp :v
-   :dice (fn [spell-level spell-mod]
+   :dice (fn [#{spell-level spell-mod}]
     (str spell-level "d4 + " spell-mod))
    }
 
@@ -2421,7 +2421,7 @@ If a creature is holding or wearing the object and takes the damage from it, the
    :con? true
    :save :con
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d8"))
    }
 
@@ -2437,7 +2437,7 @@ If a creature is holding or wearing the object and takes the damage from it, the
    :comp :vs
    :save :dex
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 1 spell-level) "d10"))
    }
 
@@ -2562,7 +2562,7 @@ Hailstones turn the storm’s area of effect into difficult terrain until the en
    :comp [:vs "a pinch of dust and a few drops of water"]
    :save :dex
    :damage :bludgeoning
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ -2 spell-level) "d8"))
    }
 
@@ -2649,7 +2649,7 @@ The cloud moves 10 feet directly away from you in a direction that you choose at
    :comp :vs
    :attack :melee
    :damage :necrotic
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 2 spell-level) "d10"))
    }
 
@@ -2668,7 +2668,7 @@ When the area appears, each creature in it must make a Constitution saving throw
    :save :con
    :aoe [:sphere 20]
    :damage :piercing
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ -1 spell-level) "d10"))
    }
 
@@ -2803,7 +2803,7 @@ The lightning ignites flammable objects in the area that aren’t being worn or 
    :save :dex
    :aoe [:line 100, 5]
    :damage :lightning
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 5 spell-level) "d6"))
    }
 
@@ -3001,7 +3001,7 @@ Physical interaction with the image reveals it to be an illusion, because things
 **_At Higher Levels. _**When you cast this spell using a spell slot of 6th level or higher, the healing increases by 1d8 for each slot level above 5th."
    :comp :vs
    :aoe [:sphere 30]
-   :dice (fn [spell-level spell-mod]
+   :dice (fn [#{spell-level spell-mod}]
     (str (+ -2 spell-level) "d8 + " spell-mod))
    }
 
@@ -3026,7 +3026,7 @@ Physical interaction with the image reveals it to be an illusion, because things
    :desc "As you call out words of restoration, up to six creatures of your choice that you can see within range regain hit points equal to 1d4 + your spellcasting ability modifier. This spell has no effect on undead or constructs.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 4th level or higher, the healing increases by 1d4 for each slot level above 3rd."
    :comp :v
-   :dice (fn [spell-level spell-mod]
+   :dice (fn [#{spell-level spell-mod}]
     (str (+ -2 spell-level) "d4 + " spell-mod))
    }
 
@@ -3230,7 +3230,7 @@ On each of your turns after you cast this spell, you can use an action to move t
    :con? true
    :save :con
    :damage :radiant
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d10"))
    }
 
@@ -3299,7 +3299,7 @@ When the opening disappears, any creatures or objects still in the passage creat
    :con? true
    :save :wis
    :damage :psychic
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d10"))
    }
 
@@ -3386,7 +3386,7 @@ This spell's damage increases by 1d12 when you reach 5th level (2d12), 11th leve
    :comp :vs
    :save :con
    :damage :poison
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -3446,7 +3446,7 @@ The stunned target must make a Constitution saving throw at the end of each of i
    :desc "Up to six creatures of your choice that you can see within range each regain hit points equal to 2d8 + your spellcasting ability modifier. This spell has no effect on undead or constructs.
 **_At Higher Levels. _**When you cast this spell using a spell slot of 3rd level or higher, the healing increases by 1d8 for each slot level above 2nd."
    :comp :v
-   :dice (fn [spell-level spell-mod]
+   :dice (fn [#{spell-level spell-mod}]
     (str spell-level "d8 + " spell-mod))
    }
 
@@ -3549,7 +3549,7 @@ This spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th leve
    :comp :vs
    :attack :ranged
    :damage :fire
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -3678,7 +3678,7 @@ The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level
    :comp :vs
    :attack :ranged
    :damage :cold
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -3838,7 +3838,7 @@ The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level
    :comp :vs
    :save :dex
    :damage :radiant
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -3995,7 +3995,7 @@ A nonmagical object that isn’t being worn or carried also takes the damage if 
    :save :con
    :aoe [:sphere 10]
    :damage :thunder
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 1 spell-level) "d8"))
    }
 
@@ -4045,7 +4045,7 @@ The spell’s damage increases by 1d8 when you reach 5th level (2d8), 11th level
    :comp :vs
    :attack :melee
    :damage :lightning
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -4234,7 +4234,7 @@ When you cast this spell, you can designate any number of creatures you can see 
    :con? true
    :save :wis
    :damage :radiant
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d8"))
    }
 
@@ -4494,7 +4494,7 @@ In addition, unsecured objects that are completely within the area of effect are
    :save :con
    :aoe [:cube 15, 15]
    :damage :thunder
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 1 spell-level) "d8"))
    }
 
@@ -4644,7 +4644,7 @@ If you command the servant to perform a task that would move it more than 60 fee
    :con? true
    :attack :melee
    :damage :necrotic
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str spell-level "d6"))
    }
 
@@ -4660,7 +4660,7 @@ This spell's damage increases by 1d4 when you reach 5th level (2d4), 11th level 
    :comp :v
    :save :wis
    :damage :psychic
-   :dice (fn [total-level]
+   :dice (fn [#{total-level}]
     (str (cond
     (< total-level 5) 1
     (< total-level 11) 2
@@ -4684,7 +4684,7 @@ One side of the wall, selected by you when you cast this spell, deals 5d8 fire d
    :con? true
    :save :dex
    :damage :fire
-   :dice (fn [spell-level]
+   :dice (fn [#{spell-level}]
     (str (+ 1 spell-level) "d8"))
    }
 

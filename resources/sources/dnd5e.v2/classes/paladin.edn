@@ -69,7 +69,7 @@
                   {:id :paladin/divine-sense#uses
                    :name "Divine Sense"
                    :restore-trigger :long-rest
-                   :uses (fn [modifiers]
+                   :uses (fn [#{modifiers}]
                            (inc (:cha modifiers)))})
                 (provide-attr
                   [:action :paladin/divine-sense]
@@ -87,7 +87,7 @@
                   {:id :paladin/lay-on-hands#uses
                    :name "Lay on Hands"
                    :restore-trigger :long-rest
-                   :uses (fn [level]
+                   :uses (fn [#{level}]
                            (* 5 level))})
                 (provide-attr
                   [:action :paladin/lay-on-hands]
@@ -109,7 +109,7 @@
                        :spell-level 1 ; min spell slot level
                        :consumes :*spell-slot
                        :damage :radiant
-                       :dice (fn [spell-level]
+                       :dice (fn [#{spell-level}]
                                (str (min 5 (+ 1 spell-level))
                                     "d8"))
                        :! (on-state
@@ -181,7 +181,7 @@ At 18th level, the range of this aura increases to 30 feet."}))}
                                {:id :paladin/cleansing-touch#uses
                                 :name "Cleansing Touch"
                                 :restore-trigger :long-rest
-                                :uses (fn [modifiers]
+                                :uses (fn [#{modifiers}]
                                         (max 1 (:cha modifiers)))})
                              (provide-attr
                                [:action :paladin/cleansing-touch]

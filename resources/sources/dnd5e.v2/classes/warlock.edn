@@ -71,7 +71,7 @@
 At 2nd level, you gain two eldritch invocations of your choice. Your invocation options are detailed at the end of the class description. When you gain certain warlock levels, you gain additional invocations of your choice, as shown in the Invocations Known column of the Warlock table.
 Additionally, when you gain a level in this class, you can choose one of the invocations you know and replace it with another invocation that you could learn at that level.",
           :max-options
-          (fn [level]
+          (fn [#{level}]
             (cond
               (< level 5) 2
               (< level 7) 3
@@ -103,7 +103,7 @@ You can cast your arcanum spell once without expending a spell slot. You must fi
 At higher levels, you gain more warlock spells of your choice that can be cast in this way: one 7th-level spell at 13th level, one 8th-level spell at 15th level, and one 9th-level spell at 17th level. You regain all uses of your Mystic Arcanum when you finish a long rest.",
           :max-options 1,
           :values (items-from-list :warlock/spells-list),
-          :values-filter (fn [spell-level] (= 6 spell-level)),
+          :values-filter (fn [#{spell-level}] (= 6 spell-level)),
           :!
           (on-state
             (add-limited-use
@@ -121,7 +121,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
           :desc "At Level 13, you can pick one 7th-level spell as another arcanum.",
           :max-options 1,
           :values (items-from-list :warlock/spells-list),
-          :values-filter (fn [spell-level] (= 7 spell-level)),
+          :values-filter (fn [#{spell-level}] (= 7 spell-level)),
           :!
           (on-state
             (add-limited-use
@@ -138,7 +138,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
           :desc "At Level 15, you can pick one 8th-level spell as another arcanum.",
           :max-options 1,
           :values (items-from-list :warlock/spells-list),
-          :values-filter (fn [spell-level] (= 8 spell-level)),
+          :values-filter (fn [#{spell-level}] (= 8 spell-level)),
           :!
           (on-state
             (add-limited-use
@@ -156,7 +156,7 @@ At higher levels, you gain more warlock spells of your choice that can be cast i
           :desc "At Level 17, you can pick one 9th-level spell as another arcanum.",
           :max-options 1,
           :values (items-from-list :warlock/spells-list),
-          :values-filter (fn [spell-level] (= 9 spell-level)),
+          :values-filter (fn [#{spell-level}] (= 9 spell-level)),
           :!
           (on-state
             (add-limited-use
@@ -263,13 +263,13 @@ If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a
         :name "Pact of the Tome Spells",
         :max-options 3,
         :values (items-from-list :all-spells),
-        :values-filter (fn [spell-level] (= 0 spell-level))}))})
+        :values-filter (fn [#{spell-level}] (= 0 spell-level))}))})
 
 (declare-options
   :warlock/eldritch-invocations
   {:id :warlock/agonizing-blast,
    :name "Agonizing Blast",
-   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :available? (fn [#{options}] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
    :desc
    "_Prerequisite:_ _eldritch blast_ cantrip
 When you cast eldritch blast, add your Charisma modifier to the damage it deals on a hit."}
@@ -285,7 +285,7 @@ When you cast eldritch blast, add your Charisma modifier to the damage it deals 
 
   {:id :warlock/ascendant-step,
    :name "Ascendant Step",
-   :available? (fn [level] (>= level 9)),
+   :available? (fn [#{level}] (>= level 9)),
    :desc
    "_Prerequisite:_ 9th level
 You can cast _levitate_ on yourself at will, without expending a spell slot or material components.",
@@ -309,7 +309,7 @@ You can cast _levitate_ on yourself at will, without expending a spell slot or m
 
   {:id :warlock/bewitching-whispers,
    :name "Bewitching Whispers",
-   :available? (fn [level] (>= level 7)),
+   :available? (fn [#{level}] (>= level 7)),
    :desc
    "_Prerequisite:_ 7th level
 You can cast _compulsion_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
@@ -327,7 +327,7 @@ You can cast _compulsion_ once using a warlock spell slot. You can’t do so aga
 
   {:id :warlock/book-ancient-secrets,
    :name "Book of Ancient Secrets",
-   :available? (fn [options] (= [:warlock/pact-tome] (:warlock/pact-boon options))),
+   :available? (fn [#{options}] (= [:warlock/pact-tome] (:warlock/pact-boon options))),
    :desc
    "_Prerequisite:_ Pact of the Tome feature
 You can now inscribe magical rituals in your Book of Shadows. Choose two 1st-level spells that have the ritual tag from any class’s spell list (the two needn’t be from the same list). The spells appear in the book and don’t count against the number of spells you know. With your Book of Shadows in hand, you can cast the chosen spells as rituals. You can’t cast the spells except as rituals, unless you’ve learned them by some other means. You can also cast a warlock spell you know as a ritual if it has the ritual tag.
@@ -344,7 +344,7 @@ On your adventures, you can add other ritual spells to your Book of Shadows. Whe
         :spells :all-spells,
         :id :warlock/book-ancient-secrets,
         :values-filter
-        (fn [spell-level rit? level] (and rit? (<= spell-level (ceil (/ level 2))))),
+        (fn [#{spell-level rit? level}] (and rit? (<= spell-level (ceil (/ level 2))))),
         :acquires? true,
         :acquired-label "Book of Ancient Secrets"}))}
 
@@ -369,7 +369,7 @@ You can cast _hold monster_ at will—targeting a celestial, fiend, or elemental
 
   {:id :warlock/dreadful-word,
    :name "Dreadful Word",
-   :available? (fn [level] (>= level 7)),
+   :available? (fn [#{level}] (>= level 7)),
    :desc
    "_Prerequisite:_ 7th level
 You can cast _confusion_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
@@ -393,7 +393,7 @@ You can cast _confusion_ once using a warlock spell slot. You can’t do so agai
 
   {:id :warlock/eldritch-spear,
    :name "Eldritch Spear",
-   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :available? (fn [#{options}] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
    :desc
    "_Prerequisite:_ _eldritch blast_ cantrip
 When you cast _eldritch blast_, its range is 300 feet."}
@@ -420,7 +420,7 @@ When you cast _eldritch blast_, its range is 300 feet."}
   {:id :warlock/lifedrinker,
    :name "Lifedrinker",
    :available?
-   (fn [level options]
+   (fn [#{level options}]
      (and (>= level 12) (= [:warlock/pact-blade] (:warlock/pact-boon options)))),
    :desc
    "_Prerequisite:_ 12th level, _Pact of the Blade_ feature
@@ -436,7 +436,7 @@ When you hit a creature with your pact weapon, the creature takes extra necrotic
 
   {:id :warlock/master-myriad-forms,
    :name "Master of Myriad Forms",
-   :available? (fn [level] (>= level 15)),
+   :available? (fn [#{level}] (>= level 15)),
    :desc
    "_Prerequisite:_ 15th level
 You can cast alter self at will, without expending a spell slot.",
@@ -447,7 +447,7 @@ You can cast alter self at will, without expending a spell slot.",
 
   {:id :warlock/minions-chaos,
    :name "Minions of Chaos",
-   :available? (fn [level] (>= level 9)),
+   :available? (fn [#{level}] (>= level 9)),
    :desc
    "_Prerequisite:_ 9th level
 You can cast _conjure elemental_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
@@ -463,7 +463,7 @@ You can cast _conjure elemental_ once using a warlock spell slot. You can’t do
 
   {:id :warlock/mire-mind,
    :name "Mire the Mind",
-   :available? (fn [level] (>= level 5)),
+   :available? (fn [#{level}] (>= level 5)),
    :desc
    "_Prerequisite:_ 5th level
 You can cast _slow_ once using a warlock spell slot.
@@ -489,7 +489,7 @@ You can’t do so again until you finish a long rest.",
 
   {:id :warlock/one-with-shadows,
    :name "One with Shadows",
-   :available? (fn [level] (>= level 5)),
+   :available? (fn [#{level}] (>= level 5)),
    :desc
    "_Prerequisite:_ 5th level
 When you are in an area of dim light or darkness, you can use your action to become invisible until you move or take an action or a reaction.",
@@ -497,7 +497,7 @@ When you are in an area of dim light or darkness, you can use your action to bec
 
   {:id :warlock/otherworldly-leap,
    :name "Otherworldly Leap",
-   :available? (fn [level] (>= level 9)),
+   :available? (fn [#{level}] (>= level 9)),
    :desc
    "_Prerequisite:_ 9th level
 You can cast _jump_ on yourself at will, without expending a spell slot or material components.",
@@ -508,14 +508,14 @@ You can cast _jump_ on yourself at will, without expending a spell slot or mater
 
   {:id :warlock/repelling-blast,
    :name "Repelling Blast",
-   :available? (fn [options] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
+   :available? (fn [#{options}] (some #{:spell/eldritch-blast} (:warlock/spells-list options))),
    :desc
    "_Prerequisite: eldritch blast_ cantrip
 When you hit a creature with eldritch blast, you can push the creature up to 10 feet away from you in a straight line."}
 
   {:id :warlock/sculptor-flesh,
    :name "Sculptor of Flesh",
-   :available? (fn [level] (>= level 7)),
+   :available? (fn [#{level}] (>= level 7)),
    :desc
    "_Prerequisite:_ 7th level
 You can cast _polymorph_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
@@ -531,7 +531,7 @@ You can cast _polymorph_ once using a warlock spell slot. You can’t do so agai
 
   {:id :warlock/sign-ill-omen,
    :name "Sign of Ill Omen",
-   :available? (fn [level] (>= level 5)),
+   :available? (fn [#{level}] (>= level 5)),
    :desc
    "_Prerequisite:_ 5th level
 You can cast _bestow curse_ once using a warlock spell slot. You can’t do so again until you finish a long rest.",
@@ -562,14 +562,14 @@ You can cast _bestow curse_ once using a warlock spell slot. You can’t do so a
   {:id :warlock/thirsting-blade,
    :name "Thirsting Blade",
    :available?
-   (fn [level options] (and (>= level 5) (= [:warlock/pact-blade] (:warlock/pact-boon options)))),
+   (fn [#{level options}] (and (>= level 5) (= [:warlock/pact-blade] (:warlock/pact-boon options)))),
    :desc
    "_Prerequisite:_ 5th level, _Pact of the Blade_ feature
 You can attack with your pact weapon twice, instead of once, whenever you take the Attack action on your turn."}
 
   {:id :warlock/visions-distant-realms,
    :name "Visions of Distant Realms",
-   :available? (fn [level] (>= level 15)),
+   :available? (fn [#{level}] (>= level 15)),
    :desc
    "_Prerequisite:_ 15th level
 You can cast _arcane eye_ at will, without expending a spell slot.",
@@ -580,14 +580,14 @@ You can cast _arcane eye_ at will, without expending a spell slot.",
 
   {:id :warlock/voice-chain-master,
    :name "Voice of the Chain Master",
-   :available? (fn [options] (= [:warlock/pact-chain] (:warlock/pact-boon options))),
+   :available? (fn [#{options}] (= [:warlock/pact-chain] (:warlock/pact-boon options))),
    :desc
    "_Prerequisite: Pact of the Chain_ feature
 You can communicate telepathically with your familiar and perceive through your familiar’s senses as long as you are on the same plane of existence. Additionally, while perceiving through your familiar’s senses, you can also speak through your familiar in your own voice, even if your familiar is normally incapable of speech."}
 
   {:id :warlock/whispers-grave,
    :name "Whispers of the Grave",
-   :available? (fn [level] (>= level 9)),
+   :available? (fn [#{level}] (>= level 9)),
    :desc
    "_Prerequisite:_ 9th level
 You can cast _speak with dead_ at will, without expending a spell slot.",
@@ -598,7 +598,7 @@ You can cast _speak with dead_ at will, without expending a spell slot.",
 
   {:id :warlock/witch-sight,
    :name "Witch Sight",
-   :available? (fn [level] (>= level 15)),
+   :available? (fn [#{level}] (>= level 15)),
    :desc
    "_Prerequisite:_ 15th level
 You can see the true form of any shapechanger or creature concealed by illusion or transmutation magic while the creature is within 30 feet of you and within line of sight."})

@@ -8,7 +8,7 @@
    :! (on-state
         (provide-attr
           [:buffs :hp-max :spell/aid]
-          (fn [spell-level]
+          (fn [#{spell-level}]
             (* 5 (dec (or spell-level 2))))))}
 
   {:id :spell/beacon-of-hope
@@ -88,7 +88,7 @@
              "You have an additional action on each of your turns; it may only be used to take the Attack (one weapon attack only), Dash, Disengage, Hide, or Use an Object action."]
    :! (on-state
         (provide-attr [:buffs :ac :spell/haste] 2)
-        (provide-attr [:buffs :speed :spell/haste] (fn [speed] speed)))}
+        (provide-attr [:buffs :speed :spell/haste] (fn [#{speed}] speed)))}
 
   {:id :spell/heroes-feast
    :name "Heroes’ Feast"
@@ -120,7 +120,7 @@
    :effects ["Your base AC is 13 + Dex"]
    :! (on-state
         (provide-attr [:5e/ac :spell/mage-armor]
-                      (fn [modifiers armor?]
+                      (fn [#{modifiers armor?}]
                         (when-not armor?
                           (+ 13 (:dex modifiers))))))}
 
@@ -165,7 +165,7 @@
              "On your turn, you can use either an action or bonus action, but not both"
              "You cannot make more than one melee or ranged attack during your turn"]
    :!(on-state
-       (provide-attr [:buffs :speed :spell/slow] (fn [speed] (/ speed 2)))
+       (provide-attr [:buffs :speed :spell/slow] (fn [#{speed}] (/ speed 2)))
        (provide-attr [:buffs :ac :spell/slow] -2)
       ; TODO dex saves?
        )}

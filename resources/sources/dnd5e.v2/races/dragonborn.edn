@@ -36,13 +36,13 @@
                   {:&from-option :dragonborn/ancestry
                    :name "Dragonborn Breath Weapon"
                    :consumes :dragonborn/breath-weapon#uses
-                   :dice (fn [level]
+                   :dice (fn [#{level}]
                            (cond
                              (< level 6) "2d6"
                              (< level 11) "3d6"
                              (< level 16) "4d6"
                              :else "5d6"))
-                   :save-dc (fn [modifiers prof-bonus]
+                   :save-dc (fn [#{modifiers prof-bonus}]
                               (+ 8 (:con modifiers) prof-bonus))}))}))}
 
 (declare-options

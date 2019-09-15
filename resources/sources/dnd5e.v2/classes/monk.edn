@@ -68,7 +68,7 @@ Certain monasteries use specialized forms of the monk weapons. For example, you 
                 (provide-feature
                   {:id :unarmed-strike
                    :finesse? true
-                   :dice (fn [level modifiers]
+                   :dice (fn [#{level modifiers}]
                            (let [m (max (:str modifiers)
                                         (:dex modifiers))]
                              (str "1d"
@@ -85,7 +85,7 @@ Certain monasteries use specialized forms of the monk weapons. For example, you 
            :! (on-state
                 (provide-attr
                   [:5e/ac :monk/unarmored-defense]
-                  (fn [modifiers armor? shield?]
+                  (fn [#{modifiers armor? shield?}]
                     (when-not (or armor? shield?)
                       (+ 10
                          (:dex modifiers)
@@ -108,7 +108,7 @@ Some of your ki features require your target to make a saving throw to resist th
                               {:id :monk/ki#uses
                                :name "Ki Points"
                                :restore-trigger :short-rest
-                               :uses (fn [level] level)}))}
+                               :uses (fn [#{level}] level)}))}
 
                       {:id :monk/unarmored-movement
                        :name "Unarmored Movement"
@@ -117,7 +117,7 @@ At 9th level, you gain the ability to move along vertical surfaces and across li
                        :! (on-state
                             (provide-attr
                               [:buffs :speed :monk/unarmored-movement]
-                              (fn [level]
+                              (fn [#{level}]
                                 (cond
                                   (< level 6) 10
                                   (< level 10) 15

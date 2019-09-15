@@ -67,5 +67,5 @@
            :! (on-state
                 (provide-attr
                   [:buffs :hp-max :dwarf/dwarven-toughness]
-                  (fn [level] level)))}))})
+                  (fn [#{level}] level)))}))})
 

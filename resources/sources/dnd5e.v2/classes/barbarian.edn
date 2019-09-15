@@ -62,7 +62,7 @@
                 (add-limited-use
                   {:id :barbarian/rage#uses
                    :name "Rage"
-                   :uses (fn [level]
+                   :uses (fn [#{level}]
                            (cond
                              (< level 3) 2
                              (< level 6) 3
@@ -80,7 +80,7 @@
            :! (on-state
                 (provide-attr
                   [:5e/ac :barbarian/unarmored-defense]
-                  (fn [modifiers armor?]
+                  (fn [#{modifiers armor?}]
                     (when-not armor?
                       (+ 10
                          (:dex modifiers)

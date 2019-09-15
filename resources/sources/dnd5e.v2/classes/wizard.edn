@@ -47,7 +47,7 @@
        {:id :wizard/arcane-recovery,
         :name "Arcane Recovery",
         :desc
-        (fn [level]
+        (fn [#{level}]
           (str
             "You have learned to regain some of your magical energy by studying your spellbook. Once per day when you finish a short rest, you can choose expended spell slots to recover. The spell slots can have a combined level that is equal to or less than half your wizard level (rounded up), and none of the slots can be 6th level or higher.
 
@@ -93,12 +93,12 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
           :name "Spell Mastery: Level 1 Spell",
           :max-options 1,
           :values (options-of :spells-list),
-          :values-filter (fn [spell-level] (= 1 spell-level))}
+          :values-filter (fn [#{spell-level}] (= 1 spell-level))}
          {:id :wizard/spell-mastery-2,
           :name "Spell Mastery: Level 2 Spell",
           :max-options 1,
           :values (options-of :spells-list),
-          :values-filter (fn [spell-level] (= 2 spell-level))}))},
+          :values-filter (fn [#{spell-level}] (= 2 spell-level))}))},
     19 {:! (on-state (provide-features :abi-or-feat))},
     20
     {:!
@@ -111,7 +111,7 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
 If you want to cast either spell at a higher level, you must expend a spell slot as normal.",
           :max-options 2,
           :values (options-of :spells-list),
-          :values-filter (fn [spell-level] (= 3 spell-level)),
+          :values-filter (fn [#{spell-level}] (= 3 spell-level)),
           :!
           (on-state
             (add-to-list :wizard/extra-spells (options-of :signature-spells))

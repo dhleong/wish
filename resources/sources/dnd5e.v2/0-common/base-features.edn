@@ -1,7 +1,7 @@
 (declare-features
   {:id :unarmed-strike
    :implicit? true
-   :dice (fn [modifiers]
+   :dice (fn [#{modifiers}]
            (+ 1 (:str modifiers)))}
 
   {:id :hp
