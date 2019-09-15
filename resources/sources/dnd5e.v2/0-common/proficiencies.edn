@@ -32,10 +32,10 @@
     (for [info skills]
       (let [label (info 0)
             kw (info 1)]
-        [{:id kw
-          :name label
-          :implicit? true
-          :availability-attr kw}])))
+        {:id kw
+         :name label
+         :implicit? true
+         :availability-attr kw})))
 
   (declare-list
 
@@ -46,12 +46,12 @@
       (let [label (info 0)
             kw (info 1)
             expertise-kw (keyword "expertise" (name kw))]
-        [{:id expertise-kw
-          :name label
-          :implicit? true
-          :availability-attr expertise-kw
-          :available? (fn [attrs]
-                        (kw attrs))}]))))
+        {:id expertise-kw
+         :name label
+         :implicit? true
+         :availability-attr expertise-kw
+         :available? (fn [attrs]
+                       (kw attrs))}))))
 
 (declare-list
 
