@@ -5,7 +5,6 @@
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :as async :refer [alts! <!]]
             [clojure.string :as str]
-            [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
             [cognitect.transit :as t]
             [wish-engine.core :as engine]
@@ -49,7 +48,10 @@
       id
       (let [engine (sheets/get-engine kind)
             state (engine/create-state engine)]
-        (engine/load-source engine state directives)
+        (log/time
+          (str "Evaluate " (count directives) " directives for " id)
+          (doseq [d directives]
+            (engine/load-source engine state d)))
         {:state state
          :engine engine})
       #_(->> directives
