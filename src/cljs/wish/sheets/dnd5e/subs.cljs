@@ -4,6 +4,8 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
+            [wish-engine.core :as engine]
+            [wish-engine.scripting-api :as engine-api]
             [wish.sources.core :as src :refer [expand-list]]
             [wish.sources.util :as src-util]
             [wish.sources.compiler.fun :refer [->callable]]
@@ -1366,7 +1368,7 @@
 ; ways of acquiring spells (IE: in spellbook, provided by class
 ; features, etc)
 (defn inflate-prepared-spells-for-caster
-  [total-level data-source modifiers
+  [total-level engine-state modifiers
    attack-bonuses spell-buffs options
    caster-attrs]
   (let [attrs caster-attrs
@@ -1407,12 +1409,21 @@
         ; by features and levels, we can't find them
         ; in the data source.
         ; ... unless it's a collection of spell ids
-        extra-spells (or (get-in c [:lists extra-spells-list])
-                         (when (coll? extra-spells-list)
+        extra-spells (or #_(get-in c [:lists extra-spells-list])
+                         #_(when (coll? extra-spells-list)
                            (map (partial
                                   src/find-list-entity
                                   data-source)
-                                extra-spells-list)))
+                                extra-spells-list))
+                         (cond
+                           (keyword? extra-spells-list)
+                           (engine-api/inflate-list
+                             engine-state extra-spells-list)
+
+                           (coll? extra-spells-list)
+                           (engine/inflate-entities
+                             engine-state extra-spells-list)
+                           ))
 
         ; extra spells are always prepared
         extra-spells (->> extra-spells
@@ -1423,7 +1434,8 @@
         ; only selected spells from the main list (including those
         ; added by class features, eg warlock)
         selected-spells (concat
-                          (expand-list data-source spells-list
+                          [] ; STOPSHIP
+                          #_(expand-list data-source spells-list
                                        selected-spell-ids)
 
                           ; for class features: (if selected)
@@ -1434,7 +1446,8 @@
         ; for :acquires? spellcasters, their acquired
         ; cantrips are always prepared
         selected-spells (if acquires?
-                          (->> (expand-list data-source spells-list
+                          (->> [] ; STOPSHIP
+                               #_(expand-list data-source spells-list
                                             (get options spells-list []))
                                (filter #(= 0 (:spell-level %)))
                                (map #(assoc % :always-prepared? true))
@@ -1473,12 +1486,12 @@
   ::prepared-spells-by-class
   :<- [::spellcaster-blocks]
   :<- [:total-level]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
   :<- [::spell-buffs]
   :<- [:meta/options]
-  (fn [[spellcasters total-level data-source modifiers
+  (fn [[spellcasters total-level engine-state modifiers
         attack-bonuses spell-buffs options]]
     (some->> spellcasters
              seq
@@ -1486,7 +1499,7 @@
                (fn [m {caster-id :id :as attrs}]
                  (assoc m caster-id
                         (inflate-prepared-spells-for-caster
-                          total-level data-source modifiers
+                          total-level engine-state modifiers
                           attack-bonuses spell-buffs options
                           attrs)))
                {}))))

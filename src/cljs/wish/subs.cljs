@@ -9,10 +9,8 @@
             [wish.providers :as providers]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
             [wish.sheets :as sheets]
-            [wish.sources.compiler :refer [apply-directives inflate]]
-            [wish.sources.compiler.lists :as lists]
-            [wish.sources.core :as src :refer [find-class find-race]]
-            [wish.sources.util :as src-util]
+            [wish.sources.compiler :refer [apply-directives]]
+            [wish.sources.core :as src]
             [wish.util :refer [deep-merge padded-compare]]))
 
 (reg-sub :device-type :device-type)
@@ -234,6 +232,15 @@
       (when loaded?
         source))))
 
+(reg-id-sub
+  :sheet-engine-state
+  :<- [:sheet-source]
+  (fn [source]
+    (some->> source
+             (.-data)
+             :state
+             deref)))
+
 (reg-sub
   :sheet-error-info
   :<- [:sheet-sources]
@@ -256,19 +263,15 @@
 
 (reg-id-sub
   :classes
-  :<- [:meta/kind]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   :<- [:meta/classes]
-  (fn [[sheet-kind source options metas] _]
-    (println "CLASSES" sheet-kind source options metas)
-    (when source
+  (fn [[state options metas] _]
+    (when state
       (->> metas
            (map (fn [m]
-                  (let [{:keys [state]} (.-data source)
-                        the-class (get-in @state [:classes (:id m)])]
-                    (engine/inflate-entity
-                      state the-class (merge the-class m) options))))))))
+                  (engine/inflate-class
+                    state (:id m) m options)))))))
 
 ; A single class instance, or nil if none at all; if any
 ; class is marked primary, that class is returned. If none
@@ -301,10 +304,10 @@
 
 (reg-id-sub
   :all-effects
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   (fn [source _]
     (when source
-      (src/list-entities source :effects))))
+      (vals (:effects source)))))
 
 (reg-id-sub
   :all-effects/sorted
@@ -315,24 +318,16 @@
 
 (reg-id-sub
   :effects
-  :<- [:sheet-meta]
   :<- [:sheet-source]
   :<- [:meta/effects]
-  (fn [[sheet-meta source effects] _]
+  (fn [[source effects] _]
     (when source
       (->> effects
            (mapcat (fn [[effect-id args]]
-                     (when-let [effect (src/find-effect source effect-id)]
+                     (when-let [effect (get-in source [:effects effect-id])]
                        (inflate-effect effect args))))
            (map (fn [effect]
-                  (-> effect
-
-                      (apply-directives source)
-
-                      (sheets/post-process
-                        (:kind sheet-meta)
-                        source
-                        :effect))))))))
+                  ((:! effect) effect)))))))
 
 (reg-id-sub
   :effect-ids-set
@@ -344,22 +339,20 @@
 
 (reg-id-sub
   :races
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   :<- [:total-level]
   :<- [:meta/races]
-  (fn [[source options total-level ids] _]
-    (when source
+  (fn [[state options total-level ids] _]
+    (when state
       (->> ids
            (map (fn [id]
-                  (let [m {:id id
-                           :level total-level}
-                        {:keys [state]} (.-data source)
-                        the-race (get-in @state [:races id])]
-                    ; TODO handle sub-races; this whole thing probably ought
-                    ; to be a method on the engine
-                    (engine/inflate-entity
-                      state the-race (merge the-race m) options))))))))
+                  (engine/inflate-race
+                    state
+                    id
+                    {:id id
+                     :level total-level}
+                    options)))))))
 
 ; combines :attrs from all classes and races into a single map
 (reg-id-sub
@@ -388,10 +381,10 @@
        (mapcat (fn [container]
                  (map (fn [entry]
                         (with-meta
-                          entry
+                          [(:id entry) entry]
                           {:wish/container-id (:id container)
                            :wish/container container}))
-                      (:features container))))
+                      (:sorted-features container))))
 
        ; remove features that only the primary class should have
        ; if we're not the primary
@@ -401,84 +394,7 @@
                                        meta
                                        :wish/container
                                        :primary?)]
-                     (not primary?)))))
-
-       ; expand multi-instanced features
-       (mapcat (fn [[id f :as entry]]
-                 (if (:instanced? f)
-                   (let [total-instances (:wish/instances f 1)
-                         sorts (:wish/sorts f)
-                         {:wish/keys [container-id]} (meta entry)]
-                     (map
-                       (fn [n sort-key]
-                         (-> entry
-                             (assoc-in
-                               [1 :wish/instance-id]
-                               (keyword
-                                 (namespace id)
-                                 (str (name id)
-                                      "#"
-                                      (name container-id)
-                                      "#"
-                                      n)))
-                             (assoc-in [1 :wish/instance] n)
-                             (update-in [1 :wish/sort] (fn [old-sort]
-                                                         (or sort-key
-                                                             old-sort)))))
-                       (range total-instances)
-                       (concat
-                         ; to ensure we get all instances, even if we don't have enough
-                         ; sorts, we pad the end of the list of sorts with nil
-                         (reverse sorts)
-                         (repeat nil))))
-
-                   ; normal feature
-                   [entry])))
-
-       (map (fn [[_ f :as entry]]
-              (let [container (:wish/container (meta entry))]
-                (if (:desc f)
-                  (update entry 1 #(src-util/expand-feature container %))
-                  entry))))))
-
-(defn inflate-option-values
-  [data-source options feature-id values]
-  (or (when-let [feature-values
-                 (when data-source
-                   (:values
-                     (src/find-feature data-source feature-id)))]
-        (when-not (and (= feature-values values)
-                       (some keyword? values))
-          ; inflated values from a feature
-          feature-values))
-
-      ; not a feature with :values? Okay inflate now
-      (mapcat
-        (fn [opt-or-id]
-          (if (keyword? opt-or-id)
-            (or (when-let [f (src/find-feature data-source opt-or-id)]
-                  [f])
-                (src/expand-list data-source opt-or-id nil)
-
-                (when-let [f (src/find-list-entity data-source opt-or-id)]
-                  [f])
-
-                (when-let [options-src-id (lists/unpack-options-key
-                                            opt-or-id)]
-                  ; this was eg: :wizard/spells-list>>options
-                  ; inflate the chosen :values from the given feature-id
-                  (inflate-option-values
-                    data-source
-                    options
-                    options-src-id
-                    (get options options-src-id)))
-
-                (log/warn "Unable to inflate  " opt-or-id))
-
-            ; provided value; wrap in collection so the maps' entries
-            ; don't get flattened by mapcat
-            [opt-or-id]))
-        values)))
+                     (not primary?)))))))
 
 (defn- filter-available
   "Updates all options, evaluating :available? 'in place'
@@ -499,44 +415,27 @@
     values))
 
 (defn- inflate-feature-options
-  [[features options attrs sheet data-source]]
+  [[features source]]
   (->> features
        (map (fn [[id v :as entry]]
-              (let [container (-> entry meta :wish/container)
-                    available-map (assoc container
-                                         :options options
-                                         :sheet sheet
-                                         :attrs attrs)]
-                (with-meta
-                  [id (-> v
-                          (assoc :wish/raw-values (:values v))
-                          (update :values (comp
-                                            (partial map
-                                                     (fn [v]
-                                                       (assoc v :level (:level container))))
-                                            (partial filter-available
-                                                     available-map)
-                                            (partial inflate-option-values
-                                                     data-source
-                                                     options
-                                                     id)))
+              (with-meta
+                [id (-> v
+                        (assoc :wish/raw-values (:values v))
+                        (update :values (partial engine/inflate-entities source))
 
-                          ; filter values, if a fn was provided
-                          (as-> v
-                            (if-let [filter-fn (:values-filter v)]
-                              (update v :values (partial filter filter-fn))
-                              v))
-                          )]
-                  (meta entry)))))
+                        ; filter values, if a fn was provided
+                        (as-> v
+                          (if-let [filter-fn (:values-filter v)]
+                            (update v :values (partial filter filter-fn))
+                            v))
+                        )]
+                (meta entry))))
        (sort-by (comp :wish/sort second) padded-compare)))
 
 (defn- only-feature-options
-  [[features options attrs sheet data-source]]
+  [[features data-source]]
   (inflate-feature-options
     [(filter (comp :max-options second) features)
-     options
-     attrs
-     sheet
      data-source]))
 
 (reg-id-sub
@@ -548,10 +447,7 @@
   :inflated-class-features
   (fn [[_ entity-id]]
     [(subscribe [:class-features entity-id])
-     (subscribe [:meta/options])
-     (subscribe [:all-attrs])
-     (subscribe [:meta/sheet])
-     (subscribe [:sheet-source])])
+     (subscribe [:sheet-engine-state])])
   inflate-feature-options)
 
 ; like :inflated-class-features but removing features
@@ -560,10 +456,7 @@
   :class-features-with-options
   (fn [[_ entity-id]]
     [(subscribe [:class-features entity-id])
-     (subscribe [:meta/options])
-     (subscribe [:all-attrs])
-     (subscribe [:meta/sheet])
-     (subscribe [:sheet-source])])
+     (subscribe [:sheet-engine-state])])
   only-feature-options)
 
 (reg-id-sub
@@ -574,19 +467,13 @@
 (reg-id-sub
   :inflated-race-features
   :<- [:race-features]
-  :<- [:meta/options]
-  :<- [:all-attrs]
-  :<- [:meta/sheet]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   inflate-feature-options)
 
 (reg-id-sub
   :race-features-with-options
   :<- [:race-features]
-  :<- [:meta/options]
-  :<- [:all-attrs]
-  :<- [:meta/sheet]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   only-feature-options)
 
 ; semantic convenience for single-race systems

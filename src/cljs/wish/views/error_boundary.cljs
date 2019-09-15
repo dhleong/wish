@@ -8,8 +8,8 @@
     (r/create-class
      {:display-name "Error Boundary"
 
-      :component-did-catch (fn [_this error info]
-                             (js/console.warn error info)
+      :component-did-catch (fn [_this error #_info]
+                             ;; (js/console.warn error info)
                              (reset! err error))
 
       :reagent-render (fn [& children]
