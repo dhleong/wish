@@ -450,10 +450,15 @@
          (remove :implicit?)
 
          ; eagerly evaluate :uses (the sheet shouldn't do this)
-         (map #(assoc % :uses
-                      (invoke-callable % :uses
-                                       :modifiers modifiers
-                                       :total-level total-level)))
+         (map (fn [limited-use]
+                (update limited-use
+                        :uses
+                        (fn [value]
+                          (if (ifn? value)
+                            (invoke-callable limited-use :uses
+                                             :modifiers modifiers
+                                             :total-level total-level)
+                            value)))))
 
          ; remove uses that come from un-attuned items that require attunement
          (remove (fn [item]
@@ -933,6 +938,7 @@
     ; prefer the first non-implicit result
     (->> classes
          (map (fn [c]
+                (println "unarmed strike on  " c)
                 (assoc
                   (or (-> c :features :unarmed-strike)
                       ; possibly a custom class without a custom :unarmed-strike;
