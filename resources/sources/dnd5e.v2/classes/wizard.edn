@@ -92,12 +92,12 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
          {:id :wizard/spell-mastery-1,
           :name "Spell Mastery: Level 1 Spell",
           :max-options 1,
-          :values (options-of :spells-list),
+          :values (options-of :wizard/spells-list),
           :values-filter (fn [#{spell-level}] (= 1 spell-level))}
          {:id :wizard/spell-mastery-2,
           :name "Spell Mastery: Level 2 Spell",
           :max-options 1,
-          :values (options-of :spells-list),
+          :values (options-of :wizard/spells-list),
           :values-filter (fn [#{spell-level}] (= 2 spell-level))}))},
     19 {:! (on-state (provide-features :abi-or-feat))},
     20
@@ -110,11 +110,11 @@ By spending 8 hours in study, you can exchange one or both of the spells you cho
           "When you reach 20th level, you gain mastery over two powerful spells and can cast them with little effort. Choose two 3rd-level wizard spells in your spellbook as your signature spells. You always have these spells prepared, they don’t count against the number of spells you have prepared, and you can cast each of them once at 3rd level without expending a spell slot. When you do so, you can’t do so again until you finish a short or long rest.
 If you want to cast either spell at a higher level, you must expend a spell slot as normal.",
           :max-options 2,
-          :values (options-of :spells-list),
+          :values (options-of :wizard/spells-list),
           :values-filter (fn [#{spell-level}] (= 3 spell-level)),
           :!
           (on-state
-            (add-to-list :wizard/extra-spells (options-of :signature-spells))
+            (add-to-list :wizard/extra-spells (options-of :wizard/signature-spells))
             (add-limited-use
               {:id :wizard/signature-spells#uses,
                :name "Signature Spells",
