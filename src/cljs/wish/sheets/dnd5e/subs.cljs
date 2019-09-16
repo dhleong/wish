@@ -932,19 +932,18 @@
 (reg-sub
   ::unarmed-strike
   :<- [:classes]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
   (fn [[classes data-source modifiers proficiency-bonus]]
     ; prefer the first non-implicit result
     (->> classes
          (map (fn [c]
-                (println "unarmed strike on  " c)
                 (assoc
                   (or (-> c :features :unarmed-strike)
                       ; possibly a custom class without a custom :unarmed-strike;
                       ; fall back gracefully to the default
-                      (src/find-feature data-source :unarmed-strike))
+                      (get-in data-source [:features :unarmed-strike]))
                   :wish/context c
                   :wish/context-type :class)))
 
