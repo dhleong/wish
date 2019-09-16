@@ -386,6 +386,15 @@
                            :wish/container container}))
                       (:sorted-features container))))
 
+       ; eagerly evaluate descriptions
+       (map (fn [entry]
+              (let [container (-> entry meta :wish/container)]
+                (update-in entry [1 :desc]
+                           (fn [desc]
+                             (if (fn? desc)
+                               (desc container)
+                               desc))))))
+
        ; remove features that only the primary class should have
        ; if we're not the primary
        (remove (fn [[_id f :as entry]]
