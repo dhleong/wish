@@ -8,9 +8,6 @@
             [wish.inventory :as inv]
             [wish.providers :as providers]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.sheets :as sheets]
-            [wish.sources.compiler :refer [apply-directives]]
-            [wish.sources.core :as src]
             [wish.util :refer [deep-merge padded-compare]]))
 
 (reg-sub :device-type :device-type)
@@ -318,7 +315,7 @@
 
 (reg-id-sub
   :effects
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/effects]
   (fn [[source effects] _]
     (when source
@@ -546,14 +543,15 @@
                   inst-id
 
                   ; get the :id from the item entry, if any
-                  (get item :id))]
-    (merge
-      (dissoc item :id)
-      (apply-directives
-        (or (when item-id
-              (src/find-item data-source item-id))
-            item)
-        data-source))))
+                  (get item :id))
+        item-state (merge
+                     (get-in data-source [:items item-id])
+                     (dissoc item :id) )]
+    (engine/inflate-entity
+            data-source
+            item-state
+            item-state
+            {})))
 
 ; map of :inst-id -> inflated item in the active sheet's inventory,
 ; where each inflated item with an amount > 1 (or which :stacks?)
@@ -564,12 +562,11 @@
 ; set to true
 (reg-id-sub
   :inventory-map
-  :<- [:meta/kind]
   :<- [:meta/inventory]
   :<- [:meta/items]
   :<- [:meta/equipped]
-  :<- [:sheet-source]
-  (fn [[sheet-kind raw-inventory items equipped data-source]]
+  :<- [:sheet-engine-state]
+  (fn [[raw-inventory items equipped data-source]]
     (reduce-kv
       (fn [m inst-id amount]
         (let [equipped? (get equipped inst-id)
@@ -582,7 +579,7 @@
               item (if equipped?
                      (-> item
                          (assoc :wish/equipped? true)
-                         (sheets/post-process
+                         #_(sheets/post-process
                            sheet-kind
                            data-source
                            :item))
@@ -615,15 +612,11 @@
 ; list of all known items for the current sheet
 (reg-sub
   :all-items
-  :<- [:meta/kind]
-  :<- [:sheet-source]
-  (fn [[sheet-kind source]]
-    (->> (src/list-entities source :items)
-         (map #(sheets/post-process
-                 %
-                 sheet-kind
-                 source
-                 :item))
+  :<- [:sheet-engine-state]
+  (fn [source]
+    (->> source
+         :items
+         vals
          (sort-by :name))))
 
 
@@ -631,9 +624,10 @@
 
 (reg-sub
   :available-entities
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   (fn [source [_ entity-kind]]
-    (src/list-entities source entity-kind)))
+    (->> (get source entity-kind)
+         vals)))
 
 (reg-sub
   :options->

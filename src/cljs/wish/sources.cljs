@@ -53,10 +53,7 @@
           (doseq [d directives]
             (engine/load-source engine state d)))
         {:state state
-         :engine engine})
-      #_(->> directives
-           (compile-directives)
-           (sheets/post-compile kind)))))
+         :engine engine}))))
 
 (defn- load-source!
   "Returns a channel that signals with [err] or [nil source] when done"
