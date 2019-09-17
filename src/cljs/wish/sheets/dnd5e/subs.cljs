@@ -5,7 +5,7 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
-            [wish.sources.core :as src :refer [expand-list]]
+            [wish.sources.core :as src]
             [wish.sources.util :as src-util]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
@@ -14,7 +14,7 @@
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
-            [wish.util :refer [<sub invoke-callable ->map]]
+            [wish.util :refer [<sub invoke-callable ->map ->set]]
             [wish.util.string :as wstr]))
 
 ; ======= Constants ========================================
@@ -113,6 +113,11 @@
   [data-source container feature-id]
   (or (get-in container [:features feature-id])
       (src-util/inflate-feature data-source container feature-id)))
+
+(defn options-of-list
+  [engine-state list-id options-set]
+  (->> (engine/inflate-list engine-state list-id)
+       (filter (comp (->set options-set) :id))))
 
 ; ======= 5e-specific nav =================================
 
@@ -1495,7 +1500,7 @@
   :<- [:meta/options]
   (fn [[data-source options] [_ spells-list]]
     (let [selected-ids (get options spells-list)]
-      (->> (expand-list data-source spells-list
+      (->> (engine/inflate-list data-source spells-list
                         selected-ids)
            (filter #(not= 0 (:spell-level %)))
            count))))
@@ -1597,11 +1602,9 @@
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
                    ; NOTE: do we need to concat class-provided lists?
-                   (->> (engine/inflate-list
-                          engine-state (:spells spellcaster))
-                        (filter (comp
-                                  (get options (:spells spellcaster) #{})
-                                  :id)))
+                   (->> (options-of-list
+                          engine-state (:spells spellcaster)
+                          (get options (:spells spellcaster) #{})))
 
                    ; normal case:
                    (concat
@@ -2183,10 +2186,10 @@
 
 (reg-sub
   ::starter-packs-by-id
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   (fn [source]
     (->map
-      (src/expand-list source :5e/starter-packs nil))))
+      (options-of-list source :5e/starter-packs nil))))
 
 (defn- select-filter-keys
   "Like (select-keys) but any keys that weren't missing
