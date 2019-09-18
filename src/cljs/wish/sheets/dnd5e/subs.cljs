@@ -6,7 +6,6 @@
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
             [wish.sources.util :as src-util]
-            [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
@@ -171,9 +170,8 @@
 
 ; ======= utility subs ====================================
 
-(def ^:private compile-buff (memoize ->callable))
 (defn- compute-buff [entity buff-entry]
-  ((compile-buff buff-entry) entity))
+  (buff-entry entity))
 
 (defn- compute-buffs [entity buffs-map]
   (reduce (fn [total b]
@@ -897,7 +895,6 @@
 
        buffs)))
 
-(def ^:private compile-attacks-per (memoize ->callable))
 (reg-sub
   ::attacks-per-action
   :<- [:classes]
@@ -913,13 +910,11 @@
                              v
 
                              ; functional value
-                             ((compile-attacks-per v)
-                               entity)))
+                             (v entity)))
                          values)))
              (apply max))
         1)))
 
-(def ^:private compile-combat-info-value (memoize ->callable))
 (reg-sub
   ::combat-info
   :<- [::attacks-per-action]
@@ -933,8 +928,7 @@
                      (fn [v]
                        (update v :value
                                (fn [value]
-                                 ((compile-combat-info-value value)
-                                  entity))))
+                                 (value entity))))
                      values)))
          (sort-by :name)
 
@@ -1054,11 +1048,8 @@
          set)))
 
 (defn- compute-bonus [effects modifiers buff]
-  (when (or (fn? buff)
-            (and (list? buff)
-                 (= 'fn (first buff))))
-    (let [f (compile-buff buff)]
-      (f {:effects effects :modifiers modifiers}))))
+  (when (fn? buff)
+    (buff {:effects effects :modifiers modifiers})))
 
 (defn calculate-weapon
   [proficient-cats proficient-kinds
@@ -1204,12 +1195,6 @@
 
 ; ======= combat ==========================================
 
-(def ^:private compile-dice-fn (memoize ->callable))
-
-(defn- maybe-compile-dice [entity]
-  (when entity
-    (update entity :dice compile-dice-fn)))
-
 (reg-sub
   ::actions-for-type
   :<- [:sheet-source]
@@ -1224,11 +1209,10 @@
            (fn [c]
              (map (fn [[id flags]]
                     (with-meta
-                      (maybe-compile-dice
-                        (or (when (= id (:id c))
-                              ; attuned equipment, probably
-                              c)
-                            (feature-by-id data-source c id)))
+                      (or (when (= id (:id c))
+                            ; attuned equipment, probably
+                            c)
+                          (feature-by-id data-source c id))
                       (cond
                         (map? flags) flags
                         (keyword? flags) {flags true}
@@ -1245,7 +1229,6 @@
       #(:combat (meta %))
       actions)))
 
-(def ^:private compile-save-fn (memoize ->callable))
 (reg-sub
   ::other-attacks
   :<- [:sheet-source]
@@ -1307,10 +1290,8 @@
                       info (assoc source-entity
                                   :modifiers modifiers
                                   :prof-bonus prof-bonus)
-                      dice-fn (compile-dice-fn
-                                (:dice attack))
-                      save-fn (compile-save-fn
-                                (:save-dc attack))]
+                      dice-fn (:dice attack)
+                      save-fn (:save-dc attack)]
                   (-> attack
                       (assoc :dmg (dice-fn info))
                       (assoc :save-dc (save-fn info)))))))))
@@ -1559,8 +1540,6 @@
            {:cantrips []
             :spells []}))))
 
-(def ^:private compile-spellcaster-values-filter (memoize ->callable))
-
 ; list of all spells on a given spell list for the given spellcaster block,
 ; with `:prepared? bool` inserted as appropriate
 (reg-sub
@@ -1622,9 +1601,8 @@
 
           spells-filter (if-let [filter-fn (:values-filter spellcaster)]
                           ; let the spellcaster determine the filter
-                          (let [f (compile-spellcaster-values-filter filter-fn)]
-                            (fn [spell]
-                              (f (assoc spell :level (:level spellcaster)))))
+                          (fn [spell]
+                            (filter-fn (assoc spell :level (:level spellcaster))))
 
                           ; limit visible spells by those actually available
                           ; (IE it must be of a level we can prepare)
@@ -1769,7 +1747,6 @@
         (when-not (= 0 buffs)
           buffs)))))
 
-(def ^:private compile-spell-buff (memoize ->callable))
 (reg-sub
   ::spell-buffs
   :<- [:all-attrs]
@@ -1782,11 +1759,7 @@
              (assoc m kind
                     (->> buffs-map
                          vals
-                         (map #(if (number? %)
-                                 %
-                                 (compile-spell-buff %)))
-                         comp-buffs
-                         )))
+                         comp-buffs)))
            {}))))
 
 (defn- standard-spell-slots? [c]
