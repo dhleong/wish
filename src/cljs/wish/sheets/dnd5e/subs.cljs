@@ -805,7 +805,6 @@
          flatten
          (mapcat :attrs)
          (keep (fn [[k v]]
-                 (println k v)
                  (when (and v
                             (= "lang" (namespace k)))
                    k)))
@@ -2170,7 +2169,7 @@
   :<- [:sheet-engine-state]
   (fn [source]
     (->map
-      (options-of-list source :5e/starter-packs nil))))
+      (engine/inflate-list source :5e/starter-packs))))
 
 (defn- select-filter-keys
   "Like (select-keys) but any keys that weren't missing
