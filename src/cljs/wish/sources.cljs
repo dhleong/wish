@@ -9,11 +9,9 @@
             [cognitect.transit :as t]
             [wish-engine.core :as engine]
             [wish-engine.edn :refer [edn-readers]]
+            [wish-engine.state :as state]
             [wish.providers :as providers]
             [wish.sheets :as sheets]
-            ;; [wish.sources.compiler :refer [compile-directives]]
-            [wish.sources.core :as sources :refer [->DataSource id]]
-            [wish.sources.composite :refer [composite-source]]
             [wish.util :refer [>evt]]))
 
 ; cache of *compiled* sources by id
@@ -43,17 +41,14 @@
 
                      (do
                        (log "Read edn for " id)
-                       (read-edn-directives raw)))]
-    (->DataSource
-      id
-      (let [engine (sheets/get-engine kind)
-            state (engine/create-state engine)]
-        (log/time
-          (str "Evaluate " (count directives) " directives for " id)
-          (doseq [d directives]
-            (engine/load-source engine state d)))
-        {:state state
-         :engine engine}))))
+                       (read-edn-directives raw)))
+        engine (sheets/get-engine kind)
+        state (engine/create-state engine)]
+    (log/time
+      (str "Evaluate " (count directives) " directives for " id)
+      (doseq [d directives]
+        (engine/load-source engine state d)))
+    state))
 
 (defn- load-source!
   "Returns a channel that signals with [err] or [nil source] when done"
@@ -74,7 +69,7 @@
                 (swap! loaded-sources assoc source-id compiled)
                 (log "Compiled " source-id compiled)
 
-                [nil compiled])
+                [nil {:id source-id :state compiled}])
 
               (catch :default e
                 ; error parsing raw source
@@ -83,12 +78,12 @@
                 [e])))))))
 
 (defn- combine-sources!
-  "Combine the given sources into a CompositeDataSource
-   and save it to the app-db for the given sheet-id"
+  "Combine the given sources and save it to the app-db for the given
+   sheet-id"
   [sheet-id sources]
   (>evt [:put-sheet-source!
          sheet-id
-         (composite-source sheet-id sources)]))
+         (apply state/composite sources)]))
 
 (defn load!
   "Load the sources for the given sheet"
@@ -103,7 +98,8 @@
         (log/info "load " sources)
         (go-loop [source-chs source-chs
                   resolved []]
-          (let [[[err loaded-src] port] (alts! source-chs)
+          (let [[[err loaded-src-map] port] (alts! source-chs)
+                {id :id loaded-src :state} loaded-src-map
                 new-resolved (if err
                                resolved
                                (conj resolved loaded-src))]

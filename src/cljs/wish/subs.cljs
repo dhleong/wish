@@ -233,10 +233,7 @@
   :sheet-engine-state
   :<- [:sheet-source]
   (fn [source]
-    (some->> source
-             (.-data)
-             :state
-             deref)))
+    (some->> source deref)))
 
 (reg-sub
   :sheet-error-info
