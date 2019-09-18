@@ -480,7 +480,7 @@
           [:div.section-label "Spells"]
 
           (for [s spells]
-            ^{:key (:id s)}
+            ^{:key [(::subs/source s) (:id s)]}
             [:div.spell-name.clickable
              {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])}
              (:name s)])])
