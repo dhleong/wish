@@ -5,7 +5,6 @@
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
-            [wish.sources.core :as src]
             [wish.sources.util :as src-util]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
@@ -110,9 +109,17 @@
     coll))
 
 (defn feature-by-id
-  [data-source container feature-id]
-  (or (get-in container [:features feature-id])
-      (src-util/inflate-feature data-source container feature-id)))
+  ([container feature-id]
+   (get-in container [:features feature-id]))
+  ([data-source container feature-id]
+   (or (get-in container [:features feature-id])
+       (src-util/inflate-feature data-source container feature-id))))
+
+(defn feature-in-lists [engine-state entity-lists id]
+  (or (feature-by-id engine-state id)
+      (some (fn [source]
+              (get-in source [:features id]))
+            (flatten entity-lists))))
 
 (defn options-of-list
   [engine-state list-id options-set]
@@ -662,7 +669,7 @@
 ; returns a collection of features
 (reg-sub
   ::ability-extras
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:races]
   :<- [:classes]
   :<- [::attuned-eq]
@@ -688,12 +695,12 @@
                                 " damage.")}
 
                     ; not static? okay, it could be a feature
-                    (if-let [f (util/find-feature data-source entity-lists id)]
+                    (if-let [f (feature-in-lists data-source entity-lists id)]
                       ; got it!
                       f
 
                       ; okay... effect?
-                      (if-let [e (src/find-effect data-source id)]
+                      (if-let [e (get-in data-source [:effects id])]
                         {:id id
                          :desc [:<>
                                 (:name e) ":"
@@ -780,18 +787,18 @@
 
 (reg-sub
   ::other-proficiencies
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::all-proficiencies]
   (fn [[data-source feature-ids] _]
     (->> feature-ids
          (remove data/skill-feature-ids)
-         (keep (partial src/find-feature data-source))
+         (keep (partial feature-by-id data-source))
          (sort-by :name))))
 
 ; returns a collection of feature ids
 (reg-sub
   ::languages
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:races]
   :<- [:classes]
   :<- [:effects]
@@ -800,10 +807,11 @@
          flatten
          (mapcat :attrs)
          (keep (fn [[k v]]
+                 (println k v)
                  (when (and v
                             (= "lang" (namespace k)))
                    k)))
-         (keep (partial src/find-feature data-source))
+         (keep (partial feature-by-id data-source))
          (sort-by :name))))
 
 
@@ -2221,11 +2229,11 @@
   [source _ choices]
   (if-let [id (:id choices)]
     ; single item with a :count
-    [:count (src/find-item source id) (:count choices)]
+    [:count (get-in source [:items id]) (:count choices)]
 
     ; filter
     (let [choice-keys (keys choices)]
-      [:or (->> (src/list-entities source :items)
+      [:or (->> source :items vals  ; all items
                 (remove :+) ; no magic items
                 (remove :desc) ; or fancy items
                 (filter (fn [item]
@@ -2241,15 +2249,15 @@
                        (partial
                          map
                          (fn [[id amount]]
-                           [(src/find-item source id)
+                           [(get-in source [:items id])
                             amount])))])
 
       ; just an item
-      (src/find-item source choice)))
+      (get-in source [:items choice])))
 
 (reg-sub
   ::starting-eq
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::starter-packs-by-id]
   :<- [:primary-class]
   (fn [[source packs {{eq :5e/starting-eq} :attrs

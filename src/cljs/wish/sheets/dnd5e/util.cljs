@@ -44,18 +44,6 @@
       (max min-val new-val))))
 
 
-; ======= feature-related =================================
-
-(defn find-feature
-  "Given a data source and a seq of entity lists,
-   find the given feature by id"
-  [data-source entity-lists feature-id]
-  (or (src/find-feature data-source feature-id)
-      (some (fn [source]
-              (get-in source [:features feature-id]))
-            (flatten entity-lists))))
-
-
 ; ======= item-related =====================================
 
 (def ^:private equippable-types
