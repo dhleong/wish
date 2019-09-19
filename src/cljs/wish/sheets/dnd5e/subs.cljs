@@ -1400,12 +1400,13 @@
         ; by features and levels, we can't find them
         ; in the data source.
         ; ... unless it's a collection of spell ids
-        extra-spells (engine/inflate-list
-                       engine-state c extra-spells-list)
+        extra-spells (when extra-spells-list
+                       (engine/inflate-list
+                         engine-state c extra-spells-list))
 
         ; extra spells are always prepared
-        extra-spells (->> extra-spells
-                          (map #(assoc % :always-prepared? true)))
+        extra-spells (some->> extra-spells
+                              (map #(assoc % :always-prepared? true)))
 
         selected-spell-ids (get options spells-option [])
 
