@@ -11,6 +11,7 @@
             [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
+            [wish.util.nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets :refer [link]]))
 
@@ -178,6 +179,31 @@
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
+(defn- safe-sheet-content [sheet-id content]
+  (try
+    ; eager evaluate class, race, etc. to ensure that
+    ; we can inflate everything without error
+    (<sub [:all-attrs])
+
+    ; the actual content view, wrapped in an error boundary; any
+    ; errors it catches *should* be rendering-related, and not
+    ; something we can do anything baout here
+    [error-boundary content]
+
+    (catch :default err
+      [:div.sheet.error
+       [:p "Error inflating sheet"]
+
+       [:div
+        [link {:href (sheet-url sheet-id :builder :home)}
+         "Adjust sheet sources"]]
+
+       [:div
+        [link {:href "/sheets"}
+         "Pick another sheet"]]
+
+       [widgets/error-box err]])))
+
 (defn- ensuring-loaded
   [sheet-id content-fn]
   (let [sheet (<sub [:provided-sheet sheet-id])]
@@ -221,4 +247,6 @@
   (ensuring-loaded
     sheet-id
     (fn [{view :fn}]
-      [view])))
+      [safe-sheet-content
+       sheet-id
+       [view]])))

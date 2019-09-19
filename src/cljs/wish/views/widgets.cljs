@@ -22,9 +22,8 @@
 
         ; fallback
         [:div "Info for nerds: "
-         ; NOTE: ex-message returns nil for non-errors
          [:p.error-info
-          [:pre (or (ex-message e)
+          [:pre (or (when e (.-stack e))
                     (str e))]]])))
 
 (defn formatted-text
