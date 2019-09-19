@@ -32,7 +32,7 @@
    :name "High Elf"
 
    :! (on-state
-        (provide-attr :5e/&ability-score-increase {:int 1})
+        (provide-attr [:5e/ability-score-increase :int] 1)
         (provide-attr
           :5e/spellcaster
           {:elf

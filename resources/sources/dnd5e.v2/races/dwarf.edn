@@ -57,8 +57,8 @@
 
    :! (on-state
         (provide-attr
-          {:5e/ability-score-increase
-           {:wis 1}})
+          [:5e/ability-score-increase :wis]
+          1)
 
         (provide-features
           {:id :dwarf/dwarven-toughness

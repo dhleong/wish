@@ -31,8 +31,8 @@
 
    :! (on-state
         (provide-attr
-          :5e/&ability-score-increase
-          {:con 1})
+          [:5e/ability-score-increase :con]
+          1)
 
         (provide-features
           {:id :gnome/artificers-lore
