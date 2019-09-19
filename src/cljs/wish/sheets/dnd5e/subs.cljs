@@ -171,7 +171,9 @@
 ; ======= utility subs ====================================
 
 (defn- compute-buff [entity buff-entry]
-  (buff-entry entity))
+  (if (fn? buff-entry)
+    (buff-entry entity)
+    buff-entry))
 
 (defn- compute-buffs [entity buffs-map]
   (reduce (fn [total b]
