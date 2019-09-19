@@ -54,7 +54,7 @@
   "Returns a channel that signals with [err] or [nil source] when done"
   [sheet source-id]
   (go (if-let [existing (get @loaded-sources source-id)]
-        [nil existing]
+        [nil {:id source-id :state existing}]
 
         (let [[err raw] (<! (providers/load-raw source-id))]
           (if err
