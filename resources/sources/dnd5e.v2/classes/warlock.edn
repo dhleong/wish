@@ -263,7 +263,11 @@ If you lose your Book of Shadows, you can perform a 1-hour ceremony to receive a
         :name "Pact of the Tome Spells",
         :max-options 3,
         :values (items-from-list :all-spells),
-        :values-filter (fn [#{spell-level}] (= 0 spell-level))}))})
+        :values-filter (fn [#{spell-level}] (= 0 spell-level))
+        :! (on-state
+             (add-to-list
+               :warlock/extra-spells
+               (options-of :warlock/pact-tome-spells)))}))})
 
 (declare-options
   :warlock/eldritch-invocations

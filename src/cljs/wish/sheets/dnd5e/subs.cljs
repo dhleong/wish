@@ -1404,7 +1404,7 @@
         ; ... unless it's a collection of spell ids
         extra-spells (when extra-spells-list
                        (engine/inflate-list
-                         engine-state c extra-spells-list))
+                         engine-state c options extra-spells-list))
 
         ; extra spells are always prepared
         extra-spells (some->> extra-spells
@@ -1414,20 +1414,14 @@
 
         ; only selected spells from the main list (including those
         ; added by class features, eg warlock)
-        selected-spells (concat
-                          (engine/inflate-list
-                            engine-state c selected-spell-ids)
-
-                          ; for class features: (if selected)
-                          (->>
-                            (get-in attrs [:wish/container :lists spells-list])
-                            (filter (comp selected-spell-ids :id))))
+        selected-spells (engine/inflate-list
+                          engine-state c options selected-spell-ids)
 
         ; for :acquires? spellcasters, their acquired
         ; cantrips are always prepared
         selected-spells (if acquires?
                           (->> (engine/inflate-list
-                                 engine-state c (get options spells-list []))
+                                 engine-state c options (get options spells-list []))
                                (filter #(= 0 (:spell-level %)))
                                (map #(assoc % :always-prepared? true))
 
@@ -1491,8 +1485,7 @@
   :<- [:meta/options]
   (fn [[data-source options] [_ spells-list]]
     (let [selected-ids (get options spells-list)]
-      (->> (engine/inflate-list data-source spells-list
-                        selected-ids)
+      (->> (engine/inflate-list data-source selected-ids)
            (filter #(not= 0 (:spell-level %)))
            count))))
 
@@ -1598,6 +1591,7 @@
                    ; normal case:
                    (engine/inflate-list
                      engine-state (:wish/container spellcaster)
+                     options
                      list-id))
 
           spells-filter (if-let [filter-fn (:values-filter spellcaster)]
