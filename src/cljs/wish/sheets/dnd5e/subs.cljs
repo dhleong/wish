@@ -1596,10 +1596,9 @@
                           (get options (:spells spellcaster) #{})))
 
                    ; normal case:
-                   (concat
-                     ; include any added by class features (eg: warlock)
-                     (get-in spellcaster [:wish/container :lists list-id])
-                     (engine/inflate-list engine-state list-id)))
+                   (engine/inflate-list
+                     engine-state (:wish/container spellcaster)
+                     list-id))
 
           spells-filter (if-let [filter-fn (:values-filter spellcaster)]
                           ; let the spellcaster determine the filter
