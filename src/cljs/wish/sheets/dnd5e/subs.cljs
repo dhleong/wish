@@ -1215,10 +1215,17 @@
            (fn [c]
              (map (fn [[id flags]]
                     (with-meta
-                      (or (when (= id (:id c))
-                            ; attuned equipment, probably
-                            c)
-                          (feature-by-id data-source c id))
+                      (let [action (or (when (= id (:id c))
+                                         ; attuned equipment, probably
+                                         c)
+                                       (feature-by-id data-source c id))]
+
+                        (-> action
+                            (update :desc (fn [d]
+                                            (if (fn? d)
+                                              (d c)
+                                              d)))))
+
                       (cond
                         (map? flags) flags
                         (keyword? flags) {flags true}
