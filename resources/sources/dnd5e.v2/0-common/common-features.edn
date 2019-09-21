@@ -19,9 +19,10 @@
  {:id :extra-attack
   :name "Extra Attack"
   :desc "You can attack twice, instead of once, whenever you take the Attack action on your turn."
-  :! [[:!provide-attr
-       [:attacks-per-action :extra-attack]
-       2]]}
+  :! (on-state
+       (provide-attr
+         [:attacks-per-action :extra-attack]
+         2))}
 
   ;; Common level-up features
 
