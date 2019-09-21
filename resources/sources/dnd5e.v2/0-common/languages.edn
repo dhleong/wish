@@ -27,5 +27,6 @@
           kw (info 1)]
       {:id kw
        :name label
+       :desc (str "You can speak, read, and write " label ".")
        :availability-attr kw})))
 
