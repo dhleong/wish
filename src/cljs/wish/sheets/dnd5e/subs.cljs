@@ -851,14 +851,25 @@
 ; ======= combat ===========================================
 
 (reg-sub
-  ::armor-equipped?
+  ::equipped-sorted
   :<- [:equipped-sorted]
+  (fn [equipped]
+    (map (fn [item]
+           (case (:type item)
+             :armor (data/inflate-armor item)
+             :weapon (data/inflate-weapon item)
+             item))
+         equipped)))
+
+(reg-sub
+  ::armor-equipped?
+  :<- [::equipped-sorted]
   (fn [equipped]
     (some data/armor? equipped)))
 
 (reg-sub
   ::shield-equipped?
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   (fn [equipped]
     (some data/shield? equipped)))
 
@@ -1006,17 +1017,13 @@
 ; all equipped items that are attuned (or that don't need to be attuned)
 (reg-sub
   ::attuned-eq
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   :<- [::attuned-ids]
   (fn [[equipped attuned-set]]
     (->> equipped
          (remove (fn [item]
                    (and (:attunes? item)
-                        (not (contains? attuned-set (:id item))))))
-         (map (fn [item]
-                (if (= :armor (:type item))
-                 (data/inflate-armor item)
-                 item))))))
+                        (not (contains? attuned-set (:id item)))))))))
 
 (reg-sheet-sub
   ::attuned-ids
@@ -1159,7 +1166,7 @@
 
 (reg-sub
   ::equipped-weapons
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   :<- [::eq-proficiencies]
   :<- [::proficiency-bonus]
   :<- [:effect-ids-set]
