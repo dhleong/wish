@@ -13,7 +13,7 @@
             [wish.util :refer [click>evt <sub >evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
-            [wish.views.widgets :as widgets :refer [link]]))
+            [wish.views.widgets :as widgets :refer [link link>evt]]))
 
 ; ======= const data =======================================
 
@@ -197,6 +197,10 @@
        [:div
         [link {:href (sheet-url sheet-id :builder :home)}
          "Adjust sheet sources"]]
+
+       [:div.nav-link
+        [link>evt [:load-sheet! sheet-id]
+         "Reload sheet"]]
 
        [:div
         [link {:href "/sheets"}
