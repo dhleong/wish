@@ -331,7 +331,12 @@
     (->> entity-lists
          flatten
          (map (comp :buffs :attrs))
-         (apply merge-with +))))
+         (apply merge-with merge)
+         (#(select-keys % (map first data/labeled-abilities)))
+         (reduce-kv (fn [m abi buffs]
+                      (assoc m abi (apply + (vals buffs))))
+                    {})
+         )))
 
 (reg-id-sub
   ::abilities-racial

@@ -62,7 +62,7 @@
         :name label
         :! (on-state
              (provide-attr
-               [:buffs :str (:wish/instance-id state)] 1))}))}
+               [:buffs kw (:wish/option-id state)] 1))}))}
 
   {:id :feat
    :name "Feat"
