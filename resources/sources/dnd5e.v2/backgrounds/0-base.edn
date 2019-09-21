@@ -22,7 +22,7 @@
    :name "Acolyte"
 
    :! (on-state
-        (provide-feature
+        (provide-features
 
           :proficiency/insight
           :proficiency/religion
@@ -32,7 +32,7 @@
   {:id :background/custom
    :name "Custom Background"
    :! (on-state
-        (provide-feature
+        (provide-features
 
           {:id :custom-bg/skill-proficiencies
            :name "Skill proficiencies (Pick any 2)"
