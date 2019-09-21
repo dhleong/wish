@@ -139,7 +139,7 @@
 
     (compile-multiclass-and reqs)))
 
-(defn post-compile-class [c]
+(defn prepare-class-for-builder [c]
   (-> c
       (update-in [:attrs :5e/multiclass-reqs]
                  compile-multiclass-reqs)))

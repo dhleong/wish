@@ -2070,7 +2070,10 @@
   :<- [::abilities-base]
   (fn [[all-classes selected-classes primary-class abilities]]
     (available-classes
-      all-classes selected-classes primary-class abilities)))
+      (map util/prepare-class-for-builder all-classes)
+      selected-classes
+      (util/prepare-class-for-builder primary-class)
+      abilities)))
 
 (reg-sub
   ::available-races
