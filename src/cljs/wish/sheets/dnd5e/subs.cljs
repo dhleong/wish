@@ -1009,11 +1009,14 @@
   :<- [:equipped-sorted]
   :<- [::attuned-ids]
   (fn [[equipped attuned-set]]
-    (remove
-      (fn [item]
-        (and (:attunes? item)
-             (not (contains? attuned-set (:id item)))))
-      equipped)))
+    (->> equipped
+         (remove (fn [item]
+                   (and (:attunes? item)
+                        (not (contains? attuned-set (:id item))))))
+         (map (fn [item]
+                (if (= :armor (:type item))
+                 (data/inflate-armor item)
+                 item))))))
 
 (reg-sheet-sub
   ::attuned-ids

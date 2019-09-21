@@ -3,7 +3,6 @@
   wish.sheets.dnd5e.util
   (:require [clojure.string :as str]
             [wish.sheets.dnd5e.data :as data]
-            [wish.sources.core :as src]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
             [wish.sources.compiler.fun :refer [->callable]]
             [wish.util :refer [update-each-value]]))
