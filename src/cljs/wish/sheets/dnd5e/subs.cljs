@@ -1050,11 +1050,16 @@
 ; as "finesse" weapons
 (reg-sub
   ::finesse-weapon-kinds
+  :<- [:sheet-engine-state]
+  :<- [:meta/options]
   :<- [:classes]
-  (fn [classes]
+  (fn [[engine-state options classes]]
     (->> classes
          ; combine all class-specific lists
-         (mapcat (comp :finesse-weapon-kinds :lists))
+         (mapcat (fn [c]
+                   (when-let [kinds (get-in c [:lists :finesse-weapon-kinds])]
+                     (engine/inflate-list
+                       engine-state c options kinds))))
 
          (map (fn [{:keys [id]}]
                 (if (namespace id)
