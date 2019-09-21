@@ -53,7 +53,7 @@
    (for [abi [["Strength" :str]
               ["Dexterity" :dex]
               ["Constitution" :con]
-              ["Intelligence" :wis]
+              ["Intelligence" :int]
               ["Wisdom" :wis]
               ["Charisma" :cha]]]
      (let [label (abi 0)
