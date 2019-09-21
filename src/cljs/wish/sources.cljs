@@ -4,6 +4,7 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]
                    [wish.util.log :as log :refer [log]])
   (:require [clojure.core.async :as async :refer [alts! <!]]
+            [clojure.string :as str]
             [clojure.tools.reader.reader-types :refer [string-push-back-reader]]
             [cljs.reader :as edn]
             [cognitect.transit :as t]
@@ -18,7 +19,8 @@
 (defonce ^:private loaded-sources (atom {}))
 
 (defn- read-transit-directives [raw]
-  (t/read (t/reader :json) raw))
+  (let [raw (str/replace raw "\n" "\\n")]
+    (t/read (t/reader :json) raw)))
 
 (defn- read-edn-directives [raw]
   (loop [reader (string-push-back-reader raw)
