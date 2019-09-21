@@ -2,8 +2,7 @@
       :doc "util"}
   wish.sheets.dnd5e.util
   (:require [clojure.string :as str]
-            [wish.sources.compiler.limited-use :refer [compile-limited-use]]
-            [wish.util :refer [update-each-value]]))
+            [wish.sources.compiler.limited-use :refer [compile-limited-use]]))
 
 ; ======= Shared utils =====================================
 
@@ -143,7 +142,3 @@
   (-> c
       (update-in [:attrs :5e/multiclass-reqs]
                  compile-multiclass-reqs)))
-
-(defn post-compile [data]
-  (-> data
-      (update :classes update-each-value post-compile-class)))

@@ -6,7 +6,6 @@
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
-            [wish.sheets.dnd5e.util :as dnd5e-util]
             [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
@@ -30,18 +29,7 @@
            :engine (delay
                      (engine/create-engine))
 
-           :keymaps dnd5e-key/maps
-
-           ; extra 5e-specific compile step, run
-           ; on the whole, compiled data source.
-           :post-compile dnd5e-util/post-compile
-
-           ; Function for post-processing entities,
-           ;  IE: applying :attr side-effects.
-           ; post-process functions should accept
-           ;  [entity, data-source, entity-kind]
-           :post-process dnd5e-util/post-process
-           }})
+           :keymaps dnd5e-key/maps}})
 
 
 ; ======= Public interface =================================
@@ -53,26 +41,6 @@
 (defn get-keymaps
   [sheet-kind]
   (get-in sheets [sheet-kind :keymaps]))
-
-(defn post-process
-  "Apply sheet-kind-specific post-processing to an entity
-   (happens each time a subscription changes)"
-  [entity sheet-kind data-source entity-kind]
-  (if-let [processor (get-in sheets [sheet-kind :post-process])]
-    (processor entity data-source entity-kind)
-
-    ; no processor for this sheet; pass through
-    entity))
-
-(defn post-compile
-  "Apply sheet-kind-specific post-processing to a data source map
-   (happens once, when assembling the DataSource"
-  [sheet-kind data]
-  (if-let [processor (get-in sheets [sheet-kind :post-compile])]
-    (processor data)
-
-    ; no processor for this sheet; pass through
-    data))
 
 (defn stub-campaign
   "Create the initial data for a new campaign"
