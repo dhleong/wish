@@ -2,9 +2,7 @@
       :doc "util"}
   wish.sheets.dnd5e.util
   (:require [clojure.string :as str]
-            [wish.sheets.dnd5e.data :as data]
             [wish.sources.compiler.limited-use :refer [compile-limited-use]]
-            [wish.sources.compiler.fun :refer [->callable]]
             [wish.util :refer [update-each-value]]))
 
 ; ======= Shared utils =====================================
@@ -102,58 +100,10 @@
       ; no spellcasting
       :else entity)))
 
-;; NOTE some classes provide this as a feature, so we can't
-;; do this as part of the post-compile step
-(def compile-ac-source (memoize ->callable))
-(defn- compile-ac-sources
-  [entity]
-  (cond
-    (get-in entity [:attrs :5e/ac])
-    (update-in entity [:attrs :5e/ac]
-               update-each-value
-               compile-ac-source)
-
-    ; armor AC, etc. based on a builtin type
-    (= :armor (:type entity))
-    (data/inflate-armor entity)
-
-    ; nope
-    :else entity))
-
-(def compile-speed-buff (memoize ->callable))
-(defn- compile-speed-buffs
-  [entity]
-  (if (get-in entity [:attrs :buffs :speed])
-    (update-in entity [:attrs :buffs :speed]
-               (fn [buffs-map]
-                 (reduce-kv
-                   (fn [m k v]
-                     (if (number? v)
-                       m
-
-                       ; should look like (fn [level])
-                       (update m k compile-speed-buff)))
-                   buffs-map
-                   buffs-map)))
-
-    ; nope
-    entity))
-
-(defn- compile-weapon-dice
-  [entity]
-  (if (= :weapon (:type entity))
-    (data/inflate-weapon entity)
-
-    ; not a weapon
-    entity))
-
 (defn post-process
   [entity _data-source _entity-kind]
   (-> entity
-      install-spell-uses
-      compile-ac-sources
-      compile-speed-buffs
-      compile-weapon-dice))
+      install-spell-uses))
 
 
 ; ======= post-compile ====================================
