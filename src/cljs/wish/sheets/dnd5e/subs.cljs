@@ -109,9 +109,11 @@
 
 (defn feature-by-id
   ([container feature-id]
-   (get-in container [:features feature-id]))
-  ([data-source container feature-id]
    (or (get-in container [:features feature-id])
+       (get-in container [:list-entities feature-id])))
+  ([data-source container feature-id]
+   (or (feature-by-id container feature-id)
+       (feature-by-id data-source feature-id)
        (src-util/inflate-feature data-source container feature-id))))
 
 (defn feature-in-lists [engine-state entity-lists id]
@@ -1203,7 +1205,7 @@
 
 (reg-sub
   ::actions-for-type
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:classes]
   :<- [:races]
   :<- [::attuned-eq]
@@ -1244,7 +1246,7 @@
 
 (reg-sub
   ::other-attacks
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
@@ -1493,7 +1495,7 @@
 ; spells in the given spells-list
 (reg-sub
   ::acquired-spells-count
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   (fn [[data-source options] [_ spells-list]]
     (let [selected-ids (get options spells-list)]
