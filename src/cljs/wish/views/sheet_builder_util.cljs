@@ -25,7 +25,8 @@
      accepted? :max-options}
     extra-info]
    ; if it's a const number, we can skip some steps
-   (or (-> accepted? meta :const)
+   (or (when (number? accepted?)
+         accepted?)
 
        (first
          (keep
