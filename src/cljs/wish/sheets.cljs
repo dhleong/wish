@@ -2,6 +2,7 @@
       :doc "sheets"}
   wish.sheets
   (:require [wish-engine.core :as engine]
+            [wish.sheets.compiler :as compiler]
             [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
@@ -41,6 +42,19 @@
 (defn get-keymaps
   [sheet-kind]
   (get-in sheets [sheet-kind :keymaps]))
+
+(defn compile-sheet [sheet]
+  (let [kind (:kind sheet)
+        kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
+
+    (compiler/compile-sheet
+      kind-meta
+      (if-let [compiler (:sheet-compiler kind-meta)]
+        (compiler sheet)
+        sheet))))
 
 (defn stub-campaign
   "Create the initial data for a new campaign"
