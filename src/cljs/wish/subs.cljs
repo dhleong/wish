@@ -8,7 +8,7 @@
             [wish.inventory :as inv]
             [wish.providers :as providers]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [deep-merge padded-compare]]))
+            [wish.util :refer [deep-merge]]))
 
 (reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
@@ -406,7 +406,7 @@
    reagent-forms doesn't handle a dynamically changing set of
    options for a :list, we set this flag so it can be later
    queried from a :visible? function"
-  [available-map values]
+  [values available-map]
   (map
     (fn [v]
       (assoc v :available?
@@ -418,28 +418,41 @@
     values))
 
 (defn- inflate-feature-options
-  [[features source]]
+  [[source features attrs options sheet]]
   (->> features
        (map (fn [[id v :as entry]]
-              (with-meta
-                [id (-> v
-                        (assoc :wish/raw-values (:values v))
-                        (update :values (partial engine/inflate-entities source))
+              (assoc entry 1
+                     (-> v
+                         (assoc :wish/raw-values (:values v))
+                         (update :values (partial engine/inflate-entities source))
 
-                        ; filter values, if a fn was provided
-                        (as-> v
-                          (if-let [filter-fn (:values-filter v)]
-                            (update v :values (partial filter filter-fn))
-                            v))
-                        )]
-                (meta entry))))
-       (sort-by (comp :wish/sort second) padded-compare)))
+                         ; add declared options, if any
+                         (update :values concat
+                                 (when-let [options-map (get-in source [:options id])]
+                                   (vals options-map)))
+
+                         ; compute availability
+                         (update :values filter-available
+                                 (assoc (-> entry meta :wish/container)
+                                        :attrs attrs
+                                        :options options
+                                        :sheet sheet))
+
+                         ; filter values, if a fn was provided
+                         (as-> v
+                           (if-let [filter-fn (:values-filter v)]
+                             (update v :values (partial filter filter-fn))
+                             v))
+
+                         ; finally, sort the values
+                         (update :values (partial sort-by :name))))))))
 
 (defn- only-feature-options
-  [[features data-source]]
+  [[data-source features attrs options sheet]]
   (inflate-feature-options
-    [(filter (comp :max-options second) features)
-     data-source]))
+    [data-source
+     (filter (comp :max-options second) features)
+     attrs options sheet]))
 
 (reg-id-sub
   :class-features
@@ -449,8 +462,11 @@
 (reg-sub
   :inflated-class-features
   (fn [[_ entity-id]]
-    [(subscribe [:class-features entity-id])
-     (subscribe [:sheet-engine-state])])
+    [(subscribe [:sheet-engine-state])
+     (subscribe [:class-features entity-id])
+     (subscribe [:all-attrs])
+     (subscribe [:meta/options])
+     (subscribe [:meta/sheet])])
   inflate-feature-options)
 
 ; like :inflated-class-features but removing features
@@ -458,8 +474,11 @@
 (reg-sub
   :class-features-with-options
   (fn [[_ entity-id]]
-    [(subscribe [:class-features entity-id])
-     (subscribe [:sheet-engine-state])])
+    [(subscribe [:sheet-engine-state])
+     (subscribe [:class-features entity-id])
+     (subscribe [:all-attrs])
+     (subscribe [:meta/options])
+     (subscribe [:meta/sheet])])
   only-feature-options)
 
 (reg-id-sub
@@ -469,14 +488,20 @@
 
 (reg-id-sub
   :inflated-race-features
-  :<- [:race-features]
   :<- [:sheet-engine-state]
+  :<- [:race-features]
+  :<- [:all-attrs]
+  :<- [:meta/options]
+  :<- [:meta/sheet]
   inflate-feature-options)
 
 (reg-id-sub
   :race-features-with-options
-  :<- [:race-features]
   :<- [:sheet-engine-state]
+  :<- [:race-features]
+  :<- [:all-attrs]
+  :<- [:meta/options]
+  :<- [:meta/sheet]
   only-feature-options)
 
 ; semantic convenience for single-race systems
