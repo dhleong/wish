@@ -80,17 +80,19 @@
 (defn- combine-sources!
   "Combine the given sources and save it to the app-db for the given
    sheet-id"
-  [sheet-id sources]
+  [engine sheet-id sources]
   (>evt [:put-sheet-source!
          sheet-id
-         (apply state/composite sources)]))
+         {:engine engine
+          :state (apply state/composite sources)}]))
 
 (defn load!
   "Load the sources for the given sheet"
-  [{sheet-id :id :as sheet} sources]
+  [{sheet-id :id sheet-kind :kind :as sheet} sources]
   (let [existing @loaded-sources]
     (if (every? existing sources)
-      (combine-sources! sheet-id
+      (combine-sources! (sheets/get-engine sheet-kind)
+                        sheet-id
                         (map existing sources))
 
       (let [source-chs (map (partial load-source! sheet) sources)
@@ -117,7 +119,8 @@
               (= total-count (count new-resolved))
               (do
                 (log/info "loaded" new-resolved)
-                (combine-sources! sheet-id new-resolved))
+                (combine-sources! (sheets/get-engine sheet-kind)
+                                  sheet-id new-resolved))
 
               ; still waiting
               :else

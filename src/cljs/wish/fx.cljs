@@ -62,8 +62,7 @@
 
 ; ======= sheet load requests ==============================
 
-(reg-fx :load-sheet!
-        (partial load-sheet! sheets/compile-sheet))
+(reg-fx :load-sheet! load-sheet!)
 (reg-fx :load-sheet-source!
         (fn [[sheet sources]]
           (sources/load! sheet sources)))
@@ -90,21 +89,20 @@
   (fn [[sheet-id data data-preformatted?]]
     (>evt [::db/mark-save-processing sheet-id])
 
-    (let [data (sheets/decompile-sheet data)]
-      (save-sheet!
-        sheet-id data data-preformatted?
-        (fn on-saved [err]
-          (log-sheet "on-saved(" sheet-id ") " err)
+    (save-sheet!
+      sheet-id data data-preformatted?
+      (fn on-saved [err]
+        (log-sheet "on-saved(" sheet-id ") " err)
 
-          (when err
-            (log/err "Error saving " sheet-id ": " err))
+        (when err
+          (log/err "Error saving " sheet-id ": " err))
 
-          (when-not err
-            (js/window.removeEventListener
-              "beforeunload"
-              confirm-close-window))
+        (when-not err
+          (js/window.removeEventListener
+            "beforeunload"
+            confirm-close-window))
 
-          (>evt [::db/finish-save sheet-id err]))))))
+        (>evt [::db/finish-save sheet-id err])))))
 
 (reg-fx
   :schedule-save

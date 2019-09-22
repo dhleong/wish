@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheets"}
   wish.sheets
-  (:require [wish.sheets.compiler :as compiler]
-            [wish.sheets.dnd5e :as dnd5e]
+  (:require [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.engine :as dnd5e-engine]
@@ -43,32 +42,6 @@
 (defn get-keymaps
   [sheet-kind]
   (get-in sheets [sheet-kind :keymaps]))
-
-(defn compile-sheet [sheet]
-  (let [kind (:kind sheet)
-        kind-meta (get sheets kind)]
-    (when-not kind-meta
-      (throw (js/Error.
-               (str "Unable to get sheet meta for kind: " kind))))
-
-    (compiler/compile-sheet
-      kind-meta
-      (if-let [compiler (:sheet-compiler kind-meta)]
-        (compiler sheet)
-        sheet))))
-
-(defn decompile-sheet [sheet]
-  (let [kind (:kind sheet)
-        kind-meta (get sheets kind)]
-    (when-not kind-meta
-      (throw (js/Error.
-               (str "Unable to get sheet meta for kind: " kind))))
-
-    (compiler/decompile-sheet
-      kind-meta
-      (if-let [decompiler (:sheet-decompiler kind-meta)]
-        (decompiler sheet)
-        sheet))))
 
 (defn stub-campaign
   "Create the initial data for a new campaign"

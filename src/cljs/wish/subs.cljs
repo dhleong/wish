@@ -7,6 +7,7 @@
             [wish.db :as db]
             [wish.inventory :as inv]
             [wish.providers :as providers]
+            [wish.sheets.compiler :as compiler]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
             [wish.util :refer [deep-merge]]))
 
@@ -114,10 +115,17 @@
 (reg-meta-sub :limited-used :limited-uses)
 (reg-meta-sub :meta/options :options)
 (reg-meta-sub :meta/inventory :inventory)
-(reg-meta-sub :meta/items :items)
+(reg-meta-sub ::meta-items :items)
 (reg-meta-sub :meta/effects :effects)
 (reg-meta-sub :meta/equipped :equipped)
 (reg-meta-sub :meta/campaign :campaign)
+
+(reg-id-sub
+  :meta/items
+  :<- [:sheet-engine]
+  :<- [::meta-items]
+  (fn [[engine raw-items] _]
+    (compiler/sheet-items engine raw-items)))
 
 ; campaigns
 (reg-meta-sub :meta/players :players)
@@ -230,10 +238,16 @@
         source))))
 
 (reg-id-sub
+  :sheet-engine
+  :<- [:sheet-source]
+  (fn [source]
+    (some->> source :engine)))
+
+(reg-id-sub
   :sheet-engine-state
   :<- [:sheet-source]
   (fn [source]
-    (some->> source deref)))
+    (some->> source :state deref)))
 
 (reg-sub
   :sheet-error-info
