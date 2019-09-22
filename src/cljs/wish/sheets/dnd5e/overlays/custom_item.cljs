@@ -97,7 +97,8 @@
         original-item
         (rest (:!-raw original-item)))
 
-      (dissoc :! :!-raw :consumes :limited-uses :attrs)))
+      (dissoc :! :!-raw :consumes :limited-uses :attrs
+              :attuned? :wish/equipped?)))
 
 
 ; ======= internal widgets ================================
