@@ -568,12 +568,16 @@
                   (get item :id))
         item-state (merge
                      (get-in data-source [:items item-id])
-                     (dissoc item :id) )]
-    (engine/inflate-entity
-            data-source
-            item-state
-            item-state
-            {})))
+                     (dissoc item :id))]
+    (try
+      (engine/inflate-entity
+        data-source
+        item-state
+        item-state
+        {})
+      (catch :default e
+        (js/console.error "FAILED to inflate " item " -> " e)
+        item))))
 
 ; map of :inst-id -> inflated item in the active sheet's inventory,
 ; where each inflated item with an amount > 1 (or which :stacks?)
@@ -599,12 +603,7 @@
                      (assoc inflated :wish/amount amount)
                      inflated)
               item (if equipped?
-                     (-> item
-                         (assoc :wish/equipped? true)
-                         #_(sheets/post-process
-                           sheet-kind
-                           data-source
-                           :item))
+                     (assoc item :wish/equipped? true)
                      item)]
           (assoc m inst-id
                  (assoc item
