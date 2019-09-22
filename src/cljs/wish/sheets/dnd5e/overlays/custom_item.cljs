@@ -8,7 +8,7 @@
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.util :refer [>evt fn-click]]))
+            [wish.util :refer [>evt <sub fn-click]]))
 
 
 ; ======= utils ===========================================
@@ -32,25 +32,34 @@
     item-id :id
     item-name :name
     {action :action-type
+     effect :adds-effect
      restore-trigger :restore-trigger
      use-name :name
      uses :uses} :limited-use
     :as item}]
+  (println "GOT" item)
   (let [use-id (when limited-use?
                  (keyword (namespace item-id)
                           (str (name item-id) "#uses")))
+
+        apply-fn (when limited-use?
+                   (let [use-map {:id use-id
+                                  :name (or use-name item-name)
+                                  :uses (or uses 1)
+                                  :restore-trigger
+                                  (or restore-trigger
+                                      :long-rest)}
+                         use-map (if (and effect
+                                          (not= :-none effect))
+                                   (assoc use-map :adds-effect effect)
+                                   use-map)]
+                     `(~'on-state
+                        (~'add-limited-use ~use-map))))
+
         item (if limited-use?
                (cond-> item
                  ; always:
-                 true (assoc :!
-                             (list 'on-state
-                                   (list 'add-limited-use
-                                         {:id use-id
-                                          :name (or use-name item-name)
-                                          :uses (or uses 1)
-                                          :restore-trigger
-                                          (or restore-trigger
-                                              :long-rest)})))
+                 true (assoc :! apply-fn)
 
                  ; if selected:
                  (and action
@@ -159,6 +168,15 @@
     [:label.meta {:for :limited-use?}
      "Provides a Limited-Use"]]])
 
+(defn- item-creator-use-effect []
+  (let [effect-candidates (cons {:id :-none
+                                 :name "(nothing)"}
+                                (<sub [:all-effects]))]
+    [:select {:field :list
+              :id :limited-use.adds-effect}
+     (for [{id :id label :name} effect-candidates]
+       [:option {:key id} label])]))
+
 (defn- item-creator-limited-use []
   [:div.section.limited-use {:field :container
                              :visible? #(:limited-use? %)}
@@ -194,7 +212,13 @@
      [:option {:key :action} "an Action"]
      [:option {:key :bonus} "a Bonus Action"]
      [:option {:key :reaction} "a Reaction"]
-     [:option {:key :special-action} "a Special Action"]]]])
+     [:option {:key :special-action} "a Special Action"]]]
+
+   [:div
+    [:label.meta {:for :limited-use.adds-effect}
+     "This adds an effect: \u00A0"]
+    (item-creator-use-effect)
+    ]])
 
 (defn- item-stacks? [for-types]
   [:div.section.stacks {:field :container
@@ -213,7 +237,7 @@
   ; when we provide a value for :name, :default-quantity,
   ; clear any errors that had been raised about them
   (when (and (some (set path) [:name
-                             :default-quantity])
+                               :default-quantity])
              (not (str/blank? value)))
     (update doc :errors dissoc (first path))))
 

@@ -22,6 +22,7 @@
                     {:id :serenity#uses
                      :name "Crazy Ivan"
                      :uses 2
+                     :adds-effect :badassery/max
                      :restore-trigger :short-rest})
                   (provide-attr
                     [:bonus :serenity]
@@ -34,6 +35,7 @@
                                  {:name "Crazy Ivan"
                                   :restore-trigger :short-rest
                                   :action-type :bonus
+                                  :adds-effect :badassery/max
                                   :uses 2}}))))
 
   (testing "Install with nothing provided"
