@@ -1,43 +1,45 @@
-[:!declare-race
- {:id :halfling
-  :name "Halfling"
-  :attrs
-  {:5e/ability-score-increase
-   {:dex 2}
-   :5e/size :small
-   :5e/speed 25}
+(declare-race
+  {:id :halfling
+   :name "Halfling"
+   :attrs
+   {:5e/ability-score-increase
+    {:dex 2}
+    :5e/size :small
+    :5e/speed 25}
 
-  :features
-  [:background
-   :lang/common
-   :lang/halfling
+   :! (on-state
+        (provide-features
+          :background
+          :lang/common
+          :lang/halfling
 
-   {:id :halfling/lucky
-    :name "Lucky"
-    :desc "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll."}
+          {:id :halfling/lucky
+           :name "Lucky"
+           :desc "When you roll a 1 on the d20 for an attack roll, ability check, or saving throw, you can reroll the die and must use the new roll."}
 
-   {:id :halfling/brave
-    :name "Brave"
-    :desc "You have advantage on saving throws against being frightened."}
+          {:id :halfling/brave
+           :name "Brave"
+           :desc "You have advantage on saving throws against being frightened."}
 
-   {:id :halfling/nimbleness
-    :name "Halfling Nimbleness"
-    :desc "You can move through the space of any creature that is of a size larger than yours."}
+          {:id :halfling/nimbleness
+           :name "Halfling Nimbleness"
+           :desc "You can move through the space of any creature that is of a size larger than yours."}
 
-   ]}]
+          ))})
 
-[:!declare-subrace
+(declare-subrace
 
- :halfling
+  :halfling
 
- {:id :halfling/lightfoot
-  :name "Lightfoot Halfling"
+  {:id :halfling/lightfoot
+   :name "Lightfoot Halfling"
 
-  :&attrs
-  {:5e/&ability-score-increase
-   {:cha 1}}
+   :! (on-state
+        (provide-attr
+          :5e/&ability-score-increase
+          {:cha 1})
+        (provide-feature
+          {:id :halfling/naturally-stealthy
+           :name "Naturally Stealthy"
+           :desc "You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you."}))})
 
-  :+features
-  [{:id :halfling/naturally-stealthy
-    :name "Naturally Stealthy"
-    :desc "You can attempt to hide even when you are obscured only by a creature that is at least one size larger than you."}]}]

@@ -1,4 +1,4 @@
-[:!add-to-list
+(declare-list
 
  {:id :druid/cantrips-list
   :type :5e/spell}
@@ -11,4 +11,5 @@
   :spell/resistance
   :spell/shillelagh
   ]
- ]
+ )
+

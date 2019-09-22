@@ -1,5 +1,5 @@
 
-[:!declare-items
+(declare-items
  {}
  {:name "Amulet of Health"
   :id :amulet-of-health
@@ -35,12 +35,13 @@ A creature in the compartment can use an action to move as many as two of the ap
   :type :armor
   :desc "You have resistance to nonmagical damage while you wear this armor. Additionally, you can use an action to make yourself immune to nonmagical damage for 10 minutes or until you are no longer wearing the armor. Once this special action is used, it can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :armor-of-invulnerability#uses
         :name "Armor of Invulnerability"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:kind :plate
   :name "Armor of Vulnerability"
   :id :armor-of-vulnerability
@@ -82,16 +83,27 @@ Placing a _bag of holding _inside an extradimensional space created by a _handy 
  {:name "Bag of Tricks"
   :id :bag-of-tricks
   :type :other
-  :desc "This ordinary bag, made from gray, rust, or tan cloth, appears empty. Reaching inside the bag, however, reveals the presence of a small, fuzzy object. The bag weighs 1/2 pound.
-You can use an action to pull the fuzzy object from the bag and throw it up to 20 feet. When the object lands, it transforms into a creature you determine by rolling a d8 and consulting the table that corresponds to the bag’s color. The creature vanishes at the next dawn or when it is reduced to 0 hit points.
-The creature is friendly to you and your companions, and it acts on your turn. You can use a bonus action to command how the creature moves and what action it takes on its next turn, or to give it general orders, such as to attack your enemies. In the absence of such orders, the creature acts in a fashion appropriate to its nature.
-Once three fuzzy objects have been pulled from the bag, the bag can’t be used again until the next dawn."
-  :! [[:!add-limited-use
+  :desc [
+"This ordinary bag, made from gray, rust, or tan cloth, appears empty. Reaching inside the bag, however, reveals the presence of a small, fuzzy object. The bag weighs 1/2 pound."
+"You can use an action to pull the fuzzy object from the bag and throw it up to 20 feet. When the object lands, it transforms into a creature you determine by rolling a d8 and consulting the table that corresponds to the bag’s color. The creature vanishes at the next dawn or when it is reduced to 0 hit points."
+"The creature is friendly to you and your companions, and it acts on your turn. You can use a bonus action to command how the creature moves and what action it takes on its next turn, or to give it general orders, such as to attack your enemies. In the absence of such orders, the creature acts in a fashion appropriate to its nature."
+"Once three fuzzy objects have been pulled from the bag, the bag can’t be used again until the next dawn."
+{:headers ["**d8**" "**Creature**"]
+ :rows [["1" "Weasel"]
+        ["2" "Giant rat"]
+        ["3" "Badger"]
+        ["4" "Boar"]
+        ["5" "Panther"]
+        ["6" "Giant badger"]
+        ["7" "Dire wolf"]
+        ["8" "Giant elk"]]}]
+  :! (on-state
+      (add-limited-use
        {:id :bag-of-tricks#uses
         :name "Bag of Tricks"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Bead of Force"
   :id :bead-of-force
   :type :other
@@ -102,17 +114,12 @@ An enclosed creature can use its action to push against the sphere’s wall, mov
   :id :belt-of-dwarvenkind
   :type :gear
   :desc "While wearing this belt, you gain the following benefits:
-
 • Your Constitution score increases by 2, to a maximum of 20.
-
 • You have advantage on Charisma (Persuasion) checks made to interact with dwarves.
 In addition, while attuned to the belt, you have a 50 percent chance each day at dawn of growing a full beard if you’re capable of growing one, or a visibly thicker beard if you already have one.
 If you aren’t a dwarf, you gain the following additional benefits while wearing the belt:
-
 • You have advantage on saving throws against poison, and you have resistance against poison damage.
-
 • You have darkvision out to a range of 60 feet.
-
 • You can speak, read, and write Dwarvish."
   :attunes? true}
  {:name "Belt of Giant Strength"
@@ -145,11 +152,8 @@ When the boots’ property has been used for a total of 10 minutes, the magic ce
   :id :boots-of-the-winterlands
   :type :gear
   :desc "These furred boots are snug and feel quite warm. While you wear them, you gain the following benefits:
-
 • You have resistance to cold damage.
-
 • You ignore difficult terrain created by ice or snow.
-
 • You can tolerate temperatures as low as −50 degrees Fahrenheit without any additional protection. If you wear heavy clothes, you can tolerate temperatures as low as −100 degrees Fahrenheit."
   :attunes? true}
  {:name "Bowl of Commanding Water Elementals"
@@ -167,7 +171,8 @@ The bowl is about 1 foot in diameter and half as deep. It weighs 3 pounds and ho
   :type :gear
   :desc "While wearing these bracers, you gain a +2 bonus to AC if you are wearing no armor and using no shield."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :bracers-of-defense] 2]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :bracers-of-defense] 2))}
  {:name "Brazier of Commanding Fire Elementals"
   :id :brazier-of-commanding-fire-elementals
   :type :other
@@ -186,24 +191,46 @@ You can send the broom to travel alone to a destination within 1 mile of you if 
  {:name "Candle of Invocation"
   :id :candle-of-invocation
   :type :other
-  :desc "This slender taper is dedicated to a deity and shares that deity’s alignment. The candle’s alignment can be detected with the _detect evil and good _spell. The GM chooses the god and associated alignment or determines the alignment randomly."
+  :desc [
+"This slender taper is dedicated to a deity and shares that deity’s alignment. The candle’s alignment can be detected with the _detect evil and good _spell. The GM chooses the god and associated alignment or determines the alignment randomly."
+{:headers ["**d20**" "**Alignment**"]
+ :rows [["1–2" "Chaotic evil"]
+        ["3–4" "Chaotic neutral"]
+        ["5–7" "Chaotic good"]
+        ["8–9" "Neutral evil"]
+        ["10–11" "Neutral"]
+        ["12–13" "Neutral good"]
+        ["14–15" "Lawful evil"]
+        ["16–17" "Lawful neutral"]
+        ["18–20" "Lawful good"]]}
+"The candle’s magic is activated when the candle is lit, which requires an action. After burning for 4 hours, the candle is destroyed. You can snuff it out early for use at a later time. Deduct the time it burned in increments of 1 minute from the candle’s total burn time."
+"While lit, the candle sheds dim light in a 30-foot radius. Any creature within that light whose alignment matches that of the candle makes attack rolls, saving throws, and ability checks with advantage. In addition, a cleric or druid in the light whose alignment matches the candle’s can cast 1st-level spells he or she has prepared without expending spell slots, though the spell’s effect is as if cast with a 1st-level slot."
+"Alternatively, when you light the candle for the first time, you can cast the _gate _spell with it. Doing so destroys the candle."]
   :attunes? true}
  {:name "Cape of the Mountebank"
   :id :cape-of-the-mountebank
   :type :gear
   :desc "This cape smells faintly of brimstone. While wearing it, you can use it to cast the _dimension door _spell as an action. This property of the cape can’t be used again until the next dawn.
 When you disappear, you leave behind a cloud of smoke, and you appear in a similar cloud of smoke at your destination. The smoke lightly obscures the space you left and the space you appear in, and it dissipates at the end of your next turn. A light or stronger wind disperses the smoke."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :cape-of-the-mountebank#uses
         :name "Cape of the Mountebank"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Carpet of Flying"
   :id :carpet-of-flying
   :type :other
-  :desc "You can speak the carpet’s command word as an action to make the carpet hover and fly. It moves according to your spoken directions, provided that you are within 30 feet of it.
-Four sizes of _carpet of flying _exist. The GM chooses the size of a given carpet or determines it randomly."}
+  :desc [
+"You can speak the carpet’s command word as an action to make the carpet hover and fly. It moves according to your spoken directions, provided that you are within 30 feet of it."
+"Four sizes of _carpet of flying _exist. The GM chooses the size of a given carpet or determines it randomly."
+{:headers ["**d100**" "**Size**" "**Capacity**" "**Flying Speed**"]
+ :rows [["01–20" "3 ft. × 5 ft." "200 lb." "80 feet"]
+        ["21–55" "4 ft. × 6 ft." "400 lb." "60 feet"]
+        ["56–80" "5 ft. × 7 ft." "600 lb." "40 feet"]
+        ["81–100" "6 ft. × 9 ft." "800 lb." "30 feet"]]}
+"A carpet can carry up to twice the weight shown on the table, but it flies at half speed if it carries more than its normal capacity."]}
  {:name "Censer of Controlling Air Elementals"
   :id :censer-of-controlling-air-elementals
   :type :other
@@ -222,23 +249,19 @@ The chime can be used ten times. After the tenth time, it cracks and becomes use
   :id :cloak-of-arachnida
   :type :gear
   :desc "This fine garment is made of black silk interwoven with faint silvery threads. While wearing it, you gain the following benefits:
-
 • You have resistance to poison damage.
-
 • You have a climbing speed equal to your walking speed.
-
 • You can move up, down, and across vertical surfaces and upside down along ceilings, while leaving your hands free.
-
 • You can’t be caught in webs of any sort and can move through webs as if they were difficult terrain.
-
 • You can use an action to cast the _web _spell (save DC 13). The web created by the spell fills twice its normal area. Once used, this property of the cloak can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :cloak-of-arachnida#uses
         :name "Cloak of Arachnida"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Cloak of Displacement"
   :id :cloak-of-displacement
   :type :gear
@@ -254,8 +277,9 @@ The chime can be used ten times. After the tenth time, it cracks and becomes use
   :type :gear
   :desc "You gain a +1 bonus to AC and saving throws while you wear this cloak."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :cloak-of-protection] 1]
-      [:!provide-attr [:buffs :saves :cloak-of-protection] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :cloak-of-protection] 1)
+      (provide-attr [:buffs :saves :cloak-of-protection] 1))}
  {:name "Cloak of the Bat"
   :id :cloak-of-the-bat
   :type :gear
@@ -276,18 +300,20 @@ The following _crystal ball _variants are legendary items and have additional pr
 to maintain it during its duration, but it ends if _scrying _ends. Once used, the _suggestion _power of the _crystal ball _can’t be used again until the next dawn.
 **_Crystal Ball of True Seeing. _**While scrying with the crystal ball, you have truesight with a radius of 120 feet centered on the spell’s sensor."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :crystal-ball#uses
         :name "Crystal Ball"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Cube of Force"
   :id :cube-of-force
   :type :other
   :desc "This cube is about an inch across. Each face has a distinct marking on it that can be pressed. The cube starts with 36 charges, and it regains 1d20 expended charges daily at dawn.
 You can use an action to press one of the cube’s faces, expending a number of charges based on the chosen face, as shown in the Cube of Force Faces table. Each face has a different effect. If the cube has insufficient charges remaining, nothing happens. Otherwise, a barrier of invisible force springs into existence, forming a cube 15 feet on a side. The barrier is centered on you, moves with you, and lasts for 1 minute, until you use an action to press the cube’s sixth face, or the cube runs out of charges. You can change the barrier’s effect by pressing a different face of the cube and expending the requisite number of charges, resetting the duration.
-If your movement causes the barrier to come into contact with a solid object that can’t pass through the cube, you can’t move any closer to that object as long as the barrier remains."
+If your movement causes the barrier to come into contact with a solid object that can’t pass through the cube, you can’t move any closer to that object as long as the barrier remains.
+The cube loses charges when the barrier is targeted by certain spells or comes into contact with certain spell or magic item effects, as shown in the table below."
   :attunes? true}
  {:name "Cubic Gate"
   :id :cubic-gate
@@ -295,13 +321,14 @@ If your movement causes the barrier to come into contact with a solid object tha
   :desc "This cube is 3 inches across and radiates palpable magical energy. The six sides of the cube are each keyed to a different plane of existence, one of which is the Material Plane. The other sides are linked to planes determined by the GM.
 You can use an action to press one side of the cube to cast the _gate _spell with it, opening a portal to the plane keyed to that side. Alternatively, if you use an action to press one side twice, you can cast the _plane shift _spell (save DC 17) with the cube and transport the targets to the plane keyed to that side.
 The cube has 3 charges. Each use of the cube expends 1 charge. The cube regains 1d3 expended charges daily at dawn."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :cubic-gate#uses
         :name "Cubic Gate"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Dagger of Venom"
   :id :dagger-of-venom
   :type :weapon
@@ -313,11 +340,8 @@ You can use an action to cause thick, black poison to coat the blade. The poison
   :type :other
   :desc "This stoppered flask sloshes when shaken, as if it contains water. The decanter weighs 2 pounds.
 You can use an action to remove the stopper and speak one of three command words, whereupon an amount of fresh water or salt water (your choice) pours out of the flask. The water stops pouring out at the start of your next turn. Choose from the following options:
-
 • “Stream” produces 1 gallon of water.
-
 • “Fountain” produces 5 gallons of water.
-
 • “Geyser” produces 30 gallons of water that gushes forth in a geyser 30 feet long and 1 foot wide. As a bonus action while holding the decanter, you can aim the geyser at a creature you can see within 30 feet of you. The target must succeed on a DC 13 Strength saving throw or take 1d4 bludgeoning damage and fall prone. Instead of a creature, you can target an object that isn’t being worn or carried and that weighs no more than 200 pounds. The object is either knocked over or pushed up to 15 feet away from you."}
  {:name "Deck of Illusions"
   :id :deck-of-illusions
@@ -326,18 +350,76 @@ You can use an action to remove the stopper and speak one of three command words
 The magic of the deck functions only if cards are drawn at random (you can use an altered deck of playing cards to simulate the deck). You can use an action to draw a card at random from the deck and throw it to the ground at a point within 30 feet of you.
 An illusion of one or more creatures forms over the thrown card and remains until dispelled. An illusory creature appears real, of the appropriate size, and behaves as if it were a real creature except that it can do no harm. While you are within 120 feet of the illusory creature and can see it, you can use an action to move it magically anywhere within 30 feet of its card. Any physical interaction with the illusory creature reveals it to be an illusion, because objects pass through it. Someone who uses an action to visually inspect the creature identifies it as illusory with a successful DC 15 Intelligence (Investigation) check. The creature then appears translucent.
 The illusion lasts until its card is moved or the illusion is dispelled. When the illusion ends, the image on its card disappears, and that card can’t be used again."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :deck-of-illusions#uses
         :name "Deck of Illusions"
         :uses 34
         :restore-trigger :long-rest
-        :restore-amount 0}]]}
+        :restore-amount 0}))}
  {:name "Deck of Many Things"
   :id :deck-of-many-things
-  :type :other
-  :desc "Usually found in a box or pouch, this deck contains a number of cards made of ivory or vellum. Most (75 percent) of these decks have only thirteen cards, but the rest have twenty-two.
-Before you draw a card, you must declare how many cards you intend to draw and then draw them randomly (you can use an altered deck of playing cards to simulate the deck). Any cards drawn in excess of this number have no effect. Otherwise, as soon as you draw a card from the deck, its magic takes effect. You must draw each card no more than 1 hour after the previous draw. If you fail to draw the chosen number, the remaining number of cards fly from the deck on their own and take effect all at once.
-Once a card is drawn, it fades from existence. Unless the card is the Fool or the Jester, the card reappears in the deck, making it possible to draw the same card twice."}
+  :type :gear
+  :desc [
+"Usually found in a box or pouch, this deck contains a number of cards made of ivory or vellum. Most (75 percent) of these decks have only thirteen cards, but the rest have twenty-two."
+"Before you draw a card, you must declare how many cards you intend to draw and then draw them randomly (you can use an altered deck of playing cards to simulate the deck). Any cards drawn in excess of this number have no effect. Otherwise, as soon as you draw a card from the deck, its magic takes effect. You must draw each card no more than 1 hour after the previous draw. If you fail to draw the chosen number, the remaining number of cards fly from the deck on their own and take effect all at once."
+"Once a card is drawn, it fades from existence. Unless the card is the Fool or the Jester, the card reappears in the deck, making it possible to draw the same card twice."
+{:headers ["**Playing Card**" "**Card**"]
+ :rows [["Ace of diamonds" "Vizier*"]
+        ["King of diamonds" "Sun"]
+        ["Queen of diamonds" "Moon"]
+        ["Jack of diamonds" "Star"]
+        ["Two of diamonds" "Comet*"]
+        ["Ace of hearts" "The Fates*"]
+        ["King of hearts" "Throne"]
+        ["Queen of hearts" "Key"]
+        ["Jack of hearts" "Knight"]
+        ["Two of hearts" "Gem*"]
+        ["Ace of clubs" "Talons*"]
+        ["King of clubs" "The Void"]
+        ["Queen of clubs" "Flames"]
+        ["Jack of clubs" "Skull"]
+        ["Two of clubs" "Idiot*"]
+        ["Ace of spades" "Donjon*"]
+        ["King of spades" "Ruin"]
+        ["Queen of spades" "Euryale"]
+        ["Jack of spades" "Rogue"]
+        ["Two of spades" "Balance*"]
+        ["Joker (with TM)" "Fool*"]
+        ["Joker (without TM)" "Jester*Found only in a deck with twenty-two cards"]]}
+"**_Balance. _**Your mind suffers a wrenching alteration, causing your alignment to change. Lawful becomes chaotic, good becomes evil, and vice versa. If you are true neutral or unaligned, this card has no effect on you."
+"**_Comet. _**If you single-handedly defeat the next hostile monster or group of monsters you encounter, you gain experience points enough to gain one level. Otherwise, this card has no effect."
+"**_Donjon. _**You disappear and become entombed in a state of suspended animation in an extradimensional sphere. Everything you were wearing and carrying stays behind in the space you occupied when you disappeared. You remain imprisoned until you are found and removed from the sphere. You can’t be located by any divination magic, but a _wish _spell can reveal the location of your prison. You draw no more cards."
+"**_Euryale. _**The card’s medusa-like visage curses you. You take a −2 penalty on saving throws while cursed in this way. Only a god or the magic of The Fates card can end this curse."
+"**_The_**"
+"**_Fates. _**Reality’s fabric unravels and spins anew, allowing you to avoid or erase one event as if it never happened. You can use the card’s magic as soon as you draw the card or at any other time before you die."
+"**_Flames. _**A powerful devil becomes your enemy. The devil seeks your ruin and plagues your life, savoring your suffering before attempting to slay you. This enmity lasts until either you or the devil dies."
+"**_Fool. _**You lose 10,000 XP, discard this card, and draw from the deck again, counting both draws as one of your declared draws. If losing that much XP would cause you to lose a level, you instead lose an amount that leaves you with just enough XP to keep your level."
+"**_Gem. _**Twenty-five pieces of jewelry worth 2,000 gp each or fifty gems worth 1,000 gp each appear at your feet."
+"**_Idiot. _**Permanently reduce your Intelligence by 1d4 + 1 (to a minimum score of 1). You can draw one additional card beyond your declared draws."
+"**_Jester. _**You gain 10,000 XP, or you can draw two additional cards beyond your declared draws."
+"**_Key. _**A rare or rarer magic weapon with which you are proficient appears in your hands. The GM chooses the weapon."
+"**_Knight. _**You gain the service of a 4th-level fighter who appears in a space you choose within 30 feet of you. The fighter is of the same race as you and serves you loyally until death, believing the fates have drawn him or her to you. You control this character."
+"**_Moon. _**You are granted the ability to cast the _wish _spell 1d3 times."
+"**_Rogue. _**A nonplayer character of the GM’s choice becomes hostile toward you. The identity of your new enemy isn’t known until the NPC or someone else reveals it. Nothing less than a _wish _spell or divine intervention can end the NPC’s hostility toward you."
+"**_Ruin. _**All forms of wealth that you carry or own, other than magic items, are lost to you. Portable property vanishes. Businesses, buildings, and land you own are lost in a way that alters reality the least. Any documentation that proves you should own something lost to this card also disappears."
+"**_Skull. _**You summon an avatar of death—a ghostly humanoid skeleton clad in a tattered black robe and carrying a spectral scythe. It appears in a space of the GM’s choice within 10 feet of you and attacks you, warning all others that you must win the battle alone. The avatar fights until you die or it drops to 0 hit points, whereupon it disappears. If anyone tries to help you, the helper summons its own avatar of death. A creature slain by an avatar of death can’t be restored to life."]}
+ {:name "Avatar of Death"
+  :id :avatar-of-death
+  :type :gear
+  :desc [
+"__"
+"**Armor Class **20"
+"**Hit Points **half the hit point maximum of its summoner"
+"**Speed **60 ft., fly 60 ft. (hover)"
+{:headers ["**Actions**"]}
+"**Reaping Scythe.** The avatar sweeps its spectral scythe through a creature within 5 feet of it, dealing 7 (1d8 + 3) slashing damage plus 4 (1d8) necrotic damage."
+"**_Star. _**Increase one of your ability scores by 2. The score can exceed 20 but can’t exceed 24."
+"**_Sun. _**You gain 50,000 XP, and a wondrous item (which the GM determines randomly) appears in your hands."
+"**_Talons. _**Every magic item you wear or carry disintegrates. Artifacts in your possession aren’t destroyed but do vanish."
+"**_Throne. _**You gain proficiency in the Persuasion skill, and you double your proficiency bonus on checks made with that skill. In addition, you gain rightful ownership of a small keep somewhere in the world. However, the keep is currently in the hands of monsters, which you must clear out before you can claim the keep as yours."
+"**_Vizier. _**At any time you choose within one year of drawing this card, you can ask a question in meditation and mentally receive a truthful answer to that question. Besides information, the answer helps you solve a puzzling problem or other dilemma. In other words, the knowledge comes with wisdom on how to apply it."
+"**_The Void. _**This black card spells disaster. Your soul is drawn from your body and contained in an object in a place of the GM’s choice. One or more powerful beings guard the place. While your soul is trapped in this way, your body is incapacitated. A _wish _spell can’t restore your soul, but the spell reveals the location of the object that holds it. You draw no more cards."]}
  {:kind :plate
   :name "Demon Armor"
   :id :demon-armor
@@ -345,7 +427,8 @@ Once a card is drawn, it fades from existence. Unless the card is the Fool or th
   :desc "While wearing this armor, you gain a +1 bonus to AC, and you can understand and speak Abyssal. In addition, the armor’s clawed gauntlets turn unarmed strikes with your hands into magic weapons that deal slashing damage, with a +1 bonus to attack rolls and damage rolls and a damage die of 1d8.
 **_Curse. _**Once you don this cursed armor, you can’t doff it unless you are targeted by the _remove curse _spell or similar magic. While wearing the armor, you have disadvantage on attack rolls against demons and on saving throws against their spells and special abilities."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :demon-armor] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :demon-armor] 1))}
  {:name "Dimensional Shackles"
   :id :dimensional-shackles
   :type :other
@@ -358,12 +441,13 @@ You and any creature you designate when you use the shackles can use an action t
 While wearing this armor, you gain a +1 bonus to AC, you have advantage on saving throws against the Frightful Presence and breath weapons of dragons, and you have resistance to one damage type that is determined by the kind of dragon that provided the scales (see the table).
 Additionally, you can focus your senses as an action to magically discern the distance and direction to the closest dragon within 30 miles of you that is of the same type as the armor. This special action can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :dragon-scale-mail#uses
         :name "Dragon Scale Mail"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Dust of Disappearance"
   :id :dust-of-disappearance
   :type :other
@@ -384,7 +468,8 @@ When you use an action to throw a handful of the dust into the air, you and each
   :id :dwarven-plate
   :type :armor
   :desc "While wearing this armor, you gain a +2 bonus to AC. In addition, if an effect moves you against your will along the ground, you can use your reaction to reduce the distance you are moved by up to 10 feet."
-  :! [[:!provide-attr [:buffs :ac :dwarven-plate] 2]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :dwarven-plate] 2))}
  {:name "Dwarven Thrower"
   :id :dwarven-thrower
   :type :weapon
@@ -427,7 +512,19 @@ The cloud persists as long as the bottle is open. Closing the bottle requires yo
  {:name "Feather Token"
   :id :feather-token
   :type :other
-  :desc "This tiny object looks like a feather. Different types of feather tokens exist, each with a different single-use effect. The GM chooses the kind of token or determines it randomly."}
+  :desc [
+"This tiny object looks like a feather. Different types of feather tokens exist, each with a different single-use effect. The GM chooses the kind of token or determines it randomly."
+{:headers ["**d100**" "**Feather Token**" "" "**d100**" "**Feather Token**"]
+ :rows [["01–20" "Anchor" "" "51–65" "Swan boat"]
+        ["21–35" "Bird" "" "66–90" "Tree"]
+        ["36–50" "Fan" "" "91–00" "Whip"]]}
+"**_Anchor. _**You can use an action to touch the token to a boat or ship. For the next 24 hours, the vessel can’t be moved by any means. Touching the token to the vessel again ends the effect. When the effect ends, the token disappears."
+"**_Bird. _**You can use an action to toss the token 5 feet into the air. The token disappears and an enormous, multicolored bird takes its place. The bird has the statistics of a roc, but it obeys your simple commands and can’t attack. It can carry up to 500 pounds while flying at its maximum speed (16 miles an hour for a maximum of 144 miles per day, with a one-hour rest for every 3 hours of flying), or 1,000 pounds at half that speed. The bird disappears after flying its maximum distance for a day or if it drops to 0 hit points. You can dismiss the bird as an action."
+"**_Fan. _**If you are on a boat or ship, you can use an action to toss the token up to 10 feet in the air. The token disappears, and a giant flapping fan takes its place. The fan floats and creates a wind strong enough to fill the sails of one ship, increasing its speed by 5 miles per hour for 8 hours. You can dismiss the fan as an action."
+"**_Swan Boat. _**You can use an action to touch the token to a body of water at least 60 feet in diameter. The token disappears, and a 50-foot-long, 20-foot-wide boat shaped like a swan takes its place. The boat is self-propelled and moves across water at a speed of 6 miles per hour. You can use an action while on the boat to command it to move or to turn up to 90 degrees. The boat can carry up to thirty-two Medium or smaller creatures. A Large creature counts as four Medium creatures, while a Huge creature counts as nine. The boat remains for 24 hours and then disappears. You can dismiss the boat as an action."
+"**_Tree. _**You must be outdoors to use this token. You can use an action to touch it to an unoccupied space on the ground. The token disappears, and in its place a nonmagical oak tree springs into existence. The tree is 60 feet tall and has a 5-foot-diameter trunk, and its branches at the top spread out in a 20-foot radius."
+"**_Whip. _**You can use an action to throw the token to a point within 10 feet of you. The token disappears, and a floating whip takes its place. You can then use a bonus action to make a melee spell attack against a creature within 10 feet of the whip, with an attack bonus of +9. On a hit, the target takes 1d6 + 5 force damage."
+"As a bonus action on your turn, you can direct the whip to fly up to 20 feet and repeat the attack against a creature within 10 feet of it. The whip disappears after 1 hour, when you use an action to dismiss it, or when you are incapacitated or die."]}
  {:name "Figurine of Wondrous Power"
   :id :figurine-of-wondrous-power
   :type :other
@@ -436,6 +533,13 @@ The creature is friendly to you and your companions. It understands your languag
 The creature exists for a duration specific to each figurine. At the end of the duration, the creature reverts to its figurine form. It reverts to a figurine early if it drops to 0 hit points or if you use an action to speak the command word again while touching it. When the creature becomes a figurine again, its property can’t be used again until a certain amount of time has passed, as specified in the figurine’s description.
 **_Bronze Griffon (Rare). _**This bronze statuette is of a griffon rampant. It can become a griffon for up to 6 hours. Once it has been used, it can’t be used again until 5 days have passed.
 **_Ebony Fly (Rare). _**This ebony statuette is carved in the likeness of a horsefly. It can become a giant fly for up to 12 hours and can be ridden as a mount. Once it has been used, it can’t be used again until 2 days have passed."}
+ {:name "Giant Fly"
+  :id :giant-fly
+  :type :gear
+  :desc "__
+**Armor Class **11
+**Hit Points **19 (3d10 + 3)
+**Speed **30 ft., fly 60 ft."}
  {:name "Folding Boat"
   :id :folding-boat
   :type :other
@@ -453,38 +557,38 @@ The third command word causes the _folding boat _to fold back into a box, provid
   :id :gem-of-brightness
   :type :other
   :desc "This prism has 50 charges. While you are holding it, you can use an action to speak one of three command words to cause one of the following effects:
-
 • The first command word causes the gem to shed bright light in a 30-foot radius and dim light for an additional 30 feet. This effect doesn’t expend a charge. It lasts until you use a bonus action to repeat the command word or until you use another function of the gem.
-
 • The second command word expends 1 charge and causes the gem to fire a brilliant beam of light at one creature you can see within 60 feet of you. The creature must succeed on a DC 15 Constitution saving throw or become blinded for 1 minute. The creature can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success.
-
 • The third command word expends 5 charges and causes the gem to flare with blinding light in a 30-foot cone originating from it. Each creature in the cone must make a saving throw as if struck by the beam created with the second command word.
 When all of the gem’s charges are expended, the gem becomes a nonmagical jewel worth 50 gp."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :gem-of-brightness#uses
         :name "Gem of Brightness"
         :uses 50
         :restore-trigger :long-rest
-        :restore-amount 50}]]}
+        :restore-amount 50}))}
  {:name "Gem of Seeing"
   :id :gem-of-seeing
   :type :other
   :desc "This gem has 3 charges. As an action, you can speak the gem’s command word and expend 1 charge. For the next 10 minutes, you have truesight out to 120 feet when you peer through the gem.
 The gem regains 1d3 expended charges daily at dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :gem-of-seeing#uses
         :name "Gem of Seeing"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:kind :leather
   :name "Glamoured Studded Leather"
   :id :glamoured-studded-leather
   :type :armor
   :desc "While wearing this armor, you gain a +1 bonus to AC. You can also use a bonus action to speak the armor’s command word and cause the armor to assume the appearance of a normal set of clothing or some other kind of armor. You decide what it looks like, including color, style, and accessories, but the armor retains its normal bulk and weight. The illusory appearance lasts until you use this property again or remove the armor."
-  :! [[:!provide-attr [:buffs :ac :glamoured-studded-leather] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :glamoured-studded-leather] 1))}
  {:name "Gloves of Missile Snaring"
   :id :gloves-of-missile-snaring
   :type :gear
@@ -506,12 +610,13 @@ The gem regains 1d3 expended charges daily at dawn."
 **_Giant’s Bane (Requires Attunement). _**You must be wearing a _belt of giant strength _(any variety) and _gauntlets of ogre power _to attune to this weapon. The attunement ends if you take off either of those items. While you are attuned to this weapon and holding it, your Strength score increases by 4 and can exceed 20, but not 30. When you roll a 20 on an attack roll made with this weapon against a giant, the giant must succeed on a DC 17 Constitution saving throw or die.
 The hammer also has 5 charges. While attuned to it, you can expend 1 charge and make a ranged weapon attack with the hammer, hurling it as if it had the thrown property with a normal range of 20 feet and a long range of 60 feet. If the attack hits, the hammer unleashes a thunderclap audible out to 300 feet. The target and every creature within 30 feet of it must succeed on a DC 17 Constitution saving throw or be stunned until the end of your next turn. The hammer regains 1d4 + 1 expended charges daily at dawn."
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :hammer-of-thunderbolts#uses
         :name "Hammer of Thunderbolts"
         :uses 5
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Handy Haversack"
   :id :handy-haversack
   :type :other
@@ -534,13 +639,9 @@ Placing the haversack inside an extradimensional space created by a _bag of hold
   :type :gear
   :desc "This dazzling helm is set with 1d10 diamonds, 2d10 rubies, 3d10 fire opals, and 4d10 opals. Any gem pried from the helm crumbles to dust. When all the gems are removed or destroyed, the helm loses its magic.
 You gain the following benefits while wearing it:
-
 • You can use an action to cast one of the following spells (save DC 18), using one of the helm’s gems of the specified type as a component: _daylight _(opal), _fireball _(fire opal), _prismatic spray _(diamond), or _wall of fire _(ruby). The gem is destroyed when the spell is cast and disappears from the helm.
-
 • As long as it has at least one diamond, the helm emits dim light in a 30-foot radius when at least one undead is within that area. Any undead that starts its turn in that area takes 1d6 radiant damage.
-
 • As long as the helm has at least one ruby, you have resistance to fire damage.
-
 • As long as the helm has at least one fire opal, you can use an action and speak a command word to cause one weapon you are holding to burst into flames. The flames emit bright light in a 10-foot radius and dim light for an additional 10 feet. The flames are harmless to you and the weapon. When you hit with an attack using the blazing weapon, the target takes an extra 1d6 fire damage. The flames last until you use a bonus action to speak the command word again or until you drop or stow the weapon.
 Roll a d20 if you are wearing the helm and take fire damage as a result of failing a saving throw against a spell. On a roll of 1, the helm emits beams of light from its remaining gems. Each creature within 60 feet of the helm other than you must succeed on a DC 17 Dexterity saving throw or be struck by a beam, taking radiant damage equal to the number of gems in the helm. The helm and its gems are then destroyed."
   :attunes? true}
@@ -554,24 +655,26 @@ Roll a d20 if you are wearing the helm and take fire damage as a result of faili
   :desc "While wearing this helm, you can use an action to cast the _detect thoughts _spell (save DC 13) from it. As long as you maintain concentration on the spell, you can use a bonus action to send a telepathic message to a creature you are focused on. It can reply—using a bonus action to do so—while your focus on it continues.
 While focusing on a creature with _detect thoughts,_ you can use an action to cast the _suggestion _spell (save DC 13) from the helm on that creature. Once used, the _suggestion _property can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :helm-of-telepathy#uses
         :name "Helm of Telepathy"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Helm of Teleportation"
   :id :helm-of-teleportation
   :type :gear
   :desc "This helm has 3 charges. While wearing it, you can use an action and expend 1 charge to cast the _teleport _spell from it. The helm regains 1d3 expended charges daily at dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :helm-of-teleportation#uses
         :name "Helm of Teleportation"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Horn of Blasting"
   :id :horn-of-blasting
   :type :other
@@ -580,9 +683,16 @@ Each use of the horn’s magic has a 20 percent chance of causing the horn to ex
  {:name "Horn of Valhalla"
   :id :horn-of-valhalla
   :type :other
-  :desc "You can use an action to blow this horn. In response, warrior spirits from the Valhalla appear within 60 feet of you. They use the statistics of a berserker_._
-They return to Valhalla after 1 hour or when they drop to 0 hit points. Once you use the horn, it can’t be used again until 7 days have passed.
-Four types of _horn of Valhalla _are known to exist, each made of a different metal. The horn’s type determines how many berserkers answer its summons, as well as the requirement for its use. The GM chooses the horn’s type or determines it randomly."}
+  :desc [
+"You can use an action to blow this horn. In response, warrior spirits from the Valhalla appear within 60 feet of you. They use the statistics of a berserker_._"
+"They return to Valhalla after 1 hour or when they drop to 0 hit points. Once you use the horn, it can’t be used again until 7 days have passed."
+"Four types of _horn of Valhalla _are known to exist, each made of a different metal. The horn’s type determines how many berserkers answer its summons, as well as the requirement for its use. The GM chooses the horn’s type or determines it randomly."
+{:headers ["**d100**" "**Horn Type**" "**Berserkers** **Summoned**" "**Requirement**"]
+ :rows [["01–40" "Silver" "2d4 + 2" "None"]
+        ["41–75" "Brass" "3d4 + 3" "Proficiency with all simple weapons"]
+        ["76–90" "Bronze" "4d4 + 4" "Proficiency with all medium armor"]
+        ["91–00" "Iron" "5d4 + 5" "Proficiency with all martial weapons"]]}
+"If you blow the horn without meeting its requirement, the summoned berserkers attack you. If you meet the requirement, they are friendly to you and your companions and follow your commands."]}
  {:name "Horseshoes of a Zephyr"
   :id :horseshoes-of-a-zephyr
   :type :other
@@ -627,7 +737,8 @@ While this stone orbits your head, you can cast any spell stored in it. The spel
 **_Strength (Very Rare). _**Your Strength score increases by 2, to a maximum of 20, while this pale blue rhomboid orbits your head.
 **_Sustenance (Rare). _**You don’t need to eat or drink while this clear spindle orbits your head."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :ioun-stone] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :ioun-stone] 1))}
  {:name "Iron Bands of Binding"
   :id :iron-bands-of-binding
   :type :other
@@ -635,12 +746,13 @@ While this stone orbits your head, you can cast any spell stored in it. The spel
 Make a ranged attack roll with an attack bonus equal to your Dexterity modifier plus your proficiency bonus. On a hit, the target is restrained until you take a bonus action to speak the command word again to release it. Doing so, or missing with the attack, causes the bands to contract and become a sphere once more.
 A creature, including the one restrained, can use an action to make a DC 20 Strength check to break the iron bands. On a success, the item is destroyed, and the restrained creature is freed. If the check fails, any further attempts made by that creature automatically fail until 24 hours have elapsed.
 Once the bands are used, they can’t be used again until the next dawn."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :iron-bands-of-binding#uses
         :name "Iron Bands of Binding"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Iron Flask"
   :id :iron-flask
   :type :other
@@ -652,12 +764,13 @@ An _identify _spell reveals that a creature is inside the flask, but the only wa
   :type :weapon
   :desc "This javelin is a magic weapon. When you hurl it and speak its command word, it transforms into a bolt of lightning, forming a line 5 feet wide that extends out from you to a target within 120 feet. Each creature in the line excluding you and the target must make a DC 13 Dexterity saving throw, taking 4d6 lightning damage on a failed save, and half as much damage on a successful one. The lightning bolt turns back into a javelin when it reaches the target. Make a ranged weapon attack against the target. On a hit, the target takes damage from the javelin plus 4d6 lightning damage.
 The javelin’s property can’t be used again until the next dawn. In the meantime, the javelin can still be used as a magic weapon."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :javelin-of-lightning#uses
         :name "Javelin of Lightning"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Lantern of Revealing"
   :id :lantern-of-revealing
   :type :other
@@ -680,13 +793,14 @@ When you roll a 20 on an attack roll made with this weapon, the target takes an 
   :desc "This magic weapon has 3 charges. While holding it, you can use an action and expend 1 charge to release a wave of terror. Each creature of your choice in a 30-foot radius extending from you must succeed on a DC 15 Wisdom saving throw or become frightened of you for 1 minute. While it is frightened in this way, a creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If it has nowhere it can move, the creature can use the Dodge action. At the end of each of its turns, a creature can repeat the saving throw, ending the effect on itself on a success.
 The mace regains 1d3 expended charges daily at dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :mace-of-terror#uses
         :name "Mace of Terror"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Mantle of Spell Resistance"
   :id :mantle-of-spell-resistance
   :type :gear
@@ -703,7 +817,15 @@ The mace regains 1d3 expended charges daily at dawn."
  {:name "Manual of Golems"
   :id :manual-of-golems
   :type :other
-  :desc "This tome contains information and incantations necessary to make a particular type of golem. The GM chooses the type or determines it randomly. To decipher and use the manual, you must be a spellcaster with at least two 5th-level spell slots. A creature that can’t use a _manual of golems _and attempts to read it takes 6d6 psychic damage."}
+  :desc [
+"This tome contains information and incantations necessary to make a particular type of golem. The GM chooses the type or determines it randomly. To decipher and use the manual, you must be a spellcaster with at least two 5th-level spell slots. A creature that can’t use a _manual of golems _and attempts to read it takes 6d6 psychic damage."
+{:headers ["**d20**" "**Golem**" "**Time**" "**Cost**"]
+ :rows [["1–5" "Clay" "30 days" "65,000 gp"]
+        ["6–17" "Flesh" "60 days" "50,000 gp"]
+        ["18" "Iron" "120 days" "100,000 gp"]
+        ["19–20" "Stone" "90 days" "80,000 gp"]]}
+"To create a golem, you must spend the time shown on the table, working without interruption with the manual at hand and resting no more than 8 hours per day. You must also pay the specified cost to purchase supplies."
+"Once you finish creating the golem, the book is consumed in eldritch flames. The golem becomes animate when the ashes of the manual are sprinkled on it. It is under your control, and it understands and obeys your spoken commands."]}
  {:name "Manual of Quickness of Action"
   :id :manual-of-quickness-of-action
   :type :other
@@ -712,7 +834,6 @@ The mace regains 1d3 expended charges daily at dawn."
   :id :marvelous-pigments
   :type :other
   :desc "Typically found in 1d4 pots inside a fine wooden box with a brush (weighing 1 pound in total), these pigments allow you to create three-dimensional objects by painting them in two dimensions. The paint flows from the brush to form the desired object as you concentrate on its image.
-
 Each pot of paint is sufficient to cover 1,000 square feet of a surface, which lets you create inanimate objects or terrain features—such as a door, a pit, flowers, trees, cells, rooms, or weapons—that are up to 10,000 cubic feet. It takes 10 minutes to cover 100 square feet.
 When you complete the painting, the object or terrain feature depicted becomes a real, nonmagical object. Thus, painting a door on a wall creates an actual door that can be opened to whatever is beyond. Painting a pit on a floor creates a real pit, and its depth counts against the total area of objects you create.
 Nothing created by the pigments can have a value greater than 25 gp. If you paint an object of greater value (such as a diamond or a pile of gold), the object looks authentic, but close inspection reveals it is made from paste, bone, or some other worthless material.
@@ -722,13 +843,14 @@ If you paint a form of energy such as fire or lightning, the energy appears but 
   :type :gear
   :desc "The medallion has 3 charges. While wearing it, you can use an action and expend 1 charge to cast the _detect thoughts _spell (save DC 13) from it. The medallion regains 1d3 expended charges daily at dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :medallion-of-thoughts#uses
         :name "Medallion of Thoughts"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Mirror of Life Trapping"
   :id :mirror-of-life-trapping
   :type :gear
@@ -736,7 +858,6 @@ If you paint a form of energy such as fire or lightning, the energy appears but 
 If the mirror is hanging on a vertical surface and you are within 5 feet of it, you can use an action to speak its command word and activate it. It remains activated until you use an action to speak the command word again.
 Any creature other than you that sees its reflection in the activated mirror while within 30 feet of it must succeed on a DC 15 Charisma saving throw or be trapped, along with anything it is wearing or carrying, in one of the mirror’s twelve extradimensional cells. This saving throw is made with advantage if the creature knows the mirror’s nature, and constructs succeed on the saving throw automatically.
 An extradimensional cell is an infinite expanse filled with thick fog that reduces visibility to 10 feet. Creatures trapped in the mirror’s cells don’t age, and they don’t need to eat, drink, or sleep. A creature trapped within a cell can escape using magic that permits planar travel. Otherwise, the creature is confined to the cell until freed.
-
 If the mirror traps a creature but its twelve extradimensional cells are already occupied, the mirror frees one trapped creature at random to accommodate the new prisoner. A freed creature appears in an unoccupied space within sight of the mirror but facing away from it. If the mirror is shattered, all creatures it contains are freed and appear in unoccupied spaces near it.
 While within 5 feet of the mirror, you can use an action to speak the name of one creature trapped in it or call out a particular cell by number. The creature named or contained in the named cell appears as an image on the mirror’s surface. You and the creature can then communicate normally.
 In a similar way, you can use an action to speak a second command word and free one creature trapped in the mirror. The freed creature appears, along with its possessions, in the unoccupied space nearest to the mirror and facing away from it."}
@@ -756,12 +877,13 @@ You can hurl multiple beads, or even the whole necklace, as one action. When you
   :desc "This necklace has 1d4 + 2 magic beads made from aquamarine, black pearl, or topaz. It also has many nonmagical beads made from stones such as amber, bloodstone, citrine, coral, jade, pearl, or quartz. If a magic bead is removed from the necklace, that bead loses its magic.
 Six types of magic beads exist. The GM decides the type of each bead on the necklace or determines it randomly. A necklace can have more than one bead of the same type. To use one, you must be wearing the necklace. Each bead contains a spell that you can cast from it as a bonus action (using your spell save DC if a save is necessary). Once a magic bead’s spell is cast, that bead can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :necklace-of-prayer-beads#uses
         :name "Necklace of Prayer Beads"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Oathbow"
   :id :oathbow
   :type :weapon
@@ -774,12 +896,13 @@ While your sworn enemy lives, you have disadvantage on attack rolls with all oth
   :type :other
   :desc "While this pearl is on your person, you can use an action to speak its command word and regain one expended spell slot. If the expended slot was of 4th level or higher, the new slot is 3rd level. Once you use the pearl, it cant be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :pearl-of-power#uses
         :name "Pearl of Power"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Periapt of Health"
   :id :periapt-of-health
   :type :gear
@@ -810,12 +933,13 @@ Whenever a swarm of rats that isn’t under another creature’s control comes w
   :type :armor
   :desc "While you’re wearing this armor, you can speak its command word as an action to gain the effect of the _etherealness _spell, which last for 10 minutes or until you remove the armor or use an action to speak the command word again. This property of the armor can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :plate-armor-of-etherealness#uses
         :name "Plate Armor of Etherealness"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Portable Hole"
   :id :portable-hole
   :type :other
@@ -834,20 +958,18 @@ As an action, one dose of the ointment can be swallowed or applied to the skin. 
   :id :ring-of-animal-influence
   :type :gear
   :desc "This ring has 3 charges, and it regains 1d3 expended charges daily at dawn. While wearing the ring, you can use an action to expend 1 of its charges to cast one of the following spells:
-
 • _Animal friendship _(save DC 13)
-
 • _Fear _(save DC 13), targeting only beasts that have an Intelligence of 3 or lower
-
 • _Speak with animals_
 __"
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :ring-of-animal-influence#uses
         :name "Ring of Animal Influence"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Ring of Djinni Summoning"
   :id :ring-of-djinni-summoning
   :type :gear
@@ -863,51 +985,43 @@ While wearing this ring, you have advantage on attack rolls against elementals f
 The ring has 5 charges. It regains 1d4 + 1 expended charges daily at dawn. Spells cast from the ring have a save DC of 17.
 **_Ring of Air Elemental Command. _**You can expend 2 of the ring’s charges to cast _dominate monster _on an air elemental. In addition, when you fall, you descend 60 feet per round and take no damage from falling. You can also speak and understand Auran.
 If you help slay an air elemental while attuned to the ring, you gain access to the following additional properties:
-
 • You have resistance to lightning damage.
-
 • You have a flying speed equal to your walking speed and can hover.
-
 • You can cast the following spells from the ring, expending the necessary number of charges: _chain lightning _(3 charges), _gust of wind _(2 charges), or _wind wall _(1 charge).
 **_Ring of Earth Elemental Command. _**You can expend 2 of the ring’s charges to cast _dominate monster _on an earth elemental. In addition, you can move in difficult terrain that is composed of rubble, rocks, or dirt as if it were normal terrain. You can also speak and understand Terran.
 If you help slay an earth elemental while attuned to the ring, you gain access to the following additional properties:
-
 • You have resistance to acid damage.
-
 • You can move through solid earth or rock as if those areas were difficult terrain. If you end your turn there, you are shunted out to the nearest unoccupied space you last occupied.
-
 • You can cast the following spells from the ring, expending the necessary number of charges: _stone shape _(2 charges), _stoneskin _(3 charges), or _wall of stone _(3 charges).
 **_Ring of Fire Elemental Command. _**You can expend 2 of the ring’s charges to cast _dominate monster _on a fire elemental. In addition, you have resistance to fire damage. You can also speak and understand Ignan.
 If you help slay a fire elemental while attuned to the ring, you gain access to the following additional properties:
-
 • You are immune to fire damage.
-
 • You can cast the following spells from the ring, expending the necessary number of charges: _burning hands _(1 charge), _fireball _(2 charges), and _wall of fire _(3 charges).
 **_Ring of Water Elemental Command. _**You can expend 2 of the ring’s charges to cast _dominate monster _on a water elemental. In addition, you can stand on and walk across liquid surfaces as if they were solid ground. You can also speak and understand Aquan.
 If you help slay a water elemental while attuned to the ring, you gain access to the following additional properties:
-
 • You can breathe underwater and have a swimming speed equal to your walking speed.
-
 • You can cast the following spells from the ring, expending the necessary number of charges: _create or destroy water _(1 charge), _control water _(3 charges), _ice storm _(2 charges), or _wall of ice _(3 charges)."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :ring-of-elemental-command#uses
         :name "Ring of Elemental Command"
         :uses 5
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Ring of Evasion"
   :id :ring-of-evasion
   :type :gear
   :desc "This ring has 3 charges, and it regains 1d3 expended charges daily at dawn. When you fail a Dexterity saving throw while wearing it, you can use your reaction to expend 1 of its charges to succeed on that saving throw instead."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :ring-of-evasion#uses
         :name "Ring of Evasion"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Ring of Feather Falling"
   :id :ring-of-feather-falling
   :type :gear
@@ -940,8 +1054,9 @@ If you die while wearing the ring, your soul enters it, unless it already houses
   :type :gear
   :desc "You gain a +1 bonus to AC and saving throws while wearing this ring."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :ring-of-protection] 1]
-      [:!provide-attr [:buffs :saves :ring-of-protection] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :ac :ring-of-protection] 1)
+      (provide-attr [:buffs :saves :ring-of-protection] 1))}
  {:name "Ring of Regeneration"
   :id :ring-of-regeneration
   :type :gear
@@ -955,20 +1070,28 @@ If you die while wearing the ring, your soul enters it, unless it already houses
  {:name "Ring of Shooting Stars"
   :id :ring-of-shooting-stars
   :type :gear
-  :desc "While wearing this ring in dim light or darkness, you can cast _dancing lights _and _light _from the ring at will. Casting either spell from the ring requires an action.
-The ring has 6 charges for the following other properties. The ring regains 1d6 expended charges daily at dawn.
-**_Faerie Fire. _**You can expend 1 charge as an action to cast _faerie fire _from the ring.
-**_Ball Lightning. _**You can expend 2 charges as an action to create one to four 3-foot-diameter spheres of lightning. The more spheres you create, the less powerful each sphere is individually.
-Each sphere appears in an unoccupied space you can see within 120 feet of you. The spheres last as long as you concentrate (as if concentrating on a spell), up to 1 minute. Each sphere sheds dim light in a 30-foot radius.
-As a bonus action, you can move each sphere up to 30 feet, but no farther than 120 feet away from you. When a creature other than you comes within 5 feet of a sphere, the sphere discharges lightning at that creature and disappears. That creature must make a DC 15 Dexterity saving throw. On a failed save, the creature takes lightning damage based on the number of spheres you created."
+  :desc [
+"While wearing this ring in dim light or darkness, you can cast _dancing lights _and _light _from the ring at will. Casting either spell from the ring requires an action."
+"The ring has 6 charges for the following other properties. The ring regains 1d6 expended charges daily at dawn."
+"**_Faerie Fire. _**You can expend 1 charge as an action to cast _faerie fire _from the ring."
+"**_Ball Lightning. _**You can expend 2 charges as an action to create one to four 3-foot-diameter spheres of lightning. The more spheres you create, the less powerful each sphere is individually."
+"Each sphere appears in an unoccupied space you can see within 120 feet of you. The spheres last as long as you concentrate (as if concentrating on a spell), up to 1 minute. Each sphere sheds dim light in a 30-foot radius."
+"As a bonus action, you can move each sphere up to 30 feet, but no farther than 120 feet away from you. When a creature other than you comes within 5 feet of a sphere, the sphere discharges lightning at that creature and disappears. That creature must make a DC 15 Dexterity saving throw. On a failed save, the creature takes lightning damage based on the number of spheres you created."
+{:headers ["**Spheres**" "**Lightning Damage**"]
+ :rows [["4" "2d4"]
+        ["3" "2d6"]
+        ["2" "5d4"]
+        ["1" "4d12"]]}
+"**_Shooting Stars. _**You can expend 1 to 3 charges as an action. For every charge you expend, you launch a glowing mote of light from the ring at a point you can see within 60 feet of you. Each creature within a 15-foot cube originating from that point is showered in sparks and must make a DC 15 Dexterity saving throw, taking 5d4 fire damage on a failed save, or half as much damage on a successful one."]
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :ring-of-shooting-stars#uses
         :name "Ring of Shooting Stars"
         :uses 6
         :restore-trigger :long-rest
         :restore-amount 6
-        :restore-dice "1d6"}]]}
+        :restore-dice "1d6"}))}
  {:name "Ring of Spell Storing"
   :id :ring-of-spell-storing
   :type :gear
@@ -996,13 +1119,14 @@ While wearing this ring, you can cast any spell stored in it. The spell uses the
   :desc "This ring has 3 charges, and it regains 1d3 expended charges daily at dawn. While wearing the ring, you can use an action to expend 1 to 3 of its charges to attack one creature you can see within 60 feet of you. The ring produces a spectral ram’s head and makes its attack roll with a +7 bonus. On a hit, for each charge you spend, the target takes 2d10 force damage and is pushed 5 feet away from you.
 Alternatively, you can expend 1 to 3 of the ring’s charges as an action to try to break an object you can see within 60 feet of you that isn’t being worn or carried. The ring makes a Strength check with a +5 bonus for each charge you spend."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :ring-of-the-ram#uses
         :name "Ring of the Ram"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Ring of Three Wishes"
   :id :ring-of-three-wishes
   :type :gear
@@ -1026,11 +1150,8 @@ Whenever you use the ring again before taking a long rest, you must succeed on a
   :id :robe-of-eyes
   :type :gear
   :desc "This robe is adorned with eyelike patterns. While you wear the robe, you gain the following benefits:
-
 • The robe lets you see in all directions, and you have advantage on Wisdom (Perception) checks that rely on sight.
-
 • You have darkvision out to a range of 120 feet.
-
 • You can see invisible creatures and objects, as well as see into the Ethereal Plane, out to a range of 120 feet.
 The eyes on the robe can’t be closed or averted. Although you can close or avert your own eyes, you are never considered to be doing so while wearing this robe.
 A _light _spell cast on the robe or a _daylight _spell cast within 5 feet of the robe causes you to be blinded for 1 minute. At the end of each of your turns, you can make a Constitution saving throw (DC 11 for _light _or DC 15 for _daylight),_ ending the blindness on a success."
@@ -1040,13 +1161,14 @@ A _light _spell cast on the robe or a _daylight _spell cast within 5 feet of the
   :type :gear
   :desc "This robe has 3 charges, and it regains 1d3 expended charges daily at dawn. While you wear it, you can use an action and expend 1 charge to cause the garment to display a shifting pattern of dazzling hues until the end of your next turn. During this time, the robe sheds bright light in a 30-foot radius and dim light for an additional 30 feet. Creatures that can see you have disadvantage on attack rolls against you. In addition, any creature in the bright light that can see you when the robe’s power is activated must succeed on a DC 15 Wisdom saving throw or become stunned until the effect ends."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :robe-of-scintillating-colors#uses
         :name "Robe of Scintillating Colors"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Robe of Stars"
   :id :robe-of-stars
   :type :gear
@@ -1054,17 +1176,15 @@ A _light _spell cast on the robe or a _daylight _spell cast within 5 feet of the
 Six stars, located on the robe’s upper front portion, are particularly large. While wearing this robe, you can use an action to pull off one of the stars and use it to cast _magic missile _as a 5th-level spell. Daily at dusk, 1d6 removed stars reappear on the robe.
 While you wear the robe, you can use an action to enter the Astral Plane along with everything you are wearing and carrying. You remain there until you use an action to return to the plane you were on. You reappear in the last space you occupied, or if that space is occupied, the nearest unoccupied space."
   :attunes? true
-  :! [[:!provide-attr [:buffs :saves :robe-of-stars] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :saves :robe-of-stars] 1))}
  {:name "Robe of the Archmagi"
   :id :robe-of-the-archmagi
   :type :gear
   :desc "This elegant garment is made from exquisite cloth of white, gray, or black and adorned with silvery runes. The robe’s color corresponds to the alignment for which the item was created. A white robe was made for good, gray for neutral, and black for evil. You can’t attune to a _robe of the archmagi _that doesn’t correspond to your alignment.
 You gain these benefits while wearing the robe:
-
 • If you aren’t wearing armor, your base Armor Class is 15 + your Dexterity modifier.
-
 • You have advantage on saving throws against spells and other magical effects.
-
 • Your spell save DC and spell attack bonus each increase by 2."
   :attunes? true}
  {:name "Robe of Useful Items"
@@ -1072,17 +1192,11 @@ You gain these benefits while wearing the robe:
   :type :gear
   :desc "This robe has cloth patches of various shapes and colors covering it. While wearing the robe, you can use an action to detach one of the patches, causing it to become the object or creature it represents. Once the last patch is removed, the robe becomes an ordinary garment.
 The robe has two of each of the following patches:
-
 • Dagger
-
 • Bullseye lantern (filled and lit)
-
 • Steel mirror
-
 • 10-foot pole
-
 • Hempen rope (50 feet, coiled)
-
 • Sack
 In addition, the robe has 4d4 other patches. The GM chooses the patches or determines them randomly."}
  {:name "Rod of Absorption"
@@ -1102,14 +1216,15 @@ A newly found rod has 1d10 levels of spell energy stored in it already. A rod th
 **_Protective Aura. _**As an action, you can plant the haft end of the rod in the ground, whereupon the rod’s head sheds bright light in a 60-foot radius and dim light for an additional 60 feet. While in that bright light, you and any creature that is friendly to you gain a +1 bonus to AC and saving throws and can sense the location of any invisible hostile creature that is also in the bright light.
 The rod’s head stops glowing and the effect ends after 10 minutes, or when a creature uses an action to pull the rod from the ground. This property can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!provide-attr [:buffs :ac :rod-of-alertness] 1]
-      [:!provide-attr [:buffs :saves :rod-of-alertness] 1]
-      [:!add-limited-use
+  :! (on-state
+      (provide-attr [:buffs :ac :rod-of-alertness] 1)
+      (provide-attr [:buffs :saves :rod-of-alertness] 1)
+      (add-limited-use
        {:id :rod-of-alertness#uses
         :name "Rod of Alertness"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Rod of Lordly Might"
   :id :rod-of-lordly-might
   :type :gear
@@ -1125,35 +1240,37 @@ If you press **button 6,** the rod assumes or remains in its normal form and ind
 **_Paralyze. _**When you hit a creature with a melee attack using the rod, you can force the target to make a DC 17 Strength saving throw. On a failure, the target is paralyzed for 1 minute. The target can repeat the saving throw at the end of each of its turns, ending the effect on a success. This property can’t be used again until the next dawn.
 **_Terrify. _**While holding the rod, you can use an action to force each creature you can see within 30 feet of you to make a DC 17 Wisdom saving throw. On a failure, a target is frightened of you for 1 minute. A frightened target can repeat the saving throw at the end of each of its turns, ending the effect on itself on a success. This property can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :rod-of-lordly-might-drain-life#uses
         :name "Rod of Lordly Might: Drain Life"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :rod-of-lordly-might-paralyze#uses
         :name "Rod of Lordly Might: Paralyze"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :rod-of-lordly-might-terrify#uses
         :name "Rod of Lordly Might: Terrify"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Rod of Rulership"
   :id :rod-of-rulership
   :type :gear
   :desc "You can use an action to present the rod and command obedience from each creature of your choice that you can see within 120 feet of you. Each target must succeed on a DC 15 Wisdom saving throw or be charmed by you for 8 hours. While charmed in this way, the creature regards you as its trusted leader. If harmed by you or your companions, or commanded to do something contrary to its nature, a target ceases to be charmed in this way. The rod can’t be used again until the next dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :rod-of-rulership#uses
         :name "Rod of Rulership"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Rod of Security"
   :id :rod-of-security
   :type :gear
@@ -1176,17 +1293,16 @@ The rope has AC 20 and 20 hit points. It regains 1 hit point every 5 minutes as 
   :id :scarab-of-protection
   :type :other
   :desc "If you hold this beetle-shaped medallion in your hand for 1 round, an inscription appears on its surface revealing its magical nature. It provides two benefits while it is on your person:
-
 • You have advantage on saving throws against spells.
-
 • The scarab has 12 charges. If you fail a saving throw against a necromancy spell or a harmful effect originating from an undead creature, you can use your reaction to expend 1 charge and turn the failed save into a successful one. The scarab crumbles into powder and is destroyed when its last charge is expended."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :scarab-of-protection#uses
         :name "Scarab of Protection"
         :uses 12
         :restore-trigger :long-rest
-        :restore-amount 12}]]}
+        :restore-amount 12}))}
  {:name "Scimitar of Speed"
   :id :scimitar-of-speed
   :type :weapon
@@ -1231,9 +1347,22 @@ One ounce of the glue can cover a 1-foot square surface. The glue takes 1 minute
  {:name "Spell Scroll"
   :id :spell-scroll
   :type :gear
-  :desc "A spell scroll bears the words of a single spell, written in a mystical cipher. If the spell is on your class’s spell list, you can read the scroll and cast its spell without providing any material components. Otherwise, the scroll is unintelligible. Casting the spell by reading the scroll requires the spell’s normal casting time. Once the spell is cast, the words on the scroll fade, and it crumbles to dust. If the casting is interrupted, the scroll is not lost.
-If the spell is on your class’s spell list but of a higher level than you can normally cast, you must make an ability check using your spellcasting ability to determine whether you cast it successfully. The DC equals 10 + the spell’s level. On a failed check, the spell disappears from the scroll with no other effect.
-The level of the spell on the scroll determines the spell’s saving throw DC and attack bonus, as well as the scroll’s rarity, as shown in the Spell Scroll table."}
+  :desc [
+"A spell scroll bears the words of a single spell, written in a mystical cipher. If the spell is on your class’s spell list, you can read the scroll and cast its spell without providing any material components. Otherwise, the scroll is unintelligible. Casting the spell by reading the scroll requires the spell’s normal casting time. Once the spell is cast, the words on the scroll fade, and it crumbles to dust. If the casting is interrupted, the scroll is not lost."
+"If the spell is on your class’s spell list but of a higher level than you can normally cast, you must make an ability check using your spellcasting ability to determine whether you cast it successfully. The DC equals 10 + the spell’s level. On a failed check, the spell disappears from the scroll with no other effect."
+"The level of the spell on the scroll determines the spell’s saving throw DC and attack bonus, as well as the scroll’s rarity, as shown in the Spell Scroll table."
+{:headers ["**Spell Level**" "**Rarity**" "**Save DC**" "**Attack Bonus**"]
+ :rows [["Cantrip" "Common" "13" "+5"]
+        ["1st" "Common" "13" "+5"]
+        ["2nd" "Uncommon" "13" "+5"]
+        ["3rd" "Uncommon" "15" "+7"]
+        ["4th" "Rare" "15" "+7"]
+        ["5th" "Rare" "17" "+9"]
+        ["6th" "Very rare" "17" "+9"]
+        ["7th" "Very rare" "18" "+10"]
+        ["8th" "Very rare" "18" "+10"]
+        ["9th" "Legendary" "19" "+11"]]}
+"A wizard spell on a _spell scroll _can be copied just as spells in spellbooks can be copied. When a spell is copied from a _spell scroll,_ the copier must succeed on an Intelligence (Arcana) check with a DC equal to 10 + the spell’s level. If the check succeeds, the spell is successfully copied. Whether the check succeeds or fails, the _spell scroll _is destroyed."]}
  {:kind :shield
   :name "Spellguard Shield"
   :id :spellguard-shield
@@ -1262,12 +1391,13 @@ The staff regains 1d8 + 2 expended charges daily at dawn. If you expend the last
 The staff has 10 charges. While holding it, you can use an action to expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC: _burning hands _(1 charge), _fireball _(3 charges), or _wall of fire _(4 charges).
 The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll a d20. On a 1, the staff blackens, crumbles into cinders, and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-fire#uses
         :name "Staff of Fire"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Frost"
   :id :staff-of-frost
   :type :gear
@@ -1275,24 +1405,26 @@ The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last
 The staff has 10 charges. While holding it, you can use an action to expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC: _cone of cold _(5 charges), _fog cloud _(1 charge), _ice storm _(4 charges), or _wall of ice _(4 charges).
 The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll a d20. On a 1, the staff turns to water and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-frost#uses
         :name "Staff of Frost"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Healing"
   :id :staff-of-healing
   :type :gear
   :desc "This staff has 10 charges. While holding it, you can use an action to expend 1 or more of its charges to cast one of the following spells from it, using your spell save DC and spellcasting ability modifier: _cure wounds _(1 charge per spell level, up to 4th), _lesser restoration _(2 charges), or _mass cure wounds _(5 charges).
 The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll a d20. On a 1, the staff vanishes in a flash of light, lost forever."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-healing#uses
         :name "Staff of Healing"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Power"
   :id :staff-of-power
   :type :gear
@@ -1303,26 +1435,28 @@ The staff has 20 charges for the following properties. The staff regains 2d8 + 4
 **_Retributive Strike. _**You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.
 You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage."
   :attunes? true
-  :! [[:!provide-attr [:buffs :spell-atk :staff-of-power] 2]
-      [:!provide-attr [:buffs :saves :staff-of-power] 2]
-      [:!add-limited-use
+  :! (on-state
+      (provide-attr [:buffs :spell-atk :staff-of-power] 2)
+      (provide-attr [:buffs :saves :staff-of-power] 2)
+      (add-limited-use
        {:id :staff-of-power#uses
         :name "Staff of Power"
         :uses 20
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Striking"
   :id :staff-of-striking
   :type :gear
   :desc "This staff can be wielded as a magic quarterstaff that grants a +3 bonus to attack and damage rolls made with it.
 The staff has 10 charges. When you hit with a melee attack using it, you can expend up to 3 of its charges. For each charge you expend, the target takes an extra 1d6 force damage. The staff regains 1d6 + 4 expended charges daily at dawn. If you expend the last charge, roll a d20. On a 1, the staff becomes a nonmagical quarterstaff."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-striking#uses
         :name "Staff of Striking"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Swarming Insects"
   :id :staff-of-swarming-insects
   :type :gear
@@ -1330,12 +1464,13 @@ The staff has 10 charges. When you hit with a melee attack using it, you can exp
 **_Spells. _**While holding the staff, you can use an action to expend some of its charges to cast one of the following spells from it, using your spell save DC: _giant insect _(4 charges) or _insect plague _(5 charges).
 **_Insect Cloud. _**While holding the staff, you can use an action and expend 1 charge to cause a swarm of harmless flying insects to spread out in a 30-foot radius from you. The insects remain for 10 minutes, making the area heavily obscured for creatures other than you. The swarm moves with you, remaining centered on you. A wind of at least 10 miles per hour disperses the swarm and ends the effect."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-swarming-insects#uses
         :name "Staff of Swarming Insects"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of the Magi"
   :id :staff-of-the-magi
   :type :gear
@@ -1348,13 +1483,14 @@ You can also use an action to cast one of the following spells from the staff wi
 **_Retributive Strike. _**You can use an action to break the staff over your knee or against a solid surface, performing a retributive strike. The staff is destroyed and releases its remaining magic in an explosion that expands to fill a 30-foot-radius sphere centered on it.
 You have a 50 percent chance to instantly travel to a random plane of existence, avoiding the explosion. If you fail to avoid the effect, you take force damage equal to 16 × the number of charges in the staff. Every other creature in the area must make a DC 17 Dexterity saving throw. On a failed save, a creature takes an amount of damage based on how far away it is from the point of origin, as shown in the following table. On a successful save, a creature takes half as much damage."
   :attunes? true
-  :! [[:!provide-attr [:buffs :spell-atk :staff-of-the-magi] 2]
-      [:!add-limited-use
+  :! (on-state
+      (provide-attr [:buffs :spell-atk :staff-of-the-magi] 2)
+      (add-limited-use
        {:id :staff-of-the-magi#uses
         :name "Staff of the Magi"
         :uses 50
         :restore-trigger :long-rest
-        :restore-amount 2}]]}
+        :restore-amount 2}))}
  {:name "Staff of the Python"
   :id :staff-of-the-python
   :type :gear
@@ -1371,12 +1507,13 @@ The staff has 10 charges for the following properties. It regains 1d6 + 4 expend
 You can also use an action to cast the _pass without trace _spell from the staff without using any charges.
 **_Tree Form. _**You can use an action to plant one end of the staff in fertile earth and expend 1 charge to transform the staff into a healthy tree. The tree is 60 feet tall and has a 5-foot-diameter trunk, and its branches at the top spread out in a 20-foot radius. The tree appears ordinary but radiates a faint aura of transmutation magic if targeted by _detect magic._ While touching the tree and using another action to speak its command word, you return the staff to its normal form. Any creature in the tree falls when it reverts to a staff."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-the-woodlands#uses
         :name "Staff of the Woodlands"
         :uses 10
         :restore-trigger :long-rest
-        :restore-amount 4}]]}
+        :restore-amount 4}))}
  {:name "Staff of Thunder and Lightning"
   :id :staff-of-thunder-and-lightning
   :type :gear
@@ -1387,25 +1524,27 @@ You can also use an action to cast the _pass without trace _spell from the staff
 **_Thunderclap. _**You can use an action to cause the staff to issue a deafening thunderclap, audible out to 600 feet. Each creature within 60 feet of you (not including you) must make a DC 17 Constitution saving throw. On a failed save, a creature takes 2d6 thunder damage and becomes deafened for 1 minute. On a successful save, a creature takes half damage and isn’t deafened.
 **_Thunder and Lightning. _**You can use an action to use the Lightning Strike and Thunderclap properties at the same time. Doing so doesn’t expend the daily use of those properties, only the use of this one."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-thunder-and-lightning#uses
         :name "Staff of Thunder and Lightning"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Staff of Withering"
   :id :staff-of-withering
   :type :gear
   :desc "This staff has 3 charges and regains 1d3 expended charges daily at dawn.
 The staff can be wielded as a magic quarterstaff. On a hit, it deals damage as a normal quarterstaff, and you can expend 1 charge to deal an extra 2d10 necrotic damage to the target. In addition, the target must succeed on a DC 15 Constitution saving throw or have disadvantage for 1 hour on any ability check or saving throw that uses Strength or Constitution."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :staff-of-withering#uses
         :name "Staff of Withering"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Stone of Controlling Earth Elementals"
   :id :stone-of-controlling-earth-elementals
   :type :other
@@ -1415,8 +1554,9 @@ The staff can be wielded as a magic quarterstaff. On a hit, it deals damage as a
   :type :other
   :desc "While this polished agate is on your person, you gain a +1 bonus to ability checks and saving throws."
   :attunes? true
-  :! [[:!provide-attr [:buffs :checks :stone-of-good-luck-luckstone-] 1]
-      [:!provide-attr [:buffs :saves :stone-of-good-luck-luckstone-] 1]]}
+  :! (on-state
+      (provide-attr [:buffs :checks :stone-of-good-luck-luckstone-] 1)
+      (provide-attr [:buffs :saves :stone-of-good-luck-luckstone-] 1))}
  {:name "Sun Blade"
   :id :sun-blade
   :type :weapon
@@ -1432,13 +1572,14 @@ The sword’s luminous blade emits bright light in a 15-foot radius and dim ligh
 If you are a good cleric or paladin, you can use the talisman as a holy symbol, and you gain a +2 bonus to spell attack rolls while you wear or hold it.
 The talisman has 7 charges. If you are wearing or holding it, you can use an action to expend 1 charge from it and choose one creature you can see on the ground within 120 feet of you. If the target is of evil alignment, a flaming fissure opens under it. The target must succeed on a DC 20 Dexterity saving throw or fall into the fissure and be destroyed, leaving no remains. The fissure then closes, leaving no trace of its existence. When you expend the last charge, the talisman disperses into motes of golden light and is destroyed."
   :attunes? true
-  :! [[:!provide-attr [:buffs :spell-atk :talisman-of-pure-good] 2]
-      [:!add-limited-use
+  :! (on-state
+      (provide-attr [:buffs :spell-atk :talisman-of-pure-good] 2)
+      (add-limited-use
        {:id :talisman-of-pure-good#uses
         :name "Talisman of Pure Good"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 7}]]}
+        :restore-amount 7}))}
  {:name "Talisman of the Sphere"
   :id :talisman-of-the-sphere
   :type :other
@@ -1451,13 +1592,14 @@ The talisman has 7 charges. If you are wearing or holding it, you can use an act
 If you are an evil cleric or paladin, you can use the talisman as a holy symbol, and you gain a +2 bonus to spell attack rolls while you wear or hold it.
 The talisman has 6 charges. If you are wearing or holding it, you can use an action to expend 1 charge from the talisman and choose one creature you can see on the ground within 120 feet of you. If the target is of good alignment, a flaming fissure opens under it. The target must succeed on a DC 20 Dexterity saving throw or fall into the fissure and be destroyed, leaving no remains. The fissure then closes, leaving no trace of its existence. When you expend the last charge, the talisman dissolves into foul-smelling slime and is destroyed."
   :attunes? true
-  :! [[:!provide-attr [:buffs :spell-atk :talisman-of-ultimate-evil] 2]
-      [:!add-limited-use
+  :! (on-state
+      (provide-attr [:buffs :spell-atk :talisman-of-ultimate-evil] 2)
+      (add-limited-use
        {:id :talisman-of-ultimate-evil#uses
         :name "Talisman of Ultimate Evil"
         :uses 6
         :restore-trigger :long-rest
-        :restore-amount 6}]]}
+        :restore-amount 6}))}
  {:name "Tome of Clear Thought"
   :id :tome-of-clear-thought
   :type :other
@@ -1475,13 +1617,14 @@ The talisman has 6 charges. If you are wearing or holding it, you can use an act
   :type :weapon
   :desc "This trident is a magic weapon. It has 3 charges. While you carry it, you can use an action and expend 1 charge to cast _dominate beast _(save DC 15) from it on a beast that has an innate swimming speed. The trident regains 1d3 expended charges daily at dawn."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :trident-of-fish-command#uses
         :name "Trident of Fish Command"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Universal Solvent"
   :id :universal-solvent
   :type :other
@@ -1493,24 +1636,26 @@ The talisman has 6 charges. If you are wearing or holding it, you can use an act
 **_Spells. _**While holding the wand, you can use an action to expend some of its charges to cast one of the following spells (save DC 17): _hold monster _(5 charges) or _hold person _(2 charges).
 **_Assisted Escape. _**While holding the wand, you can use your reaction to expend 1 charge and gain advantage on a saving throw you make to avoid being paralyzed or restrained, or you can expend 1 charge and gain advantage on any check you make to escape a grapple."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-binding#uses
         :name "Wand of Binding"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Enemy Detection"
   :id :wand-of-enemy-detection
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action and expend 1 charge to speak its command word. For the next minute, you know the direction of the nearest creature hostile to you within 60 feet, but not its distance from you. The wand can sense the presence of hostile creatures that are ethereal, invisible, disguised, or hidden, as well as those in plain sight. The effect ends if you stop holding the wand.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-enemy-detection#uses
         :name "Wand of Enemy Detection"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Fear"
   :id :wand-of-fear
   :type :gear
@@ -1518,93 +1663,101 @@ The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand�
 **_Command. _**While holding the wand, you can use an action to expend 1 charge and command another creature to flee or grovel, as with the _command _spell (save DC 15).
 **_Cone of Fear. _**While holding the wand, you can use an action to expend 2 charges, causing the wand’s tip to emit a 60-foot cone of amber light. Each creature in the cone must succeed on a DC 15 Wisdom saving throw or become frightened of you for 1 minute. While it is frightened in this way, a creature must spend its turns trying to move as far away from you as it can, and it can’t willingly move to a space within 30 feet of you. It also can’t take reactions. For its action, it can use only the Dash action or try to escape from an effect that prevents it from moving. If it has nowhere it can move, the creature can use the Dodge action. At the end of each of its turns, a creature can repeat the saving throw, ending the effect on itself on a success."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-fear#uses
         :name "Wand of Fear"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Fireballs"
   :id :wand-of-fireballs
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the _fireball _spell (save DC 15) from it. For 1 charge, you cast the 3rd-level version of the spell. You can increase the spell slot level by one for each additional charge you expend.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-fireballs#uses
         :name "Wand of Fireballs"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Lightning Bolts"
   :id :wand-of-lightning-bolts
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the _lightning bolt _spell (save DC 15) from it. For 1 charge, you cast the 3rd-level version of the spell. You can increase the spell slot level by one for each additional charge you expend.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-lightning-bolts#uses
         :name "Wand of Lightning Bolts"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Magic Detection"
   :id :wand-of-magic-detection
   :type :gear
   :desc "This wand has 3 charges. While holding it, you can expend 1 charge as an action to cast the _detect magic _spell from it. The wand regains 1d3 expended charges daily at dawn."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-magic-detection#uses
         :name "Wand of Magic Detection"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Wand of Magic Missiles"
   :id :wand-of-magic-missiles
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 or more of its charges to cast the _magic missile _spell from it. For 1 charge, you cast the 1st-level version of the spell. You can increase the spell slot level by one for each additional charge you expend.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-magic-missiles#uses
         :name "Wand of Magic Missiles"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Paralysis"
   :id :wand-of-paralysis
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 of its charges to cause a thin blue ray to streak from the tip toward a creature you can see within 60 feet of you. The target must succeed on a DC 15 Constitution saving throw or be paralyzed for 1 minute. At the end of each of the target’s turns, it can repeat the saving throw, ending the effect on itself on a success.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-paralysis#uses
         :name "Wand of Paralysis"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Polymorph"
   :id :wand-of-polymorph
   :type :gear
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 of its charges to cast the _polymorph _spell (save DC 15) from it.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-polymorph#uses
         :name "Wand of Polymorph"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Secrets"
   :id :wand-of-secrets
   :type :gear
   :desc "The wand has 3 charges. While holding it, you can use an action to expend 1 of its charges, and if a secret door or trap is within 30 feet of you, the wand pulses and points at the one nearest to you. The wand regains 1d3 expended charges daily at dawn."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-secrets#uses
         :name "Wand of Secrets"
         :uses 3
         :restore-trigger :long-rest
         :restore-amount 3
-        :restore-dice "1d3"}]]}
+        :restore-dice "1d3"}))}
  {:name "Wand of the War Mage +1"
   :id :wand-of-the-war-mage+1
   :type :gear
@@ -1629,12 +1782,13 @@ The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand�
   :desc "This wand has 7 charges. While holding it, you can use an action to expend 1 of its charges to cast the _web _spell (save DC 15) from it.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into ashes and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-web#uses
         :name "Wand of Web"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Wand of Wonder"
   :id :wand-of-wonder
   :type :gear
@@ -1644,12 +1798,13 @@ If an effect covers an area, you must center the spell on and include the target
 subjects, the GM randomly determines which ones are affected.
 The wand regains 1d6 + 1 expended charges daily at dawn. If you expend the wand’s last charge, roll a d20. On a 1, the wand crumbles into dust and is destroyed."
   :attunes? true
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wand-of-wonder#uses
         :name "Wand of Wonder"
         :uses 7
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Well of Many Worlds"
   :id :well-of-many-worlds
   :type :other
@@ -1659,12 +1814,13 @@ You can use an action to unfold and place the _well of many worlds _on a solid s
   :id :wind-fan
   :type :other
   :desc "While holding this fan, you can use an action to cast the _gust of wind _spell (save DC 13) from it. Once used, the fan shouldn’t be used again until the next dawn. Each time it is used again before then, it has a cumulative 20 percent chance of not working and tearing into useless, nonmagical tatters."
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :wind-fan#uses
         :name "Wind Fan"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]]}
+        :restore-amount 1}))}
  {:name "Winged Boots"
   :id :winged-boots
   :type :gear
@@ -1677,9 +1833,9 @@ The boots regain 2 hours of flying capability for every 12 hours they aren’t i
   :desc "While wearing this cloak, you can use an action to speak its command word. This turns the cloak into a pair of bat wings or bird wings on your back for 1 hour or until you repeat the command word as an action. The wings give you a flying speed of 60 feet. When they disappear, you can’t use them again for 1d12 hours."
   :attunes? true}
 
- ]
+ )
 
-[:!declare-items
+(declare-items
  {:type :potion}
  {:name "Oil of Etherealness"
   :id :oil-of-etherealness
@@ -1723,22 +1879,18 @@ This potion’s transparent liquid has floating in it a sliver of fingernail fro
  {:name "Potion of Healing"
   :id :potion-of-healing
   :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
-
 **HP Regained**: 2d4 + 2"}
  {:name "Potion of Greater Healing"
   :id :potion-of-greater-healing
   :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
-
 **HP Regained**: 4d4 + 4"}
  {:name "Potion of Superior Healing"
   :id :potion-of-superior-healing
   :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
-
 **HP Regained**: 8d4 + 8"}
  {:name "Potion of Supreme Healing"
   :id :potion-of-supreme-healing
   :desc "You regain hit points when you drink this potion. The number of hit points depends on the potion’s rarity, as shown in the Potions of Healing table. Whatever its potency, the potion’s red liquid glimmers when agitated.
-
 **HP Regained**: 10d4 + 20"}
  {:name "Potion of Heroism"
   :id :potion-of-heroism
@@ -1762,10 +1914,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
  {:name "Potion of Water Breathing"
   :id :potion-of-water-breathing
   :desc "You can breathe underwater for 1 hour after drinking this potion. Its cloudy green fluid smells of the sea and has a jellyfish-like bubble floating in it."}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "This suit of armor is reinforced with adamantine, one of the hardest substances in existence. While you’re wearing it, any critical hit against you becomes a normal hit."
   :type :armor}
  {:kind :chain-shirt
@@ -1792,10 +1944,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
  {:kind :plate
   :name "Plate Adamantine Armor"
   :id :plate-adamantine-armor}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this piece of magic ammunition. The bonus is determined by the rarity of the ammunition. Once it hits a target, the ammunition is no longer magical."
   :type :ammunition}
  {:name "Arrows +1"
@@ -1814,10 +1966,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :default-amount 20
   :id :slingbullets+1
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this piece of magic ammunition. The bonus is determined by the rarity of the ammunition. Once it hits a target, the ammunition is no longer magical."
   :type :ammunition}
  {:name "Arrows +2"
@@ -1836,10 +1988,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :default-amount 20
   :id :slingbullets+2
   :+ 2}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this piece of magic ammunition. The bonus is determined by the rarity of the ammunition. Once it hits a target, the ammunition is no longer magical."
   :type :ammunition}
  {:name "Arrows +3"
@@ -1858,10 +2010,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :default-amount 20
   :id :slingbullets+3
   :+ 3}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to AC while wearing this armor. The bonus is determined by its rarity."
   :type :armor}
  {:kind :padded
@@ -1912,10 +2064,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :name "Plate Armor +1"
   :id :plate-armor+1
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to AC while wearing this armor. The bonus is determined by its rarity."
   :type :armor}
  {:kind :padded
@@ -1966,10 +2118,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :name "Plate Armor +2"
   :id :plate-armor+2
   :+ 2}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to AC while wearing this armor. The bonus is determined by its rarity."
   :type :armor}
  {:kind :padded
@@ -2020,10 +2172,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
   :name "Plate Armor +3"
   :id :plate-armor+3
   :+ 3}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have resistance to one type of damage while you wear this armor. The GM chooses the type or determines it randomly from the options below."
   :type :armor
   :attunes? true}
@@ -2063,10 +2215,10 @@ If you drink it, you take 3d6 poison damage, and you must succeed on a DC 13 Con
  {:kind :plate
   :name "Plate Armor of Resistance"
   :id :plate-armor-of-resistance}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +1 bonus to attack and damage rolls made with this magic weapon. In addition, while you are attuned to this weapon, your hit point maximum increases by 1 for each level you have attained.
 **_Curse. _**This axe is cursed, and becoming attuned to it extends the curse to you. As long as you remain cursed, you are unwilling to part with the axe, keeping it within reach at all times. You also have disadvantage on attack rolls with weapons other than this one, unless no foe is within 60 feet of you that you can see or hear.
 Whenever a hostile creature damages you while the axe is in your possession, you must succeed on a DC 15 Wisdom saving throw or go berserk. While berserk, you must use your action each round to attack the creature nearest to you with the axe. If you can make extra attacks as part of the Attack action, you use those extra attacks, moving to attack the next nearest creature after you fell your current target. If you have multiple possible targets, you attack one at random. You are berserk until you start your turn with no creatures within 60 feet of you that you can see or hear."
@@ -2087,10 +2239,10 @@ Whenever a hostile creature damages you while the axe is in your possession, you
   :category :martial
   :id :berserker-greataxe
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You can use a bonus action to toss this magic sword into the air and speak the command word. When you do so, the sword begins to hover, flies up to 30 feet, and attacks one creature of your choice within 5 feet of it. The sword uses your attack roll and ability score modifier to damage rolls.
 While the sword hovers, you can use a bonus action to cause it to fly up to 30 feet to another spot within 30 feet of you. As part of the same bonus action, you can cause the sword to attack one creature within 5 feet of it.
 After the hovering sword attacks for the fourth time, it flies up to 30 feet and tries to return to your hand. If you have no hand free, it falls to the ground at your feet. If the sword has no unobstructed path to you, it moves as close to you as it can and then falls to the ground. It also ceases to hover if you
@@ -2117,10 +2269,10 @@ grasp it or move more than 30 feet away from it."
   :kind :shortsword
   :category :martial
   :id :dancing-shortsword}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +3 bonus to attack and damage rolls made with this magic weapon.
 The first time you attack with the sword on each of your turns, you can transfer some or all of the sword’s bonus to your Armor Class, instead of using the bonus on any attacks that turn. For example, you could reduce the bonus to your attack and damage rolls to +1 and gain a +2 bonus to AC. The adjusted bonuses remain in effect until the start of your next turn, although you must hold the sword to gain a bonus to AC from it."
   :type :weapon
@@ -2150,10 +2302,10 @@ The first time you attack with the sword on each of your turns, you can transfer
   :category :martial
   :id :defender-shortsword
   :+ 3}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +1 bonus to attack and damage rolls made with this magic weapon.
 When you hit a dragon with this weapon, the dragon takes an extra 3d6 damage of the weapon’s type. For the purpose of this weapon, “dragon” refers to any creature with the dragon type, including dragon turtles and wyverns."
   :type :weapon}
@@ -2182,10 +2334,10 @@ When you hit a dragon with this weapon, the dragon takes an extra 3d6 damage of 
   :category :martial
   :id :dragon-slayer-shortsword
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You can use a bonus action to speak this magic sword’s command word, causing flames to erupt from the blade. These flames shed bright light in a 40-foot radius and dim light for an additional 40 feet. While the sword is ablaze, it deals an extra 2d6 fire damage to any target it hits. The flames last until you use a bonus action to speak the command word again or until you drop or sheathe the sword."
   :type :weapon
   :attunes? true}
@@ -2209,10 +2361,10 @@ When you hit a dragon with this weapon, the dragon takes an extra 3d6 damage of 
   :kind :shortsword
   :category :martial
   :id :flame-tongue-shortsword}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "When you hit with an attack using this magic sword, the target takes an extra 1d6 cold damage. In addition, while you hold the sword, you have resistance to fire damage.
 In freezing temperatures, the blade sheds bright light in a 10-foot radius and dim light for an additional 10 feet.
 When you draw this weapon, you can extinguish all nonmagical flames within 30 feet of you. This property can be used no more than once per hour."
@@ -2238,10 +2390,10 @@ When you draw this weapon, you can extinguish all nonmagical flames within 30 fe
   :kind :shortsword
   :category :martial
   :id :frost-brand-shortsword}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +1 bonus to attack and damage rolls made with this magic weapon.
 When you hit a giant with it, the giant takes an extra 2d6 damage of the weapon’s type and must succeed on a DC 15 Strength saving throw or fall prone. For the purpose of this weapon, “giant” refers to any creature with the giant type, including ettins and trolls."
   :type :weapon}
@@ -2285,10 +2437,10 @@ When you hit a giant with it, the giant takes an extra 2d6 damage of the weapon�
   :category :martial
   :id :giant-slayer-greataxe
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +3 bonus to attack and damage rolls made with this magic weapon. When you hit a fiend or an undead with it, that creature takes an extra 2d10 radiant damage.
 While you hold the drawn sword, it creates an aura in a 10-foot radius around you. You and all creatures friendly to you in the aura have advantage on saving throws against spells and other magical effects. If you have 17 or more levels in the paladin class, the radius of the aura increases to 30 feet."
   :type :weapon
@@ -2318,10 +2470,10 @@ While you hold the drawn sword, it creates an aura in a 10-foot radius around yo
   :category :martial
   :id :holy-avenger-shortsword
   :+ 3}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +1 bonus to attack and damage rolls made with this magic weapon. While the sword is on your person, you also gain a +1 bonus to saving throws.
 **_Luck. _**If the sword is on your person, you can call on its luck (no action required) to reroll one attack roll, ability check, or saving throw you dislike. You must use the second roll. This property can’t be used again until the next dawn.
 **_Wish. _**The sword has 1d4 – 1 charges. While holding it, you can use an action to expend 1 charge and cast the _wish _spell from it. This property can’t be used again until the next dawn. The sword loses this property if it has no charges."
@@ -2332,90 +2484,95 @@ While you hold the drawn sword, it creates an aura in a 10-foot radius around yo
   :category :martial
   :id :luck-blade-greatsword
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :luck-blade-greatsword-luck#uses
         :name "Luck Blade Greatsword: Luck"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :luck-blade-greatsword-wish#uses
         :name "Luck Blade Greatsword: Wish"
         :uses 3
         :restore-trigger :long-rest
-        :restore-amount 3}]]}
+        :restore-amount 3}))}
  {:name "Luck Blade Longsword"
   :kind :longsword
   :category :martial
   :id :luck-blade-longsword
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :luck-blade-longsword-luck#uses
         :name "Luck Blade Longsword: Luck"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :luck-blade-longsword-wish#uses
         :name "Luck Blade Longsword: Wish"
         :uses 3
         :restore-trigger :long-rest
-        :restore-amount 3}]]}
+        :restore-amount 3}))}
  {:name "Luck Blade Rapier"
   :kind :rapier
   :category :martial
   :id :luck-blade-rapier
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :luck-blade-rapier-luck#uses
         :name "Luck Blade Rapier: Luck"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :luck-blade-rapier-wish#uses
         :name "Luck Blade Rapier: Wish"
         :uses 3
         :restore-trigger :long-rest
-        :restore-amount 3}]]}
+        :restore-amount 3}))}
  {:name "Luck Blade Scimitar"
   :kind :scimitar
   :category :martial
   :id :luck-blade-scimitar
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :luck-blade-scimitar-luck#uses
         :name "Luck Blade Scimitar: Luck"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :luck-blade-scimitar-wish#uses
         :name "Luck Blade Scimitar: Wish"
         :uses 3
         :restore-trigger :long-rest
-        :restore-amount 3}]]}
+        :restore-amount 3}))}
  {:name "Luck Blade Shortsword"
   :kind :shortsword
   :category :martial
   :id :luck-blade-shortsword
   :+ 1
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :luck-blade-shortsword-luck#uses
         :name "Luck Blade Shortsword: Luck"
         :uses 1
         :restore-trigger :long-rest
-        :restore-amount 1}]
-      [:!add-limited-use
+        :restore-amount 1})
+      (add-limited-use
        {:id :luck-blade-shortsword-wish#uses
         :name "Luck Blade Shortsword: Wish"
         :uses 3
         :restore-trigger :long-rest
-        :restore-amount 3}]]}
-]
+        :restore-amount 3}))}
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "Mithral is a light, flexible metal. A mithral chain shirt or breastplate can be worn under normal clothes. If the armor normally imposes disadvantage on Dexterity (Stealth) checks or has a Strength requirement, the mithral version of the armor doesn’t."
   :type :armor}
  {:kind :chain-shirt
@@ -2442,10 +2599,10 @@ While you hold the drawn sword, it creates an aura in a 10-foot radius around yo
  {:kind :plate
   :name "Plate Mithral Armor"
   :id :plate-mithral-armor}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +2 bonus to attack and damage rolls made with this magic weapon.
 The sword has 1d8 + 1 charges. If you score a critical hit against a creature that has fewer than 100 hit points, it must succeed on a DC 15 Constitution saving throw or be slain instantly as the sword tears its life force from its body (a construct or an undead is immune). The sword loses 1 charge if the creature is slain. When the sword has no charges remaining, it loses this property."
   :type :weapon
@@ -2455,60 +2612,65 @@ The sword has 1d8 + 1 charges. If you score a critical hit against a creature th
   :category :martial
   :id :nine-lives-stealer-greatsword
   :+ 2
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :nine-lives-stealer-greatsword#uses
         :name "Nine Lives Stealer Greatsword"
         :uses 9
         :restore-trigger :long-rest
-        :restore-amount 9}]]}
+        :restore-amount 9}))}
  {:name "Nine Lives Stealer Longsword"
   :kind :longsword
   :category :martial
   :id :nine-lives-stealer-longsword
   :+ 2
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :nine-lives-stealer-longsword#uses
         :name "Nine Lives Stealer Longsword"
         :uses 9
         :restore-trigger :long-rest
-        :restore-amount 9}]]}
+        :restore-amount 9}))}
  {:name "Nine Lives Stealer Rapier"
   :kind :rapier
   :category :martial
   :id :nine-lives-stealer-rapier
   :+ 2
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :nine-lives-stealer-rapier#uses
         :name "Nine Lives Stealer Rapier"
         :uses 9
         :restore-trigger :long-rest
-        :restore-amount 9}]]}
+        :restore-amount 9}))}
  {:name "Nine Lives Stealer Scimitar"
   :kind :scimitar
   :category :martial
   :id :nine-lives-stealer-scimitar
   :+ 2
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :nine-lives-stealer-scimitar#uses
         :name "Nine Lives Stealer Scimitar"
         :uses 9
         :restore-trigger :long-rest
-        :restore-amount 9}]]}
+        :restore-amount 9}))}
  {:name "Nine Lives Stealer Shortsword"
   :kind :shortsword
   :category :martial
   :id :nine-lives-stealer-shortsword
   :+ 2
-  :! [[:!add-limited-use
+  :! (on-state
+      (add-limited-use
        {:id :nine-lives-stealer-shortsword#uses
         :name "Nine Lives Stealer Shortsword"
         :uses 9
         :restore-trigger :long-rest
-        :restore-amount 9}]]}
-]
+        :restore-amount 9}))}
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "When you attack a creature with this magic weapon and roll a 20 on the attack roll, that target takes an extra 3d6 necrotic damage, provided that the target isn’t a construct or an undead. You gain temporary hit points equal to the extra damage dealt."
   :type :weapon
   :attunes? true}
@@ -2532,10 +2694,10 @@ The sword has 1d8 + 1 charges. If you score a critical hit against a creature th
   :kind :shortsword
   :category :martial
   :id :shortsword-of-life-stealing}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "When you attack an object with this magic sword and hit, maximize your weapon damage dice against the target.
 When you attack a creature with this weapon and roll a 20 on the attack roll, that target takes an extra 4d6 slashing damage. Then roll another d20. If you roll a 20, you lop off one of the target’s limbs, with the effect of such loss determined by the GM. If the creature has no limb to sever, you lop off a portion of its body instead.
 In addition, you can speak the sword’s command word to cause the blade to shed bright light in a 10-foot radius and dim light for an additional 10 feet. Speaking the command word again or sheathing the sword puts out the light."
@@ -2557,10 +2719,10 @@ In addition, you can speak the sword’s command word to cause the blade to shed
   :kind :shortsword
   :category :martial
   :id :shortsword-of-sharpness}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "Hit points lost to this weapon’s damage can be regained only through a short or long rest, rather than by regeneration, magic, or any other means.
 Once per turn, when you hit a creature with an attack using this magic weapon, you can wound the target. At the start of each of the wounded creature’s turns, it takes 1d4 necrotic damage for each time you’ve wounded it, and it can then make a DC 15 Constitution saving throw, ending the effect of all such wounds on itself on a success. Alternatively, the wounded creature, or a creature within 5 feet of it, can use an action to make a DC 15 Wisdom (Medicine) check, ending the effect of such wounds on it on a success."
   :type :weapon
@@ -2585,10 +2747,10 @@ Once per turn, when you hit a creature with an attack using this magic weapon, y
   :kind :shortsword
   :category :martial
   :id :shortsword-of-wounding}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "When you roll a 20 on your attack roll with this magic weapon, your critical hit deals an extra 2d6 damage of the weapon’s type."
   :type :weapon}
  {:name "Vicious Club"
@@ -2739,10 +2901,10 @@ Once per turn, when you hit a creature with an attack using this magic weapon, y
   :kind :net
   :category :martial
   :id :vicious-net}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You gain a +3 bonus to attack and damage rolls made with this magic weapon. In addition, the weapon ignores resistance to slashing damage.
 When you attack a creature that has at least one head with this weapon and roll a 20 on the attack roll, you cut off one of the creature’s heads. The creature dies if it can’t survive without the lost head. A creature is immune to this effect if it is immune to slashing damage, doesn’t have or need a head, has legendary actions, or the GM decides that the creature is too big for its head to be cut off with this weapon. Such a creature instead takes an extra 6d8 slashing damage from the hit."
   :type :weapon
@@ -2767,10 +2929,10 @@ When you attack a creature that has at least one head with this weapon and roll 
   :category :martial
   :id :vorpal-shortsword
   :+ 3}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this magic weapon. The bonus is determined by the weapon’s rarity."
   :type :weapon}
  {:name "Club +1"
@@ -2958,10 +3120,10 @@ When you attack a creature that has at least one head with this weapon and roll 
   :category :martial
   :id :net+1
   :+ 1}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this magic weapon. The bonus is determined by the weapon’s rarity."
   :type :weapon}
  {:name "Club +2"
@@ -3149,10 +3311,10 @@ When you attack a creature that has at least one head with this weapon and roll 
   :category :martial
   :id :net+2
   :+ 2}
-]
+)
 
 
-[:!declare-items
+(declare-items
  {:desc "You have a bonus to attack and damage rolls made with this magic weapon. The bonus is determined by the weapon’s rarity."
   :type :weapon}
  {:name "Club +3"
@@ -3340,4 +3502,4 @@ When you attack a creature that has at least one head with this weapon and roll 
   :category :martial
   :id :net+3
   :+ 3}
-]
+)

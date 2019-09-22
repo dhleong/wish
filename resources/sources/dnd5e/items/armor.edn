@@ -1,5 +1,5 @@
 
-[:!declare-items
+(declare-items
 
  {:type :armor}
 
@@ -80,4 +80,5 @@
   :name "Shield"
   :kind :shield
   :cost [10 :g]
-  :weight 6}]
+  :weight 6})
+

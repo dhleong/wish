@@ -1,74 +1,55 @@
-[:!declare-race
- {:id :tiefling
-  :name "Tiefling"
-  :attrs
-  {:5e/ability-score-increase
-   {:int 1
-    :cha 2}
-   :5e/size :medium
-   :5e/speed 30
-
-   :5e/spellcaster
-   {:tiefling
-    {:slots :none
-     :ability :cha
-     :extra-spells :tiefling/extra-spells}}}
-
-  :features
-  [:background
-   :lang/common
-   :lang/infernal
-   :darkvision
-
-   :proficiency/intimidation
-
-   {:id :tiefling/hellish-resistance
-    :name "Hellish Resistance"
-    :desc "You have resistance to fire damage"
-    :! [[:!provide-attr
-         [:resistances :tiefling/hellish-resistance]
-         {:desc "You have resistance against fire damage"}]]}
-
-   {:id :tiefling/infernal-legacy
-    :name "Infernal Legacy"
-    :desc "You know the _thaumaturgy_ cantrip. When you reach 3rd level, you can cast the _hellish rebuke_ spell as a 2nd-level spell once with this trait and regain the ability to do so when you finish a long rest. When you reach 5th level, you can cast the _darkness_ spell once with this trait and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for these spells."
-
-    ; defer installation of the thamaturgy spell to ensure it's actually
-    ; available, since :! execution is never deferred right now:
-    :&levels {1 {:+! [[:!add-to-list
-                       :tiefling/extra-spells
-                       :spell/thaumaturgy]]}
-
-              3 {:+! [[:!add-limited-use
-                       {:id :tiefling/infernal-legacy#rebuke-uses
-                        :name "Tiefling: Hellish Rebuke"
-                        :uses 1
-                        :restore-trigger :long-rest}]
-
-                      [:!provide-attr
-                       [:spells :tiefling :spell/hellish-rebuke]
-                       {:spell-level 2
-                        :upcast? false
-                        :consumes :tiefling/infernal-legacy#rebuke-uses}]
-
-                      [:!add-to-list
-                       :tiefling/extra-spells
-                       :spell/hellish-rebuke]]}
-
-              5 {:+! [[:!add-limited-use
-                       {:id :tiefling/infernal-legacy#darkness-uses
-                        :name "Tiefling: Darkness"
-                        :uses 1
-                        :restore-trigger :long-rest}]
-
-                      [:!provide-attr
-                       [:spells :tiefling :spell/darkness]
-                       {:upcast? false
-                        :consumes :tiefling/infernal-legacy#darkness-uses}]
-
-                      [:!add-to-list
-                       :tiefling/extra-spells
-                       :spell/darkness]]}}}] }]
-
-
-
+(declare-race
+  {:id :tiefling,
+   :name "Tiefling",
+   :attrs
+   {:5e/ability-score-increase {:int 1, :cha 2},
+    :5e/size :medium,
+    :5e/speed 30,
+    :5e/spellcaster
+    {:tiefling {:slots :none, :ability :cha, :extra-spells :tiefling/extra-spells}}},
+   :!
+   (on-state
+     (provide-features
+       :background
+       :lang/common
+       :lang/infernal
+       :darkvision
+       :proficiency/intimidation
+       {:id :tiefling/hellish-resistance,
+        :name "Hellish Resistance",
+        :desc "You have resistance to fire damage",
+        :!
+        (on-state
+          (provide-attr
+            [:resistances :tiefling/hellish-resistance]
+            {:desc "You have resistance against fire damage"}))}
+       {:id :tiefling/infernal-legacy,
+        :name "Infernal Legacy",
+        :desc
+        "You know the _thaumaturgy_ cantrip. When you reach 3rd level, you can cast the _hellish rebuke_ spell as a 2nd-level spell once with this trait and regain the ability to do so when you finish a long rest. When you reach 5th level, you can cast the _darkness_ spell once with this trait and regain the ability to do so when you finish a long rest. Charisma is your spellcasting ability for these spells.",
+        :levels
+        {1 {:! (on-state (add-to-list :tiefling/extra-spells :spell/thaumaturgy))},
+         3
+         {:!
+          (on-state
+            (add-limited-use
+              {:id :tiefling/infernal-legacy#rebuke-uses,
+               :name "Tiefling: Hellish Rebuke",
+               :uses 1,
+               :restore-trigger :long-rest})
+            (provide-attr
+              [:spells :tiefling :spell/hellish-rebuke]
+              {:spell-level 2, :upcast? false, :consumes :tiefling/infernal-legacy#rebuke-uses})
+            (add-to-list :tiefling/extra-spells :spell/hellish-rebuke))},
+         5
+         {:!
+          (on-state
+            (add-limited-use
+              {:id :tiefling/infernal-legacy#darkness-uses,
+               :name "Tiefling: Darkness",
+               :uses 1,
+               :restore-trigger :long-rest})
+            (provide-attr
+              [:spells :tiefling :spell/darkness]
+              {:upcast? false, :consumes :tiefling/infernal-legacy#darkness-uses})
+            (add-to-list :tiefling/extra-spells :spell/darkness))}}}))})

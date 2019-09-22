@@ -3,7 +3,7 @@
 ;; Basic, generic adventuring gear from the srd
 ;;
 
-[:!declare-items
+(declare-items
 
  {:type :other}
 
@@ -275,7 +275,7 @@
  {:id :mirror-steel
   :name "Mirror, steel"
   :cost [5 :g]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :oil
   :name "Oil"
@@ -306,7 +306,7 @@
  {:id :piton
   :name "Piton"
   :cost [5 :c]
-  :weight 1/4}
+  :weight 0.25}
 
  {:id :poison-basic
   :name "Poison, basic"
@@ -326,7 +326,7 @@
  {:id :potion-of-healing
   :name "Potion of healing"
   :cost [50 :g]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :pouch
   :name "Pouch"
@@ -379,7 +379,7 @@
  {:id :sack
   :name "Sack"
   :cost [1 :c]
-  :weight 1/2}
+  :weight 0.5}
 
  {:id :scale-merchants
   :name "Scale, merchant’s"
@@ -459,13 +459,13 @@
   :name "Whetstone"
   :cost [1 :c]
   :weight 1}
- ]
+ )
 
 ;;
 ;; Focuses
 ;;
 
-[:!declare-items
+(declare-items
 
  {:type :gear
   :kind :arcane-focus}
@@ -489,42 +489,43 @@
  {:id :wand
   :name "Wand"
   :cost [10 :g]
-  :weight 1}]
+  :weight 1})
 
-[:!declare-items
+(declare-items
 
- {:type :gear
-  :kind :druidic-focus}
+  {:type :gear
+   :kind :druidic-focus}
 
- {:id :sprig-of-mistletoe
-  :name "Sprig of mistletoe"
-  :cost [1 :g]}
- {:id :totem
-  :name "Totem"
-  :cost [1 :g]}
- {:id :wooden-staff
-  :name "Wooden staff"
-  :cost [5 :g]
-  :weight 4}
- {:id :yew-wand
-  :name "Yew wand"
-  :cost [10 :g]
-  :weight 1}]
+  {:id :sprig-of-mistletoe
+   :name "Sprig of mistletoe"
+   :cost [1 :g]}
+  {:id :totem
+   :name "Totem"
+   :cost [1 :g]}
+  {:id :wooden-staff
+   :name "Wooden staff"
+   :cost [5 :g]
+   :weight 4}
+  {:id :yew-wand
+   :name "Yew wand"
+   :cost [10 :g]
+   :weight 1})
 
-[:!declare-items
+(declare-items
 
- {:type :gear
-  :kind :holy-symbol}
+  {:type :gear
+   :kind :holy-symbol}
 
- {:id :amulet
-  :name "Amulet"
-  :cost [5 :g]
-  :weight 1}
- {:id :emblem
-  :name "Emblem"
-  :cost [5 :g]}
- {:id :reliquary
-  :name "Reliquary"
-  :cost [5 :g]
-  :weight 2}]
+  {:id :amulet
+   :name "Amulet"
+   :cost [5 :g]
+   :weight 1}
+  {:id :emblem
+   :name "Emblem"
+   :cost [5 :g]}
+  {:id :reliquary
+   :name "Reliquary"
+   :cost [5 :g]
+   :weight 2})
+
 

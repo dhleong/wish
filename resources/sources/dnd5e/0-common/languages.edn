@@ -1,68 +1,32 @@
-[:!provide-feature
- {:id :language
-  :name "Language"
-  :values :all-languages}]
 
-[:!add-to-list
+(declare-list
 
- {:id :all-languages
-  :type :feature}
+  {:id :all-languages
+   :type :feature}
 
- {:id :lang/common
-  :name "Common"
-  :availability-attr :lang/common}
+  (for [info [["Common" :lang/common]
+              ["Aarakocra" :lang/aarakocra]
+              ["Abyssal" :lang/abyssal]
+              ["Aquan" :lang/aquan]
+              ["Auran" :lang/auran]
+              ["Celestial" :lang/celestial]
+              ["Deep Speech" :lang/deep-speech]
+              ["Draconic" :lang/draconic]
+              ["Dwarvish" :lang/dwarvish]
+              ["Elvish" :lang/elvish]
+              ["Giant" :lang/giant]
+              ["Gnomish" :lang/gnomish]
+              ["Goblin" :lang/goblin]
+              ["Halfling" :lang/halfling]
+              ["Infernal" :lang/infernal]
+              ["Orc" :lang/orc]
+              ["Primordial" :lang/primordial]
+              ["Sylvan" :lang/sylvan]
+              ["Undercommon" :lang/undercommon]]]
+    (let [label (info 0)
+          kw (info 1)]
+      {:id kw
+       :name label
+       :desc (str "You can speak, read, and write " label ".")
+       :availability-attr kw})))
 
- {:id :lang/aarakocra
-  :name "Aarakocra"
-  :availability-attr :lang/aarakocra}
- {:id :lang/abyssal
-  :name "Abyssal"
-  :availability-attr :lang/abyssal}
- {:id :lang/aquan
-  :name "Aquan"
-  :availability-attr :lang/aquan}
- {:id :lang/auran
-  :name "Auran"
-  :availability-attr :lang/auran}
- {:id :lang/celestial
-  :name "Celestial"
-  :availability-attr :lang/celestial}
- {:id :lang/deep-speech
-  :name "Deep Speech"
-  :availability-attr :lang/deep-speech}
- {:id :lang/draconic
-  :name "Draconic"
-  :availability-attr :lang/draconic}
- {:id :lang/dwarvish
-  :name "Dwarvish"
-  :availability-attr :lang/dwarvish}
- {:id :lang/elvish
-  :name "Elvish"
-  :availability-attr :lang/elvish}
- {:id :lang/giant
-  :name "Giant"
-  :availability-attr :lang/giant}
- {:id :lang/gnomish
-  :name "Gnomish"
-  :availability-attr :lang/gnomish}
- {:id :lang/goblin
-  :name "Goblin"
-  :availability-attr :lang/goblin}
- {:id :lang/halfling
-  :name "Halfling"
-  :availability-attr :lang/halfling}
- {:id :lang/infernal
-  :name "Infernal"
-  :availability-attr :lang/infernal}
- {:id :lang/orc
-  :name "Orc"
-  :availability-attr :lang/orc}
- {:id :lang/primordial
-  :name "Primordial"
-  :availability-attr :lang/primordial}
- {:id :lang/sylvan
-  :name "Sylvan"
-  :availability-attr :lang/sylvan}
- {:id :lang/undercommon
-  :name "Undercommon"
-  :availability-attr :lang/undercommon}]

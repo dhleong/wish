@@ -1,4 +1,4 @@
-[:!declare-items
+(declare-items
  {:type :weapon
   :category :simple}
 
@@ -31,10 +31,9 @@
   :name "Sickle"}
  {:id :spear
   :kind :spear
-  :name "Spear"}
- ]
+  :name "Spear"})
 
-[:!declare-items
+(declare-items
 
  {:type :weapon
   :category :martial}
@@ -93,5 +92,5 @@
   :name "Warhammer"}
  {:id :whip
   :kind :whip
-  :name "Whip"}
- ]
+  :name "Whip"})
+
