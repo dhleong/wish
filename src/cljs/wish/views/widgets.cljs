@@ -11,6 +11,19 @@
             [wish.util.formatted :refer [->hiccup]]
             [wish.util.nav :as nav]))
 
+(defn- recursive-stack [e]
+  (if-let [info (ex-data e)]
+    [:<>
+     [:pre (ex-message e)]
+     [:pre info]
+     (when-let [cause (ex-cause e)]
+       [:<>
+        [:pre [:b "Caused by:"]]
+        [recursive-stack cause]])]
+
+    [:pre (or (when e (.-stack e))
+              (str e))]))
+
 (defn error-box [e]
   (let [error (or (:error e)
                   (:error (ex-data e)))]
@@ -22,9 +35,8 @@
 
         ; fallback
         [:div "Info for nerds: "
-         ; NOTE: ex-message returns nil for non-errors
-         [:p.error-info (or (ex-message e)
-                            (str e))]])))
+         [:p.error-info
+          [recursive-stack e]]])))
 
 (defn formatted-text
   [container-spec text]

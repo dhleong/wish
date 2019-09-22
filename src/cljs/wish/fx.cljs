@@ -62,7 +62,8 @@
 
 ; ======= sheet load requests ==============================
 
-(reg-fx :load-sheet! load-sheet!)
+(reg-fx :load-sheet!
+        (partial load-sheet! sheets/compile-sheet))
 (reg-fx :load-sheet-source!
         (fn [[sheet sources]]
           (sources/load! sheet sources)))

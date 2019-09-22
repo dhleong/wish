@@ -1,4 +1,4 @@
-[:!declare-items
+(declare-items
 
  {:type :weapon
   :ranged? true
@@ -16,10 +16,9 @@
  {:id :sling
   :kind :sling
   :name "Sling"}
+ )
 
- ]
-
-[:!declare-items
+(declare-items
 
  {:type :weapon
   :category :martial
@@ -43,4 +42,5 @@
   :name "Net"
   :special? true
   :range [5 15]}
- ]
+ )
+

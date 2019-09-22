@@ -1,12 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
-  (:require [clojure.string :as str]
-            [wish.sheets.dnd5e.data :as data]
-            [wish.sources.core :as src]
-            [wish.sources.compiler.limited-use :refer [compile-limited-use]]
-            [wish.sources.compiler.fun :refer [->callable]]
-            [wish.util :refer [update-each-value]]))
+  (:require [clojure.string :as str]))
 
 ; ======= Shared utils =====================================
 
@@ -44,18 +39,6 @@
       (max min-val new-val))))
 
 
-; ======= feature-related =================================
-
-(defn find-feature
-  "Given a data source and a seq of entity lists,
-   find the given feature by id"
-  [data-source entity-lists feature-id]
-  (or (src/find-feature data-source feature-id)
-      (some (fn [source]
-              (get-in source [:features feature-id]))
-            (flatten entity-lists))))
-
-
 ; ======= item-related =====================================
 
 (def ^:private equippable-types
@@ -90,15 +73,15 @@
     (fn [m level]
       (let [id (->slot-kw slots-type level)]
         (assoc m id
-               (compile-limited-use
-                 {:id id
-                  :implicit? true
-                  :restore-trigger restore-trigger}))))
+               {:id id
+                :implicit? true
+                :restore-amount (fn [{:keys [used]}]
+                                  used)
+                :restore-trigger restore-trigger})))
     {}
     (range 1 10)))
 
-(defn- install-spell-uses
-  [entity]
+(defn- install-spell-uses [entity]
   (let [spellcaster (-> entity :attrs :5e/spellcaster)
         slots-type (:slots-type spellcaster :standard)
         restore-trigger (:restore-trigger spellcaster :long-rest)
@@ -115,58 +98,9 @@
       ; no spellcasting
       :else entity)))
 
-;; NOTE some classes provide this as a feature, so we can't
-;; do this as part of the post-compile step
-(def compile-ac-source (memoize ->callable))
-(defn- compile-ac-sources
-  [entity]
-  (cond
-    (get-in entity [:attrs :5e/ac])
-    (update-in entity [:attrs :5e/ac]
-               update-each-value
-               compile-ac-source)
-
-    ; armor AC, etc. based on a builtin type
-    (= :armor (:type entity))
-    (data/inflate-armor entity)
-
-    ; nope
-    :else entity))
-
-(def compile-speed-buff (memoize ->callable))
-(defn- compile-speed-buffs
-  [entity]
-  (if (get-in entity [:attrs :buffs :speed])
-    (update-in entity [:attrs :buffs :speed]
-               (fn [buffs-map]
-                 (reduce-kv
-                   (fn [m k v]
-                     (if (number? v)
-                       m
-
-                       ; should look like (fn [level])
-                       (update m k compile-speed-buff)))
-                   buffs-map
-                   buffs-map)))
-
-    ; nope
-    entity))
-
-(defn- compile-weapon-dice
-  [entity]
-  (if (= :weapon (:type entity))
-    (data/inflate-weapon entity)
-
-    ; not a weapon
-    entity))
-
-(defn post-process
-  [entity _data-source _entity-kind]
+(defn post-process [entity]
   (-> entity
-      install-spell-uses
-      compile-ac-sources
-      compile-speed-buffs
-      compile-weapon-dice))
+      install-spell-uses))
 
 
 ; ======= post-compile ====================================
@@ -202,11 +136,7 @@
 
     (compile-multiclass-and reqs)))
 
-(defn post-compile-class [c]
+(defn prepare-class-for-builder [c]
   (-> c
       (update-in [:attrs :5e/multiclass-reqs]
                  compile-multiclass-reqs)))
-
-(defn post-compile [data]
-  (-> data
-      (update :classes update-each-value post-compile-class)))

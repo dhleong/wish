@@ -1,19 +1,22 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheets"}
   wish.sheets
-  (:require [wish.sheets.dnd5e :as dnd5e]
+  (:require [wish.sheets.compiler :as compiler]
+            [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
+            [wish.sheets.dnd5e.engine :as dnd5e-engine]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
-            [wish.sheets.dnd5e.util :as dnd5e-util]
-            [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
+            [wish.util.nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
-            [wish.views.widgets :as widgets :refer [link]]))
+            [wish.views.widgets :as widgets :refer [link link>evt]]))
 
 ; ======= const data =======================================
+
+(def compiler-version 2)
 
 ; TODO we could use code splitting here to avoid loading
 ; sheet templates that we don't care about
@@ -25,45 +28,34 @@
            :v 1
            :default-sources [:wish/wdnd5e-srd]
 
-           :keymaps dnd5e-key/maps
+           :engine (delay
+                     (dnd5e-engine/create-engine))
 
-           ; extra 5e-specific compile step, run
-           ; on the whole, compiled data source.
-           :post-compile dnd5e-util/post-compile
-
-           ; Function for post-processing entities,
-           ;  IE: applying :attr side-effects.
-           ; post-process functions should accept
-           ;  [entity, data-source, entity-kind]
-           :post-process dnd5e-util/post-process
-           }})
+           :keymaps dnd5e-key/maps}})
 
 
 ; ======= Public interface =================================
+
+(defn get-engine
+  [sheet-kind]
+  (deref (get-in sheets [sheet-kind :engine])))
 
 (defn get-keymaps
   [sheet-kind]
   (get-in sheets [sheet-kind :keymaps]))
 
-(defn post-process
-  "Apply sheet-kind-specific post-processing to an entity
-   (happens each time a subscription changes)"
-  [entity sheet-kind data-source entity-kind]
-  (if-let [processor (get-in sheets [sheet-kind :post-process])]
-    (processor entity data-source entity-kind)
+(defn compile-sheet [sheet]
+  (let [kind (:kind sheet)
+        kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
 
-    ; no processor for this sheet; pass through
-    entity))
-
-(defn post-compile
-  "Apply sheet-kind-specific post-processing to a data source map
-   (happens once, when assembling the DataSource"
-  [sheet-kind data]
-  (if-let [processor (get-in sheets [sheet-kind :post-compile])]
-    (processor data)
-
-    ; no processor for this sheet; pass through
-    data))
+    (compiler/compile-sheet
+      kind-meta
+      (if-let [compiler (:sheet-compiler kind-meta)]
+        (compiler sheet)
+        sheet))))
 
 (defn stub-campaign
   "Create the initial data for a new campaign"
@@ -170,6 +162,35 @@
 (defn sheet-unknown [kind]
   [:div (str "`" kind "`") " is not a type of sheet we know about"])
 
+(defn- safe-sheet-content [sheet-id content]
+  (try
+    ; eager evaluate class, race, etc. to ensure that
+    ; we can inflate everything without error
+    (<sub [:all-attrs])
+
+    ; the actual content view, wrapped in an error boundary; any
+    ; errors it catches *should* be rendering-related, and not
+    ; something we can do anything baout here
+    [error-boundary content]
+
+    (catch :default err
+      [:div.sheet.error
+       [:p "Error inflating sheet"]
+
+       [:div
+        [link {:href (sheet-url sheet-id :builder :home)}
+         "Adjust sheet sources"]]
+
+       [:div.nav-link
+        [link>evt [:load-sheet! sheet-id]
+         "Reload sheet"]]
+
+       [:div
+        [link {:href "/sheets"}
+         "Pick another sheet"]]
+
+       [widgets/error-box err]])))
+
 (defn- ensuring-loaded
   [sheet-id content-fn]
   (let [sheet (<sub [:provided-sheet sheet-id])]
@@ -213,4 +234,6 @@
   (ensuring-loaded
     sheet-id
     (fn [{view :fn}]
-      [view])))
+      [safe-sheet-content
+       sheet-id
+       [view]])))

@@ -1,65 +1,18 @@
-[:!provide-feature
-
- {:id :hit-dice/d6
-  :name "Hit Dice: D6"
-  :implicit? true
-  :! [[:!provide-attr
-       :5e/hit-dice 6]
-      [:!add-limited-use
-       {:id :hit-dice/d6#uses
-        :name "D6"
-        :implicit? true
-        :restore-trigger :long-rest
-        :restore-amount (fn [trigger used level]
-                          (min used
-                               (ceil (/ level 2))))
-        :uses (fn [level]
-                level)}]]}
-
- {:id :hit-dice/d8
-  :name "Hit Dice: D8"
-  :implicit? true
-  :! [[:!provide-attr
-       :5e/hit-dice 8]
-      [:!add-limited-use
-       {:id :hit-dice/d8#uses
-        :name "D8"
-        :implicit? true
-        :restore-trigger :long-rest
-        :restore-amount (fn [trigger used level]
-                          (min used
-                               (ceil (/ level 2))))
-        :uses (fn [level]
-                level)}]]}
-
- {:id :hit-dice/d10
-  :name "Hit Dice: D10"
-  :implicit? true
-  :! [[:!provide-attr
-       :5e/hit-dice 10]
-      [:!add-limited-use
-       {:id :hit-dice/d10#uses
-        :name "D10"
-        :implicit? true
-        :restore-trigger :long-rest
-        :restore-amount (fn [trigger used level]
-                          (min used
-                               (ceil (/ level 2))))
-        :uses (fn [level]
-                level)}]]}
-
- {:id :hit-dice/d12
-  :name "Hit Dice: D12"
-  :implicit? true
-  :! [[:!provide-attr
-       :5e/hit-dice 12]
-      [:!add-limited-use
-       {:id :hit-dice/d12#uses
-        :name "D12"
-        :implicit? true
-        :restore-trigger :long-rest
-        :restore-amount (fn [trigger used level]
-                          (min used
-                               (ceil (/ level 2))))
-        :uses (fn [level]
-                level)}]]}]
+(declare-features
+  (for [die [6 8 10 12]]
+    {:id (keyword "hit-dice" (str "d" die))
+     :name (str "Hit Dice: D" die)
+     :implicit? true
+     :! (on-state
+          (provide-attr
+            :5e/hit-dice die)
+          (add-limited-use
+            {:id (keyword "hit-dice" (str "d" die "#uses"))
+             :name (str "D" die)
+             :implicit? true
+             :restore-trigger :long-rest
+             :restore-amount (fn [#{trigger used level}]
+                               (min used
+                                    (ceil (/ level 2))))
+             :uses (fn [#{level}]
+                     level)}))}))

@@ -1,32 +1,34 @@
-[:!declare-race
- {:id :half-elf
-  :name "Half-Elf"
-  :attrs
-  {:5e/ability-score-increase
-   {:cha 2}
-   :5e/size :medium
-   :5e/speed 30}
+(declare-race
+  {:id :half-elf
+   :name "Half-Elf"
+   :attrs
+   {:5e/ability-score-increase
+    {:cha 2}
+    :5e/size :medium
+    :5e/speed 30}
 
-  :features
-  [:background
-   :lang/common
-   :lang/elvish
-   :darkvision
-   :fey-ancestry
+   :! (on-state
+        (provide-features
+          :background
+          :lang/common
+          :lang/elvish
+          :darkvision
+          :fey-ancestry
 
-   :ability-improvement
+          :ability-improvement
 
-   {:id :half-elf/skill-versatility
-    :name "Skill Versatility"
-    :desc "You gain proficiency in two skills of your choice"
-    :max-options 2
-    :values [:all-skill-proficiencies]}
+          {:id :half-elf/skill-versatility
+           :name "Skill Versatility"
+           :desc "You gain proficiency in two skills of your choice"
+           :max-options 2
+           :values (items-from-list :all-skill-proficiencies)}
 
-   {:id :half-elf/extra-language
-    :name "Extra Language"
-    :desc "You speak, read, and write one extra language of your choice"
-    :max-options 1
-    :values [:all-languages]}
+          {:id :half-elf/extra-language
+           :name "Extra Language"
+           :desc "You speak, read, and write one extra language of your choice"
+           :max-options 1
+           :values (items-from-list :all-languages)}
 
-   ]}]
+          ))})
+
 

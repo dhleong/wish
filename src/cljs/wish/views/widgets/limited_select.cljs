@@ -20,16 +20,24 @@
     :else
     (conj old-set value)))
 
+(defn accepted-count? [n {:keys [features]}]
+  (<= (count features) n))
+
 (defn toggle-option
   "Given a set of IDs, some extra info, and an option ID,
    return the value vector representing the result of attempting
    to toggle the given option-id."
   [old-set accepted? extra-info single-select? option-id]
   (let [new-v (->> (toggle-option-set old-set single-select? option-id)
-                   (into []))]
-    (if (accepted? (assoc
-                     extra-info
-                     :features new-v))
+                   (into []))
+        accepted?-fn (cond
+                       (number? accepted?) (partial accepted-count? accepted?)
+                       (fn? accepted?) accepted?
+                       :else (throw (js/Error. (str "Invalid accepted? "
+                                                    accepted?))))]
+    (if (accepted?-fn (assoc
+                        extra-info
+                        :features new-v))
       new-v
 
       ; no change
@@ -53,7 +61,8 @@
         selected (set (doc-get path))
         total-items (count options)
         scrollable? (>= total-items 15)
-        single-select? (= 1 (-> accepted? meta :const))
+        single-select? (= 1 (when (number? accepted?)
+                              accepted?))
 
         do-toggle-option (fn [option-id]
                            (doc-save!

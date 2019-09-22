@@ -1,5 +1,6 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
+            [wish-engine.core :as engine]
             [wish.sheets.dnd5e.subs :as subs :refer [knowable-spell-counts-for
                                                      level->proficiency-bonus
                                                      available-classes
@@ -7,14 +8,15 @@
                                                      spell-slots
                                                      calculate-weapon
                                                      unpack-eq-choices
-                                                     usable-slots-for]]
-            [wish.sources.compiler :refer [compile-directives]]
-            [wish.sources.core :as src :refer [->DataSource]]))
+                                                     usable-slots-for]]))
 
 (defn- ->ds
   [& directives]
-  (->DataSource :ds
-                (compile-directives directives)))
+  (let [eng (engine/create-engine)
+        state (engine/create-state eng)]
+    (doseq [d directives]
+      (engine/load-source eng state d))
+    @state))
 
 (def ^:private warlock
   {:attrs
@@ -259,7 +261,7 @@
                           [:base-dice :alt-dice :to-hit]))))
 
     (testing "Computed bonus from effect"
-      (let [buffs {:melee {:computed '(fn [effects modifiers]
+      (let [buffs {:melee {:computed (fn [{:keys [effects modifiers]}]
                                         (when (:magic effects)
                                           (:dex modifiers)))}}
             weapon {:dice "1d8"}]
@@ -286,11 +288,11 @@
                        :kind :tool}
 
         source (->ds
-                 [:!declare-items
-                  {}
-                  dagger
-                  lute
-                  thieves-tools])
+                 `(declare-items
+                    {}
+                    ~dagger
+                    ~lute
+                    ~thieves-tools))
 
         packs {:explorers-pack {:backpack 1}}]
 

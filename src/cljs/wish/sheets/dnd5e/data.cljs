@@ -405,6 +405,17 @@ Finishing a long rest reduces a creature's exhaustion level by 1, provided that 
                  (sort-by :name))))
 
 
+; ======= abilities =======================================
+
+(def labeled-abilities
+  [[:str "STR"]
+   [:dex "DEX"]
+   [:con "CON"]
+   [:int "INT"]
+   [:wis "WIS"]
+   [:cha "CHA"]])
+
+
 ; ======= skills ==========================================
 
 (def skill-id->ability {:acrobatics :dex

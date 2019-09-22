@@ -10,6 +10,7 @@
             [wish.util.nav :refer [sheet-url]]
             [wish.util.scroll :refer [scrolled-amount]]
             [wish.inventory :as inv]
+            [wish.sheets.dnd5e.data :refer [labeled-abilities]]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
@@ -170,14 +171,6 @@
 ;;    [:int "Intelligence"]
 ;;    [:wis "Wisdom"]
 ;;    [:cha "Charisma"]])
-
-(def labeled-abilities
-  [[:str "STR"]
-   [:dex "DEX"]
-   [:con "CON"]
-   [:int "INT"]
-   [:wis "WIS"]
-   [:cha "CHA"]])
 
 (defn abilities-display
   ([abilities] (abilities-display abilities false))
@@ -480,7 +473,7 @@
           [:div.section-label "Spells"]
 
           (for [s spells]
-            ^{:key (:id s)}
+            ^{:key [(::subs/source s) (:id s)]}
             [:div.spell-name.clickable
              {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])}
              (:name s)])])

@@ -1,64 +1,67 @@
-[:!declare-race
- {:id :elf
-  :name "Elf"
-  :attrs
-  {:5e/ability-score-increase
-   {:dex 2}
-   :5e/size :medium
-   :5e/speed 30}
+(declare-race
+  {:id :elf
+   :name "Elf"
+   :attrs
+   {:5e/ability-score-increase
+    {:dex 2}
+    :5e/size :medium
+    :5e/speed 30}
 
-  :features
-  [:background
-   :lang/common
-   :lang/elvish
-   :darkvision
-   :fey-ancestry
+   :! (on-state
+        (provide-features
+          :background
+          :lang/common
+          :lang/elvish
+          :darkvision
+          :fey-ancestry
 
-   {:id :elf/keen-senses
-    :name "Keen Senses"
-    :desc "You have proficiency in the Perception skill."}
-   :proficiency/perception
+          {:id :elf/keen-senses
+           :name "Keen Senses"
+           :desc "You have proficiency in the Perception skill."}
+          :proficiency/perception
 
-   {:id :elf/trance
-    :name "Trance"
-    :desc "Elves don’t need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day. (The Common word for such meditation is “trance.”) While meditating, you can dream after a fashion; such dreams are actually mental exercises that have become reflexive through years of practice. After resting in this way, you gain the same benefit that a human does from 8 hours of sleep."}]}]
+          {:id :elf/trance
+           :name "Trance"
+           :desc "Elves don’t need to sleep. Instead, they meditate deeply, remaining semiconscious, for 4 hours a day. (The Common word for such meditation is “trance.”) While meditating, you can dream after a fashion; such dreams are actually mental exercises that have become reflexive through years of practice. After resting in this way, you gain the same benefit that a human does from 8 hours of sleep."}))})
 
-[:!declare-subrace
+(declare-subrace
 
- :elf
+  :elf
 
- {:id :elf/high-elf
-  :name "High Elf"
-  :&attrs
-  {:5e/&ability-score-increase
-   {:int 1}
-   :5e/spellcaster
-   {:elf
-    {:cantrips [0 1]
-     :slots :none
-     :ability :int
-     :spells :wizard/spells-list
-     :prepared-spells :high-elf/cantrip}}}
+  {:id :elf/high-elf
+   :name "High Elf"
 
-  :+features
-  [{:id :high-elf/cantrip
-    :name "Cantrip"
-    :desc "You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it."}
+   :! (on-state
+        (provide-attr [:5e/ability-score-increase :int] 1)
+        (provide-attr
+          :5e/spellcaster
+          {:elf
+           {:cantrips [0 1]
+            :slots :none
+            :ability :int
+            :spells :wizard/spells-list
+            :prepared-spells :high-elf/cantrip}})
 
-   {:id :high-elf/extra-language
-    :name "Extra Language"
-    :max-options 1
-    :values [:all-languages]}
+        (provide-features
+          {:id :high-elf/cantrip
+           :name "Cantrip"
+           :desc "You know one cantrip of your choice from the wizard spell list. Intelligence is your spellcasting ability for it."}
 
-   {:id :high-elf/elf-weapon-training
-    :name "Elf Weapon Training"
-    :desc "You have proficiency with the longsword, shortsword, shortbow, and longbow."
-    :! [[:!provide-attr [:weapon-kinds :longsword] true]
-        [:!provide-attr [:weapon-kinds :longbow] true]
-        [:!provide-attr [:weapon-kinds :shortsword] true]
-        [:!provide-attr [:weapon-kinds :shortbow] true]
-        [:!provide-attr :proficiency/longsword true]
-        [:!provide-attr :proficiency/longbow true]
-        [:!provide-attr :proficiency/shortsword true]
-        [:!provide-attr :proficiency/shortbow true]
-        ]}]}]
+          {:id :high-elf/extra-language
+           :name "Extra Language"
+           :max-options 1
+           :values (items-from-list :all-languages)}
+
+          {:id :high-elf/elf-weapon-training
+           :name "Elf Weapon Training"
+           :desc "You have proficiency with the longsword, shortsword, shortbow, and longbow."
+           :!(on-state
+               (provide-attr [:weapon-kinds :longsword] true)
+               (provide-attr [:weapon-kinds :longbow] true)
+               (provide-attr [:weapon-kinds :shortsword] true)
+               (provide-attr [:weapon-kinds :shortbow] true)
+               (provide-attr :proficiency/longsword true)
+               (provide-attr :proficiency/longbow true)
+               (provide-attr :proficiency/shortsword true)
+               (provide-attr :proficiency/shortbow true))}))})
+

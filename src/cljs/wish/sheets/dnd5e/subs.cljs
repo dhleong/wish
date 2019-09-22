@@ -4,16 +4,15 @@
   (:require-macros [wish.util.log :as log])
   (:require [clojure.string :as str]
             [re-frame.core :as rf :refer [reg-sub subscribe]]
-            [wish.sources.core :as src :refer [expand-list]]
+            [wish-engine.core :as engine]
             [wish.sources.util :as src-util]
-            [wish.sources.compiler.fun :refer [->callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
                                                      mod->str]]
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
-            [wish.util :refer [<sub invoke-callable ->map]]
+            [wish.util :refer [<sub invoke-callable ->map ->set]]
             [wish.util.string :as wstr]))
 
 ; ======= Constants ========================================
@@ -109,9 +108,24 @@
     coll))
 
 (defn feature-by-id
-  [data-source container feature-id]
-  (or (get-in container [:features feature-id])
-      (src-util/inflate-feature data-source container feature-id)))
+  ([container feature-id]
+   (or (get-in container [:features feature-id])
+       (get-in container [:list-entities feature-id])))
+  ([data-source container feature-id]
+   (or (feature-by-id container feature-id)
+       (feature-by-id data-source feature-id)
+       (src-util/inflate-feature data-source container feature-id))))
+
+(defn feature-in-lists [engine-state entity-lists id]
+  (or (feature-by-id engine-state id)
+      (some (fn [source]
+              (get-in source [:features id]))
+            (flatten entity-lists))))
+
+(defn options-of-list
+  [engine-state list-id options-set]
+  (->> (engine/inflate-list engine-state list-id)
+       (filter (comp (->set options-set) :id))))
 
 ; ======= 5e-specific nav =================================
 
@@ -158,9 +172,10 @@
 
 ; ======= utility subs ====================================
 
-(def ^:private compile-buff (memoize ->callable))
 (defn- compute-buff [entity buff-entry]
-  ((compile-buff buff-entry) entity))
+  (if (fn? buff-entry)
+    (buff-entry entity)
+    buff-entry))
 
 (defn- compute-buffs [entity buffs-map]
   (reduce (fn [total b]
@@ -318,7 +333,12 @@
     (->> entity-lists
          flatten
          (map (comp :buffs :attrs))
-         (apply merge-with +))))
+         (apply merge-with merge)
+         (#(select-keys % (map first data/labeled-abilities)))
+         (reduce-kv (fn [m abi buffs]
+                      (assoc m abi (apply + (vals buffs))))
+                    {})
+         )))
 
 (reg-id-sub
   ::abilities-racial
@@ -450,10 +470,15 @@
          (remove :implicit?)
 
          ; eagerly evaluate :uses (the sheet shouldn't do this)
-         (map #(assoc % :uses
-                      (invoke-callable % :uses
-                                       :modifiers modifiers
-                                       :total-level total-level)))
+         (map (fn [limited-use]
+                (update limited-use
+                        :uses
+                        (fn [value]
+                          (if (ifn? value)
+                            (invoke-callable limited-use :uses
+                                             :modifiers modifiers
+                                             :total-level total-level)
+                            value)))))
 
          ; remove uses that come from un-attuned items that require attunement
          (remove (fn [item]
@@ -651,7 +676,7 @@
 ; returns a collection of features
 (reg-sub
   ::ability-extras
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:races]
   :<- [:classes]
   :<- [::attuned-eq]
@@ -677,12 +702,12 @@
                                 " damage.")}
 
                     ; not static? okay, it could be a feature
-                    (if-let [f (util/find-feature data-source entity-lists id)]
+                    (if-let [f (feature-in-lists data-source entity-lists id)]
                       ; got it!
                       f
 
                       ; okay... effect?
-                      (if-let [e (src/find-effect data-source id)]
+                      (if-let [e (get-in data-source [:effects id])]
                         {:id id
                          :desc [:<>
                                 (:name e) ":"
@@ -769,18 +794,18 @@
 
 (reg-sub
   ::other-proficiencies
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::all-proficiencies]
   (fn [[data-source feature-ids] _]
     (->> feature-ids
          (remove data/skill-feature-ids)
-         (keep (partial src/find-feature data-source))
+         (keep (partial feature-by-id data-source))
          (sort-by :name))))
 
 ; returns a collection of feature ids
 (reg-sub
   ::languages
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:races]
   :<- [:classes]
   :<- [:effects]
@@ -792,7 +817,7 @@
                  (when (and v
                             (= "lang" (namespace k)))
                    k)))
-         (keep (partial src/find-feature data-source))
+         (keep (partial feature-by-id data-source))
          (sort-by :name))))
 
 
@@ -826,14 +851,25 @@
 ; ======= combat ===========================================
 
 (reg-sub
-  ::armor-equipped?
+  ::equipped-sorted
   :<- [:equipped-sorted]
+  (fn [equipped]
+    (map (fn [item]
+           (case (:type item)
+             :armor (data/inflate-armor item)
+             :weapon (data/inflate-weapon item)
+             item))
+         equipped)))
+
+(reg-sub
+  ::armor-equipped?
+  :<- [::equipped-sorted]
   (fn [equipped]
     (some data/armor? equipped)))
 
 (reg-sub
   ::shield-equipped?
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   (fn [equipped]
     (some data/shield? equipped)))
 
@@ -878,7 +914,6 @@
 
        buffs)))
 
-(def ^:private compile-attacks-per (memoize ->callable))
 (reg-sub
   ::attacks-per-action
   :<- [:classes]
@@ -894,13 +929,11 @@
                              v
 
                              ; functional value
-                             ((compile-attacks-per v)
-                               entity)))
+                             (v entity)))
                          values)))
              (apply max))
         1)))
 
-(def ^:private compile-combat-info-value (memoize ->callable))
 (reg-sub
   ::combat-info
   :<- [::attacks-per-action]
@@ -914,8 +947,7 @@
                      (fn [v]
                        (update v :value
                                (fn [value]
-                                 ((compile-combat-info-value value)
-                                  entity))))
+                                 (value entity))))
                      values)))
          (sort-by :name)
 
@@ -926,7 +958,7 @@
 (reg-sub
   ::unarmed-strike
   :<- [:classes]
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
   (fn [[classes data-source modifiers proficiency-bonus]]
@@ -937,7 +969,7 @@
                   (or (-> c :features :unarmed-strike)
                       ; possibly a custom class without a custom :unarmed-strike;
                       ; fall back gracefully to the default
-                      (src/find-feature data-source :unarmed-strike))
+                      (get-in data-source [:features :unarmed-strike]))
                   :wish/context c
                   :wish/context-type :class)))
 
@@ -985,14 +1017,13 @@
 ; all equipped items that are attuned (or that don't need to be attuned)
 (reg-sub
   ::attuned-eq
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   :<- [::attuned-ids]
   (fn [[equipped attuned-set]]
-    (remove
-      (fn [item]
-        (and (:attunes? item)
-             (not (contains? attuned-set (:id item)))))
-      equipped)))
+    (->> equipped
+         (remove (fn [item]
+                   (and (:attunes? item)
+                        (not (contains? attuned-set (:id item)))))))))
 
 (reg-sheet-sub
   ::attuned-ids
@@ -1019,11 +1050,16 @@
 ; as "finesse" weapons
 (reg-sub
   ::finesse-weapon-kinds
+  :<- [:sheet-engine-state]
+  :<- [:meta/options]
   :<- [:classes]
-  (fn [classes]
+  (fn [[engine-state options classes]]
     (->> classes
          ; combine all class-specific lists
-         (mapcat (comp :finesse-weapon-kinds :lists))
+         (mapcat (fn [c]
+                   (when-let [kinds (get-in c [:lists :finesse-weapon-kinds])]
+                     (engine/inflate-list
+                       engine-state c options kinds))))
 
          (map (fn [{:keys [id]}]
                 (if (namespace id)
@@ -1035,11 +1071,8 @@
          set)))
 
 (defn- compute-bonus [effects modifiers buff]
-  (when (or (fn? buff)
-            (and (list? buff)
-                 (= 'fn (first buff))))
-    (let [f (compile-buff buff)]
-      (f {:effects effects :modifiers modifiers}))))
+  (when (fn? buff)
+    (buff {:effects effects :modifiers modifiers})))
 
 (defn calculate-weapon
   [proficient-cats proficient-kinds
@@ -1138,7 +1171,7 @@
 
 (reg-sub
   ::equipped-weapons
-  :<- [:equipped-sorted]
+  :<- [::equipped-sorted]
   :<- [::eq-proficiencies]
   :<- [::proficiency-bonus]
   :<- [:effect-ids-set]
@@ -1185,15 +1218,9 @@
 
 ; ======= combat ==========================================
 
-(def ^:private compile-dice-fn (memoize ->callable))
-
-(defn- maybe-compile-dice [entity]
-  (when entity
-    (update entity :dice compile-dice-fn)))
-
 (reg-sub
   ::actions-for-type
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:classes]
   :<- [:races]
   :<- [::attuned-eq]
@@ -1205,11 +1232,17 @@
            (fn [c]
              (map (fn [[id flags]]
                     (with-meta
-                      (maybe-compile-dice
-                        (or (when (= id (:id c))
-                              ; attuned equipment, probably
-                              c)
-                            (feature-by-id data-source c id)))
+                      (let [action (or (when (= id (:id c))
+                                         ; attuned equipment, probably
+                                         c)
+                                       (feature-by-id data-source c id))]
+
+                        (-> action
+                            (update :desc (fn [d]
+                                            (if (fn? d)
+                                              (d c)
+                                              d)))))
+
                       (cond
                         (map? flags) flags
                         (keyword? flags) {flags true}
@@ -1226,10 +1259,9 @@
       #(:combat (meta %))
       actions)))
 
-(def ^:private compile-save-fn (memoize ->callable))
 (reg-sub
   ::other-attacks
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   :<- [::ability-modifiers]
   :<- [::proficiency-bonus]
@@ -1288,10 +1320,8 @@
                       info (assoc source-entity
                                   :modifiers modifiers
                                   :prof-bonus prof-bonus)
-                      dice-fn (compile-dice-fn
-                                (:dice attack))
-                      save-fn (compile-save-fn
-                                (:save-dc attack))]
+                      dice-fn (:dice attack)
+                      save-fn (:save-dc attack)]
                   (-> attack
                       (assoc :dmg (dice-fn info))
                       (assoc :save-dc (save-fn info)))))))))
@@ -1360,7 +1390,7 @@
 ; ways of acquiring spells (IE: in spellbook, provided by class
 ; features, etc)
 (defn inflate-prepared-spells-for-caster
-  [total-level data-source modifiers
+  [total-level engine-state modifiers
    attack-bonuses spell-buffs options
    caster-attrs]
   (let [attrs caster-attrs
@@ -1401,35 +1431,26 @@
         ; by features and levels, we can't find them
         ; in the data source.
         ; ... unless it's a collection of spell ids
-        extra-spells (or (get-in c [:lists extra-spells-list])
-                         (when (coll? extra-spells-list)
-                           (map (partial
-                                  src/find-list-entity
-                                  data-source)
-                                extra-spells-list)))
+        extra-spells (when extra-spells-list
+                       (engine/inflate-list
+                         engine-state c options extra-spells-list))
 
         ; extra spells are always prepared
-        extra-spells (->> extra-spells
-                          (map #(assoc % :always-prepared? true)))
+        extra-spells (some->> extra-spells
+                              (map #(assoc % :always-prepared? true)))
 
         selected-spell-ids (get options spells-option [])
 
         ; only selected spells from the main list (including those
         ; added by class features, eg warlock)
-        selected-spells (concat
-                          (expand-list data-source spells-list
-                                       selected-spell-ids)
-
-                          ; for class features: (if selected)
-                          (->>
-                            (get-in attrs [:wish/container :lists spells-list])
-                            (filter (comp selected-spell-ids :id))))
+        selected-spells (engine/inflate-list
+                          engine-state c options selected-spell-ids)
 
         ; for :acquires? spellcasters, their acquired
         ; cantrips are always prepared
         selected-spells (if acquires?
-                          (->> (expand-list data-source spells-list
-                                            (get options spells-list []))
+                          (->> (engine/inflate-list
+                                 engine-state c options (get options spells-list []))
                                (filter #(= 0 (:spell-level %)))
                                (map #(assoc % :always-prepared? true))
 
@@ -1465,14 +1486,14 @@
 
 (reg-sub
   ::prepared-spells-by-class
+  :<- [:sheet-engine-state]
   :<- [::spellcaster-blocks]
   :<- [:total-level]
-  :<- [:sheet-source]
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
   :<- [::spell-buffs]
   :<- [:meta/options]
-  (fn [[spellcasters total-level data-source modifiers
+  (fn [[engine-state spellcasters total-level modifiers
         attack-bonuses spell-buffs options]]
     (some->> spellcasters
              seq
@@ -1480,7 +1501,7 @@
                (fn [m {caster-id :id :as attrs}]
                  (assoc m caster-id
                         (inflate-prepared-spells-for-caster
-                          total-level data-source modifiers
+                          total-level engine-state modifiers
                           attack-bonuses spell-buffs options
                           attrs)))
                {}))))
@@ -1489,12 +1510,11 @@
 ; spells in the given spells-list
 (reg-sub
   ::acquired-spells-count
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [:meta/options]
   (fn [[data-source options] [_ spells-list]]
     (let [selected-ids (get options spells-list)]
-      (->> (expand-list data-source spells-list
-                        selected-ids)
+      (->> (engine/inflate-list data-source selected-ids)
            (filter #(not= 0 (:spell-level %)))
            count))))
 
@@ -1544,21 +1564,19 @@
            {:cantrips []
             :spells []}))))
 
-(def ^:private compile-spellcaster-values-filter (memoize ->callable))
-
 ; list of all spells on a given spell list for the given spellcaster block,
 ; with `:prepared? bool` inserted as appropriate
 (reg-sub
   ::preparable-spell-list
 
   (fn [[_ spellcaster _list-id]]
-    [(subscribe [:sheet-source])
+    [(subscribe [:sheet-engine-state])
      (subscribe [:meta/options])
      (subscribe [::prepared-spells (:id spellcaster)])
      (subscribe [::highest-spell-level-for-spellcaster-id (:id spellcaster)])
      (subscribe [:5e/spells-filter])])
 
-  (fn [[data-source options prepared-spells highest-spell-level
+  (fn [[engine-state options prepared-spells highest-spell-level
         filter-str]
        [_ spellcaster list-id]]
     (let [; is this the prepared list for an acquires? spellcaster?
@@ -1595,21 +1613,20 @@
                    ; if we want to look at the :acquired? list, its
                    ; source is actually the selected from (:spells)
                    ; NOTE: do we need to concat class-provided lists?
-                   (expand-list data-source
-                                (:spells spellcaster)
-                                (get options (:spells spellcaster) #{}))
+                   (->> (options-of-list
+                          engine-state (:spells spellcaster)
+                          (get options (:spells spellcaster) #{})))
 
                    ; normal case:
-                   (concat
-                     ; include any added by class features (eg: warlock)
-                     (get-in spellcaster [:wish/container :lists list-id])
-                     (expand-list data-source list-id nil)))
+                   (engine/inflate-list
+                     engine-state (:wish/container spellcaster)
+                     options
+                     list-id))
 
           spells-filter (if-let [filter-fn (:values-filter spellcaster)]
                           ; let the spellcaster determine the filter
-                          (let [f (compile-spellcaster-values-filter filter-fn)]
-                            (fn [spell]
-                              (f (assoc spell :level (:level spellcaster)))))
+                          (fn [spell]
+                            (filter-fn (assoc spell :level (:level spellcaster))))
 
                           ; limit visible spells by those actually available
                           ; (IE it must be of a level we can prepare)
@@ -1754,7 +1771,6 @@
         (when-not (= 0 buffs)
           buffs)))))
 
-(def ^:private compile-spell-buff (memoize ->callable))
 (reg-sub
   ::spell-buffs
   :<- [:all-attrs]
@@ -1767,11 +1783,7 @@
              (assoc m kind
                     (->> buffs-map
                          vals
-                         (map #(if (number? %)
-                                 %
-                                 (compile-spell-buff %)))
-                         comp-buffs
-                         )))
+                         comp-buffs)))
            {}))))
 
 (defn- standard-spell-slots? [c]
@@ -2058,7 +2070,10 @@
   :<- [::abilities-base]
   (fn [[all-classes selected-classes primary-class abilities]]
     (available-classes
-      all-classes selected-classes primary-class abilities)))
+      (map util/prepare-class-for-builder all-classes)
+      selected-classes
+      (util/prepare-class-for-builder primary-class)
+      abilities)))
 
 (reg-sub
   ::available-races
@@ -2179,10 +2194,10 @@
 
 (reg-sub
   ::starter-packs-by-id
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   (fn [source]
     (->map
-      (src/expand-list source :5e/starter-packs nil))))
+      (engine/inflate-list source :5e/starter-packs))))
 
 (defn- select-filter-keys
   "Like (select-keys) but any keys that weren't missing
@@ -2214,11 +2229,11 @@
   [source _ choices]
   (if-let [id (:id choices)]
     ; single item with a :count
-    [:count (src/find-item source id) (:count choices)]
+    [:count (get-in source [:items id]) (:count choices)]
 
     ; filter
     (let [choice-keys (keys choices)]
-      [:or (->> (src/list-entities source :items)
+      [:or (->> source :items vals  ; all items
                 (remove :+) ; no magic items
                 (remove :desc) ; or fancy items
                 (filter (fn [item]
@@ -2234,15 +2249,15 @@
                        (partial
                          map
                          (fn [[id amount]]
-                           [(src/find-item source id)
+                           [(get-in source [:items id])
                             amount])))])
 
       ; just an item
-      (src/find-item source choice)))
+      (get-in source [:items choice])))
 
 (reg-sub
   ::starting-eq
-  :<- [:sheet-source]
+  :<- [:sheet-engine-state]
   :<- [::starter-packs-by-id]
   :<- [:primary-class]
   (fn [[source packs {{eq :5e/starting-eq} :attrs
