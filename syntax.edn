@@ -1,414 +1,158 @@
-;;
-;; Conventions
-;;
-
-; function call-like things are in brackets and the
-; "function" name starts with :!
-[:!function-call arg1 arg2]
-
-;;
-;; Modifying properties
-;;
-
-:>>name ; append
-:+name  ; semantic alias for append
-:&name  ; merge (maps only)
-:=name  ; explicit replace (in case the property starts with a symbol above)
-
-;;
-;; Functions
-;; Some values can be functional
-;;
-
-; functions are always lists starting with fn
-(fn [injected values]
-  ; functions are compiled to look like, eg:
-  ;
-  ;  (fn [{:keys[injected, values]})
-  ;
-  ; and so are called with a single map
-  values)
-
-; Supported functions within a function:
-;   + - / *
-;   ceil floor
-;   max min
-
-;;
-;; Built in types:
-;;
-
-:class
-:effect
-:feature
-:option
-:race
-:item
-
-;;
-;; Data Source directives
-;;
-
-[:!add-to-list
-
- ; this can just be the id, or a map if you want to provide
- ; more info about the contents, such as:
- {:id,
-  :type} ; sheet-specific type of all items in the list
-
- ; varargs list of:
- :list-id  ; a list to copy items from
- :feature-id>>options  ; a feature id with >>options appended to add the
-                       ; selected options from a feature
- {} ; an item
- ]
-
-[:!declare-class
- {:id,
-  :name,
-
-  ; map of id, args for sheet-powered attributes
-  :attrs {}
-
-  ; list of features to include
-  :features []
-  }]
-
-; the syntax for :!declare-race is identical to :!declare-class
-[:!declare-race
- {:id,
-  :name
-  :attrs,
-  :features}]
-
-[:!declare-subrace
-
- ; id of the parent race it inherits from.
- :parent-race-id
-
- ; the values here are merged into those from the parent race
- ; following the "modifying properties" rules above
- {:id,
-  :name
-  :attrs,
-  :features}]
-
-[:!declare-items
-
- ; before any items is a single map that all subsequent items get
- ; merged into, allowing you to avoid repeat yourself for a set of
- ; similar items.
- ; NOTE: this is not a true deep merge, but just a single-level deep
- ; merge, so that :attrs don't get totally overwritten (but, matching
- ; keys within :attrs will completely get replaced)
- {}
-
- ; varargs list of:
- {:id,
-  :name,
-  :desc,
-
-  ; wish will handle certain "builtin" types, if you wish:
-  ; - :ammunition, :potion  will automatically be treated as
-  ;   if :stacks? true were provided
-  :type,
-
-  ; as for :!declare-class; this is a good place to indicate
-  ; system-specific item classes that can be used to determine
-  ; whether a character can equip an item, for example
-  :attrs {}
-
-  ; flag indicating if this type of item should stack in
-  ; inventories (true) or if multiple copies should be instanced
-  ; separately (false). This flag may also be implicit based on
-  ; :type, above.
-  :stacks? false
-
-  ; list of directives to apply to the character when the
-  ; item is equipped
-  :! []
-  }]
-
-[:!provide-feature
- ; if conditions vector is provided, it will add the feature to an
- ; existing class based on the conditions. This would generally be
- ; used for homebrew features that amend built-in classes
- optional-conditions-vector
-
- ; varargs list of feature-maps (if used in a :! vector, feature-ids
- ; are also acceptable)
- {:id,
-  :name,
-  :desc,
-
-  ; if true, this feature can have multiple instances
-  :instanced? false,
-
-  ; when provided, indicates that the user should pick one
-  ; or more options.
-  ; can be a number or a fn. If fn accepts `features`, that
-  ; will be a list of all currently selected features, and
-  ; the fn should return True if that's an acceptable selection,
-  ; or False if not. Otherwise, it should return a number indicating,
-  ; based on the state provided, the number value.
-  :max-options,
-
-  ; if true, a given option can be selected more than once
-  :multi? false,
-
-  ; an optional list of values or list-ids. Entries can of course
-  ; be provided via the !provide-options directive. You can also
-  ; use the special syntax :feature-id>>options to source values
-  ; from the selected options of another feature.
-  :values []
-
-  ; an optional (fn) used to filter the actually available entries.
-  ; This works like:
-  ;
-  ;   (filter (fn [{:keys []}]) values)
-  ;
-  ; where `values` is a collection of all the values available, whether
-  ; from :values above or provided by !provide-options
-  :values-filter (fn [])
-
-  ; an optional (fn) used to determine whether this feature/option
-  ; is visible to the user as an option for the current character.
-  ; the possible keys include `options`, `sheet`, and `attrs`,
-  ; which all refer to the current character
-  :available? (fn [])
-
-  ; an optional attribute ID or attribute path used to control the
-  ; :available?-ness of this feature/option. This is syntactic sugar
-  ; for the common pattern:
-  ;   {:available? (fn [attrs] (not (availability-attr attrs)))
-  ;    :! [[:!provide-attr availability-attr true]]}
-  ; If both :availability-attr *and* :available? are provided, an
-  ; extra key, `available?`, will be provided to the `:available?`
-  ; fn whose value is what would have been the availability if just
-  ; `:availability-attr` had been used (in other words, true if
-  ; the attr is unset, and false if it is set).
-  ; If your `:available?` fn does not use this key, the result of
-  ; your fn will be implicitly ; combined with it using (and)
-  :availability-attr [:attr ...]
-
-  ; map of level -> feature-map, where any keys in the feature-map
-  ; get replaced (or modified, following the above rules based on
-  ; prefixes to the keyword)
-  :levels {}
-
-  ; map of level -> feature-map where *all* keys <= the class level
-  ; get applied as per :levels. These are applied *after* :levels.
-  :&levels {}
-
-  ; list of directives to apply to the character when the feature
-  ; is granted
-  :! []
-  }
- ]
-
-[:!provide-options
-
- feature-id
-
- ; varargs list of entities
- ; each entity may have a `:features` key which grants the given features
- ; when the option is taken. Such features may be a feature-map or an id
- ...entities
- ]
-
-[:!provide-attr
-
- ; this can either be a single keyword, like :5e/spellcaster, or a vector
- ; path, like [:5e/ac :monk/unarmored-defense], where the latter might be
- ; used to provide multiple candidates for AC computation, for example.
- attr-id-or-path
-
- ; the value is attr- and sheet-dependent, so can be whatever you need it to
- ; be. The value will be simply stored in the :attrs of the character at
- ; whatever id or path you provided above
- value]
-
-; !update-attr is a slightly more specialized version of :!provide-attr
-; that is especially useful with multi-instance features.
-[:!update-attr
-
- ; this must be a vector path, like [:5e/ac :monk/unarmored-defense]
- attr-path
-
- ; function from a limited set (+-/*, inc, dec) used as in
- ; (update-in attrs path f value)
- f
-
- ; the optional value is attr- and sheet-dependent, so can be whatever
- ; you need it to be.
- value]
-
-;;
-;; Experiments:
-;;
-
-[:!provide-feature
-
- ; optional conditions for availability
- [[:#class :paladin]
-  [:#level :>= 1]]
-
- ; the feature
- {:id :paladin/lay-on-hands
-  :name "Lay on Hands"
-  :desc "description"
-  :! [[:!add-limited-use
-       {:id :paladin/lay-on-hands#uses
-        :name "Lay on Hands"
-        :restore-trigger :long-rest
-        ;; :restore-amount is optional and defaults to "all"
-        :uses (fn [level]
-                (* level 5))}]]}
- ]
-
-[:!provide-feature
-
- {:id :hit-dice/d10
-  :name "Hit Dice: D10"
-  :! [[:!add-limited-use
-       {:id :hit-dice/d10#uses
-        :name "D10"
-        :restore-trigger :long-rest
-        :restore-amount (fn [trigger used level]
-                          (min used
-                               (ceil (/ level 2))))
-        :uses (fn [level]
-                level)}]]}]
-
-
-[:!add-to-list
-
- {:id :cleric/spells-list
-  :type :spells}
-
- [{:id :cure-wounds
-   :name "Cure Wounds"}]]
-
-;; NOTE: the 5e sheet handles the :5e/spellcaster attr in order
-;; to properly provide spell slots for multicasters
-[:!declare-class
- {:id :cleric
-  :name "Cleric"
-  :attrs
-  [:5e/spellcaster {:cantrips [1 3, 4 1, 10 1]
-                    :slots :standard
-                    :prepares? true
-                    :spells [:cleric/spells-list]
-                    }
-   {:spells [:cleric/spells-list]
-    :prepares? true}
-   ]
-  :features
-  [:hit-dice/d8
-   ]}]
-
-[:!provide-options
-
- :rogue/archetype
-
- {:id :rogue/arcane-trickster
-  :name "Arcane Trickster"
-  :! [[:!provide-attr
-       :5e/spellcaster {:cantrips [3 3, 10 1]
-                        :slots {3 {1 2}
-                                4 {1 3}}
-                        :spells [:wizard/spells-list]}]
-      ]}
- ]
-
-
-
-[:!provide-feature
-
- {:id :cleric/spells
-  :name "Cleric Spells"
-  :options? true
-  
-  :max-options [:total 5
-                [:#level := 0] 3
-                [:#level :<= 1] 2]
-  :levels {2 {}  ;; etc.
-           3 {:max-options [:total 9
-                            [:#level := 0] 3
-                            [:#level :<= 2] 6]}}}]
-
-[:!declare-class
- {:id :sorcerer
-  :name "Sorcerer"
-  :features
-  [:sorcerer/origin]}]
-
-[:!provide-feature
-
- {:id :sorcerer/origin
-  :name "Sorcerous Origin"
-  :desc ""
-  :options? true
-  :max-options 1
-
-  ; each val in the levels map
-  ; gets merged into the parent map
-  ; Prepending the key with >> will append strings
-  :levels {1 {:max-options 1
-              :>>desc "\nAt level 1 you can choose one origin"}}}]
-
-[:!provide-feature
-
- {:id :sorcerer/spells
-  :name "Sorcerer Spells"
-  :options? true
-
-  ;; with filters, options
-  :max-options [:total 6
-                [:#level := 0] 4
-                [:#level := 1] 2]
-
-  :values [:sorcerer/spells-list]
-
-  :levels {2 {:max-options [:total 7
-                            [:#level := 0] 4
-                            [:#level :<= 1] 3]}
-           3 {:max-options [:total 10
-                            [:#level := 0] 4
-                            [:#level :<= 2] 6]}}
-  }]
-
-;;
-;; Options are provided to features
-[:!provide-options
-
- ; feature to add it to
- :sorcerer/origin
-
- {:id :sorcerer/divine-soul
-  :name "Divine Soul"
-  :features
-  [{:id :sorcerer/divine-magic
-    :name "Divine magic"
-    :desc "Your link to the divine allows you to learn spells normally associated with the Cleric class. When your Spellcasting feature lets you learn a sorcerer cantrip or a sorcerer spell of 1st level or higher, you can choose the new spell from the cleric spell list or the sorcerer spell list. You must otherwise obey all the restrictions for selecting the spell, and it becomes a sorcerer spell for you.
-
-In addition, choose an affinity for the source of your divine power: good, evil, law, chaos, or neutrality. You learn an additional spell based on that affinity, as shown below. It is a sorcerer spell for you, but it doesn't count against your number of sorcerer spells known. If you later replace this spell, you must replace it with a spell from the cleric spell list."
-    :! [[:!provide-options
-         :sorcerer/spells
-         :cleric/spells-list]
-
-        ; grant an extra spell of any available level.
-        [:!mod-feature
-         :sorcerer/spells
-         {:&levels {1 {:>>max-options [[:#level := 1] 1]}
-                    2 {:>>max-options [[:#level := 1] 1]}
-                    3 {:>>max-options [[:#level :>= 1 :<= 2] 1]}
-                    4 {:>>max-options [[:#level :>= 1 :<= 2] 1]}
-                    5 {:>>max-options [[:#level :>= 1 :<= 3] 1]}}}]]}]}]
-
-[:!declare-effects
- {:id :effect/haste
-  :name "Haste"
-  :! [[:!provide-attr
-       [:buffs :ac :effect/haste]
-       2]]}]
+; properly distinguish between "declare" and "provide"
+(declare-features
+  {:id :fey-ancestry
+   :name "",
+   :desc "",
+
+   ; when a feature is provided to an entity, any function on the :!
+   ; key is called with the entity's current state
+   :! (fn [state]
+        (-> state
+            (provide-attr [:saves :fey-ancestry]
+                          {:desc ""})))}
+
+  {:id :feat
+   :instanced? true
+   :max-options 1
+   :values #(values-from-list :all-feats)}
+
+  {:id :abi-or-feat
+   :5e/implicit? true
+   :instanced? true
+   :max-options 1
+   :values [{:id :abi-or-feat/abi
+             :! (fn [state] (provide-feature state :ability-improvement))}
+            {:id :abi-or-feat/feat
+             :! (fn [state] (provide-feature state :feat))}]}
+  )
+
+(declare-features
+  {:id :hit-dice/d6
+   :5e/implicit? true
+   :! (fn [state]
+        (-> state
+            (provide-attr :5e/hit-dice 6)
+            (add-limited-use {:id :hit-dice/d6#uses
+                              :5e/implicit? true
+                              :restore-trigger :long-rest
+                              ; etc
+                              })))})
+
+; use code to generate features:
+(declare-features
+  (for [id [:save-proficiency/cha :save-proficiency/dex :save-proficiency/con]]
+    {:id id
+     :! (fn [state] (provide-attr state id true))}))
+
+(add-to-list
+  {:id :all-feats
+   :type :feature}
+
+  [{:id :feat/grappler
+    :availability-attr [:feats :feat/grappler]
+    :available? (fn [sheet]
+                  (>= (get-in sheet [:abilities :dex])
+                      13))
+    :! (fn [state] (provide-attr state [:action :feat/grappler] true))}])
+
+(declare-class
+  {:id :cleric
+
+   ; initial attrs:
+   :attrs {:5e/spellcaster
+           {:cleric
+            {:cantrips [1 3,
+                        4 1,
+                        10 1]}}}
+
+   ; classes and races also use :! for symmetry
+   :! (on-state ; on-state is a convenience macro for #(-> % ~@body)
+
+        ; provide-features is a semantic alias
+        (provide-features
+          :hit-dice/d8
+          :hp
+          :unarmed-strike
+          :feats
+
+          ; save proficiencies
+          :save-proficiency/wis
+          :save-proficiency/cha
+
+          ; ... etc
+
+          ; features can be declared inline as well
+          {:id :cleric/skill-proficiencies
+           :5e/implicit? true
+           :primary-only? true
+           :max-options 2
+           :values [:proficiency/history, #_[...] ]}
+
+          {:id :cleric/domain
+           :max-options 1}
+          ))
+
+   ; levels are always additive
+   :levels {2 {:! (fn [state]
+                    (-> state
+                        (provide-features
+                          :cleric/channel-divinity
+
+                          {:id :cleric/channel-turn-undead
+                           :! (fn [state]
+                                (provide-attr state [:action :cleric/channel-turn-undead] true))}
+                          )))}}
+   })
+
+
+; we should be able to inject global helper functions into the engine
+(defn action-wrapper [action-type]
+  (fn [feature-def]
+    ; since :! is always a function that accepts a state and returns a new
+    ; state, it is easy to compose new actions onto it
+    (let [id (:id feature-def)
+          additional-action (on-state
+                              (provide-attr
+                                [:action id]
+                                true))]
+      (assoc feature-def :! (if-let [action (:! feature-def)]
+                              (comp additional-action action)
+                              additional-action)))))
+
+(def as-action (action-wrapper :action))
+(def as-bonus (action-wrapper :bonus))
+
+(declare-options
+  :cleric/domain
+
+  {:id :cleric/life-domain
+
+   ; options are just features, so they also support :!, which is evaluated in
+   ; the same state context that their feature is evaluated in *when it is
+   ; chosen*
+   :! (on-state
+
+        ; NOTE: add-to-list supports both the 2-arity used above and a
+        ; three-arity, shown here, for convenience. It does not support
+        ; variadic invocation; the last arg must always be sequential
+        (add-to-list
+          :cleric/extra-spells
+          [:spell/bless :spell/cure-wounds]
+          )
+
+        (provide-features
+          {:id :cleric/disciple-of-life
+           :! (on-state
+                (provide-attr
+                  [:buffs :spells :healing :cleric/disciple-of-life]
+                  (fn [spell-level]
+                    (+ 2 spell-level))))}))
+
+   ; similarly, they can also be level scaled
+   :levels {2 {:! (on-state
+                    (provide-feature
+
+                      ; using a helper function
+                      (as-action
+                        {:id :cleric/channel-preserve-life})))}}
+   })
