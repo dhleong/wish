@@ -90,20 +90,21 @@
   (fn [[sheet-id data data-preformatted?]]
     (>evt [::db/mark-save-processing sheet-id])
 
-    (save-sheet!
-      sheet-id data data-preformatted?
-      (fn on-saved [err]
-        (log-sheet "on-saved(" sheet-id ") " err)
+    (let [data (sheets/decompile-sheet data)]
+      (save-sheet!
+        sheet-id data data-preformatted?
+        (fn on-saved [err]
+          (log-sheet "on-saved(" sheet-id ") " err)
 
-        (when err
-          (log/err "Error saving " sheet-id ": " err))
+          (when err
+            (log/err "Error saving " sheet-id ": " err))
 
-        (when-not err
-          (js/window.removeEventListener
-            "beforeunload"
-            confirm-close-window))
+          (when-not err
+            (js/window.removeEventListener
+              "beforeunload"
+              confirm-close-window))
 
-        (>evt [::db/finish-save sheet-id err])))))
+          (>evt [::db/finish-save sheet-id err]))))))
 
 (reg-fx
   :schedule-save

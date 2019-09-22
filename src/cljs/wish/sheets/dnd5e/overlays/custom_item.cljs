@@ -42,20 +42,23 @@
         item (if limited-use?
                (cond-> item
                  ; always:
-                 true (assoc :! [[:!add-limited-use
-                                  {:id use-id
-                                   :name (or use-name item-name)
-                                   :uses (or uses 1)
-                                   :restore-trigger (or restore-trigger
-                                                        :long-rest)}]])
+                 true (assoc :!
+                             (list 'on-state
+                                   (list 'add-limited-use
+                                         {:id use-id
+                                          :name (or use-name item-name)
+                                          :uses (or uses 1)
+                                          :restore-trigger
+                                          (or restore-trigger
+                                              :long-rest)})))
 
                  ; if selected:
                  (and action
                       (not= :-none action))
                  (-> (assoc :consumes use-id)
-                     (update :! conj [:!provide-attr
-                                      [action item-id]
-                                      true])))
+                     (update :! concat [`(~'provide-attr
+                                           [~action ~item-id]
+                                           true)])))
 
                ; strip :attunes? if there's no limited-use
                (dissoc item :attunes?))]
@@ -69,13 +72,13 @@
   (-> (reduce
         (fn [item [directive arg]]
           (case directive
-            :!add-limited-use
+            add-limited-use
             (-> item
                 (assoc :limited-use? true)
                 (assoc :limited-use
                        (dissoc arg :id)))
 
-            :!provide-attr
+            provide-attr
             (cond-> item
               (vector? arg) (assoc-in [:limited-use :action-type]
                                       (first arg)))
@@ -83,9 +86,9 @@
             ; some other directive? ignore it
             item))
         original-item
-        (:! original-item))
+        (rest (:!-raw original-item)))
 
-      (dissoc :! :consumes :limited-uses :attrs)))
+      (dissoc :! :!-raw :consumes :limited-uses :attrs)))
 
 
 ; ======= internal widgets ================================

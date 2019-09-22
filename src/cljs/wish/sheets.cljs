@@ -57,6 +57,19 @@
         (compiler sheet)
         sheet))))
 
+(defn decompile-sheet [sheet]
+  (let [kind (:kind sheet)
+        kind-meta (get sheets kind)]
+    (when-not kind-meta
+      (throw (js/Error.
+               (str "Unable to get sheet meta for kind: " kind))))
+
+    (compiler/decompile-sheet
+      kind-meta
+      (if-let [decompiler (:sheet-decompiler kind-meta)]
+        (decompiler sheet)
+        sheet))))
+
 (defn stub-campaign
   "Create the initial data for a new campaign"
   [kind campaign-name]

@@ -17,14 +17,15 @@
     (is (= {:id :serenity
             :attunes? true
             :consumes :serenity#uses
-            :! [[:!add-limited-use
-                 {:id :serenity#uses
-                  :name "Crazy Ivan"
-                  :uses 2
-                  :restore-trigger :short-rest}]
-                [:!provide-attr
-                 [:bonus :serenity]
-                 true]]}
+            :! '(on-state
+                  (add-limited-use
+                    {:id :serenity#uses
+                     :name "Crazy Ivan"
+                     :uses 2
+                     :restore-trigger :short-rest})
+                  (provide-attr
+                    [:bonus :serenity]
+                    true))}
 
            (install-limited-use {:id :serenity
                                  :limited-use? true
@@ -38,11 +39,12 @@
   (testing "Install with nothing provided"
     (is (= {:id :serenity
             :name "Serenity"
-            :! [[:!add-limited-use
-                 {:id :serenity#uses
-                  :name "Serenity"
-                  :uses 1
-                  :restore-trigger :long-rest}]]}
+            :! '(on-state
+                  (add-limited-use
+                    {:id :serenity#uses
+                     :name "Serenity"
+                     :uses 1
+                     :restore-trigger :long-rest}))}
 
            (install-limited-use {:id :serenity
                                  :name "Serenity"
@@ -69,19 +71,20 @@
              :name "Crazy Ivan"}}
 
            (item->form-state
-             {:id :serenity
-              :type :gear
-              :consumes :serenity#uses
-              :limited-uses {:serenity {:id :serenity#uses
-                                        :name "Crazy Ivan"
-                                        :uses 1
-                                        :restore-trigger :short-rest}}
-              :attrs {:bonus {:serenity true}}
-              :! [[:!add-limited-use
-                   {:id :serenity#uses
-                    :name "Crazy Ivan"
-                    :uses 1
-                    :restore-trigger :short-rest}]
-                  [:!provide-attr
-                   [:bonus :serenity]
-                   true]]})))))
+             '{:id :serenity
+               :type :gear
+               :consumes :serenity#uses
+               :limited-uses {:serenity {:id :serenity#uses
+                                         :name "Crazy Ivan"
+                                         :uses 1
+                                         :restore-trigger :short-rest}}
+               :attrs {:bonus {:serenity true}}
+               :!-raw (on-state
+                        (add-limited-use
+                          {:id :serenity#uses
+                           :name "Crazy Ivan"
+                           :uses 1
+                           :restore-trigger :short-rest})
+                        (provide-attr
+                          [:bonus :serenity]
+                          true))})))))
