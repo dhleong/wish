@@ -20,7 +20,6 @@
             [wish.sources.compiler.lists-test]
             [wish.sources.compiler.util-test]
             [wish.sources.composite-test]
-            [wish.subs-test]
             [wish.util-test]
             [wish.util.formatted-test]
             [wish.views.sheet-builder-util-test]
