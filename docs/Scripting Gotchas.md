@@ -15,5 +15,3 @@ or Clojurescript do not work exactly the same:
     exists for the common `(:key map)` and `(some #{:set} coll)` cases,
     but in general you will have to avoid these patterns in favor
     of explicit function calls (eg: `(get)` or `(contains?)`)
-- `(and)` will only ever return `true` or `false`, which is quite
-    different from normal. This probably 

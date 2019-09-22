@@ -71,19 +71,19 @@ EX:
 
 ; NOTE: this would make the character have spells exactly as if
 ; they were a wizard, without actually having the class
-[:!provide-attr
+(provide-attr
  [:5e/spellcaster :my-wizard]
  {:cantrips [1 3,
              4 1,
              10 1]
-  :ability :int
-  :spells :wizard/spells-list
-  :extra-spells :wizard/extra-spells
-  :acquires?-spells :wizard/prepared-spells
-  :acquired-label "Spellbook"
-  :prepares? true
-  :acquires? true
-  }]
+ :ability :int
+ :spells :wizard/spells-list
+ :extra-spells :wizard/extra-spells
+ :acquires?-spells :wizard/prepared-spells
+ :acquired-label "Spellbook"
+ :prepares? true
+ :acquires? true
+ })
 ```
 
 ## `:action`
@@ -100,9 +100,10 @@ EX:
 {:id :ranger/primeval-awareness
  :name "Primeval Awareness"
  :desc "You can use your action and expend one ranger spell slot to focus your awareness on the region around you. For 1 minute per level of the spell slot you expend, you can sense whether the following types of creatures are present within 1 mile of you (or within up to 6 miles if you are in your favored terrain): aberrations, celestials, dragons, elementals, fey, fiends, and undead. This feature doesn’t reveal the creatures’ location or number."
- :! [[:!provide-attr
-      [:action :ranger/primeval-awareness]
-      true]]}
+ :! (on-state
+      (provide-attr
+        [:action :ranger/primeval-awareness]
+        true))}
 ```
 
 ## `:attacks`
@@ -134,19 +135,19 @@ type depends on the Dragonborn Ancestor feature's option.
 EX:
 
 ```clojure
-[:!provide-attr
- [:attacks :dragonborn/breath-weapon]
- {:&from-option :dragonborn/ancestry
+(provide-attr
+  [:attacks :dragonborn/breath-weapon]
+  {:&from-option :dragonborn/ancestry
   :name "Dragonborn Breath Weapon"
   :consumes :dragonborn/breath-weapon#uses
   :dice (fn [level]
           (cond
-            (< level 6) "2d6"
-            (< level 11) "3d6"
-            (< level 16) "4d6"
-            :else "5d6"))
+           (< level 6) "2d6"
+           (< level 11) "3d6"
+           (< level 16) "4d6"
+           :else "5d6"))
   :save-dc (fn [modifiers prof-bonus]
-             (+ 8 (:con modifiers) prof-bonus))}]
+             (+ 8 (:con modifiers) prof-bonus))})
 ```
 
 In the example above, the `:aoe`, `:damage`, and `:save` are provided by
@@ -172,17 +173,17 @@ A map of `id -> attacks` where `attacks` is a functional number value.
 EX:
 
 ```clojure
-[:!provide-attr
- [:attacks-per-action :extra-attack]
- 2]
+(provide-attr
+  [:attacks-per-action :extra-attack]
+  2)
 
-[:!provide-attr
- [:attacks-per-action :fighter/extra-attack]
- (fn [level]
+(provide-attr
+  [:attacks-per-action :fighter/extra-attack]
+  (fn [level]
    (cond
-     (< level 11) 2
-     (< level 20) 3
-     :else 4))]
+    (< level 11) 2
+    (< level 20) 3
+    :else 4)))
 ```
 
 
@@ -212,17 +213,6 @@ The following kinds expect their `value` to be a constant number:
  - `:spell-atk` Spell Attack Rolls
  - Abilities, like `:str`, `:dex`, etc.
 
-#### Update buffs
-
-If necessary, you can also functionally buff abilities using `:!update-attr`,
-as follows:
-
-```clojure
-[:!update-attr [:buffs :str] inc]
-```
-
-This is uncomon.
-
 #### Functional Number buffs
 
 The following kinds can accept a functional number `value`:
@@ -246,11 +236,11 @@ Damage buffs. The value is a map that looks like:
 EX:
 
 ```clojure
-[:!provide-attr
- [:buffs :dmg :melee :fight/dueling-style]
- {:when-two-handed? false
-  :when-versatile? false
-  :+ 2}]
+(provide-attr
+  [:buffs :dmg :melee :fight/dueling-style]
+  {:when-two-handed? false
+   :when-versatile? false
+   :+ 2})
 ```
 
 ## `:combat-info`
@@ -270,12 +260,12 @@ A map of `id -> info` where `info` looks like:
 EX:
 
 ```clojure
-[:!provide-attr
- [:combat-info :rogue/sneak-attack]
- {:name "Sneak Attack Damage"
+(provide-attr
+  [:combat-info :rogue/sneak-attack]
+  {:name "Sneak Attack Damage"
   :value (fn [level]
-           (str (ceil (/ level 2))
-            "d6"))}]
+          (str (ceil (/ level 2))
+           "d6"))})
 ```
 
 ## `:half-proficient`
@@ -289,9 +279,9 @@ Map of `skill-id -> true`, where `skill-id` is one of `:stealth`, `:sleight-of-h
 EX:
 
 ```clojure
-[:!provide-attr
- [:half-proficient :stealth]
- true]
+(provide-attr
+  [:half-proficient :stealth]
+  true)
 ```
 
 ## `:immunities`
@@ -315,12 +305,12 @@ Map of `id -> {:desc}` where the value of `:desc` should be a string describing 
 EX:
 
 ```clojure
-[:!provide-attr [:resistances :dwarf/dwarven-resilience-resistances]
- {:desc "You have resistance against poison damage."}]
+(provide-attr [:resistances :dwarf/dwarven-resilience-resistances]
+  {:desc "You have resistance against poison damage."})
 ```
 
 ```clojure
-[:!provide-attr [:immunities :paladin/divine-health] true]
+(provide-attr [:immunities :paladin/divine-health] true)
 ```
 
 ## `:saves`
@@ -339,9 +329,9 @@ a map, for example `{:combat true}`, or, for a single flag, use the shortcut
 of suppling the flag directly, eg:
 
 ```clojure
-[:!provide-attr
- [:special-action :paladin/divine-smite]
- :combat]
+(provide-attr
+  [:special-action :paladin/divine-smite]
+  :combat)
 ```
 
 Supported flags:
