@@ -1,11 +1,11 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheets"}
   wish.sheets
-  (:require [wish-engine.core :as engine]
-            [wish.sheets.compiler :as compiler]
+  (:require [wish.sheets.compiler :as compiler]
             [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
+            [wish.sheets.dnd5e.engine :as dnd5e-engine]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
             [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-file-with-data
@@ -28,7 +28,7 @@
            :default-sources [:wish/wdnd5e-srd]
 
            :engine (delay
-                     (engine/create-engine))
+                     (dnd5e-engine/create-engine))
 
            :keymaps dnd5e-key/maps}})
 

@@ -81,8 +81,7 @@
     {}
     (range 1 10)))
 
-(defn- install-spell-uses
-  [entity]
+(defn- install-spell-uses [entity]
   (let [spellcaster (-> entity :attrs :5e/spellcaster)
         slots-type (:slots-type spellcaster :standard)
         restore-trigger (:restore-trigger spellcaster :long-rest)
@@ -99,8 +98,7 @@
       ; no spellcasting
       :else entity)))
 
-(defn post-process
-  [entity _data-source _entity-kind]
+(defn post-process [entity]
   (-> entity
       install-spell-uses))
 
