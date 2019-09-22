@@ -93,7 +93,7 @@
 (deftest post-process-test
   (testing "Install spell slot limited-uses"
     (let [original {:attrs {:5e/spellcaster {}}}
-          processed (post-process original nil :class)]
+          processed (post-process original)]
       (is (contains? (:limited-uses processed)
                      :slots/level-1))
       (is (= 4 ((-> processed :limited-uses

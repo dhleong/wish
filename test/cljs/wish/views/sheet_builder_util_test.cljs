@@ -1,19 +1,17 @@
 (ns wish.views.sheet-builder-util-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sources.compiler.feature :refer [compile-max-options]]
             [wish.views.sheet-builder-util :refer [count-max-options]]))
 
 (deftest count-max-options-test
   (testing "Hard-coded :max-options"
-    (let [compiled (compile-max-options 2)]
-      (is (= 2
-             (count-max-options
-               {:values [:a :b :c]
-                :max-options compiled})))))
+    (is (= 2
+           (count-max-options
+             {:values [:a :b :c]
+              :max-options 2}))))
 
   (testing "fn-based :max-options"
-    (let [compiled (compile-max-options '(fn [features]
-                                           (<= (count features) 3)))]
+    (let [compiled (fn [{:keys [features]}]
+                     (<= (count features) 3))]
       (is (= 3
              (count-max-options
                {:values [:a :b :c :d]

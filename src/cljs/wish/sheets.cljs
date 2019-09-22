@@ -7,7 +7,6 @@
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.engine :as dnd5e-engine]
             [wish.sheets.dnd5e.keymaps :as dnd5e-key]
-            [wish.sources.compiler :refer [compiler-version]]
             [wish.providers :refer [create-file-with-data
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
@@ -16,6 +15,8 @@
             [wish.views.widgets :as widgets :refer [link link>evt]]))
 
 ; ======= const data =======================================
+
+(def compiler-version 2)
 
 ; TODO we could use code splitting here to avoid loading
 ; sheet templates that we don't care about

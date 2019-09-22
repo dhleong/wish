@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "util"}
   wish.sheets.dnd5e.util
-  (:require [clojure.string :as str]
-            [wish.sources.compiler.limited-use :refer [compile-limited-use]]))
+  (:require [clojure.string :as str]))
 
 ; ======= Shared utils =====================================
 
@@ -74,10 +73,11 @@
     (fn [m level]
       (let [id (->slot-kw slots-type level)]
         (assoc m id
-               (compile-limited-use
-                 {:id id
-                  :implicit? true
-                  :restore-trigger restore-trigger}))))
+               {:id id
+                :implicit? true
+                :restore-amount (fn [{:keys [used]}]
+                                  used)
+                :restore-trigger restore-trigger})))
     {}
     (range 1 10)))
 
