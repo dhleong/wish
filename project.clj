@@ -123,6 +123,7 @@
                     :pretty-print    false
                     :optimize-constants true
                     :static-fns true
+                    :dump-core false
 
                     :externs ["externs/gapi.js"
                               "externs/wish.js"]}}
@@ -169,6 +170,7 @@
                     :pseudo-names    true
                     :optimize-constants true
                     :static-fns true
+                    :dump-core false
 
                     :externs ["externs/gapi.js"
                               "externs/wish.js"]}}
