@@ -1,7 +1,7 @@
 (ns wish.sheets.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish-engine.core :as engine]
-            [wish.sheets.compiler :refer [compile-sheet decompile-sheet]]))
+            [wish.sheets.compiler :refer [compile-sheet]]))
 
 (def captains-coat
   '{:type :gear,
@@ -23,14 +23,3 @@
                   `{:kind :dnd5e
                     :items {:custom/captains-coat ~captains-coat}})]
       (is (fn? (-> sheet :items :custom/captains-coat :!))))))
-
-(deftest decompile-sheet-test
-  (testing "Strip apply-fns"
-    (let [compiled (compile-sheet
-                     {:engine (delay (engine/create-engine))}
-                     `{:kind :dnd5e
-                       :items {:custom/captains-coat ~captains-coat}})
-          decompiled (decompile-sheet nil compiled)]
-      (is (fn? (-> compiled :items :custom/captains-coat :!)))
-      (is (not (fn? (-> decompiled :items :custom/captains-coat :!))))
-      (is (nil? (-> decompiled :items :custom/captains-coat :!-raw))))))

@@ -596,12 +596,13 @@
 
          item-id (or (:item-id item)
 
-                     ; generate a new item-id
-                     (when custom?
-                       (inv/custom-id (:name item)))
+                     ; if we had an id already, use it
+                     item-id
 
-                     ; had an id already
-                     item-id)
+                     ; generate a new item-id if a custom item
+                     ; did not yet have one
+                     (when custom?
+                       (inv/custom-id (:name item))))
 
          inst-id (cond
                    ; custom items use their generated id

@@ -57,7 +57,8 @@
                   {:id :arrows
                    :stacks? true
                    :default-quantity 20})]
-      (is (= {:inventory {:arrows 20}}))))
+      (is (= {:inventory {:arrows 20}}
+             state))))
 
   (testing "Add custom stacked item"
     (let [state (inventory-add
@@ -94,6 +95,21 @@
       (let [inst-id (-> state :items keys first)]
         (is (not (nil? inst-id)))
         (is (not= inst-id :longbow))
+        (is (= {:inventory {inst-id 1}
+                :items {inst-id {:id inst-id
+                                 :name "Longbow"}}}
+               state)))))
+
+  (testing "Don't overwrite custom item id if it has one already"
+    (let [state (inventory-add
+                  {}
+                  {:id :custom/longbow
+                   :name "Longbow"})]
+      (is (= 1 (count (:items state))))
+      (let [inst-id (-> state :items keys first)]
+        (is (not (nil? inst-id)))
+        (is (not= inst-id :longbow))
+        (is (= :custom/longbow inst-id))
         (is (= {:inventory {inst-id 1}
                 :items {inst-id {:id inst-id
                                  :name "Longbow"}}}
