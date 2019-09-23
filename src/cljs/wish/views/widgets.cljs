@@ -43,7 +43,7 @@
   (into [container-spec]
         (map
           (fn [p]
-            [:p p])
+            [:div.p p])
           (->hiccup text))))
 
 (defn link
