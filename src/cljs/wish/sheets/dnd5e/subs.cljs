@@ -1582,7 +1582,7 @@
 
   (fn [[engine-state options prepared-spells highest-spell-level
         filter-str]
-       [_ spellcaster list-id]]
+       [_ spellcaster list-id include-unavailable?]]
     (let [; is this the prepared list for an acquires? spellcaster?
           acquires-list? (= (:acquires?-spells spellcaster)
                             list-id)
@@ -1628,17 +1628,24 @@
                      options
                      list-id))
 
-          spells-filter (if-let [filter-fn (:values-filter spellcaster)]
-                          ; let the spellcaster determine the filter
-                          (fn [spell]
-                            (filter-fn (assoc spell :level (:level spellcaster))))
+          source (if-let [filter-fn (:values-filter spellcaster)]
+                   ; let the spellcaster determine the filter
+                   (filter (fn [spell]
+                             (filter-fn (assoc spell :level (:level spellcaster))))
+                           source)
 
-                          ; limit visible spells by those actually available
-                          ; (IE it must be of a level we can prepare)
-                          #(<= (:spell-level %) highest-spell-level))]
+                   ; limit visible spells by those actually available
+                   ; (IE it must be of a level we can prepare)
+                   (if include-unavailable?
+                     (map (fn [s]
+                            (assoc s :unavailable?
+                                   (> (:spell-level s) highest-spell-level)))
+                          source)
+
+                     (filter #(<= (:spell-level %) highest-spell-level)
+                             source)))]
 
       (->> source
-           (filter spells-filter)
            (concat always-prepared)
            (distinct-by :id)
 

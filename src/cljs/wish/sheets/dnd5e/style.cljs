@@ -383,6 +383,14 @@
   [:.limit metadata]
   ;; [:.stretch (merge flex/grow
   ;;                   {:width "100%"})]
+  [".spell:not(.unavailable) + .unavailable" {:margin-top "12px"}
+   [:&.with-button {:margin-bottom "12px"}]
+   [:&:before {:width "100%"
+               :height "1px"
+               :margin-bottom "20px"
+               :background color-accent-nerf
+               :content "''"
+               :display 'block}]]
   [:.spell {:padding "4px 0"}
    [:.header flex]
    [:.meta metadata]

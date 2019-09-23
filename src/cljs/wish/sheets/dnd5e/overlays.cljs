@@ -540,7 +540,8 @@
              source-list
              verb]}]
   (r/with-let [expanded? (r/atom false)]
-    [:div.spell
+    [:div.spell {:class (when (:unavailable? s)
+                          "unavailable")}
      [:div.header
       [spell-info-header
        {:on-click (click>swap! expanded? not)}
@@ -566,12 +567,12 @@
      (when @expanded?
        [spell-card (update s :prepared? #(or % false))])]))
 
-(defn spell-management
-  [spellcaster & {:keys [mode]
-                  :or {mode :default}}]
+(defn- spell-management* [spellcaster mode hide-unavailable?]
   (let [{:keys [acquires? prepares?]} spellcaster
 
         knowable (<sub [::subs/knowable-spell-counts (:id spellcaster)])
+        highest-spell-level (<sub [::subs/highest-spell-level-for-spellcaster-id
+                                   (:id spellcaster)])
 
         ; in :acquisition mode (eg: for spellbooks), cantrips have
         ; the normal limit but spells are unlimited
@@ -626,7 +627,13 @@
                              (<sub [::subs/acquired-spells-count
                                     available-list]))
 
-        spells (<sub [::subs/preparable-spell-list spellcaster available-list])
+        spells (<sub [::subs/preparable-spell-list
+                      spellcaster available-list
+
+                      ; include unavailable spells in "prepare" mode normally,
+                      ; or "acquisition" mode for acquires? spellcasters
+                      (or (not acquires?)
+                          (= :acquisition mode))])
 
         can-select-spells? (or (nil? spells-limit)
                                (< prepared-spells-count spells-limit))
@@ -638,9 +645,15 @@
                           :verb prepare-verb
                           :source-list source-list
                           :selectable? (fn [{:keys [spell-level]}]
-                                         (if (= 0 spell-level)
-                                           can-select-cantrips?
-                                           can-select-spells?)))]
+                                         (when (<= spell-level highest-spell-level)
+                                           (if (= 0 spell-level)
+                                             can-select-cantrips?
+                                             can-select-spells?))))
+
+        any-unavailable? (some :unavailable? spells)
+        spells (if @hide-unavailable?
+                 (remove :unavailable? spells)
+                 spells)]
 
     [:div styles/spell-management-overlay
      [:h5 title
@@ -660,14 +673,27 @@
        :placeholder "Search for a spell..."}]
 
      #_[:div.stretch
-      [virtual-list
-       :items spells
-       :render-item (fn [opts item]
-                      [:div.spell-container opts
-                       [spell-block item spell-opts]])]]
+        [virtual-list
+         :items spells
+         :render-item (fn [opts item]
+                        [:div.spell-container opts
+                         [spell-block item spell-opts]])]]
      (for [s spells]
        ^{:key (:id s)}
-       [spell-block s spell-opts])]))
+       [spell-block s spell-opts])
+
+     (when (and @hide-unavailable? any-unavailable?)
+       [:div.unavailable.spell.with-button
+        [:div.button {:on-click
+                      (fn-click
+                        (reset! hide-unavailable? false))}
+         "Show unavailable spells"]])
+     ]))
+
+(defn spell-management [spellcaster & {:keys [mode]
+                                       :or {mode :default}}]
+  (r/with-let [hide-unavailable? (r/atom true)]
+    [spell-management* spellcaster mode hide-unavailable?]))
 
 
 ; ======= spell info =======================================
