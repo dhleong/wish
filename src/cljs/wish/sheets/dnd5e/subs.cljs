@@ -12,7 +12,8 @@
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
-            [wish.util :refer [<sub invoke-callable ->map ->set]]
+            [wish.util :refer [<sub invoke-callable distinct-by
+                               ->map ->set]]
             [wish.util.string :as wstr]))
 
 ; ======= Constants ========================================
@@ -1598,14 +1599,15 @@
 
           ; for an acquires? spellcaster, their cantrips are "always prepared,"
           ; but we should be able to un-acquire them in case of mis-clicks, etc.
-          always-prepared-set (->> (if acquire-mode?
-                                     (->> prepared-spells
-                                          (remove #(= 0 (:spell-level %))))
+          always-prepared (->> (if acquire-mode?
+                                 (->> prepared-spells
+                                      (remove #(= 0 (:spell-level %))))
 
-                                     ; not acquire-mode; all :always-prepared?
-                                     ; go into the set
-                                     prepared-spells)
-                                   (filter :always-prepared?)
+                                 ; not acquire-mode; all :always-prepared?
+                                 ; go into the set
+                                 prepared-spells)
+                               (filter :always-prepared?))
+          always-prepared-set (->> always-prepared
                                    (map :id)
                                    set)
 
@@ -1634,6 +1636,8 @@
 
       (->> source
            (filter spells-filter)
+           (concat always-prepared)
+           (distinct-by :id)
 
            (filter-by-str filter-str)
 

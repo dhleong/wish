@@ -7,6 +7,18 @@
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
 
+(defn distinct-by [f coll]
+  (let [step (fn step [xs seen]
+               (lazy-seq
+                 ((fn [[x :as xs] seen]
+                    (when-let [s (seq xs)]
+                      (let [fx (f x)]
+                        (if (contains? seen fx)
+                          (recur (rest s) seen)
+                          (cons x (step (rest s) (conj seen fx)))))))
+                  xs seen)))]
+    (step coll #{})))
+
 (defn dec-dissoc
   "Update the key `k` in the given map `m`, decrementing it
    if > 1 or dissoc if <= 1"
