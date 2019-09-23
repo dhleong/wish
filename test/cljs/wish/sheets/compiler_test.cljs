@@ -1,7 +1,7 @@
 (ns wish.sheets.compiler-test
   (:require [cljs.test :refer-macros [deftest testing is]]
             [wish-engine.core :as engine]
-            [wish.sheets.compiler :refer [compile-sheet]]))
+            [wish.sheets.compiler :as compiler]))
 
 (def captains-coat
   '{:type :gear,
@@ -18,8 +18,7 @@
 
 (deftest compile-sheet-test
   (testing "Inflate apply-fns on custom items"
-    (let [sheet (compile-sheet
-                  {:engine (delay (engine/create-engine))}
-                  `{:kind :dnd5e
-                    :items {:custom/captains-coat ~captains-coat}})]
-      (is (fn? (-> sheet :items :custom/captains-coat :!))))))
+    (let [items (compiler/sheet-items
+                  (engine/create-engine)
+                  `{:custom/captains-coat ~captains-coat})]
+      (is (fn? (-> items :custom/captains-coat :!))))))
