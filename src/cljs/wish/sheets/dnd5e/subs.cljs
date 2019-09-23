@@ -1438,7 +1438,8 @@
 
         ; extra spells are always prepared
         extra-spells (some->> extra-spells
-                              (map #(assoc % :always-prepared? true)))
+                              (map #(assoc % :always-prepared? true
+                                           ::extra-spell? true)))
 
         selected-spell-ids (get options spells-option [])
 
@@ -1555,7 +1556,7 @@
 
   (fn [spells]
     (->> spells
-         (remove :always-prepared?)
+         (remove ::extra-spell?)
          (reduce
            (fn [m s]
              (let [spell-type (if (= 0 (:spell-level s))
