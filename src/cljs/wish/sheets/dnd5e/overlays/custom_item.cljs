@@ -37,7 +37,6 @@
      use-name :name
      uses :uses} :limited-use
     :as item}]
-  (println "GOT" item)
   (let [use-id (when limited-use?
                  (keyword (namespace item-id)
                           (str (name item-id) "#uses")))
