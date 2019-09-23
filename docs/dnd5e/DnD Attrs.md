@@ -211,6 +211,9 @@ The following kinds expect their `value` to be a constant number:
  - `:saves` Saving Throws
  - `:checks` Ability Checks
  - `:spell-atk` Spell Attack Rolls
+ - `:spell :dmg` Spell damage
+ - `:spell :healing` Spell healing
+ - `:spell :saves` Spell save DC
  - Abilities, like `:str`, `:dex`, etc.
 
 #### Functional Number buffs

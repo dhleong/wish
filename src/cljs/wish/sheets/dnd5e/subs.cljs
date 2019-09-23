@@ -1392,7 +1392,7 @@
 ; features, etc)
 (defn inflate-prepared-spells-for-caster
   [total-level engine-state modifiers
-   attack-bonuses spell-buffs options
+   prof-bonus spell-buffs options
    caster-attrs]
   (let [attrs caster-attrs
         caster-id (:id attrs)
@@ -1478,9 +1478,11 @@
                               (:dmg spell-buffs)
                               (:healing spell-buffs))
 
-                     ; save dc is attack modifier + 8
-                     :save-dc (+ (get attack-bonuses caster-id)
-                                 8))
+                     ; save dc is 8 + prof + ability
+                     :save-dc (+ 8
+                                 prof-bonus
+                                 (get modifiers caster-id)
+                                 (:saves spell-buffs)))
                    (merge (get spell-mods (:id %)))))
 
          ; sort by level, then name
@@ -1492,11 +1494,11 @@
   :<- [::spellcaster-blocks]
   :<- [:total-level]
   :<- [::spellcasting-modifiers]
-  :<- [::spell-attack-bonuses]
+  :<- [::proficiency-bonus]
   :<- [::spell-buffs]
   :<- [:meta/options]
   (fn [[engine-state spellcasters total-level modifiers
-        attack-bonuses spell-buffs options]]
+        prof-bonus spell-buffs options]]
     (some->> spellcasters
              seq
              (reduce
@@ -1504,7 +1506,7 @@
                  (assoc m caster-id
                         (inflate-prepared-spells-for-caster
                           total-level engine-state modifiers
-                          attack-bonuses spell-buffs options
+                          prof-bonus spell-buffs options
                           attrs)))
                {}))))
 
@@ -1712,11 +1714,15 @@
   ::spellcaster-info
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
-  (fn [[modifiers atk-bonuses] [_ spellcaster-id]]
-    (let [atk (get atk-bonuses spellcaster-id)]
-      {:mod (get modifiers spellcaster-id)
+  :<- [::proficiency-bonus]
+  :<- [::spell-buffs]
+  (fn [[modifiers atk-bonuses prof-bonus {save-buffs :saves}]
+       [_ spellcaster-id]]
+    (let [atk (get atk-bonuses spellcaster-id)
+          modifier (get modifiers spellcaster-id)]
+      {:mod modifier
        :attack atk
-       :save-dc (+ 8 atk)})))
+       :save-dc (+ 8 prof-bonus modifier save-buffs)})))
 
 (reg-sub
   ::spellcasting-modifiers
