@@ -5,7 +5,8 @@
             [wish.util :refer [>evt <sub click>evt]]
             [wish.util.scroll :refer [scrolled-amount]]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.spells :as subs-spells]
+            [wish.sheets.dnd5e.subs.nav :as subs-nav]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.views.abilities :as abilities]
             [wish.sheets.dnd5e.views.actions :as actions]
@@ -48,9 +49,9 @@
      content]))
 
 (defn- sheet-right-page []
-  (let [spellcasters (seq (<sub [::subs/spellcaster-blocks]))
+  (let [spellcasters (seq (<sub [::subs-spells/spellcaster-blocks]))
         smartphone? (= :smartphone (<sub [:device-type]))
-        page (<sub [::subs/page])]
+        page (<sub [::subs-nav/page])]
     [:<>
      [:div.nav {:ref #(reset! nav-ref %)}
       (when smartphone?
@@ -64,7 +65,7 @@
      ; actual sections
      [error-boundary
 
-      [swipeable {:get-key #(<sub [::subs/page])
+      [swipeable {:get-key #(<sub [::subs-nav/page])
                   :set-key! #(>evt [::events/page! %])}
 
        (when smartphone?

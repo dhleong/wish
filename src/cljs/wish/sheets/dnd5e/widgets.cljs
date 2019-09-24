@@ -10,6 +10,7 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.style :as styles]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -129,7 +130,7 @@
          {slot-level :level
           slot-kind :kind
           slot-remain :unused
-          slot-total :total} (<sub [::subs/usable-slot-for s])
+          slot-total :total} (<sub [::spells/usable-slot-for s])
 
          castable-level (if cantrip?
                           0  ; always
@@ -235,10 +236,10 @@
   [{:keys [update-level! base-level]}
    {:keys [spell-level prepared?] :as s}]
   (let [cantrip? (= 0 spell-level)
-        all-slots (<sub [::subs/usable-slots-for (assoc s :spell-level base-level)])
+        all-slots (<sub [::spells/usable-slots-for (assoc s :spell-level base-level)])
         min-castable-level (->> all-slots first :level)
         max-level (->> all-slots last :level)
-        {cast-level :level} (<sub [::subs/usable-slot-for s])
+        {cast-level :level} (<sub [::spells/usable-slot-for s])
         spell-level (max cast-level spell-level)
         s (-> s
               (assoc :spell-level spell-level)
@@ -361,7 +362,7 @@
                  ; this is somewhat obnoxiously complicated
                  ; since we need to skip over fully-used
                  ; slot levels :\
-                 (let [slots (<sub [::subs/usable-slots-for s])
+                 (let [slots (<sub [::spells/usable-slots-for s])
                        old-index (->> slots
                                       (keep-indexed
                                         (fn [i {:keys [level]}]

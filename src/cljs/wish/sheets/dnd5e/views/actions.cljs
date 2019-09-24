@@ -9,6 +9,7 @@
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind-attrs-from-path]]
             [wish.sheets.dnd5e.widgets :refer [cast-button]]
@@ -121,7 +122,7 @@
          (when (:uses-ammunition? w)
            [ammunition-block-for w])])])
 
-   (when-let [spell-attacks (seq (<sub [::subs/spell-attacks]))]
+   (when-let [spell-attacks (seq (<sub [::spells/spell-attacks]))]
      [:div.spell-attacks
       [:h4 "Spell Attacks"]
       (for [s spell-attacks]
@@ -178,7 +179,7 @@
    [formatted-text :div.desc (:desc a)]])
 
 (defn- actions-for-type [filter-type header-form]
-  (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
+  (let [spells (seq (<sub [::spells/prepared-spells-filtered filter-type]))
         actions (seq (<sub [::subs/actions-for-type filter-type]))]
     (when (or spells actions)
       [:<> {:key filter-type}
@@ -225,13 +226,13 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
-   [:actions "Actions" :when-any-<sub [[::subs/prepared-spells-filtered :action]
+   [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]
                                        [::subs/actions-for-type :action]]]
-   [:bonuses "Bonuses" :when-any-<sub [[::subs/prepared-spells-filtered :bonus]
+   [:bonuses "Bonuses" :when-any-<sub [[::spells/prepared-spells-filtered :bonus]
                                        [::subs/actions-for-type :bonus]]]
-   [:reactions "Reactions" :when-any-<sub [[::subs/prepared-spells-filtered :reaction]
+   [:reactions "Reactions" :when-any-<sub [[::spells/prepared-spells-filtered :reaction]
                                            [::subs/actions-for-type :reaction]]]
-   [:specials "Others" :when-any-<sub [[::subs/prepared-spells-filtered :special-action]
+   [:specials "Others" :when-any-<sub [[::spells/prepared-spells-filtered :special-action]
                                        [::subs/actions-for-type :special-action]]]
    [:limited-use "Limited" :when-any-<sub [[::subs/limited-use-configs]]]])
 
