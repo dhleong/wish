@@ -3,6 +3,7 @@
   wish.sheets.dnd5e.campaign
   (:require [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e :as dnd5e]
+            [wish.sheets.dnd5e.views.abilities :refer [abilities-display]]
             [wish.sheets.dnd5e.campaign.style :as style]
             [wish.views.campaign.base :as base]
             [wish.views.campaign.hp-bar :refer [hp-bar]]
@@ -20,7 +21,7 @@
 
    [:div.abilities
     (let [info (<sub [::subs/ability-info id])]
-      [dnd5e/abilities-display info])]
+      [abilities-display info])]
    ])
 
 (defn view
