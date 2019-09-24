@@ -2,7 +2,8 @@
       :doc "Campaign-viewer for D&D 5e"}
   wish.sheets.dnd5e.campaign
   (:require [wish.sheets.dnd5e.subs :as subs]
-            [wish.sheets.dnd5e :as dnd5e]
+            [wish.sheets.dnd5e.views.abilities :refer [abilities-display]]
+            [wish.sheets.dnd5e.views.header :refer [hp-death-saving-throws]]
             [wish.sheets.dnd5e.campaign.style :as style]
             [wish.views.campaign.base :as base]
             [wish.views.campaign.hp-bar :refer [hp-bar]]
@@ -16,11 +17,11 @@
     (let [[hp max-hp] (<sub [::subs/hp id])]
       (if (> hp 0)
         [hp-bar hp max-hp]
-        [dnd5e/hp-death-saving-throws id]))]
+        [hp-death-saving-throws id]))]
 
    [:div.abilities
     (let [info (<sub [::subs/ability-info id])]
-      [dnd5e/abilities-display info])]
+      [abilities-display info])]
    ])
 
 (defn view
