@@ -5,6 +5,7 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.combat :as combat]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind->attrs]]
             [wish.views.widgets :as widgets
@@ -106,7 +107,7 @@
         [:div.label "Proficiency"]]
 
        [buffable-stat :ac "AC"
-        (<sub [::subs/ac])]
+        (<sub [::combat/ac])]
 
        [buffable-stat :speed "Speed"
         (<sub [::subs/speed]) [:span.unit " ft"]]
@@ -117,7 +118,7 @@
 
        [buffable-stat :initiative "Initiative"
         (mod->str
-          (<sub [::subs/initiative]))]
+          (<sub [::combat/initiative]))]
 
        [hp]]
       ]]))
