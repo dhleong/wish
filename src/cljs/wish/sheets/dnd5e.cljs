@@ -7,18 +7,16 @@
                                invoke-callable]]
             [wish.util.nav :refer [sheet-url]]
             [wish.util.scroll :refer [scrolled-amount]]
-            [wish.inventory :as inv]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.util :refer [equippable? mod->str]]
+            [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.abilities :as abilities]
             [wish.sheets.dnd5e.views.actions :as actions]
+            [wish.sheets.dnd5e.views.inventory :as inventory]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind->attrs]]
-            [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
-                                               cast-button
-                                               currency-preview
+            [wish.sheets.dnd5e.widgets :refer [cast-button
                                                spell-card
                                                spell-tags]]
             [wish.views.error-boundary :refer [error-boundary]]
@@ -308,112 +306,6 @@
             [:div (str "You don't have any " prepared-label " spells")])]))]))
 
 
-; ======= inventory ========================================
-
-(defn- inventory-entry
-  [item can-attune?]
-  (let [{:keys [type]
-         quantity :wish/amount} item
-        stacks? (inv/stacks? item)]
-    [expandable
-     [:div.item {:class [(when (:wish/equipped? item)
-                           "equipped")
-                         (when (:attuned? item)
-                           "attuned")]}
-      [:div.info
-       [:div.name (:name item)]
-       (when-let [n (:notes item)]
-         [:div.notes-preview n])]
-
-      (when (inv/custom? item)
-        [:div.edit
-         [link>evt {:> [:toggle-overlay
-                        [#'overlays/custom-item-overlay item]]
-                    :propagate? false}
-          (icon :settings)]])
-
-      (when (inv/instanced? item)
-        [:div.notes
-         [link>evt {:> [:toggle-overlay
-                        [#'overlays/notes-overlay :item item]]
-                    :propagate? false}
-          (icon :description)]])
-
-      (when stacks?
-        [:div.quantity quantity])
-
-      (when (= :ammunition type)
-        [:div.consume.button
-         {:on-click (click>evt [:inventory-subtract item]
-                               :propagate? false)}
-         "Consume 1"])
-
-      (when (equippable? item)
-        [:div.equip.button
-         {:on-click (click>evt [:toggle-equipped item]
-                               :propagate? false)}
-         (if (:wish/equipped? item)
-           "Unequip"
-           "Equip")])
-
-      (when (:attunes? item)
-        [:div.attune.button
-         {:class (when-not (or (:attuned? item)
-                               can-attune?)
-                   ; "limit" 3 attuned
-                   "disabled")
-
-          :on-click (click>evt [::events/toggle-attuned item]
-                               :propagate? false)}
-
-         (if (:attuned? item)
-           "Unattune"
-           "Attune")])]
-
-     [:div.item-info
-      [formatted-text :div.desc (:desc item)]
-
-      (when stacks?
-        [item-quantity-manager item])
-
-      [:a.delete {:href "#"
-           :on-click (click>evt [:inventory-delete item])}
-       (icon :delete-forever)
-       " Delete" (when stacks? " all") " from inventory"]]]) )
-
-(defn inventory-section []
-  [:<>
-   [:span.clickable
-    {:class "clickable"
-     :on-click (click>evt [:toggle-overlay
-                           [#'overlays/currency-manager]])}
-    [currency-preview :large]]
-
-   [:div.add
-    [:b.label "Add:"]
-    [link>evt {:class "link"
-               :> [:toggle-overlay
-                   [#'overlays/item-adder]]}
-     "Item"]
-
-    [link>evt {:class "link"
-               :> [:toggle-overlay
-                   [#'overlays/custom-item-overlay]]}
-     "Custom"]
-
-    [link>evt {:class "link"
-               :> [:toggle-overlay
-                   [#'overlays/starting-equipment-adder]]}
-     "Starting Gear"] ]
-
-   (when-let [inventory (seq (<sub [::subs/inventory-sorted]))]
-     (let [can-attune? (< (count (<sub [::subs/attuned-ids]))
-                          3)]
-       (for [item inventory]
-         ^{:key (:id item)}
-         [inventory-entry item can-attune?])))
-   ])
-
 
 ; ======= Main interface ===================================
 
@@ -480,7 +372,7 @@
 
        [main-section {:key :inventory} page
         styles/inventory-section
-        [inventory-section]]
+        [inventory/view]]
 
        [main-section {:key :features} page
         styles/features-section
