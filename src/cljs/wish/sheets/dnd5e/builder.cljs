@@ -8,6 +8,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
@@ -612,10 +613,10 @@
          :standard [standard-form]
          :point [point-form])
 
-       [bonuses-from "Racial Bonuses" [::subs/abilities-racial]]
-       [bonuses-from "Ability Score Improvements" [::subs/abilities-improvements]]
+       [bonuses-from "Racial Bonuses" [::abilities/racial]]
+       [bonuses-from "Ability Score Improvements" [::abilities/improvements]]
 
-       (let [abilities (<sub [::subs/abilities-base])]
+       (let [abilities (<sub [::abilities/base])]
          [:<>
           [:tr
            [:th {:col-span 6}

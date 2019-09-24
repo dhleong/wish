@@ -13,6 +13,7 @@
             [wish.sheets.dnd5e.overlays.spell-management
              :refer [spell-info-header]]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
@@ -430,7 +431,7 @@
    state])
 
 (defn dice-usage [state]
-  (let [con-mod (-> (<sub [::subs/ability-modifiers])
+  (let [con-mod (-> (<sub [::abilities/modifiers])
                     :con
                     mod->str)]
     (when-let [values (seq (:values @state))]
@@ -466,7 +467,7 @@
                                                      seq)]
                            (let [dice-sum (apply + dice-totals)]
                              (when (> dice-sum 0)
-                               (let [con-mod (:con (<sub [::subs/ability-modifiers]))
+                               (let [con-mod (:con (<sub [::abilities/modifiers]))
                                      dice-used (->> dice-totals
                                                     (keep identity)
                                                     count)]

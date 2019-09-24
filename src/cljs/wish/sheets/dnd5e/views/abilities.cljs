@@ -3,6 +3,7 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.data :refer [labeled-abilities]]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared
@@ -42,7 +43,7 @@
          ]))]))
 
 (defn abilities-section []
-  (let [abilities (<sub [::subs/ability-info])]
+  (let [abilities (<sub [::abilities/info])]
     [:div styles/abilities-section
      [:div.abilities
       [abilities-display abilities :clickable]]
@@ -111,7 +112,7 @@
                "expert")]}]])
 
 (defn skills-section []
-  (let [skills (<sub [::subs/skill-info])]
+  (let [skills (<sub [::abilities/skill-info])]
     (->> skills-table
          (map
            (fn [col]

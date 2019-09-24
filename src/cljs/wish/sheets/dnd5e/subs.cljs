@@ -7,11 +7,11 @@
             [wish-engine.core :as engine]
             [wish.sources.util :as src-util]
             [wish.sheets.dnd5e.data :as data]
-            [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw
-                                                     mod->str]]
+            [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
             [wish.sheets.dnd5e.subs.base]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.subs.util
              :refer [filter-by-str feature-by-id feature-in-lists]]
@@ -53,7 +53,7 @@
 (reg-id-sub
   ::buffs
   :<- [:effect-ids-set]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [:total-level]
   :<- [::base-speed]
   :<- [:races]
@@ -120,7 +120,7 @@
 (reg-sub
   ::effect-buffs-values-map
   :<- [::effect-buffs-map]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::base-speed]
   (fn [[effects modifiers speed] _]
     ; NOTE: for now it is okay that we don't necessarily get
@@ -180,154 +180,12 @@
     (get classes (or ?class-id
                      ?sheet-id))))
 
-(reg-id-sub
-  ::abilities-raw
-  :<- [:meta/sheet]
-  (fn [sheet]
-    (:abilities sheet)))
-
-; NOTE: we compute these buffs by hand because we (potentially) need the
-; dependent sub to compute other buffs
-(reg-id-sub
-  ::abilities-improvements
-  :<- [:classes]
-  :<- [:races]
-  :<- [:effects]
-  (fn [entity-lists]
-    (->> entity-lists
-         flatten
-         (map (comp :buffs :attrs))
-         (apply merge-with merge)
-         (#(select-keys % (map first data/labeled-abilities)))
-         (reduce-kv (fn [m abi buffs]
-                      (assoc m abi (apply + (vals buffs))))
-                    {})
-         )))
-
-(reg-id-sub
-  ::abilities-racial
-  :<- [:race]
-  (fn [race]
-    (-> race :attrs :5e/ability-score-increase)))
-
-; ability scores are a function of the raw, rolled stats
-; in the sheet, racial modififiers, and any ability score improvements
-; from the class.
-; TODO There are also equippable items, but we don't yet support that.
-; TODO when we do handle equippable item buffs here, we need
-; to make sure ::available-classes doesn't use it (only ability
-; score improvements and racial bonuses ...)
-(reg-id-sub
-  ::abilities-base
-  :<- [::abilities-raw]
-  :<- [::abilities-racial]
-  :<- [::abilities-improvements]
-  (fn [[abilities race improvements]]
-    (merge-with +
-                abilities
-                race
-                improvements)))
-
-(reg-id-sub
-  ::abilities
-  :<- [::abilities-base]
-  :<- [:meta/sheet]
-  (fn [[base sheet]]
-    (merge-with +
-                base
-                (:ability-tmp sheet))))
-
-(reg-id-sub
-  ::ability-modifiers
-  :<- [::abilities]
-  (fn [abilities]
-    (reduce-kv
-     (fn [m ability score]
-       (assoc m ability (ability->mod score)))
-     {}
-     abilities)))
-
-(reg-id-sub
-  ::ability-saves
-  :<- [::ability-modifiers]
-  :<- [::proficiency-bonus]
-  :<- [::save-proficiencies]
-  :<- [::buffs :saves]
-  (fn [[modifiers prof-bonus save-proficiencies save-buffs]]
-    (reduce-kv
-      (fn [m ability modifier]
-        (let [proficient? (get save-proficiencies ability)]
-          (assoc m ability
-                 (if proficient?
-                   (mod->str
-                     (+ modifier save-buffs prof-bonus))
-
-                   (mod->str
-                     (+ modifier save-buffs))))))
-      {}
-      modifiers)))
-
-(reg-id-sub
-  ::ability-info
-  :<- [::abilities]
-  :<- [::abilities-base]
-  :<- [::ability-modifiers]
-  :<- [::save-proficiencies]
-  :<- [::ability-saves]
-  (fn [[abilities base modifiers save-proficiencies saves]]
-    (reduce-kv
-      (fn [m ability score]
-        (assoc m ability
-               {:score score
-                :modifier (mod->str (get modifiers ability))
-                :save (get saves ability)
-                :mod (let [delta (- score
-                                    (get base ability))]
-                       (cond
-                         (= delta 0) nil
-                         (> delta 0) :buff
-                         :else :nerf))
-                :proficient? (get save-proficiencies ability)}))
-      {}
-      abilities)))
-
-(reg-id-sub
-  ::skill-info
-  :<- [::ability-modifiers]
-  :<- [::skill-expertise]
-  :<- [::skill-proficiencies]
-  :<- [::skill-half-proficiencies]
-  :<- [::proficiency-bonus]
-  (fn [[modifiers expertise proficiencies half-proficiencies prof-bonus]]
-    (reduce-kv
-      (fn [m skill ability]
-        (let [expert? (contains? expertise skill)
-              half? (contains? half-proficiencies skill)
-              proficient? (contains? proficiencies skill)]
-          (assoc m skill
-                 {:id skill
-                  :ability ability
-                  :expert? expert?
-                  :half? half?
-                  :proficient? proficient?
-                  :modifier (+ (get modifiers ability)
-
-                               ; NOTE: half proficiency is lower priority than
-                               ; other proficiencies; you could have both, but
-                               ; you don't want to use half if you're an expert!
-                               (cond
-                                 expert? (* 2 prof-bonus)
-                                 proficient? prof-bonus
-                                 half? (Math/floor
-                                         (/ prof-bonus 2))))})))
-      {}
-      data/skill-id->ability)))
 
 (reg-id-sub
   ::limited-use-configs
   :<- [:all-limited-use-configs]
   :<- [:total-level]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::attuned-ids]
   (fn [[items total-level modifiers attuned-set]]
     (->> items
@@ -486,7 +344,7 @@
        :average [::max-hp-average])
 
      [::temp-max-hp]
-     [::abilities]
+     [::abilities/all]
      [:total-level]
      [::buffs :hp-max]
      ])
@@ -520,19 +378,6 @@
 
 ; ======= Proficiency and expertise ========================
 
-; returns a set of ability ids
-(reg-sub
-  ::save-proficiencies
-  :<- [:classes]
-  (fn [classes _]
-    (->> classes
-         (filter :primary?)
-         (mapcat :attrs)
-         (filter (fn [[k v]]
-                   (when (= v true)
-                     (= "save-proficiency" (namespace k)))))
-         (map (comp keyword name first))
-         (into #{}))))
 
 (def ^:private static-resistances
   #{:acid :cold :fire :lightning :poison})
@@ -592,54 +437,6 @@
                   :else
                   (assoc extra :id id)))))))
 
-; returns a collection of feature ids
-(reg-sub
-  ::all-proficiencies
-  :<- [:races]
-  :<- [:classes]
-  (fn [entity-lists _]
-    (->> entity-lists
-         flatten
-         (mapcat :attrs)
-         (keep (fn [[k v]]
-                 (when (and v
-                            (= "proficiency" (namespace k)))
-                   k)))
-         (into #{}))))
-
-; returns a set of skill ids
-(reg-sub
-  ::skill-proficiencies
-  :<- [::all-proficiencies]
-  (fn [feature-ids _]
-    (->> feature-ids
-         (filter data/skill-feature-ids)
-         (map (comp keyword name))
-         (into #{}))))
-
-; returns a set of skill ids
-(reg-sub
-  ::skill-half-proficiencies
-  :<- [:classes]
-  (fn [classes _]
-    (->> classes
-         (mapcat (comp keys :half-proficient :attrs))
-         (into #{}))))
-
-
-; returns a set of skill ids
-(reg-sub
-  ::skill-expertise
-  :<- [:classes]
-  (fn [classes _]
-    (->> classes
-         (mapcat :attrs)
-         (filter (fn [[k v]]
-                   (when (= v true)
-                     (= "expertise" (namespace k)))))
-         (map (comp keyword name first))
-         (into #{}))))
-
 (reg-sub
   ::other-proficiencies
   :<- [:sheet-engine-state]
@@ -673,7 +470,7 @@
 
 (reg-sub
   ::passive-perception
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::proficiency-bonus]
   :<- [::save-proficiencies]
   (fn [[abilities prof-bonus save-profs]]
@@ -726,7 +523,7 @@
   :<- [:classes]
   :<- [:effects]
   :<- [::attuned-eq]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::buffs :ac]
   :<- [::armor-equipped?]
   :<- [::shield-equipped?]
@@ -750,8 +547,8 @@
 
 (reg-sub
   ::initiative
-  :<- [::ability-modifiers]
-  :<- [::skill-half-proficiencies]
+  :<- [::abilities/modifiers]
+  :<- [::abilities/skill-half-proficiencies]
   :<- [::proficiency-bonus]
   :<- [::buffs :initiative]
   (fn [[abilities half-proficiencies prof-bonus buffs]]
@@ -807,7 +604,7 @@
   ::unarmed-strike
   :<- [:classes]
   :<- [:sheet-engine-state]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::proficiency-bonus]
   (fn [[classes data-source modifiers proficiency-bonus]]
     ; prefer the first non-implicit result
@@ -1023,7 +820,7 @@
   :<- [::eq-proficiencies]
   :<- [::proficiency-bonus]
   :<- [:effect-ids-set]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::buff-attrs :atk]
   :<- [::buff-attrs :dmg]
   :<- [::finesse-weapon-kinds]
@@ -1111,7 +908,7 @@
   ::other-attacks
   :<- [:sheet-engine-state]
   :<- [:meta/options]
-  :<- [::ability-modifiers]
+  :<- [::abilities/modifiers]
   :<- [::proficiency-bonus]
   :<- [:total-level]
   :<- [:races]
@@ -1206,14 +1003,14 @@
 ; of ability score generation
 (reg-sub
   ::point-buy-remaining
-  :<- [::abilities-raw]
+  :<- [::abilities/raw]
   (fn [abilities]
     (- point-buy-max
        (calculate-scores-cost abilities))))
 
 (reg-sub
   ::point-buy-delta
-  :<- [::abilities-raw]
+  :<- [::abilities/raw]
   (fn [abilities [_ ability new-cost]]
     (let [current-cost (->> abilities
                             ability
@@ -1270,7 +1067,7 @@
   :<- [:available-entities :classes]
   :<- [:classes]
   :<- [::primary-class]
-  :<- [::abilities-base]
+  :<- [::abilities/base]
   (fn [[all-classes selected-classes primary-class abilities]]
     (available-classes
       (map util/prepare-class-for-builder all-classes)

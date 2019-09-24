@@ -3,6 +3,7 @@
             [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ]]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.util
              :refer [filter-by-str options-of-list]]
             [wish.util :refer [invoke-callable distinct-by ->map ]]
@@ -485,7 +486,7 @@
 
 (reg-sub
   ::spellcasting-modifiers
-  :<- [:wish.sheets.dnd5e.subs/abilities]
+  :<- [::abilities/all]
   :<- [::spellcaster-blocks]
   (fn [[abilities spellcasters]]
     (reduce
