@@ -13,13 +13,14 @@
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.abilities :as abilities]
             [wish.sheets.dnd5e.views.actions :as actions]
+            [wish.sheets.dnd5e.views.features :as features]
             [wish.sheets.dnd5e.views.inventory :as inventory]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind->attrs]]
             [wish.sheets.dnd5e.views.spells :as spells]
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
-             :refer [formatted-text link link>evt]]
+             :refer [link link>evt]]
             [wish.views.widgets.swipeable :refer [swipeable]]))
 
 (def ^:private nav-ref (atom nil))
@@ -134,49 +135,6 @@
 
 
 
-; ======= Features =========================================
-
-(defn feature [f]
-  (let [values (seq (:values f))]
-    [:div.feature
-     [:div.name (:name f)]
-
-     [actions/consume-use-block f {:omit-name (:name f)}]
-
-     [formatted-text :div.desc (:desc f)]
-
-     (when values
-       [:div.chosen-details
-        [:h5 "Chosen values:"]
-        (for [v values]
-          ^{:key (:id v)}
-          [:div.chosen.clickable
-           {:on-click (click>evt [:toggle-overlay
-                                  [#'overlays/info v]])}
-           (:name v)])])]))
-
-(defn features-section []
-  [:<>
-   (when-let [fs (<sub [::subs/features-for [:inflated-class-features]])]
-      [:div.features-category
-       [:h3 "Class features"]
-       (for [f fs]
-         ^{:key (:id f)}
-         [feature f])])
-
-    (when-let [fs (<sub [::subs/features-for [:inflated-race-features]])]
-      [:div.features-category
-       [:h3 "Racial Traits"]
-       (for [f fs]
-         ^{:key (:id f)}
-         [feature f])])
-
-    ; TODO proficiencies?
-    ; TODO feats?
-    ])
-
-
-
 
 ; ======= Main interface ===================================
 
@@ -247,7 +205,7 @@
 
        [main-section {:key :features} page
         styles/features-section
-        [features-section]]
+        [features/view]]
 
        ]] ]))
 
