@@ -11,6 +11,8 @@
             [wish.sheets.dnd5e.overlays-test]
             [wish.sheets.dnd5e.overlays.custom-item-test]
             [wish.sheets.dnd5e.subs-test]
+            [wish.sheets.dnd5e.subs.base-test]
+            [wish.sheets.dnd5e.subs.spells-test]
             [wish.sheets.dnd5e.util-test]
             [wish.util-test]
             [wish.util.formatted-test]
