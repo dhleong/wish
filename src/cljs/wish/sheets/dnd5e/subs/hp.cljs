@@ -45,8 +45,8 @@
 
 (reg-id-sub
   ::rolled-max
-  :<- [::rolled-hp]
-  :<- [::class->level]
+  :<- [::rolled]
+  :<- [:wish.sheets.dnd5e.subs/class->level]
   (fn [[rolled-hp class->level]]
     (->> rolled-hp
 
