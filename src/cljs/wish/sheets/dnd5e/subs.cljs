@@ -8,6 +8,13 @@
             [wish.sheets.dnd5e.subs.util :refer [compute-buffs reg-sheet-sub]]
             [wish.subs-util :refer [reg-id-sub]]))
 
+(reg-sheet-sub
+  ::conditions
+  :conditions)
+
+(reg-sheet-sub
+  ::notes
+  :notes)
 
 ; ======= utility subs ====================================
 
@@ -116,15 +123,7 @@
     (+ base buffs)))
 
 
-; ======= etc ==============================================
-
-(reg-sheet-sub
-  ::conditions
-  :conditions)
-
-(reg-sheet-sub
-  ::notes
-  :notes)
+; ======= sectioned features ==============================
 
 (reg-sub
   ::selected-option-ids
