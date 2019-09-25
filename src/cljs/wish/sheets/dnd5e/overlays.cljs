@@ -14,6 +14,8 @@
              :refer [spell-info-header]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.starter :as starter]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
@@ -146,7 +148,7 @@
 
 (defn ability-tmp
   [id label]
-  (let [{{:keys [score modifier]} id} (<sub [::subs/ability-info])]
+  (let [{{:keys [score modifier]} id} (<sub [::abilities/info])]
     [:div styles/ability-tmp-overlay
      [:h5 label " " score " (" modifier ")"]
 
@@ -607,7 +609,7 @@
 
        {:get #(if (= :adjust (first %))
                 (get-in @quick-adjust %)
-                (get-in (<sub [::subs/currency]) %))
+                (get-in (<sub [::inventory/currency]) %))
 
         :save! (fn [path v]
                  (if (not= :adjust (first path))
@@ -651,7 +653,7 @@
 
    [:div.item-browser.scrollable
     [virtual-list
-     :items (<sub [::subs/all-items])
+     :items (<sub [::inventory/all-items])
      :render-item (fn [item]
                     [:div.item
                      [item-browser-item item]])]]])
@@ -826,7 +828,7 @@
 (defn starting-equipment-adder []
   (r/with-let [state (r/atom {})]
     (let [{primary-class :class
-           choices :choices} (<sub [::subs/starting-eq])
+           choices :choices} (<sub [::starter/eq])
           this-state @state]
       [:div styles/starting-equipment-overlay
        [:h5 (:name primary-class) " Starting Equipment"]

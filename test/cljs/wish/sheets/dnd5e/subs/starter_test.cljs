@@ -1,6 +1,6 @@
-(ns wish.sheets.dnd5e.subs-test
+(ns wish.sheets.dnd5e.subs.starter-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs :as subs :refer [unpack-eq-choices]]
+            [wish.sheets.dnd5e.subs.starter :refer [unpack-eq-choices]]
             [wish.sheets.dnd5e.subs.test-util :refer [->ds]]))
 
 (deftest unpack-eq-choices-test
