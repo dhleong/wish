@@ -1,7 +1,6 @@
 (ns wish.sheets.dnd5e.subs-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs :as subs :refer [available-classes
-                                                     unpack-eq-choices]]
+            [wish.sheets.dnd5e.subs :as subs :refer [unpack-eq-choices]]
             [wish.sheets.dnd5e.subs.test-util :refer [->ds]]))
 
 (deftest unpack-eq-choices-test
@@ -77,15 +76,3 @@
                source
                packs
                '([:dagger :thieves-tools] :lute)))))))
-
-(deftest available-classes-test
-  (testing "All classes available to be primary"
-    (is (= [{:id :rogue}
-            {:id :pilot}]
-           (#'available-classes
-             [{:id :rogue}
-              {:id :pilot}]
-             []  ; none selected
-             nil ; none primary
-             {})))))
-
