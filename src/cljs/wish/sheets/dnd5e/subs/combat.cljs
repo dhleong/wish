@@ -6,18 +6,19 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.subs.base]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.util :refer [feature-by-id]]
             [wish.util :refer [invoke-callable]]))
 
 (reg-sub
   ::armor-equipped?
-  :<- [:wish.sheets.dnd5e.subs/equipped-sorted]
+  :<- [::inventory/equipped]
   (fn [equipped]
     (some data/armor? equipped)))
 
 (reg-sub
   ::shield-equipped?
-  :<- [:wish.sheets.dnd5e.subs/equipped-sorted]
+  :<- [::inventory/equipped]
   (fn [equipped]
     (some data/shield? equipped)))
 
@@ -25,7 +26,7 @@
   ::ac
   :<- [:classes]
   :<- [:effects]
-  :<- [:wish.sheets.dnd5e.subs/attuned-eq]
+  :<- [::inventory/attuned]
   :<- [::abilities/modifiers]
   :<- [:wish.sheets.dnd5e.subs/buffs :ac]
   :<- [::armor-equipped?]
@@ -142,7 +143,7 @@
 
 (reg-sub
   ::ammunition-for
-  :<- [:wish.sheets.dnd5e.subs/inventory-sorted]
+  :<- [::inventory/sorted]
   (fn [items [_ _weapon]]
     (->> items
          (filter (comp (partial = :ammunition) :type))
@@ -273,8 +274,8 @@
 
 (reg-sub
   ::equipped-weapons
-  :<- [:wish.sheets.dnd5e.subs/equipped-sorted]
-  :<- [:wish.sheets.dnd5e.subs/eq-proficiencies]
+  :<- [::inventory/equipped]
+  :<- [::inventory/eq-proficiencies]
   :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
   :<- [:effect-ids-set]
   :<- [::abilities/modifiers]
@@ -305,7 +306,7 @@
   :<- [:sheet-engine-state]
   :<- [:classes]
   :<- [:races]
-  :<- [:wish.sheets.dnd5e.subs/attuned-eq]
+  :<- [::inventory/attuned]
   :<- [:effects]
   (fn [[data-source & entity-lists] [_ filter-type]]
     (->> entity-lists

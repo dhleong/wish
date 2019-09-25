@@ -2,8 +2,19 @@
   (:require [clojure.string :as str]
             [wish-engine.core :as engine]
             [wish.sources.util :as src-util]
+            [wish.subs-util :refer [reg-id-sub]]
             [wish.util.string :as wstr]
             [wish.util :refer [->set]]))
+
+(defn reg-sheet-sub
+  "Convenience for creating a sub that just gets a specific
+   field from the :sheet key of the sheet-meta"
+  [id getter]
+  (reg-id-sub
+    id
+    :<- [:meta/sheet]
+    (fn [sheet _]
+      (getter sheet))))
 
 (defn filter-by-str
   "Filter's by :name using the given str"

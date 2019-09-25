@@ -9,26 +9,13 @@
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
             [wish.sheets.dnd5e.subs.base]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.subs.util
-             :refer [filter-by-str feature-by-id feature-in-lists]]
+             :refer [filter-by-str feature-by-id feature-in-lists
+                     reg-sheet-sub]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
             [wish.util :refer [<sub invoke-callable ->map]]))
-
-
-
-; ======= utils ============================================
-
-(defn- reg-sheet-sub
-  "Convenience for creating a sub that just gets a specific
-   field from the :sheet key of the sheet-meta"
-  [id getter]
-  (reg-id-sub
-    id
-    :<- [:meta/sheet]
-    (fn [sheet _]
-      (getter sheet))))
-
 
 
 ; ======= utility subs ====================================
@@ -55,7 +42,7 @@
   :<- [::base-speed]
   :<- [:races]
   :<- [:classes]
-  :<- [::attuned-eq]
+  :<- [::inventory/attuned]
   :<- [:effects]
   (fn [[effects-set modifiers total-level base-speed races & entity-lists]
        [_ & buff-path]]
@@ -183,7 +170,7 @@
   :<- [:all-limited-use-configs]
   :<- [:total-level]
   :<- [::abilities/modifiers]
-  :<- [::attuned-ids]
+  :<- [::inventory/attuned-ids]
   (fn [[items total-level modifiers attuned-set]]
     (->> items
          (remove :implicit?)
@@ -385,7 +372,7 @@
   :<- [:sheet-engine-state]
   :<- [:races]
   :<- [:classes]
-  :<- [::attuned-eq]
+  :<- [::inventory/attuned]
   :<- [:effects]
   (fn [[data-source & entity-lists] _]
     (->> entity-lists
@@ -489,84 +476,6 @@
   (fn [[base buffs]]
     (+ base buffs)))
 
-
-; ======= items and equipment ==============================
-
-(reg-sub
-  ::equipped-sorted
-  :<- [:equipped-sorted]
-  (fn [equipped]
-    (map (fn [item]
-           (case (:type item)
-             :armor (data/inflate-armor item)
-             :weapon (data/inflate-weapon item)
-             item))
-         equipped)))
-
-
-(reg-sub
-  :5e/items-filter
-  (fn [db]
-    (:5e/items-filter db nil)))
-
-(reg-sub
-  ::all-items
-  :<- [:all-items]
-  :<- [:5e/items-filter]
-  (fn [[items filter-str]]
-    (filter-by-str filter-str items)))
-
-(reg-sheet-sub
-  ::attuned-ids
-  :attuned)
-
-; all equipped items that are attuned (or that don't need to be attuned)
-(reg-sub
-  ::attuned-eq
-  :<- [::equipped-sorted]
-  :<- [::attuned-ids]
-  (fn [[equipped attuned-set]]
-    (->> equipped
-         (remove (fn [item]
-                   (and (:attunes? item)
-                        (not (contains? attuned-set (:id item)))))))))
-
-; returns a map of :kinds and :categories
-(reg-sub
-  ::eq-proficiencies
-  :<- [:classes]
-  :<- [:races]
-  (fn [entity-lists]
-    (->> entity-lists
-         flatten
-         (map :attrs)
-         (reduce
-           (fn [m attrs]
-             (-> m
-                 (update :kinds conj (:weapon-kinds attrs))
-                 (update :categories conj (:weapon-categories attrs))))
-           {:kinds {}
-            :categories {}}))))
-
-; like :inventory-sorted but with :attuned? added as appropriate
-(reg-sub
-  ::inventory-sorted
-  :<- [:inventory-sorted]
-  :<- [::attuned-ids]
-  (fn [[inventory attuned-set]]
-    (->> inventory
-         (map (fn [item]
-                (if (contains? attuned-set (:id item))
-                  (assoc item :attuned? true)
-                  item))))))
-
-; current quantity of the given item
-(reg-sub
-  ::item-quantity
-  :<- [:inventory-map]
-  (fn [m [_ item-id]]
-    (->> m item-id :wish/amount)))
-
 ; ======= starting equipment ==============================
 
 (reg-sub
@@ -647,10 +556,6 @@
 
 
 ; ======= etc ==============================================
-
-(reg-sheet-sub
-  ::currency
-  :currency)
 
 (reg-sheet-sub
   ::conditions

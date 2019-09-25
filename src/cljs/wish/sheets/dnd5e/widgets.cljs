@@ -11,6 +11,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.spells :as spells]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.style :as styles]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -97,7 +98,7 @@
                       :id :quantity
                       :min 0}]
 
-    {:get #(<sub [::subs/item-quantity (:id item)])
+    {:get #(<sub [::inventory/item-quantity (:id item)])
      :save! (fn [_path v]
               (>evt [:inventory-set-amount item v]))}]
 

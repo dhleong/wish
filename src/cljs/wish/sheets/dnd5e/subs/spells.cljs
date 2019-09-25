@@ -4,6 +4,7 @@
             [wish-engine.core :as engine]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ]]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.util
              :refer [filter-by-str options-of-list]]
             [wish.util :refer [invoke-callable distinct-by ->map ]]
@@ -501,7 +502,7 @@
 
 (reg-sub
   ::eq-attack-buffs
-  :<- [:wish.sheets.dnd5e.subs/attuned-eq]
+  :<- [::inventory/attuned]
   (fn [eq _]
     (->> eq
          (filter (fn [{id :id}]
