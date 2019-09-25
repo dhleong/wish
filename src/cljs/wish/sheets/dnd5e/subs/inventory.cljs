@@ -42,7 +42,7 @@
 ; all equipped items that are attuned (or that don't need to be attuned)
 (reg-sub
   ::attuned
-  :<- [::equipped-sorted]
+  :<- [::equipped]
   :<- [::attuned-ids]
   (fn [[equipped attuned-set]]
     (->> equipped
