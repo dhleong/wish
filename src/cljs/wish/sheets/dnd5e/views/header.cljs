@@ -1,5 +1,7 @@
 (ns wish.sheets.dnd5e.views.header
   (:require [clojure.string :as str]
+            [spade.core :refer [defattrs]]
+            [wish.style.flex :as flex :refer [flex]]
             [wish.util :refer [<sub click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -17,6 +19,84 @@
              :refer-macros [icon]
              :refer [link link>evt]]))
 
+(defattrs header-container-style []
+  {:display 'block
+   :background "#666666"})
+
+(defattrs header-style []
+  (at-media styles/media-tablets
+    [:.col.meta {:max-width "15vw"}])
+
+  (at-media styles/media-smartphones
+    [:.side
+     [:&.settings {:order "0 !important"}]
+     [:&.right {:justify-content 'space-between
+                :padding "0 12px"
+                :width "100%"}]]
+
+    [:.col.meta {:max-width "35vw"}]
+
+    [:.hp
+     [:.label
+      [:.content {:display 'none}]
+      [:&:after {:content "'HP'"}]]
+     [:.value {:display "block !important"}]
+     [:.divider {:display 'block
+                 :height "1px"
+                 :border-top "1px solid #fff"
+                 :overflow 'hidden}]
+     [:.max {:font-size "60%"}]])
+
+  (at-media styles/media-tiny
+    {:font-size "80%"}
+    [:.side {:padding "0 !important"}])
+
+  [:& (merge flex
+             flex/wrap
+             {:color "#f0f0f0"
+              :margin "0 auto"
+              :padding "4px 0"
+              :max-width "1200px"
+              :width "100%"})]
+  [:.side flex
+   [:&.left {:padding-left "12px"}]
+   [:&.settings {:order 1
+                 :padding-right "12px"}]
+
+   [:.col (merge flex/vertical-center
+                 styles/text-center
+                 {:padding "4px 8px"})
+    [:&.left {:text-align 'left}]
+
+    [:.meta (merge flex
+                   flex/wrap
+                   {:font-size "80%"})
+     [:.race {:margin-right "0.5em"}]]
+
+    [:.save-state {:margin-right "12px"}]
+
+    [:.stat {:font-size "140%"}
+     [:&.buffed {:color styles/color-accent2}]
+     [:&.nerfed {:color styles/color-accent-nerf}]
+     [:.unit {:font-size "60%"}]]]]
+
+  [:.label {:font-size "80%"}]
+
+  [:.hp flex/center
+   [:.value (merge flex
+                   styles/text-center
+                   {:padding "4px"
+                    :font-size "120%"})]
+   [:.divider {:padding "0 4px"}]
+   [:.indicators
+    [:.icon {:font-size "12px"}
+     [:&.save {:color "#00cc00"}]
+     [:&.fail {:color "#aa0000"}]]]
+   [:.max
+    [:&.buffed {:color styles/color-accent2}]
+    [:&.nerfed {:color styles/color-accent-nerf}]]]
+
+  [:.space flex/grow])
 
 ; ======= Top bar ==========================================
 
@@ -72,8 +152,8 @@
 (defn view []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div (styles/header-container)
-     [:div (styles/header)
+    [:div (header-container-style)
+     [:div (header-style)
       [:div.left.side
        [:div.col
         [widgets/save-state]]
