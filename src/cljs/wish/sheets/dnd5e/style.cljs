@@ -42,46 +42,6 @@
                       :color "rgba(1,1,1, 0.25) !important"
                       :cursor 'default})
 
-(defn proficiency-style [& {:as extra}]
-  [:.proficiency
-   (merge {:position 'relative
-           :width "10px"
-           :height "10px"}
-          extra)
-   [:&::before
-    {:content "' '"
-     :width "8px"
-     :height "8px"
-     :border-radius "50%"
-     :border (str "1px solid " color-proficient)
-     :background color-proficient
-     :display 'inline-block
-     :position 'absolute
-     :visibility 'hidden}]
-   [:&.proficient::before
-    {:visibility 'visible}]
-   [:&.expert::before
-    {:background-color color-expert
-     :border-color color-expert}]
-
-   ; this is the semi-circle
-   [:&.half::before
-    {:width "4px"
-     :border-color "#fff"
-     :border-radius "8px 0 0 8px"
-     :margin-right "4px"
-     }]
-   ; this is the outline of the circle
-   [:&.half::after
-    {:content "' '"
-     :width "8px"
-     :height "8px"
-     :border (str "1px solid " color-proficient)
-     :border-radius "50%"
-     :display 'inline-block
-     :position 'absolute
-     }] ])
-
 ;;
 ;; 35/65 layout
 ;;
@@ -521,15 +481,7 @@
           :border-radius "12px"
           :background-color "#333"}])
 
-; in dnd5e.cljs, not widgets:
-(defattrs rest-buttons []
-  (merge flex/center
-         {:margin "8px 0"})
 
-  [:.button (merge
-              flex/grow
-              button
-              text-center)])
 
 (defattrs swipeable-page []
   {:min-height "60vh"})
@@ -545,49 +497,6 @@
 ;;
 ;; Sections
 ;;
-
-(defattrs abilities-section []
-  ; make the mod a bit more prominent if we have room
-  (at-media
-    {:min-width "1000px"}
-    [:.abilities>.ability>.mod {:font-size "2em"}])
-
-  {:margin-top "1em"}
-
-  [:.abilities (merge flex
-                      {:justify-content 'space-around})]
-
-  [:&>.info (merge metadata
-                   text-center)]
-
-  [:.ability (merge flex/vertical
-                    flex/center
-                    flex/align-center
-                    text-center
-                    button)
-   [:&.buffed
-    [:.score {:color "#0d0"}]
-    [:.mod {:color "#0d0"}]]
-   [:&.nerfed
-    [:.score {:color "#d00"}]
-    [:.mod {:color "#d00"}]]
-
-   [:.label (merge flex/grow
-                   {:font-size "0.7em"})]
-   [:.mod {:font-size "1.5em"}]
-   [:.score {:font-size "0.9em"
-             :margin-bottom "8px"} ] ]
-
-  [:.save flex/center
-   [:.label {:font-size "0.4em"
-             :transform "rotate(90)"}]
-   [:.info (merge metadata
-                  {:padding "0 4px"})]
-   [:.mod {:font-size "1.05em"}]
-   (proficiency-style
-     :margin-left "4px")]
-
-  [:.extras metadata])
 
 (defattrs actions-section []
   (at-media media-smartphones
@@ -647,57 +556,6 @@
             :font-weight 'bold
             :font-style 'italic}]
    [:.desc metadata]])
-
-(def single-column-skills [:.base-ability
-                           {:width "3em !important"}])
-
-(defattrs skills-section []
-  ; collapse into a single row on smaller devices
-  ; that can't fit two columns of Skills
-  (at-media
-    (merge media-tablets
-           media-not-smartphones)
-    single-column-skills)
-
-  (at-media
-    {:max-width "370px"}
-    single-column-skills)
-
-  (at-media
-    (merge media-smartphones
-           {:min-width "371px"})
-    [:.skill-col {:max-width "48%"}])
-
-  (at-media
-    media-laptops
-    [:.skill-col:first-child {:margin-right "12px"}])
-
-  [:.sections
-   {:justify-content 'space-between}]
-
-  [:.skill-col (merge
-                 flex/vertical
-                 flex/grow)
-   [:.skill (merge flex
-                   flex/wrap
-                   {:padding "2px 0"})
-    [:.base-ability (merge metadata
-                           {:width "100%"})]
-    [:.label flex/grow]
-    [:.score {:padding "0 4px"}
-     [:&.buffed {:color color-accent2}]
-     [:&.nerfed {:color color-accent-nerf}]]
-
-    (proficiency-style
-      :transform "translate(0, 34%)")]])
-
-(defattrs proficiencies-section []
-  [:.section {:padding "0 8px"
-              :margin-bottom "16px"}]
-  [:.item (merge metadata
-                 {:display 'inline-block})
-   ["&:not(:last-child)" {:padding-right "0.5em"}
-    [:&:after {:content "','"}]]])
 
 (defattrs features-section []
   [:.features-category>h3 {:border-bottom "1px solid #000"}]
