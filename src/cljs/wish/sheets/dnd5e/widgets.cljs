@@ -53,7 +53,7 @@
         (str/replace "-" " "))))
 
 (defn currency-preview [& [large?]]
-  (let [{:keys [platinum gold silver electrum copper]} (<sub [::subs/currency])
+  (let [{:keys [platinum gold silver electrum copper]} (<sub [::inventory/currency])
         any? (> (+ platinum gold silver electrum copper)
                 0)]
     [:span {:class [(when large?
