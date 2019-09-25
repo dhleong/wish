@@ -5,6 +5,10 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.effects :as effects]
+            [wish.sheets.dnd5e.subs.hp :as hp]
+            [wish.sheets.dnd5e.subs.combat :as combat]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind->attrs]]
             [wish.views.widgets :as widgets
@@ -15,7 +19,7 @@
 ; ======= Top bar ==========================================
 
 (defn- hp-normal [hp max-hp]
-  (let [buff-kind (<sub [::subs/effect-change-for :hp-max])]
+  (let [buff-kind (<sub [::effects/change-for :hp-max])]
     [:<>
      [:div.label [:span.content "Hit Points"]]
      [:div.value
@@ -39,13 +43,13 @@
 (defn hp-death-saving-throws
   ([] (hp-death-saving-throws nil))
   ([sheet-id]
-   (let [{:keys [saves fails]} (<sub [::subs/death-saving-throws sheet-id])]
+   (let [{:keys [saves fails]} (<sub [::hp/death-saving-throws sheet-id])]
      [:<>
       [save-indicators "😇" :save saves]
       [save-indicators "☠️" :fail fails]])))
 
 (defn hp []
-  (let [[hp max-hp] (<sub [::subs/hp])]
+  (let [[hp max-hp] (<sub [::hp/state])]
     [:div.clickable.hp.col
      {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
 
@@ -54,7 +58,7 @@
        [hp-death-saving-throws])]))
 
 (defn buffable-stat [stat-id label & content]
-  (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
+  (let [buff-kind (<sub [::effects/change-for stat-id])]
     [:div.col
      (into [:div.stat (buff-kind->attrs buff-kind)]
            content)
@@ -102,11 +106,11 @@
       [:div.right.side
        [:div.col
         [:div.stat (mod->str
-                     (<sub [::subs/proficiency-bonus]))]
+                     (<sub [::proficiency/bonus]))]
         [:div.label "Proficiency"]]
 
        [buffable-stat :ac "AC"
-        (<sub [::subs/ac])]
+        (<sub [::combat/ac])]
 
        [buffable-stat :speed "Speed"
         (<sub [::subs/speed]) [:span.unit " ft"]]
@@ -117,7 +121,7 @@
 
        [buffable-stat :initiative "Initiative"
         (mod->str
-          (<sub [::subs/initiative]))]
+          (<sub [::combat/initiative]))]
 
        [hp]]
       ]]))

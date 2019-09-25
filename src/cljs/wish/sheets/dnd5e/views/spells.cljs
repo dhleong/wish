@@ -2,8 +2,9 @@
   (:require [clojure.string :as str]
             [wish.util :refer [<sub invoke-callable]]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.overlays :as overlays]
-            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.overlays.spell-management
+             :as spell-management]
+            [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.widgets :refer [cast-button
                                                spell-card
@@ -17,7 +18,7 @@
   [s]
   (let [base-level (:spell-level s)
         cantrip? (= 0 base-level)
-        {cast-level :level} (<sub [::subs/usable-slot-for s])
+        {cast-level :level} (<sub [::spells/usable-slot-for s])
         upcast? (when cast-level
                   (not= cast-level base-level))
         level (or cast-level base-level)]
@@ -72,7 +73,7 @@
      [spell-block s])])
 
 (defn- spellcaster-info [spellcaster]
-  (let [info (<sub [::subs/spellcaster-info (:id spellcaster)])]
+  (let [info (<sub [::spells/spellcaster-info (:id spellcaster)])]
     [:span.spellcaster-info
      [:span.item "Modifier: " (mod->str (:mod info))]
      [:span.item "Attack: " (mod->str (:attack info))]
@@ -80,9 +81,9 @@
      ]))
 
 (defn view [spellcasters]
-  (let [slots-sets (<sub [::subs/spell-slots])
-        slots-used (<sub [::subs/spell-slots-used])
-        prepared-spells-by-class (<sub [::subs/prepared-spells-by-class])]
+  (let [slots-sets (<sub [::spells/spell-slots])
+        slots-used (<sub [::spells/spell-slots-used])
+        prepared-spells-by-class (<sub [::spells/prepared-spells-by-class])]
     [:<>
      (for [[id {:keys [label slots]}] slots-sets]
        ^{:key id}
@@ -116,13 +117,13 @@
                               (not prepares?)))
              [:div.manage-link
               [link>evt [:toggle-overlay
-                         [#'overlays/spell-management s]
+                         [#'spell-management/overlay s]
                          :scrollable? true]
                (str "Manage " prepared-label " spells")]])
            (when acquires?
              [:div.manage-link
               [link>evt [:toggle-overlay
-                         [#'overlays/spell-management
+                         [#'spell-management/overlay
                           s
                           :mode :acquisition]
                          :scrollable? true]

@@ -8,7 +8,9 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.combat :as combat]
+            [wish.sheets.dnd5e.subs.limited-use :as limited-use]
+            [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind-attrs-from-path]]
             [wish.sheets.dnd5e.widgets :refer [cast-button]]
@@ -35,7 +37,7 @@
 
    (when (:consumes s)
      (when-let [{:keys [uses-left] :as info}
-                (<sub [::subs/consumable s])]
+                (<sub [::limited-use/consumable-for s])]
        (if (> uses-left 0)
          [:div.uses.button
           {:on-click (click>evt [::events/+use info 1])}
@@ -69,7 +71,7 @@
        "(" alt-dice ")"])]])
 
 (defn- ammunition-block-for [w]
-  (if-let [ammo (<sub [::subs/ammunition-for w])]
+  (if-let [ammo (<sub [::combat/ammunition-for w])]
     [:<>
      (for [a ammo]
        ^{:key (:id a)}
@@ -89,7 +91,7 @@
   [:<>
 
    [:div.combat-info
-    (for [info (<sub [::subs/combat-info])]
+    (for [info (<sub [::combat/info])]
       ^{:key (:name info)}
       [:span.item
        (:name info) ": " (:value info)])
@@ -108,11 +110,11 @@
                    :> [:toggle-overlay [#'overlays/effect-info effect]]}
          (:name effect)])])
 
-   (when-let [s (<sub [::subs/unarmed-strike])]
+   (when-let [s (<sub [::combat/unarmed-strike])]
      [:div.unarmed-strike
       [attack-block (assoc s :name "Unarmed Strike")]])
 
-   (when-let [weapons (seq (<sub [::subs/equipped-weapons]))]
+   (when-let [weapons (seq (<sub [::combat/equipped-weapons]))]
      [:div.weapons
       [:h4 "Weapons"]
       (for [w weapons]
@@ -121,21 +123,21 @@
          (when (:uses-ammunition? w)
            [ammunition-block-for w])])])
 
-   (when-let [spell-attacks (seq (<sub [::subs/spell-attacks]))]
+   (when-let [spell-attacks (seq (<sub [::spells/spell-attacks]))]
      [:div.spell-attacks
       [:h4 "Spell Attacks"]
       (for [s spell-attacks]
         ^{:key (:id s)}
         [attack-block s {:class :spell-attack}])])
 
-   (when-let [attacks (seq (<sub [::subs/other-attacks]))]
+   (when-let [attacks (seq (<sub [::combat/other-attacks]))]
      [:div.other
       [:h4 "Other Attacks"]
       (for [a attacks]
         ^{:key (:id a)}
         [attack-block a])])
 
-   (when-let [actions (seq (<sub [::subs/special-combat-actions]))]
+   (when-let [actions (seq (<sub [::combat/special-actions]))]
      [:div.special
       [:h4 "Special Attack Actions"]
       (for [a actions]
@@ -149,7 +151,7 @@
   [consumable {:keys [omit-name]}]
   (when-let [use-id (:consumes consumable)]
     (when-let [{:keys [name uses-left] :as info}
-               (<sub [::subs/consumable consumable])]
+               (<sub [::limited-use/consumable-for consumable])]
       (if (= :*spell-slot use-id)
         ; consuming spell slots is a special case
         [:div styles/consumable-use-block
@@ -178,8 +180,8 @@
    [formatted-text :div.desc (:desc a)]])
 
 (defn- actions-for-type [filter-type header-form]
-  (let [spells (seq (<sub [::subs/prepared-spells-filtered filter-type]))
-        actions (seq (<sub [::subs/actions-for-type filter-type]))]
+  (let [spells (seq (<sub [::spells/prepared-spells-filtered filter-type]))
+        actions (seq (<sub [::combat/actions-for-type filter-type]))]
     (when (or spells actions)
       [:<> {:key filter-type}
        header-form
@@ -189,7 +191,7 @@
           [:div.section-label "Spells"]
 
           (for [s spells]
-            ^{:key [(::subs/source s) (:id s)]}
+            ^{:key [(::spells/source s) (:id s)]}
             [:div.spell-name.clickable
              {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])}
              (:name s)])])
@@ -225,15 +227,15 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
-   [:actions "Actions" :when-any-<sub [[::subs/prepared-spells-filtered :action]
-                                       [::subs/actions-for-type :action]]]
-   [:bonuses "Bonuses" :when-any-<sub [[::subs/prepared-spells-filtered :bonus]
-                                       [::subs/actions-for-type :bonus]]]
-   [:reactions "Reactions" :when-any-<sub [[::subs/prepared-spells-filtered :reaction]
-                                           [::subs/actions-for-type :reaction]]]
-   [:specials "Others" :when-any-<sub [[::subs/prepared-spells-filtered :special-action]
-                                       [::subs/actions-for-type :special-action]]]
-   [:limited-use "Limited" :when-any-<sub [[::subs/limited-use-configs]]]])
+   [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]
+                                       [::combat/actions-for-type :action]]]
+   [:bonuses "Bonuses" :when-any-<sub [[::spells/prepared-spells-filtered :bonus]
+                                       [::combat/actions-for-type :bonus]]]
+   [:reactions "Reactions" :when-any-<sub [[::spells/prepared-spells-filtered :reaction]
+                                           [::combat/actions-for-type :reaction]]]
+   [:specials "Others" :when-any-<sub [[::spells/prepared-spells-filtered :special-action]
+                                       [::combat/actions-for-type :special-action]]]
+   [:limited-use "Limited" :when-any-<sub [[::limited-use/configs]]]])
 
 (defn- page->index [pages to-find]
   (reduce-kv
@@ -315,7 +317,7 @@
     [:input.uses-left {:field :fast-numeric
                        :id :uses}]
 
-    {:get #(:uses-left (<sub [::subs/limited-use (:id item)]))
+    {:get #(:uses-left (<sub [::limited-use/by-id (:id item)]))
      :save! (fn [_ v]
               (let [used (max 0 (min uses-max
                                      (- uses-max v)))]
@@ -349,7 +351,7 @@
     (str uses " uses / " (trigger-labels trigger))))
 
 (defn limited-use-section []
-  (let [items (<sub [::subs/limited-use-configs])
+  (let [items (<sub [::limited-use/configs])
         used (<sub [:limited-used])]
     [:div styles/limited-use-section
      (if-not (empty? items)

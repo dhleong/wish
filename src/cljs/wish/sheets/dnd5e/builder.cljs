@@ -8,6 +8,9 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.builder :as builder]
+            [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
@@ -172,7 +175,7 @@
 (defn- have-feature-option?
   [sub-vector feature-id instance-id option-id]
   (contains?
-    (<sub [::subs/available-feature-options
+    (<sub [::builder/available-feature-options
            sub-vector
            feature-id
            instance-id])
@@ -180,7 +183,7 @@
 
 (defn- limited-select-feature-options
   [f instance-id sub-vector extra-info doc]
-  (let [available-options-set (<sub [::subs/available-feature-options
+  (let [available-options-set (<sub [::builder/available-feature-options
                                      sub-vector
                                      (:id f)
                                      instance-id])
@@ -275,7 +278,7 @@
    [bind-fields
     [:div.feature-options {:field :single-select
                            :id :races}
-     (for [r (<sub [::subs/available-races])]
+     (for [r (<sub [::builder/available-races])]
        [:div.feature-option {:key (:id r) }
         ^{:key (:id r)}
         [:div {:class (when (:subrace-of r)
@@ -287,7 +290,7 @@
               (>evt [:update-meta [:races] (constantly [v])]))}]
 
    ; racial features
-   [feature-options-selection [::subs/race-features-with-options]
+   [feature-options-selection [::builder/race-features-with-options]
     (<sub [:race])] ])
 
 
@@ -323,7 +326,7 @@
 
     (when (:primary? class-info)
       [:div.meta "Primary class"])]
-   [feature-options-selection [::subs/class-features-with-options
+   [feature-options-selection [::builder/class-features-with-options
                                (:id class-info)]
     class-info]
 
@@ -338,7 +341,7 @@
        "Cancel"])]
 
    [:div.feature-options
-    (for [c (<sub [::subs/available-classes])]
+    (for [c (<sub [::builder/available-classes])]
       ^{:key (:id c)}
       [:div.class.feature-option
        {:class (when (:prereqs-failed? c)
@@ -371,18 +374,18 @@
      level in your primary class."]
    [:div
     [:b "Total Max HP: "]
-    (<sub [::subs/max-hp])]
+    (<sub [::hp/max])]
 
    [:div.group
     [:b "Hit Dice: "]
-    [:div (for [{:keys [die classes total]} (<sub [::subs/hit-dice])]
+    [:div (for [{:keys [die classes total]} (<sub [::hp/hit-dice])]
             ^{:key die}
             [:div.hit-die
              [:span.dice total "d" die]
              [:span.classes " (" (str/join ", " classes) ")"]])]]])
 
 (defn- hp-mode-manual []
-  (let [hit-die-by-class (<sub [::subs/class->hit-die])]
+  (let [hit-die-by-class (<sub [::builder/class->hit-die])]
     [:<>
      [:p.meta
       "Input health rolled (or average) for each level below:"]
@@ -404,7 +407,7 @@
                                :min 1
                                :max die-size}]]]
 
-            {:get #(<sub [::subs/rolled-hp %])
+            {:get #(<sub [::hp/rolled %])
              :save! (fn [path v]
                       (let [v (min
                                 (:dice (get hit-die-by-class (first path)))
@@ -421,13 +424,13 @@
                  :field :list}
         [:option {:key :average} "Automatic"]
         [:option {:key :manual} "Manual"]]
-       {:get #(<sub [::subs/max-hp-mode])
-        :save! #(when-not (= %2 (<sub [::subs/max-hp-mode]))
+       {:get #(<sub [::hp/max-hp-mode])
+        :save! #(when-not (= %2 (<sub [::hp/max-hp-mode]))
                   (>evt [:update-meta [:sheet]
                          assoc
                          :max-hp-mode %2]))}]]
 
-     (case (<sub [::subs/max-hp-mode])
+     (case (<sub [::hp/max-hp-mode])
        :average [hp-mode-average]
        :manual [hp-mode-manual])
 
@@ -497,12 +500,12 @@
             (for [[score cost] data/score-point-cost]
               [:option {:key score
                         :visible? (fn [_doc]
-                                    (let [available (<sub [::subs/point-buy-remaining])
-                                          delta (<sub [::subs/point-buy-delta ability cost])]
+                                    (let [available (<sub [::builder/point-buy-remaining])
+                                          delta (<sub [::builder/point-buy-delta ability cost])]
                                       (>= (+ available delta)
                                           0)))
                         :content (fn [_doc]
-                                   (let [delta (<sub [::subs/point-buy-delta ability cost])
+                                   (let [delta (<sub [::builder/point-buy-delta ability cost])
                                          delta-mod (if (> delta 0)
                                                      "+"
                                                      "-")
@@ -574,7 +577,7 @@
                        "—")]))]]))
 
 (defn abilities-page []
-  (let [mode (<sub [::subs/abilities-mode])]
+  (let [mode (<sub [::builder/abilities-mode])]
     [:div abilities-style
      [:h3 "Abilities"]
 
@@ -588,7 +591,7 @@
           [:option {:key :manual} "Manual"]
           [:option {:key :standard} "Standard Array"]
           [:option {:key :point} "Point Buy"]]]
-        {:get #(<sub [::subs/abilities-mode])
+        {:get #(<sub [::builder/abilities-mode])
          :save! #(>evt [:update-meta [:sheet]
                         assoc
                         :abilities-mode %2])}]]]
@@ -597,7 +600,7 @@
        [:<>
         [:h5
          "Remaining Points: "
-         (<sub [::subs/point-buy-remaining])]])
+         (<sub [::builder/point-buy-remaining])]])
 
      [:table
       [:tbody
@@ -612,10 +615,10 @@
          :standard [standard-form]
          :point [point-form])
 
-       [bonuses-from "Racial Bonuses" [::subs/abilities-racial]]
-       [bonuses-from "Ability Score Improvements" [::subs/abilities-improvements]]
+       [bonuses-from "Racial Bonuses" [::abilities/racial]]
+       [bonuses-from "Ability Score Improvements" [::abilities/improvements]]
 
-       (let [abilities (<sub [::subs/abilities-base])]
+       (let [abilities (<sub [::abilities/base])]
          [:<>
           [:tr
            [:th {:col-span 6}
@@ -631,17 +634,17 @@
 ; ======= backgrounds ======================================
 
 (defn background-page []
-  (let [primary-class (<sub [::subs/primary-class])
+  (let [primary-class (<sub [::builder/primary-class])
         chosen-background (<sub [:options-> [:background]])]
     [:div
      [:h1 "Background"]
-     [feature-options-selection [::subs/background (:id primary-class)] nil]
+     [feature-options-selection [::builder/background (:id primary-class)] nil]
 
      (when (= [:background/custom] chosen-background)
        [:<>
         [:h2 "Custom background"]
         [feature-options-selection
-         [::subs/custom-background (:id primary-class) nil]]])
+         [::builder/custom-background (:id primary-class) nil]]])
      ]))
 
 

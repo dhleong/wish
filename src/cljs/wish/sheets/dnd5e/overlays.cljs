@@ -10,13 +10,18 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays.custom-item :as custom-item]
+            [wish.sheets.dnd5e.overlays.spell-management
+             :refer [spell-info-header]]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.hp :as hp]
+            [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.starter :as starter]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
                                                spell-aoe
-                                               spell-card
-                                               spell-tags]]
+                                               spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts click>swap!
                                dec-dissoc toggle-in]]
             [wish.views.widgets :as widgets
@@ -144,7 +149,7 @@
 
 (defn ability-tmp
   [id label]
-  (let [{{:keys [score modifier]} id} (<sub [::subs/ability-info])]
+  (let [{{:keys [score modifier]} id} (<sub [::abilities/info])]
     [:div styles/ability-tmp-overlay
      [:h5 label " " score " (" modifier ")"]
 
@@ -233,15 +238,15 @@
 
 (defn hp-overlay []
   (r/with-let [state (r/atom {})]
-    (let [[hp max-hp] (<sub [::subs/hp])
-          temp-hp (<sub [::subs/temp-hp])
+    (let [[hp max-hp] (<sub [::hp/state])
+          temp-hp (<sub [::hp/temp])
           {:keys [heal damage]} @state
           new-hp (max
                    0  ; you can't go negative in 5e
                    (min (+ max-hp temp-hp) ; don't collapse temp-hp above max
                         (- (+ hp heal)
                            damage)))
-          death-saves (<sub [::subs/death-saving-throws])]
+          death-saves (<sub [::hp/death-saving-throws])]
       [:div styles/hp-overlay
        (when (= 0 hp)
          [:<>
@@ -336,7 +341,7 @@
           [:input.number {:field :fast-numeric
                           :id :temp-hp
                           :min 0}]
-          {:get #(<sub [::subs/temp-hp])
+          {:get #(<sub [::hp/temp])
            :save! #(>evt [::events/temp-hp! %2])}]]
 
         ; just a spacer
@@ -349,7 +354,7 @@
           [:input.number {:field :fast-numeric
                           :id :temp-max-hp
                           :min 0}]
-          {:get #(<sub [::subs/temp-max-hp])
+          {:get #(<sub [::hp/temp-max])
            :save! #(>evt [::events/temp-max-hp! %2])}]]]
 
 ; this ought to get its own overlay at some point:
@@ -386,7 +391,7 @@
 ; ======= short rest =======================================
 
 (defn dice-pool [state]
-  (let [dice-info (<sub [::subs/hit-dice])
+  (let [dice-info (<sub [::hp/hit-dice])
         values (:values @state)]
     [:div.hit-dice-pool
      [:p "Your hit dice:"]
@@ -429,7 +434,7 @@
    state])
 
 (defn dice-usage [state]
-  (let [con-mod (-> (<sub [::subs/ability-modifiers])
+  (let [con-mod (-> (<sub [::abilities/modifiers])
                     :con
                     mod->str)]
     (when-let [values (seq (:values @state))]
@@ -465,7 +470,7 @@
                                                      seq)]
                            (let [dice-sum (apply + dice-totals)]
                              (when (> dice-sum 0)
-                               (let [con-mod (:con (<sub [::subs/ability-modifiers]))
+                               (let [con-mod (:con (<sub [::abilities/modifiers]))
                                      dice-used (->> dice-totals
                                                     (keep identity)
                                                     count)]
@@ -500,7 +505,7 @@
                                          (:values @state))]
                                [::events/update-hp
                                 amount-to-heal
-                                (<sub [::subs/max-hp])]
+                                (<sub [::hp/max])]
                                [:toggle-overlay nil])}
         "Take a short rest"
         (when (> amount-to-heal 0)
@@ -521,179 +526,6 @@
                             [:short-rest :long-rest]]
                            [:toggle-overlay nil])}
     "Take a long rest" ]])
-
-
-; ======= Spell management =================================
-
-(defn- spell-info-header [opts s]
-  [:div.info opts
-   [:div.name (:name s)]
-   [:div.meta
-    [:span.level
-     (if (= 0 (:spell-level s))
-       "Cantrip"
-       (str "Level " (:spell-level s)))]
-    [spell-tags s]]] )
-
-(defn- spell-block
-  [s {:keys [selectable?
-             source-list
-             verb]}]
-  (r/with-let [expanded? (r/atom false)]
-    [:div.spell {:class (when (:unavailable? s)
-                          "unavailable")}
-     [:div.header
-      [spell-info-header
-       {:on-click (click>swap! expanded? not)}
-       s]
-      (if (:always-prepared? s)
-        [:div.prepare.disabled
-         {:title "Always Prepared"}
-         (icon :check-circle-outline)]
-
-        [:div.prepare
-         {:class (when-not (or (:prepared? s)
-                               (selectable? s))
-                   "disabled")
-          :on-click (click>evt [:update-option-set source-list
-                                (if (:prepared? s)
-                                  disj
-                                  conj)
-                                (:id s)])}
-         (if (:prepared? s)
-           (icon :check-circle)
-           verb)])]
-
-     (when @expanded?
-       [spell-card (update s :prepared? #(or % false))])]))
-
-(defn- spell-management* [spellcaster mode hide-unavailable?]
-  (let [{:keys [acquires? prepares?]} spellcaster
-
-        knowable (<sub [::subs/knowable-spell-counts (:id spellcaster)])
-        highest-spell-level (<sub [::subs/highest-spell-level-for-spellcaster-id
-                                   (:id spellcaster)])
-
-        ; in :acquisition mode (eg: for spellbooks), cantrips have
-        ; the normal limit but spells are unlimited
-        limits (case mode
-                 :default knowable
-                 :acquisition (dissoc knowable :spells))
-
-        prepare-verb (cond
-                       ; TODO we could add an :acquire-verb...
-                       (= :acquisition mode) "Acquire"
-                       prepares? "Prepare"
-                       :else "Learn")
-        prepared-verb (cond
-                        ; TODO we could add an :acquired-verb...
-                        (= :acquisition mode) "acquired"
-                        prepares? "prepared"
-                        :else "learned")
-
-        title (case mode
-                :default (str "Manage "
-                              (:name spellcaster)
-                              (if prepares?
-                                " Prepared"
-                                " Known")
-                              " Spells")
-                :acquisition (str "Manage "
-                                  (:name spellcaster)
-                                  " "
-                                  (:acquired-label spellcaster)))
-
-        spells-limit (:spells limits)
-        cantrips-limit (when-not (and acquires?
-                                      (= :default mode))
-                         (:cantrips limits))
-
-        available-list (if (and
-                             acquires?
-                             (not= :acquisition mode))
-                         ; for an :acquires? spellcaster in default mode,
-                         ; the source for their prepared spells is their
-                         ; :acquires?-spells list
-                         (:acquires?-spells spellcaster)
-
-                         ; otherwise, it's the :spells list
-                         (:spells spellcaster))
-
-        all-prepared (<sub [::subs/my-prepared-spells-by-type (:id spellcaster)])
-        prepared-spells-count (count (:spells all-prepared))
-        prepared-cantrips-count (count (:cantrips all-prepared))
-        total-spells-count (when (and (not spells-limit)
-                                      acquires?)
-                             (<sub [::subs/acquired-spells-count
-                                    available-list]))
-
-        spells (<sub [::subs/preparable-spell-list
-                      spellcaster available-list
-
-                      ; include unavailable spells in "prepare" mode normally,
-                      ; or "acquisition" mode for acquires? spellcasters
-                      (or (not acquires?)
-                          (= :acquisition mode))])
-
-        can-select-spells? (or (nil? spells-limit)
-                               (< prepared-spells-count spells-limit))
-        can-select-cantrips? (< prepared-cantrips-count cantrips-limit)
-        ; respect the :prepared-spells option if given
-        source-list (:prepared-spells spellcaster
-                                      available-list)
-        spell-opts (assoc spellcaster
-                          :verb prepare-verb
-                          :source-list source-list
-                          :selectable? (fn [{:keys [spell-level]}]
-                                         (when (<= spell-level highest-spell-level)
-                                           (if (= 0 spell-level)
-                                             can-select-cantrips?
-                                             can-select-spells?))))
-
-        any-unavailable? (some :unavailable? spells)
-        spells (if @hide-unavailable?
-                 (remove :unavailable? spells)
-                 spells)]
-
-    [:div styles/spell-management-overlay
-     [:h5 title
-      (if spells-limit
-        [:div.limit
-         "Spells " prepared-spells-count " / " spells-limit]
-        [:div.limit
-         "Spells (" (or total-spells-count
-                        prepared-spells-count)
-         " " prepared-verb ")"])
-      (when (> cantrips-limit 0)
-        [:div.limit
-         "Cantrips " prepared-cantrips-count " / " cantrips-limit])]
-
-     [widgets/search-bar
-      {:filter-key :5e/spells-filter
-       :placeholder "Search for a spell..."}]
-
-     #_[:div.stretch
-        [virtual-list
-         :items spells
-         :render-item (fn [opts item]
-                        [:div.spell-container opts
-                         [spell-block item spell-opts]])]]
-     (for [s spells]
-       ^{:key (:id s)}
-       [spell-block s spell-opts])
-
-     (when (and @hide-unavailable? any-unavailable?)
-       [:div.unavailable.spell.with-button
-        [:div.button {:on-click
-                      (fn-click
-                        (reset! hide-unavailable? false))}
-         "Show unavailable spells"]])
-     ]))
-
-(defn spell-management [spellcaster & {:keys [mode]
-                                       :or {mode :default}}]
-  (r/with-let [hide-unavailable? (r/atom true)]
-    [spell-management* spellcaster mode hide-unavailable?]))
 
 
 ; ======= spell info =======================================
@@ -778,7 +610,7 @@
 
        {:get #(if (= :adjust (first %))
                 (get-in @quick-adjust %)
-                (get-in (<sub [::subs/currency]) %))
+                (get-in (<sub [::inventory/currency]) %))
 
         :save! (fn [path v]
                  (if (not= :adjust (first path))
@@ -822,7 +654,7 @@
 
    [:div.item-browser.scrollable
     [virtual-list
-     :items (<sub [::subs/all-items])
+     :items (<sub [::inventory/all-items])
      :render-item (fn [item]
                     [:div.item
                      [item-browser-item item]])]]])
@@ -997,7 +829,7 @@
 (defn starting-equipment-adder []
   (r/with-let [state (r/atom {})]
     (let [{primary-class :class
-           choices :choices} (<sub [::subs/starting-eq])
+           choices :choices} (<sub [::starter/eq])
           this-state @state]
       [:div styles/starting-equipment-overlay
        [:h5 (:name primary-class) " Starting Equipment"]

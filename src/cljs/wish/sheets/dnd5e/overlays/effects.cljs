@@ -4,7 +4,7 @@
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.effects :as effects]
             [wish.util :refer [click>evts <sub]]
             [wish.views.widgets :as widgets]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
@@ -54,7 +54,7 @@
 
    [:div.item-browser.scrollable
     [virtual-list
-     :items (<sub [::subs/all-effects])
+     :items (<sub [::effects/all])
      :render-item (fn [item]
                     [:div.item
                      [effect-browser-item item]])]]])
