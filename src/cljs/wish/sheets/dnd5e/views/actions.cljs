@@ -154,7 +154,7 @@
                (<sub [::limited-use/consumable-for consumable])]
       (if (= :*spell-slot use-id)
         ; consuming spell slots is a special case
-        [:div styles/consumable-use-block
+        [:div (styles/consumable-use-block)
          (if (<= uses-left 0)
            [:div.uses "0 spell slots left"]
            [:div.button
@@ -162,7 +162,7 @@
             (str uses-left " spell slots left")])]
 
         ; normal case:
-        [:div styles/consumable-use-block
+        [:div (styles/consumable-use-block)
 
          (when (not= name omit-name)
            [:div.name name])
@@ -222,7 +222,7 @@
 
 (defn- actions-page [id form]
   ^{:key id}
-  [:div styles/swipeable-page
+  [:div (styles/swipeable-page)
    form])
 
 (def ^:private action-pages
@@ -353,7 +353,7 @@
 (defn limited-use-section []
   (let [items (<sub [::limited-use/configs])
         used (<sub [:limited-used])]
-    [:div styles/limited-use-section
+    [:div (styles/limited-use-section)
      (if-not (empty? items)
        (for [item items]
          (let [uses (:uses item)

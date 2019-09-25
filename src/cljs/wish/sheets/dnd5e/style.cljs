@@ -2,7 +2,7 @@
       :doc "dnd5e.style"}
   wish.sheets.dnd5e.style
   (:require [garden.color :as color]
-            [wish.style :refer [defclass defstyled]]
+            [spade.core :refer [defclass defattrs]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :refer [metadata]]))
 
@@ -86,11 +86,11 @@
 ;; 35/65 layout
 ;;
 
-(defstyled container
+(defattrs container []
   (merge flex/vertical
          {:height "100%"}))
 
-(defstyled layout
+(defattrs layout []
   (at-media
     media-smartphones
     (merge flex/justify-center
@@ -140,11 +140,11 @@
 ;; The header bar
 ;;
 
-(defstyled header-container
+(defattrs header-container []
   {:display 'block
    :background "#666666"})
 
-(defstyled header
+(defattrs header []
   (at-media
     media-tablets
     [:.col.meta {:max-width "15vw"}])
@@ -226,14 +226,14 @@
 ;; Overlays
 ;;
 
-(defstyled ability-tmp-overlay
+(defattrs ability-tmp-overlay []
   overlay
 
   [:.number {:font-size "110%"
              :margin-left "8px"
              :width "3em"}])
 
-(defstyled currency-manager-overlay
+(defattrs currency-manager-overlay []
   (at-media media-tiny
             {:padding "0 !important"}
             [:.p
@@ -264,7 +264,7 @@
   [:div.apply {:margin-top "12px"
                :text-align 'center}])
 
-(defstyled custom-item-overlay
+(defattrs custom-item-overlay []
   overlay
 
   [:.section {:padding "8px"}
@@ -279,7 +279,7 @@
   [:input.numeric {:width "2em"
                    :font-size "110%"}])
 
-(defstyled hp-overlay
+(defattrs hp-overlay []
   (at-media media-smartphones
             [:.quick-adjust :.new-hp
              {:width "15vw !important"}]
@@ -323,7 +323,7 @@
     [:.meta {:margin-left "4px"}]]
    [:.desc metadata]])
 
-(defstyled info-overlay
+(defattrs info-overlay []
   overlay
 
   [:table.info (merge metadata
@@ -331,7 +331,7 @@
    [:th.header {:text-align 'right}]]
   [:.desc metadata])
 
-(defstyled item-adder-overlay
+(defattrs item-adder-overlay []
   (at-media media-smartphones
             [:.item-browser {:height "70vh !important"}])
 
@@ -350,7 +350,7 @@
                :color "#333"}
      [:&.disabled {:background-color "#ccc"}]]]] )
 
-(defstyled notes-overlay
+(defattrs notes-overlay []
   (at-media
     media-smartphones
     [:textarea.notes {:height "80vh"
@@ -363,7 +363,7 @@
                     :font-size "12pt"
                     :min-height "50vh"}])
 
-(defstyled short-rest-overlay
+(defattrs short-rest-overlay []
   (merge base-overlay
          {:max-width "400px"})
 
@@ -375,9 +375,10 @@
     [:.hit-die-value {:width "5em"}]]]
   [:.desc metadata])
 
-(defstyled spell-info-overlay base-overlay)
+(defattrs spell-info-overlay []
+  base-overlay)
 
-(defstyled spell-management-overlay
+(defattrs spell-management-overlay []
   base-overlay
 
   [:.limit metadata]
@@ -402,7 +403,7 @@
     [:&.disabled {:cursor 'default
                   :color "#999"}]]])
 
-(defstyled starting-equipment-overlay
+(defattrs starting-equipment-overlay []
   overlay
 
   [:.alternatives {:border "1px solid #333"
@@ -437,7 +438,7 @@
 ;; Widgets
 ;;
 
-(defclass currency-preview
+(defclass currency-preview []
   (merge flex/center
          {:font-size "10pt"})
 
@@ -456,7 +457,7 @@
     [:&.s {:background-color color-silver}]
     [:&.c {:background-color color-copper}]]])
 
-(defstyled inventory-quantity
+(defattrs inventory-quantity []
   (merge flex/center
          flex/justify-center)
 
@@ -464,7 +465,7 @@
                     :width "3em"
                     :text-align 'center}])
 
-(defclass cast-spell
+(defclass cast-spell []
   (merge text-center
          {:width "3.5em"
           :padding "4px"
@@ -493,7 +494,7 @@
    [:&.nested:hover {:background-color "#f0f0f0"
                      :color "#333"}]])
 
-(defstyled spell-card
+(defattrs spell-card []
   {:max-width "300px"}
 
   [:table.info metadata
@@ -512,7 +513,7 @@
    [:.level {:font-size "140%"
              :padding "12px"}]])
 
-(defstyled spell-tags
+(defattrs spell-tags []
   [:.tag {:margin "0 4px"
           :padding "0 4px"
           :color "#fff"
@@ -521,7 +522,7 @@
           :background-color "#333"}])
 
 ; in dnd5e.cljs, not widgets:
-(defstyled rest-buttons
+(defattrs rest-buttons []
   (merge flex/center
          {:margin "8px 0"})
 
@@ -530,10 +531,10 @@
               button
               text-center)])
 
-(defstyled swipeable-page
+(defattrs swipeable-page []
   {:min-height "60vh"})
 
-(defstyled consumable-use-block
+(defattrs consumable-use-block []
   (merge flex/center
          {:font-size "80%"
           :margin-bottom "1em"
@@ -545,7 +546,7 @@
 ;; Sections
 ;;
 
-(defstyled abilities-section
+(defattrs abilities-section []
   ; make the mod a bit more prominent if we have room
   (at-media
     {:min-width "1000px"}
@@ -588,7 +589,7 @@
 
   [:.extras metadata])
 
-(defstyled actions-section
+(defattrs actions-section []
   (at-media media-smartphones
             [:.filters {:justify-content 'center}])
   [:.filters (merge flex
@@ -650,7 +651,7 @@
 (def single-column-skills [:.base-ability
                            {:width "3em !important"}])
 
-(defstyled skills-section
+(defattrs skills-section []
   ; collapse into a single row on smaller devices
   ; that can't fit two columns of Skills
   (at-media
@@ -690,7 +691,7 @@
     (proficiency-style
       :transform "translate(0, 34%)")]])
 
-(defstyled proficiencies-section
+(defattrs proficiencies-section []
   [:.section {:padding "0 8px"
               :margin-bottom "16px"}]
   [:.item (merge metadata
@@ -698,7 +699,7 @@
    ["&:not(:last-child)" {:padding-right "0.5em"}
     [:&:after {:content "','"}]]])
 
-(defstyled features-section
+(defattrs features-section []
   [:.features-category>h3 {:border-bottom "1px solid #000"}]
   [:.feature {:margin-bottom "1em"}
    [:.name {:font-weight 'bold}]
@@ -715,7 +716,7 @@
                      :align-self 'flex-start}
    [:h5 {:margin 0}]])
 
-(defstyled limited-use-section
+(defattrs limited-use-section []
   [:.limited-use (merge
                    flex/center
                    {:padding "4px"})
@@ -733,7 +734,7 @@
      [:.modify {:padding "8px"}
       [:&.disabled disabled-button]]]]])
 
-(defstyled spells-section
+(defattrs spells-section []
   [:.spell-slot-level flex/center
    [:.label flex/grow]]
 
@@ -758,7 +759,7 @@
    [:.dice (merge text-center
                   {:align-self 'center}) ]] )
 
-(defstyled inventory-section
+(defattrs inventory-section []
   [:.add {:padding "12px 8px"}
    [:.link {:padding "8px"}]]
 

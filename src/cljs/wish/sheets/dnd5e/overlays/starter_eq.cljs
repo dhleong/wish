@@ -173,7 +173,7 @@
     (let [{primary-class :class
            choices :choices} (<sub [::starter/eq])
           this-state @state]
-      [:div styles/starting-equipment-overlay
+      [:div (styles/starting-equipment-overlay)
        [:h5 (:name primary-class) " Starting Equipment"]
 
        (for [[i [kind values]] (map-indexed list choices)]

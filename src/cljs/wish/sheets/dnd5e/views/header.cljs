@@ -72,8 +72,8 @@
 (defn view []
   (let [common (<sub [:sheet-meta])
         classes (<sub [:classes])]
-    [:div styles/header-container
-     [:div styles/header
+    [:div (styles/header-container)
+     [:div (styles/header)
       [:div.left.side
        [:div.col
         [widgets/save-state]]

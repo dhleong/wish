@@ -313,7 +313,7 @@
                                     (item->form-state existing-item))
                                   {:type :other}))]
 
-     [:div styles/custom-item-overlay
+     [:div (styles/custom-item-overlay)
       [:h5 "Custom Item"]
       [bind-fields
        [:form {:on-submit (fn-click

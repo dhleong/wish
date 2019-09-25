@@ -12,7 +12,7 @@
              :refer [buff-value->kind section]]))
 
 (defn rest-buttons []
-  [:div styles/rest-buttons
+  [:div (styles/rest-buttons)
    [:div.button.short
     {:on-click (click>evt [:toggle-overlay [#'short-rest/overlay]])}
     "Short Rest"]
@@ -46,7 +46,7 @@
 
 (defn abilities-section []
   (let [abilities (<sub [::abilities/info])]
-    [:div styles/abilities-section
+    [:div (styles/abilities-section)
      [:div.abilities
       [abilities-display abilities :clickable]]
 
@@ -127,7 +127,7 @@
 ; ======= Proficiencies ===================================
 
 (defn proficiencies-section []
-  [:div styles/proficiencies-section
+  [:div (styles/proficiencies-section)
    (when-let [proficiencies (seq (<sub [::proficiency/others]))]
      [:<>
       [:h3 "Proficiencies"]
@@ -162,7 +162,7 @@
    [rest-buttons]
 
    [section "Skills"
-    styles/skills-section
+    (styles/skills-section)
     [skills-section]]
 
    [proficiencies-section]])

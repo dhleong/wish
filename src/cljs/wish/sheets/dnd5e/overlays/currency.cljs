@@ -27,7 +27,7 @@
 
 (defn overlay []
   (r/with-let [quick-adjust (r/atom {})]
-    [:div styles/currency-manager-overlay
+    [:div (styles/currency-manager-overlay)
      [:h5 "Currency"]
      [:form#currency-form
       {:on-submit (fn-click

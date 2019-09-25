@@ -11,7 +11,7 @@
             [wish.util :refer [<sub]]))
 
 (defn char-card [{:keys [id] :as c}]
-  [:div style/char-card
+  [:div (style/char-card)
    [:div.name (:name c)]
 
    [:div.hp

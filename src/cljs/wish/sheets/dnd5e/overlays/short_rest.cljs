@@ -102,7 +102,7 @@
                                  (+ (* dice-used con-mod)
                                     (:extra current-state)
                                     dice-sum)))))]
-      [:div styles/short-rest-overlay
+      [:div (styles/short-rest-overlay)
        [:h5 "Short Rest"]
 
        ; SRD description:

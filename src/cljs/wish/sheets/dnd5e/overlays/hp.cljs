@@ -200,7 +200,7 @@
                         (- (+ hp heal)
                            damage)))]
 
-      [:div styles/hp-overlay
+      [:div (styles/hp-overlay)
        (when (= 0 hp)
          [saving-throws])
 

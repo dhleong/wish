@@ -1,12 +1,10 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign.style"}
   wish.sheets.dnd5e.campaign.style
-  (:require [wish.style :refer [defstyled]]
+  (:require [spade.core :refer [defattrs]]
             [wish.style.flex :as flex :refer [flex]]))
 
-(defstyled char-card
-  {}
-
+(defattrs char-card []
   [:.abilities (merge flex
                       flex/justify-center)
    [:.label {:font-size "0.7em"}]

@@ -44,7 +44,7 @@
      :else [add-effect-button effect])])
 
 (defn overlay []
-  [:div styles/item-adder-overlay
+  [:div (styles/item-adder-overlay)
    [:h4 "Effects"]
 
    [widgets/search-bar

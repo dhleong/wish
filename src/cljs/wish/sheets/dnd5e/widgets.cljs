@@ -58,7 +58,7 @@
                 0)]
     [:span {:class [(when large?
                       "large")
-                    styles/currency-preview]}
+                    (styles/currency-preview)]}
 
      [:div.label "Currency:"]
 
@@ -87,7 +87,7 @@
         [:span.currency.c "C"]])]))
 
 (defn item-quantity-manager [item]
-  [:div styles/inventory-quantity
+  [:div (styles/inventory-quantity)
    [:a.modify {:href "#"
                :on-click (click>evt [:inventory-subtract item 1])}
     (icon :remove-circle)]
@@ -162,11 +162,11 @@
 
      (if at-will?
        ; easy case; at-will spells don't need a "cast" button
-       [:div.cast {:class styles/cast-spell}
+       [:div.cast {:class (styles/cast-spell)}
         "At Will"]
 
        [:div.cast.button
-        {:class [styles/cast-spell
+        {:class [(styles/cast-spell)
                  (when nested?
                    "nested")
                  (when-not has-uses?
@@ -220,7 +220,7 @@
    the spell is a Ritual, or requires Concentration."
   [{:keys [con? rit?]}]
   (when (or con? rit?)
-    [:span styles/spell-tags
+    [:span (styles/spell-tags)
      (when con?
        [:span.tag "C"])
      (when rit?
@@ -248,7 +248,7 @@
         upcast? (not= spell-level base-level)
         upcast-class {:class (when upcast?
                                "upcast")}]
-    [:div styles/spell-card
+    [:div (styles/spell-card)
      [:table.info
       [:tbody
        (opt-row s :time "Casting Time")

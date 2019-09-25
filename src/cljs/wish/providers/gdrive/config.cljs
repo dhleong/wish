@@ -23,7 +23,7 @@
   (str "btn_google_signin_light_" variant "_web"))
 
 (defn- signin-button [opts]
-  [:div (merge styles/signin-button
+  [:div (merge (styles/signin-button)
                opts)
    [:img.normal (->srcsets (button-variant "normal"))]
    [:img.focus (->srcsets (button-variant "focus"))]

@@ -141,7 +141,7 @@
                  (remove :unavailable? spells)
                  spells)]
 
-    [:div styles/spell-management-overlay
+    [:div (styles/spell-management-overlay)
      [:h5 title
       (if spells-limit
         [:div.limit
