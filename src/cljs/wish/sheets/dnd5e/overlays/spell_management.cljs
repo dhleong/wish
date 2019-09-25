@@ -2,7 +2,7 @@
   (:require-macros [wish.util :refer [fn-click]])
   (:require [reagent.core :as r]
             [wish.sheets.dnd5e.subs.spells :as spells]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.widgets :refer [spell-card spell-tags]]
             [wish.util :refer [<sub click>evt click>swap!]]
             [wish.views.widgets :as widgets :refer-macros [icon]]

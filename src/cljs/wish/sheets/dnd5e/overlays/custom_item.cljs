@@ -7,7 +7,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.data :as data]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.util :refer [>evt <sub fn-click]]))
 
 
