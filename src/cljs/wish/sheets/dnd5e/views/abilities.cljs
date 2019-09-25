@@ -4,6 +4,7 @@
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.data :refer [labeled-abilities]]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared
@@ -62,7 +63,7 @@
 
      ; This is a good place for things like Elven advantage
      ; on saving throws against being charmed
-     (when-let [save-extras (<sub [::subs/ability-extras])]
+     (when-let [save-extras (<sub [::proficiency/ability-extras])]
        [:ul.extras
         (for [item save-extras]
           ^{:key (:id item)}
@@ -126,7 +127,7 @@
 
 (defn proficiencies-section []
   [:div styles/proficiencies-section
-   (when-let [proficiencies (seq (<sub [::subs/other-proficiencies]))]
+   (when-let [proficiencies (seq (<sub [::proficiency/others]))]
      [:<>
       [:h3 "Proficiencies"]
 
@@ -137,7 +138,7 @@
          [:div.item
           (:name f)])]])
 
-   (when-let [languages (seq (<sub [::subs/languages]))]
+   (when-let [languages (seq (<sub [::proficiency/languages]))]
      [:<>
       [:h3 "Languages"]
 

@@ -1,6 +1,6 @@
-(ns wish.sheets.dnd5e.subs.base-test
+(ns wish.sheets.dnd5e.subs.proficiency-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.subs.base
+            [wish.sheets.dnd5e.subs.proficiency
              :refer [level->proficiency-bonus]]))
 
 (deftest level->proficiency-bonus-test

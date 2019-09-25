@@ -3,7 +3,7 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod
                                                      mod->str]]
-            [wish.sheets.dnd5e.subs.base]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.subs-util :refer [reg-id-sub]]))
 
 
@@ -79,8 +79,8 @@
 (reg-id-sub
   ::saves
   :<- [::modifiers]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
-  :<- [:wish.sheets.dnd5e.subs/save-proficiencies]
+  :<- [::proficiency/bonus]
+  :<- [::proficiency/saves]
   :<- [:wish.sheets.dnd5e.subs/buffs :saves]
   (fn [[modifiers prof-bonus save-proficiencies save-buffs]]
     (reduce-kv
@@ -101,7 +101,7 @@
   :<- [::all]
   :<- [::base]
   :<- [::modifiers]
-  :<- [:wish.sheets.dnd5e.subs/save-proficiencies]
+  :<- [::proficiency/saves]
   :<- [::saves]
   (fn [[abilities base modifiers save-proficiencies saves]]
     (reduce-kv
@@ -126,7 +126,7 @@
 ; returns a set of skill ids
 (reg-sub
   ::skill-proficiencies
-  :<- [:wish.sheets.dnd5e.subs/all-proficiencies]
+  :<- [::proficiency/all]
   (fn [feature-ids _]
     (->> feature-ids
          (filter data/skill-feature-ids)
@@ -162,7 +162,7 @@
   :<- [::skill-expertise]
   :<- [::skill-proficiencies]
   :<- [::skill-half-proficiencies]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   (fn [[modifiers expertise proficiencies half-proficiencies prof-bonus]]
     (reduce-kv
       (fn [m skill ability]

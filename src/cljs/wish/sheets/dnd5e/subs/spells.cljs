@@ -5,6 +5,7 @@
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ]]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.util
              :refer [filter-by-str options-of-list]]
             [wish.util :refer [invoke-callable distinct-by ->map ]]
@@ -248,7 +249,7 @@
   :<- [::spellcaster-blocks]
   :<- [:total-level]
   :<- [::spellcasting-modifiers]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [::spell-buffs]
   :<- [:meta/options]
   (fn [[engine-state spellcasters total-level modifiers
@@ -475,7 +476,7 @@
   ::spellcaster-info
   :<- [::spellcasting-modifiers]
   :<- [::spell-attack-bonuses]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [::spell-buffs]
   (fn [[modifiers atk-bonuses prof-bonus {save-buffs :saves}]
        [_ spellcaster-id]]
@@ -515,7 +516,7 @@
 (reg-sub
   ::spell-attack-bonuses
   :<- [::spellcasting-modifiers]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [::eq-attack-buffs]
   (fn [[modifiers proficiency-bonus buffs]]
     (reduce-kv

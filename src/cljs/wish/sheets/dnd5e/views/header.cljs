@@ -6,6 +6,7 @@
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.combat :as combat]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind->attrs]]
             [wish.views.widgets :as widgets
@@ -103,7 +104,7 @@
       [:div.right.side
        [:div.col
         [:div.stat (mod->str
-                     (<sub [::subs/proficiency-bonus]))]
+                     (<sub [::proficiency/bonus]))]
         [:div.label "Proficiency"]]
 
        [buffable-stat :ac "AC"

@@ -4,9 +4,9 @@
             [wish-engine.core :as engine]
             [wish.sources.util :as src-util]
             [wish.sheets.dnd5e.data :as data]
-            [wish.sheets.dnd5e.subs.base]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.util :refer [feature-by-id]]
             [wish.util :refer [invoke-callable]]))
 
@@ -53,7 +53,7 @@
   ::initiative
   :<- [::abilities/modifiers]
   :<- [::abilities/skill-half-proficiencies]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [:wish.sheets.dnd5e.subs/buffs :initiative]
   (fn [[abilities half-proficiencies prof-bonus buffs]]
     (+ (:dex abilities)
@@ -109,7 +109,7 @@
   :<- [:classes]
   :<- [:sheet-engine-state]
   :<- [::abilities/modifiers]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   (fn [[classes data-source modifiers proficiency-bonus]]
     ; prefer the first non-implicit result
     (->> classes
@@ -276,7 +276,7 @@
   ::equipped-weapons
   :<- [::inventory/equipped]
   :<- [::inventory/eq-proficiencies]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [:effect-ids-set]
   :<- [::abilities/modifiers]
   :<- [:wish.sheets.dnd5e.subs/buff-attrs :atk]
@@ -347,7 +347,7 @@
   :<- [:sheet-engine-state]
   :<- [:meta/options]
   :<- [::abilities/modifiers]
-  :<- [:wish.sheets.dnd5e.subs/proficiency-bonus]
+  :<- [::proficiency/bonus]
   :<- [:total-level]
   :<- [:races]
   :<- [:classes]

@@ -2,18 +2,16 @@
       :doc "dnd5e.subs"}
   wish.sheets.dnd5e.subs
   (:require-macros [wish.util.log :as log])
-  (:require [clojure.string :as str]
-            [re-frame.core :as rf :refer [reg-sub subscribe]]
+  (:require [re-frame.core :as rf :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
-            [wish.sheets.dnd5e.subs.base]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.subs.util
-             :refer [filter-by-str feature-by-id feature-in-lists
-                     reg-sheet-sub]]
+             :refer [filter-by-str reg-sheet-sub]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
             [wish.util :refer [<sub invoke-callable ->map]]))
 
@@ -360,103 +358,13 @@
   :death-saving-throws)
 
 
-; ======= Proficiency and expertise ========================
-
-
-(def ^:private static-resistances
-  #{:acid :cold :fire :lightning :poison})
-
-; returns a collection of features
-(reg-sub
-  ::ability-extras
-  :<- [:sheet-engine-state]
-  :<- [:races]
-  :<- [:classes]
-  :<- [::inventory/attuned]
-  :<- [:effects]
-  (fn [[data-source & entity-lists] _]
-    (->> entity-lists
-         flatten
-         (mapcat (comp
-                   (partial apply concat)
-                   (juxt (comp :saves :attrs)
-                         (comp :immunities :attrs)
-                         (comp :resistances :attrs))))
-
-         ; TODO include the source?
-         (map (fn [[id extra]]
-                (cond
-                  (true? extra)
-                  (if (contains? static-resistances id)
-                    ; static
-                    {:id id
-                     :desc (str "You are resistant to "
-                                (str/capitalize (name id))
-                                " damage.")}
-
-                    ; not static? okay, it could be a feature
-                    (if-let [f (feature-in-lists data-source entity-lists id)]
-                      ; got it!
-                      f
-
-                      ; okay... effect?
-                      (if-let [e (get-in data-source [:effects id])]
-                        {:id id
-                         :desc [:<>
-                                (:name e) ":"
-                                [:ul
-                                 (for [line (:effects e)]
-                                   ^{:key line}
-                                   [:li line])]]}
-
-                        ; halp
-                        {:id id
-                         :desc (str "Unknown: " id " / " extra)})))
-
-                  ; full feature
-                  (:id extra)
-                  extra
-
-                  ; shorthand (eg: just {:desc}):
-                  :else
-                  (assoc extra :id id)))))))
-
-(reg-sub
-  ::other-proficiencies
-  :<- [:sheet-engine-state]
-  :<- [::all-proficiencies]
-  (fn [[data-source feature-ids] _]
-    (->> feature-ids
-         (remove data/skill-feature-ids)
-         (keep (partial feature-by-id data-source))
-         (sort-by :name))))
-
-; returns a collection of feature ids
-(reg-sub
-  ::languages
-  :<- [:sheet-engine-state]
-  :<- [:races]
-  :<- [:classes]
-  :<- [:effects]
-  (fn [[data-source & entity-lists] _]
-    (->> entity-lists
-         flatten
-         (mapcat :attrs)
-         (keep (fn [[k v]]
-                 (when (and v
-                            (= "lang" (namespace k)))
-                   k)))
-         (keep (partial feature-by-id data-source))
-         (sort-by :name))))
-
-
 ; ======= general stats for header =========================
 
 (reg-sub
   ::passive-perception
   :<- [::abilities/modifiers]
-  :<- [::proficiency-bonus]
-  :<- [::save-proficiencies]
+  :<- [::proficiency/bonus]
+  :<- [::proficiency/saves]
   (fn [[abilities prof-bonus save-profs]]
     (+ 10
        (:wis abilities)
