@@ -3,7 +3,6 @@
             [wish.sheets.dnd5e.builder.data :refer [point-buy-max
                                                     score-point-cost]]
             [wish.sheets.dnd5e.util :as util]
-            [wish.sheets.dnd5e.subs.base]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.spells :as spells]))
 
