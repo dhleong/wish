@@ -163,6 +163,8 @@
                      ?sheet-id))))
 
 
+; ======= limited use =====================================
+
 (reg-id-sub
   ::limited-use-configs
   :<- [:all-limited-use-configs]
@@ -228,6 +230,9 @@
        :slot-level (:level input)
        :max-slots (:total input)}
       )))
+
+
+; ======= hp management ===================================
 
 (reg-id-sub
   ::rolled-hp
@@ -357,6 +362,32 @@
   ::death-saving-throws
   :death-saving-throws)
 
+; returns a list of {:die,:classes,:used,:total}
+; where :classes is a list of class names, sorted by die size.
+(reg-sub
+  ::hit-dice
+  :<- [:classes]
+  :<- [:limited-used]
+  (fn [[classes used]]
+    (->> classes
+         (reduce
+           (fn [m c]
+             (let [die-size (-> c :attrs :5e/hit-dice)]
+               (if (get m die-size)
+                 ; just add our class and inc the total
+                 (-> m
+                     (update-in [die-size :classes] conj (:name c))
+                     (update-in [die-size :total] + (:level c)))
+
+                 ; create the initial spec
+                 (assoc m die-size {:classes [(:name c)]
+                                    :die die-size
+                                    :used (get used (->die-use-kw die-size))
+                                    :total (:level c)}))))
+           {})
+         vals
+         (sort-by :die #(compare %2 %1)))))
+
 
 ; ======= general stats for header =========================
 
@@ -383,6 +414,7 @@
   :<- [::buffs :speed]
   (fn [[base buffs]]
     (+ base buffs)))
+
 
 ; ======= starting equipment ==============================
 
@@ -469,6 +501,10 @@
   ::conditions
   :conditions)
 
+(reg-sheet-sub
+  ::notes
+  :notes)
+
 (reg-sub
   ::selected-option-ids
   :<- [:meta/options]
@@ -520,33 +556,3 @@
 
          (sort-by :name)
          seq)))
-
-; returns a list of {:die,:classes,:used,:total}
-; where :classes is a list of class names, sorted by die size.
-(reg-sub
-  ::hit-dice
-  :<- [:classes]
-  :<- [:limited-used]
-  (fn [[classes used]]
-    (->> classes
-         (reduce
-           (fn [m c]
-             (let [die-size (-> c :attrs :5e/hit-dice)]
-               (if (get m die-size)
-                 ; just add our class and inc the total
-                 (-> m
-                     (update-in [die-size :classes] conj (:name c))
-                     (update-in [die-size :total] + (:level c)))
-
-                 ; create the initial spec
-                 (assoc m die-size {:classes [(:name c)]
-                                    :die die-size
-                                    :used (get used (->die-use-kw die-size))
-                                    :total (:level c)}))))
-           {})
-         vals
-         (sort-by :die #(compare %2 %1)))))
-
-(reg-sheet-sub
-  ::notes
-  :notes)
