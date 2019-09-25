@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Campaign-viewer for D&D 5e"}
   wish.sheets.dnd5e.campaign
-  (:require [wish.sheets.dnd5e.subs :as subs]
+  (:require [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.views.abilities :refer [abilities-display]]
             [wish.sheets.dnd5e.views.header :refer [hp-death-saving-throws]]
             [wish.sheets.dnd5e.campaign.style :as style]
@@ -14,13 +15,13 @@
    [:div.name (:name c)]
 
    [:div.hp
-    (let [[hp max-hp] (<sub [::subs/hp id])]
+    (let [[hp max-hp] (<sub [::hp/state id])]
       (if (> hp 0)
         [hp-bar hp max-hp]
         [hp-death-saving-throws id]))]
 
    [:div.abilities
-    (let [info (<sub [::subs/ability-info id])]
+    (let [info (<sub [::abilities/info id])]
       [abilities-display info])]
    ])
 

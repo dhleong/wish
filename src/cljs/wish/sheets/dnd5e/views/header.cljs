@@ -5,6 +5,7 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.subs.combat :as combat]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.util :refer [mod->str]]
@@ -41,13 +42,13 @@
 (defn hp-death-saving-throws
   ([] (hp-death-saving-throws nil))
   ([sheet-id]
-   (let [{:keys [saves fails]} (<sub [::subs/death-saving-throws sheet-id])]
+   (let [{:keys [saves fails]} (<sub [::hp/death-saving-throws sheet-id])]
      [:<>
       [save-indicators "😇" :save saves]
       [save-indicators "☠️" :fail fails]])))
 
 (defn hp []
-  (let [[hp max-hp] (<sub [::subs/hp])]
+  (let [[hp max-hp] (<sub [::hp/state])]
     [:div.clickable.hp.col
      {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
 

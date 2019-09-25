@@ -10,6 +10,7 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.builder :as builder]
+            [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
@@ -373,11 +374,11 @@
      level in your primary class."]
    [:div
     [:b "Total Max HP: "]
-    (<sub [::subs/max-hp])]
+    (<sub [::hp/max])]
 
    [:div.group
     [:b "Hit Dice: "]
-    [:div (for [{:keys [die classes total]} (<sub [::subs/hit-dice])]
+    [:div (for [{:keys [die classes total]} (<sub [::hp/hit-dice])]
             ^{:key die}
             [:div.hit-die
              [:span.dice total "d" die]
@@ -406,7 +407,7 @@
                                :min 1
                                :max die-size}]]]
 
-            {:get #(<sub [::subs/rolled-hp %])
+            {:get #(<sub [::hp/rolled %])
              :save! (fn [path v]
                       (let [v (min
                                 (:dice (get hit-die-by-class (first path)))
@@ -423,13 +424,13 @@
                  :field :list}
         [:option {:key :average} "Automatic"]
         [:option {:key :manual} "Manual"]]
-       {:get #(<sub [::subs/max-hp-mode])
-        :save! #(when-not (= %2 (<sub [::subs/max-hp-mode]))
+       {:get #(<sub [::hp/max-hp-mode])
+        :save! #(when-not (= %2 (<sub [::hp/max-hp-mode]))
                   (>evt [:update-meta [:sheet]
                          assoc
                          :max-hp-mode %2]))}]]
 
-     (case (<sub [::subs/max-hp-mode])
+     (case (<sub [::hp/max-hp-mode])
        :average [hp-mode-average]
        :manual [hp-mode-manual])
 

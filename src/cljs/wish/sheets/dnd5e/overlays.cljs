@@ -14,6 +14,7 @@
              :refer [spell-info-header]]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
+            [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.starter :as starter]
             [wish.sheets.dnd5e.style :as styles]
@@ -237,15 +238,15 @@
 
 (defn hp-overlay []
   (r/with-let [state (r/atom {})]
-    (let [[hp max-hp] (<sub [::subs/hp])
-          temp-hp (<sub [::subs/temp-hp])
+    (let [[hp max-hp] (<sub [::hp/state])
+          temp-hp (<sub [::hp/temp])
           {:keys [heal damage]} @state
           new-hp (max
                    0  ; you can't go negative in 5e
                    (min (+ max-hp temp-hp) ; don't collapse temp-hp above max
                         (- (+ hp heal)
                            damage)))
-          death-saves (<sub [::subs/death-saving-throws])]
+          death-saves (<sub [::hp/death-saving-throws])]
       [:div styles/hp-overlay
        (when (= 0 hp)
          [:<>
@@ -340,7 +341,7 @@
           [:input.number {:field :fast-numeric
                           :id :temp-hp
                           :min 0}]
-          {:get #(<sub [::subs/temp-hp])
+          {:get #(<sub [::hp/temp])
            :save! #(>evt [::events/temp-hp! %2])}]]
 
         ; just a spacer
@@ -353,7 +354,7 @@
           [:input.number {:field :fast-numeric
                           :id :temp-max-hp
                           :min 0}]
-          {:get #(<sub [::subs/temp-max-hp])
+          {:get #(<sub [::hp/temp-max])
            :save! #(>evt [::events/temp-max-hp! %2])}]]]
 
 ; this ought to get its own overlay at some point:
@@ -390,7 +391,7 @@
 ; ======= short rest =======================================
 
 (defn dice-pool [state]
-  (let [dice-info (<sub [::subs/hit-dice])
+  (let [dice-info (<sub [::hp/hit-dice])
         values (:values @state)]
     [:div.hit-dice-pool
      [:p "Your hit dice:"]
@@ -504,7 +505,7 @@
                                          (:values @state))]
                                [::events/update-hp
                                 amount-to-heal
-                                (<sub [::subs/max-hp])]
+                                (<sub [::hp/max])]
                                [:toggle-overlay nil])}
         "Take a short rest"
         (when (> amount-to-heal 0)
