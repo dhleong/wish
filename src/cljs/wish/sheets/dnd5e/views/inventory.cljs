@@ -3,6 +3,7 @@
             [wish.util :refer [<sub click>evt]]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.starter-eq :as starter-eq]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.util :refer [equippable?]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
@@ -109,7 +110,7 @@
 
     [link>evt {:class "link"
                :> [:toggle-overlay
-                   [#'overlays/starting-equipment-adder]]}
+                   [#'starter-eq/overlay]]}
      "Starting Gear"] ]
 
    (when-let [inventory (seq (<sub [::inventory/sorted]))]
