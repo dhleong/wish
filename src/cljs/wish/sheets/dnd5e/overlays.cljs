@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Overlays"}
   wish.sheets.dnd5e.overlays
-  (:require-macros [wish.util :refer [fn-click]]
-                   [wish.util.log :as log :refer [log]])
+  (:require-macros [wish.util :refer [fn-click]])
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
@@ -341,98 +340,6 @@
   [:div styles/spell-info-overlay
    [spell-info-header {} s]
    [spell-card s]])
-
-
-; ======= currency =========================================
-
-(defn currency-manager []
-  (r/with-let [quick-adjust (r/atom {})]
-    [:div styles/currency-manager-overlay
-     [:h5 "Currency"]
-     [:form#currency-form
-      {:on-submit (fn-click
-                    (when-let [v (:adjust @quick-adjust)]
-                      (log "Adjust currency: " v)
-                      (>evt [::events/adjust-currency v]))
-                    (>evt [:toggle-overlay nil]))}
-      [bind-fields
-       [:table
-        [:tbody
-         [:tr
-          [:th.header.p [:span.label "Platinum"]]
-          [:th.header.g [:span.label "Gold"]]
-          [:th.header.e [:span.label "Electrum"]]
-          [:th.header.s [:span.label "Silver"]]
-          [:th.header.c [:span.label "Copper"]]]
-
-         ; current values
-         [:tr
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :platinum}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :gold}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :electrum}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :silver}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :copper}]]]
-
-         [:tr
-          [:td.meta {:col-span 5}
-           "Adjust totals directly"]]
-
-         [:tr
-          [:th {:col-span 5
-                :style {:padding-top "1em"}}
-           "Quick Adjust"]]
-
-         [:tr
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :adjust.platinum}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :adjust.gold}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :adjust.electrum}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :adjust.silver}]]
-          [:td
-           [:input.amount {:field :fast-numeric
-                           :id :adjust.copper}]]]
-
-         [:tr
-          [:td.meta {:col-span 5}
-           "Add or subtract amounts by inputting positive or negative amounts above"]]
-
-         ]]
-
-       {:get #(if (= :adjust (first %))
-                (get-in @quick-adjust %)
-                (get-in (<sub [::inventory/currency]) %))
-
-        :save! (fn [path v]
-                 (if (not= :adjust (first path))
-                   (>evt [::events/set-currency (first path) v])
-
-                   (swap! quick-adjust assoc-in path v)))}]
-
-      [:div.apply
-       [:input.apply {:type 'submit
-                      :value "Apply!"
-                      :disabled (->> @quick-adjust
-                                     :adjust
-                                     vals
-                                     (some number?)
-                                     not)}]]]]))
 
 
 ; ======= item adder ======================================

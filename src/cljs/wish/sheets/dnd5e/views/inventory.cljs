@@ -4,6 +4,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.custom-item :as custom-item]
+            [wish.sheets.dnd5e.overlays.currency :as currency]
             [wish.sheets.dnd5e.overlays.starter-eq :as starter-eq]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.util :refer [equippable?]]
@@ -94,7 +95,7 @@
    [:span.clickable
     {:class "clickable"
      :on-click (click>evt [:toggle-overlay
-                           [#'overlays/currency-manager]])}
+                           [#'currency/overlay]])}
     [currency-preview :large]]
 
    [:div.add
