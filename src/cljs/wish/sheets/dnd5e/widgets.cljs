@@ -9,7 +9,7 @@
             [wish.util :refer [>evt <sub click>evt invoke-callable]]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.limited-use :as limited-use]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.style :as styles]
@@ -141,7 +141,7 @@
                             slot-level))
 
          uses-left (when use-id
-                     (:uses-left (<sub [::subs/limited-use use-id])))
+                     (:uses-left (<sub [::limited-use/by-id use-id])))
 
          has-uses? (or cantrip?
                        (if use-id

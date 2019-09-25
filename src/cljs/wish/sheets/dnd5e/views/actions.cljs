@@ -8,8 +8,8 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
-            [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.combat :as combat]
+            [wish.sheets.dnd5e.subs.limited-use :as limited-use]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind-attrs-from-path]]
@@ -37,7 +37,7 @@
 
    (when (:consumes s)
      (when-let [{:keys [uses-left] :as info}
-                (<sub [::subs/consumable s])]
+                (<sub [::limited-use/consumable-for s])]
        (if (> uses-left 0)
          [:div.uses.button
           {:on-click (click>evt [::events/+use info 1])}
@@ -151,7 +151,7 @@
   [consumable {:keys [omit-name]}]
   (when-let [use-id (:consumes consumable)]
     (when-let [{:keys [name uses-left] :as info}
-               (<sub [::subs/consumable consumable])]
+               (<sub [::limited-use/consumable-for consumable])]
       (if (= :*spell-slot use-id)
         ; consuming spell slots is a special case
         [:div styles/consumable-use-block
@@ -235,7 +235,7 @@
                                            [::combat/actions-for-type :reaction]]]
    [:specials "Others" :when-any-<sub [[::spells/prepared-spells-filtered :special-action]
                                        [::combat/actions-for-type :special-action]]]
-   [:limited-use "Limited" :when-any-<sub [[::subs/limited-use-configs]]]])
+   [:limited-use "Limited" :when-any-<sub [[::limited-use/configs]]]])
 
 (defn- page->index [pages to-find]
   (reduce-kv
@@ -317,7 +317,7 @@
     [:input.uses-left {:field :fast-numeric
                        :id :uses}]
 
-    {:get #(:uses-left (<sub [::subs/limited-use (:id item)]))
+    {:get #(:uses-left (<sub [::limited-use/by-id (:id item)]))
      :save! (fn [_ v]
               (let [used (max 0 (min uses-max
                                      (- uses-max v)))]
@@ -351,7 +351,7 @@
     (str uses " uses / " (trigger-labels trigger))))
 
 (defn limited-use-section []
-  (let [items (<sub [::subs/limited-use-configs])
+  (let [items (<sub [::limited-use/configs])
         used (<sub [:limited-used])]
     [:div styles/limited-use-section
      (if-not (empty? items)
