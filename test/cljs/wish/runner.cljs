@@ -8,7 +8,7 @@
             [wish.sheets.dnd5e.builder-test]
             [wish.sheets.dnd5e.data-test]
             [wish.sheets.dnd5e.events-test]
-            [wish.sheets.dnd5e.overlays-test]
+            [wish.sheets.dnd5e.overlays.starter-eq-test]
             [wish.sheets.dnd5e.overlays.custom-item-test]
             [wish.sheets.dnd5e.subs.builder-test]
             [wish.sheets.dnd5e.subs.combat-test]

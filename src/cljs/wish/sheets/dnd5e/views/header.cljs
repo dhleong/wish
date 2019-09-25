@@ -3,6 +3,8 @@
             [wish.util :refer [<sub click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.hp
+             :refer [overlay] :rename {overlay hp-overlay}]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.effects :as effects]
@@ -51,7 +53,7 @@
 (defn hp []
   (let [[hp max-hp] (<sub [::hp/state])]
     [:div.clickable.hp.col
-     {:on-click (click>evt [:toggle-overlay [#'overlays/hp-overlay]])}
+     {:on-click (click>evt [:toggle-overlay [#'hp-overlay]])}
 
      (if (> hp 0)
        [hp-normal hp max-hp]

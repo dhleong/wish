@@ -3,6 +3,9 @@
             [wish.util :refer [<sub click>evt]]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.custom-item :as custom-item]
+            [wish.sheets.dnd5e.overlays.currency :as currency]
+            [wish.sheets.dnd5e.overlays.starter-eq :as starter-eq]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.util :refer [equippable?]]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
@@ -31,7 +34,7 @@
       (when (inv/custom? item)
         [:div.edit
          [link>evt {:> [:toggle-overlay
-                        [#'overlays/custom-item-overlay item]]
+                        [#'custom-item/overlay item]]
                     :propagate? false}
           (icon :settings)]])
 
@@ -92,7 +95,7 @@
    [:span.clickable
     {:class "clickable"
      :on-click (click>evt [:toggle-overlay
-                           [#'overlays/currency-manager]])}
+                           [#'currency/overlay]])}
     [currency-preview :large]]
 
    [:div.add
@@ -104,12 +107,12 @@
 
     [link>evt {:class "link"
                :> [:toggle-overlay
-                   [#'overlays/custom-item-overlay]]}
+                   [#'custom-item/overlay]]}
      "Custom"]
 
     [link>evt {:class "link"
                :> [:toggle-overlay
-                   [#'overlays/starting-equipment-adder]]}
+                   [#'starter-eq/overlay]]}
      "Starting Gear"] ]
 
    (when-let [inventory (seq (<sub [::inventory/sorted]))]

@@ -1,6 +1,6 @@
-(ns wish.sheets.dnd5e.overlays-test
+(ns wish.sheets.dnd5e.overlays.starter-eq-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.sheets.dnd5e.overlays :refer [expand-starting-eq]]))
+            [wish.sheets.dnd5e.overlays.starter-eq :refer [expand-starting-eq]]))
 
 (deftest expand-starting-eq-est
   (testing "Simple `and` UNselected"

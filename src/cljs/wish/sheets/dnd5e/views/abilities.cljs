@@ -1,6 +1,7 @@
 (ns wish.sheets.dnd5e.views.abilities
   (:require [wish.util :refer [<sub click>evt]]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.short-rest :as short-rest]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
@@ -13,7 +14,7 @@
 (defn rest-buttons []
   [:div styles/rest-buttons
    [:div.button.short
-    {:on-click (click>evt [:toggle-overlay [#'overlays/short-rest-overlay]])}
+    {:on-click (click>evt [:toggle-overlay [#'short-rest/overlay]])}
     "Short Rest"]
    [:div.button.long
     {:on-click (click>evt [:toggle-overlay [#'overlays/long-rest-overlay]])}

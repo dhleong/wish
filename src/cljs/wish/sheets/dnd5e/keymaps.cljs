@@ -2,7 +2,8 @@
       :doc "keymaps"}
   wish.sheets.dnd5e.keymaps
   (:require [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.overlays :as overlays]))
+            [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.hp :as hp]))
 
 (def ^:private event-keys
   [;; hide any open overlay
@@ -18,7 +19,7 @@
      {:keyCode 78}]]
 
    ;; open health management
-   [[:toggle-overlay [#'overlays/hp-overlay]]
+   [[:toggle-overlay [#'hp/overlay]]
 
     ; via:
     [; press `h`
