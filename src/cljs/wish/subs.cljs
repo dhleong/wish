@@ -335,7 +335,9 @@
                      (when-let [effect (get-in source [:effects effect-id])]
                        (inflate-effect effect args))))
            (map (fn [effect]
-                  ((:! effect) effect)))))))
+                  (if-let [apply-fn (:! effect)]
+                    (apply-fn effect)
+                    effect)))))))
 
 (reg-id-sub
   :effect-ids-set
