@@ -5,6 +5,7 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs :as subs]
+            [wish.sheets.dnd5e.subs.effects :as effects]
             [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.subs.combat :as combat]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
@@ -18,7 +19,7 @@
 ; ======= Top bar ==========================================
 
 (defn- hp-normal [hp max-hp]
-  (let [buff-kind (<sub [::subs/effect-change-for :hp-max])]
+  (let [buff-kind (<sub [::effects/change-for :hp-max])]
     [:<>
      [:div.label [:span.content "Hit Points"]]
      [:div.value
@@ -57,7 +58,7 @@
        [hp-death-saving-throws])]))
 
 (defn buffable-stat [stat-id label & content]
-  (let [buff-kind (<sub [::subs/effect-change-for stat-id])]
+  (let [buff-kind (<sub [::effects/change-for stat-id])]
     [:div.col
      (into [:div.stat (buff-kind->attrs buff-kind)]
            content)

@@ -7,24 +7,13 @@
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
-            [wish.sheets.dnd5e.subs.util
-             :refer [filter-by-str reg-sheet-sub]]
+            [wish.sheets.dnd5e.subs.util :refer [compute-buffs reg-sheet-sub]]
             [wish.subs-util :refer [reg-id-sub]]
             [wish.util :refer [invoke-callable]]))
 
 
 ; ======= utility subs ====================================
 
-(defn- compute-buff [entity buff-entry]
-  (if (fn? buff-entry)
-    (buff-entry entity)
-    buff-entry))
-
-(defn- compute-buffs [entity buffs-map]
-  (reduce (fn [total b]
-            (+ total (compute-buff entity b)))
-          0
-          (vals buffs-map)))
 
 ; the ::buffs sub takes a single :buff type ID (not including an ability,
 ; since some buffs depend on ability modifiers) and computes and combines
@@ -80,63 +69,6 @@
   (fn [attrs [_ buff-id]]
     (get-in attrs [:buffs buff-id])))
 
-
-; ======= effects =========================================
-
-(reg-sub
-  :5e/effects-filter
-  (fn [db]
-    (:5e/effects-filter db nil)))
-
-; returns a map of id -> {buff-id -> n}
-(reg-sub
-  ::effect-buffs-map
-  :<- [:effects]
-  (fn [effects _]
-    (->> effects
-         (map (comp :buffs :attrs))
-         (apply merge-with merge))))
-
-(reg-sub
-  ::effect-buffs-values-map
-  :<- [::effect-buffs-map]
-  :<- [::abilities/modifiers]
-  :<- [::base-speed]
-  (fn [[effects modifiers speed] _]
-    ; NOTE: for now it is okay that we don't necessarily get
-    ; the complete buff value for speed...
-    (let [entity {:modifiers modifiers
-                  :speed speed}]
-      (reduce-kv
-        (fn [m effect-id buffs-map]
-          (assoc m effect-id
-                 (compute-buffs
-                   entity
-                   buffs-map)))
-        {}
-        effects))))
-
-; :buff, :nerf, or nil for the given ID
-(reg-sub
-  ::effect-change-for
-  :<- [::effect-buffs-values-map]
-  (fn [buffs-map [_ id]]
-    (when-let [value (get buffs-map id)]
-      (cond
-        (> value 0) :buff
-        (< value 0) :nerf
-        :else nil))))
-
-(reg-sub
-  ::all-effects
-  :<- [:all-effects/sorted]
-  :<- [:effect-ids-set]
-  :<- [:5e/effects-filter]
-  (fn [[items active-ids filter-str]]
-    (->> items
-         (remove :feature-only?)
-         (remove (comp active-ids :id))
-         (filter-by-str filter-str))))
 
 
 ; ======= class and level ==================================

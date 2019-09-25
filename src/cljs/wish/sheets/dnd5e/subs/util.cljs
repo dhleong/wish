@@ -44,3 +44,14 @@
   [engine-state list-id options-set]
   (->> (engine/inflate-list engine-state list-id)
        (filter (comp (->set options-set) :id))))
+
+(defn- compute-buff [entity buff-entry]
+  (if (fn? buff-entry)
+    (buff-entry entity)
+    buff-entry))
+
+(defn compute-buffs [entity buffs-map]
+  (reduce (fn [total b]
+            (+ total (compute-buff entity b)))
+          0
+          (vals buffs-map)))
