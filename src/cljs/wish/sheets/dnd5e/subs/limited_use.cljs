@@ -47,15 +47,14 @@
                                       (get used id))))
          first)))
 
-; Takes an entity with :consumes and returns something
-; that can be consumed from it. Usually this delegates to
-; [::limited-use (:consumes a)], but this also supports
-; the special case of consuming a :*spell-slot
+; Takes an entity with :consumes and returns something that can be
+; consumed from it. Usually this delegates to [::by-id (:consumes a)], but
+; this also supports the special case of consuming a :*spell-slot
 (reg-sub
   ::consumable-for
   (fn [[_ {id :consumes :as entity}]]
     (if (not= :*spell-slot id)
-      (subscribe [::limited-use id])
+      (subscribe [::by-id id])
 
       ; special case
       (subscribe [::spells/usable-slot-for entity])))
@@ -70,5 +69,4 @@
        :uses-left (:unused input)
        :slot-kind (:kind input)
        :slot-level (:level input)
-       :max-slots (:total input)}
-      )))
+       :max-slots (:total input)})))
