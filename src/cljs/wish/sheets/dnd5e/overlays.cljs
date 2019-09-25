@@ -9,7 +9,6 @@
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.events :as events]
-            [wish.sheets.dnd5e.overlays.custom-item :as custom-item]
             [wish.sheets.dnd5e.overlays.spell-management
              :refer [spell-info-header]]
             [wish.sheets.dnd5e.subs :as subs]
@@ -625,12 +624,6 @@
                                      vals
                                      (some number?)
                                      not)}]]]]))
-
-
-; ======= custom item creation =============================
-
-; re-export
-(def custom-item-overlay custom-item/custom-item-overlay)
 
 
 ; ======= item adder ======================================

@@ -306,8 +306,8 @@
 
 ; ======= Actual overlay ==================================
 
-(defn custom-item-overlay
-  ([] (custom-item-overlay nil))
+(defn overlay
+  ([] (overlay nil))
   ([existing-item]
    (r/with-let [state (r/atom (or (when existing-item
                                     (item->form-state existing-item))
