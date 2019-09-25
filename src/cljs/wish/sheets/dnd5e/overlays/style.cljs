@@ -31,7 +31,7 @@
   [:.meta (merge metadata
                  {:max-width "180px"
                   :padding-left "16px"})]
-  [:table (merge text-center
+  [:table (merge styles/text-center
                  flex/vertical
                  flex/align-center
                  {:border-collapse 'collapse})]
@@ -73,13 +73,13 @@
                        :white-space 'nowrap}]])
   overlay
 
-  [:.current-hp (merge text-center
+  [:.current-hp (merge styles/text-center
                        {:width "5em"
                         :font-size "1.2em"})]
-  [:.centered text-center]
+  [:.centered styles/text-center]
   [:.section-header {:margin-bottom "0px"}]
 
-  [:.new-hp (merge text-center
+  [:.new-hp (merge styles/text-center
                    {:padding "12px"
                     :width "4em"})
    [:.label {:font-size "80%"}]
@@ -87,11 +87,11 @@
     [:&.healing {:color "#00cc00"}]
     [:&.damage {:color "#cc0000"}]]
    [:input.apply (merge
-                   button
+                   styles/button
                    {:margin-top "1em"})]]
-  [:.quick-adjust (merge text-center
+  [:.quick-adjust (merge styles/text-center
                          {:padding "4px"})
-   [:.number (merge text-center
+   [:.number (merge styles/text-center
                     {:font-size "1.2em"
                      :width "4em"})]]
 
@@ -127,7 +127,7 @@
                   :min-height "2.3em"})
    [:.name flex/grow]
    [:.button {:font-size "60%"}
-    [:&.disabled disabled-button]
+    [:&.disabled styles/disabled-button]
     [:&:hover {:background-color "#f0f0f0"
                :color "#333"}
      [:&.disabled {:background-color "#ccc"}]]]] )
@@ -152,7 +152,7 @@
   [:.sections {:margin-bottom "1em"
                :justify-content 'start}
    [:.hit-dice-pool {:margin-right "2em"}
-    [:.hit-die button]]
+    [:.hit-die styles/button]]
    [:.hit-die-use flex/center
     [:.hit-die-value {:width "5em"}]]]
   [:.desc metadata])
@@ -178,9 +178,9 @@
    [:.header flex]
    [:.meta metadata]
    [:.info (merge flex/grow
-                  button) ]
-   [:.prepare (merge button
-                     text-center
+                  styles/button)]
+   [:.prepare (merge styles/button
+                     styles/text-center
                      {:min-width "5em"})
     [:&.disabled {:cursor 'default
                   :color "#999"}]]])
