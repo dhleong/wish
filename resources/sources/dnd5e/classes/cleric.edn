@@ -205,7 +205,7 @@ At " (ordinal level) " level, your Destroy Undead destroys undead creatures of C
                                 "2d8"))
                       :! (on-state
                            (provide-attr
-                             [:special-action :paladin/divine-smite]
+                             [:special-action :cleric/divine-strike]
                              :combat))}))}
 
            9 {:! (on-state
