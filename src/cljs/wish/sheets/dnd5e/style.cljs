@@ -4,6 +4,7 @@
   (:require [garden.color :as color]
             [spade.core :refer [defclass defattrs]]
             [wish.style.flex :as flex :refer [flex]]
+            [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]))
 
 (def color-accent "#fbc02d")
@@ -19,20 +20,9 @@
 (def color-silver "#a6a4a0")
 (def color-copper "#a77c65")
 
-(def media-tiny {:screen :only
-                 :max-width "375px"})
-(def media-smartphones {:screen :only
-                        :max-width "479px"})
-(def media-not-smartphones {:min-width "480px"})
-(def media-tablets {:max-width "1024px"})
-(def media-laptops {:min-width "1100px"})
-
 (def button {:cursor 'pointer})
 
 (def text-center {:text-align 'center})
-
-(def one-third
-  {:width "100%"})
 
 (def disabled-button {:font-style 'italic
                       :color "rgba(1,1,1, 0.25) !important"
@@ -47,25 +37,21 @@
          {:height "100%"}))
 
 (defattrs layout []
-  (at-media
-    media-smartphones
+  (at-media media/smartphones
     (merge flex/justify-center
            {:width "100%"})
     [:.side {:width "92% !important"}])
 
-  (at-media
-    media-tablets
+  (at-media media/tablets
     (merge flex/justify-center
            {:width "100%"})
     [:.nav>.section {:font-size "1.5em"}])
 
-  (at-media
-    media-not-smartphones
+  (at-media media/not-smartphones
     [:.side {:height "100%"
              :overflow-y 'auto}])
 
-  (at-media
-    {:min-width "1100px"}
+  (at-media media/laptops
     [:.side {:padding "0 !important"}
      [:&.right {:width "700px !important"}]])
 
@@ -198,7 +184,7 @@
 ;;
 
 (defattrs actions-section []
-  (at-media media-smartphones
+  (at-media media/smartphones
             [:.filters {:justify-content 'center}])
   [:.filters (merge flex
                     {:border-bottom "1px solid #333"

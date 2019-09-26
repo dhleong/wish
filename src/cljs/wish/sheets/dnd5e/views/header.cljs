@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [spade.core :refer [defattrs]]
             [wish.style.flex :as flex :refer [flex]]
+            [wish.style.media :as media]
             [wish.util :refer [<sub click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -24,10 +25,10 @@
    :background "#666666"})
 
 (defattrs header-style []
-  (at-media styles/media-tablets
+  (at-media media/tablets
     [:.col.meta {:max-width "15vw"}])
 
-  (at-media styles/media-smartphones
+  (at-media media/smartphones
     [:.side
      [:&.settings {:order "0 !important"}]
      [:&.right {:justify-content 'space-between
@@ -47,7 +48,7 @@
                  :overflow 'hidden}]
      [:.max {:font-size "60%"}]])
 
-  (at-media styles/media-tiny
+  (at-media media/tiny
     {:font-size "80%"}
     [:.side {:padding "0 !important"}])
 

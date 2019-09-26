@@ -1,6 +1,7 @@
 (ns wish.sheets.dnd5e.overlays.style
   (:require [spade.core :refer [defattrs]]
             [wish.style.flex :as flex :refer [flex]]
+            [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]
             [wish.sheets.dnd5e.style :as styles]))
 
@@ -16,7 +17,7 @@
              :width "3em"}])
 
 (defattrs currency-manager-overlay []
-  (at-media styles/media-tiny
+  (at-media media/tiny
             {:padding "0 !important"}
             [:.p
              [:span.label {:display 'none}]
@@ -62,7 +63,7 @@
                    :font-size "110%"}])
 
 (defattrs hp-overlay []
-  (at-media styles/media-smartphones
+  (at-media media/smartphones
             [:.quick-adjust :.new-hp
              {:width "15vw !important"}]
             [:.quick-adjust (merge flex/vertical
@@ -114,8 +115,8 @@
   [:.desc metadata])
 
 (defattrs item-adder-overlay []
-  (at-media styles/media-smartphones
-            [:.item-browser {:height "70vh !important"}])
+  (at-media media/smartphones
+    [:.item-browser {:height "70vh !important"}])
 
   overlay
 
@@ -133,8 +134,7 @@
      [:&.disabled {:background-color "#ccc"}]]]] )
 
 (defattrs notes-overlay []
-  (at-media
-    styles/media-smartphones
+  (at-media media/smartphones
     [:textarea.notes {:height "80vh"
                       :font-size "10pt !important"}])
 

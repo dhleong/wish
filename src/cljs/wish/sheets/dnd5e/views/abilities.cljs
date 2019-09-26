@@ -1,6 +1,7 @@
 (ns wish.sheets.dnd5e.views.abilities
   (:require [spade.core :refer [defattrs]]
             [wish.style.flex :as flex :refer [flex]]
+            [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]
             [wish.util :refer [<sub click>evt]]
             [wish.sheets.dnd5e.overlays :as overlays]
@@ -180,22 +181,18 @@
 (defattrs skills-section-style []
   ; collapse into a single row on smaller devices
   ; that can't fit two columns of Skills
-  (at-media
-    (merge styles/media-tablets
-           styles/media-not-smartphones)
+  (at-media (merge media/tablets
+                   media/not-smartphones)
     single-column-skills)
 
-  (at-media
-    {:max-width "370px"}
+  (at-media {:max-width "370px"}
     single-column-skills)
 
-  (at-media
-    (merge styles/media-smartphones
-           {:min-width "371px"})
+  (at-media (merge media/smartphones
+                   {:min-width "371px"})
     [:.skill-col {:max-width "48%"}])
 
-  (at-media
-    styles/media-laptops
+  (at-media media/laptops
     [:.skill-col:first-child {:margin-right "12px"}])
 
   [:.sections
