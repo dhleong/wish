@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "Gdrive config styles"}
   wish.providers.gdrive.styles
-  (:require [wish.style :refer-macros [defstyled]]))
+  (:require [spade.core :refer [defattrs]]))
 
-(defstyled signin-button
+(defattrs signin-button []
   {:cursor 'pointer
    :display 'inline-block}
 

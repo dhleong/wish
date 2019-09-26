@@ -24,8 +24,7 @@
                  [reagent-forms "0.5.43"]
 
                  ; sheet-specific inline css
-                 [cljs-css-modules "0.2.1"]
-                 [garden "1.3.9"] ; override older version in cljs-css-modules
+                 [net.dhleong/spade "1.0.2"]
 
                  ; ::inject/sub cofx (for subscriptions in event handlers)
                  [re-frame-utils "0.1.0"]]

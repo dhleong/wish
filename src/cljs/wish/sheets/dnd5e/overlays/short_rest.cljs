@@ -6,7 +6,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.hp :as hp]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.util :refer [<sub click>evts click>swap!]]
             [wish.views.widgets :refer-macros [icon]]
@@ -102,7 +102,7 @@
                                  (+ (* dice-used con-mod)
                                     (:extra current-state)
                                     dice-sum)))))]
-      [:div styles/short-rest-overlay
+      [:div (styles/short-rest-overlay)
        [:h5 "Short Rest"]
 
        ; SRD description:

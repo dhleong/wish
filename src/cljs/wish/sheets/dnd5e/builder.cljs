@@ -6,6 +6,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [spade.core :refer [defattrs]]
             [wish.sheets.dnd5e.builder.data :as data]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
@@ -14,7 +15,6 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
-            [wish.style :refer-macros [defstyled]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [campaign-manager
@@ -28,7 +28,7 @@
 
 ; ======= CSS ==============================================
 
-(defstyled abilities-style
+(defattrs abilities-style []
   (merge flex/vertical
          flex/align-center)
 
@@ -43,7 +43,7 @@
               :text-align 'center}]
      [:select {:width "100%"}]]]])
 
-(defstyled classes-style
+(defattrs classes-style []
   [:.meta style/metadata]
 
   [:.class-header (merge flex/vertical
@@ -64,7 +64,7 @@
   [:.hit-die
    [:.dice {:font-weight "bold"}]])
 
-(defstyled feature-options-style
+(defattrs feature-options-style []
   [:.feature>.content {:padding "0 12px"}
    [:.desc style/metadata]]
 
@@ -78,7 +78,7 @@
             :text-decoration 'line-through}]
    [:.prereqs-reason {:color "#a00"}]])
 
-(defstyled races-style
+(defattrs races-style []
   [:.subrace {:padding-left "1em"}])
 
 
@@ -237,7 +237,7 @@
 
 (defn feature-options-selection [sub-vector extra-info]
   (if-let [features (seq (<sub sub-vector))]
-    [:div feature-options-style
+    [:div (feature-options-style)
      (for [[feature-id f] features]
        (let [instance-id (or (:wish/instance-id f)
                              feature-id)
@@ -272,7 +272,7 @@
     [:p "No features with options available yet."]))
 
 (defn race-page []
-  [:div races-style
+  [:div (races-style)
    [:h3 "Race"]
 
    [bind-fields
@@ -333,7 +333,7 @@
    ])
 
 (defn class-picker [unavailable-class-ids show-picker?]
-  [:div.class-picker feature-options-style
+  [:div.class-picker (feature-options-style)
    [:h4 "Pick a new class\u00A0"
     (when-not (empty? unavailable-class-ids)
       [:a {:href "#"
@@ -441,7 +441,7 @@
                show-picker? (r/atom (empty? initial-classes))]
     (let [existing-classes (<sub [:classes])]
 
-      [:div classes-style
+      [:div (classes-style)
        [:h1 "Level Up"]
 
        ; hit points
@@ -578,7 +578,7 @@
 
 (defn abilities-page []
   (let [mode (<sub [::builder/abilities-mode])]
-    [:div abilities-style
+    [:div (abilities-style)
      [:h3 "Abilities"]
 
      [:div

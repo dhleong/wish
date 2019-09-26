@@ -74,30 +74,30 @@
           [abilities/view]])
 
        [main-section {:key :actions} page
-        styles/actions-section
+        (styles/actions-section)
         [actions/view]]
 
        (when spellcasters
          [main-section {:key :spells} page
-          styles/spells-section
+          (styles/spells-section)
           [spells/view spellcasters]])
 
        [main-section {:key :inventory} page
-        styles/inventory-section
+        (styles/inventory-section)
         [inventory/view]]
 
        [main-section {:key :features} page
-        styles/features-section
+        (styles/features-section)
         [features/view]]
 
        ]] ]))
 
 (defn sheet []
-  [:div styles/container
+  [:div (styles/container)
    [error-boundary
     [header/view]]
 
-   [:div styles/layout
+   [:div (styles/layout)
     (when-not (= :smartphone (<sub [:device-type]))
       [error-boundary
        [:div.left.side

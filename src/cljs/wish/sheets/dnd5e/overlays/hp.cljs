@@ -7,7 +7,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.hp :as hp]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.util :refer [<sub >evt click>evt dec-dissoc]]
             [wish.views.widgets :as widgets
              :refer-macros [icon]
@@ -200,7 +200,7 @@
                         (- (+ hp heal)
                            damage)))]
 
-      [:div styles/hp-overlay
+      [:div (styles/hp-overlay)
        (when (= 0 hp)
          [saving-throws])
 

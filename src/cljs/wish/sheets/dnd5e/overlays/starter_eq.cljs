@@ -4,7 +4,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [wish.sheets.dnd5e.subs.starter :as starter]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.util :refer [<sub >evt toggle-in]]
             [wish.views.widgets.fast-numeric]))
 
@@ -173,7 +173,7 @@
     (let [{primary-class :class
            choices :choices} (<sub [::starter/eq])
           this-state @state]
-      [:div styles/starting-equipment-overlay
+      [:div (styles/starting-equipment-overlay)
        [:h5 (:name primary-class) " Starting Equipment"]
 
        (for [[i [kind values]] (map-indexed list choices)]

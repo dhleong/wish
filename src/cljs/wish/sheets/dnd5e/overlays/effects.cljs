@@ -3,7 +3,7 @@
   wish.sheets.dnd5e.overlays.effects
   (:require [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.subs.effects :as effects]
             [wish.util :refer [click>evts <sub]]
             [wish.views.widgets :as widgets]
@@ -44,7 +44,7 @@
      :else [add-effect-button effect])])
 
 (defn overlay []
-  [:div styles/item-adder-overlay
+  [:div (styles/item-adder-overlay)
    [:h4 "Effects"]
 
    [widgets/search-bar

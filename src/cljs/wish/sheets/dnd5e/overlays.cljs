@@ -10,7 +10,7 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
                                                spell-aoe
                                                spell-card]]
@@ -75,7 +75,7 @@
 
 (defn info
   [entity]
-  [:div styles/info-overlay
+  [:div (styles/info-overlay)
    (when-let [n (:name entity)]
      [:div.name n])
 
@@ -101,7 +101,7 @@
 ; ======= effects =========================================
 
 (defn effect-info [entity]
-  [:div styles/info-overlay
+  [:div (styles/info-overlay)
    [:div.name (:name entity)]
 
    (generic-info entity)
@@ -140,7 +140,7 @@
 (defn ability-tmp
   [id label]
   (let [{{:keys [score modifier]} id} (<sub [::abilities/info])]
-    [:div styles/ability-tmp-overlay
+    [:div (styles/ability-tmp-overlay)
      [:h5 label " " score " (" modifier ")"]
 
      [:form
@@ -166,7 +166,7 @@
 
 (defn- actual-notes-overlay
   [bind-opts]
-  [:div styles/notes-overlay
+  [:div (styles/notes-overlay)
    [:h5 "Notes"]
    [bind-fields
     [:textarea.notes {:field :textarea
@@ -191,7 +191,7 @@
 ; ======= long rest =======================================
 
 (defn long-rest-overlay []
-  [:div styles/short-rest-overlay
+  [:div (styles/short-rest-overlay)
    [:h5 "Long Rest"]
 
    ; SRD description:
@@ -207,7 +207,7 @@
 ; ======= spell info =======================================
 
 (defn spell-info [s]
-  [:div styles/spell-info-overlay
+  [:div (styles/spell-info-overlay)
    [spell-info-header {} s]
    [spell-card s]])
 
@@ -238,7 +238,7 @@
                      [item-browser-item item]])]]])
 
 (defn item-adder []
-  [:div styles/item-adder-overlay
+  [:div (styles/item-adder-overlay)
    [:h4 "Add Items"]
 
    [item-browser]

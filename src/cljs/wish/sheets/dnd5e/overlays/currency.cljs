@@ -5,7 +5,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
-            [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.util :refer [<sub >evt]]
             [wish.views.widgets.fast-numeric]))
 
@@ -27,7 +27,7 @@
 
 (defn overlay []
   (r/with-let [quick-adjust (r/atom {})]
-    [:div styles/currency-manager-overlay
+    [:div (styles/currency-manager-overlay)
      [:h5 "Currency"]
      [:form#currency-form
       {:on-submit (fn-click
