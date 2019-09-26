@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "footer"}
   wish.views.footer
-  (:require [wish.config :refer [server-root VERSION]]))
+  (:require [wish.config :refer [server-root VERSION]]
+            [wish.util :refer [>evt]]))
 
 (defn footer []
   [:footer.footer
@@ -17,7 +18,9 @@
              :target '_blank}
     "Issues"]
 
-   [:div.version
+   [:div.version {:on-click (fn [e]
+                              (.stopPropagation e)
+                              (>evt [:update-app]))}
     VERSION]
    ])
 
