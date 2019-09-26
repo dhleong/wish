@@ -2,8 +2,9 @@
       :doc "dnd5e-specific events"}
   wish.sheets.dnd5e.events
   (:require [re-frame.core :refer [reg-event-db reg-event-fx
-                                   trim-v]]
+                                   inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
+            [vimsical.re-frame.cofx.inject :as inject]
             [wish.subs-util :refer [active-sheet-id]]
             [wish.sheets.dnd5e.util :refer [->slot-kw with-range]]
             [wish.sheets.util :refer [update-sheet update-in-sheet
@@ -128,6 +129,36 @@
   [trim-v]
   (fn-traced [cofx [amount max-hp]]
     (update-hp cofx amount max-hp)))
+
+(defn- spell-effect-prompt [spell-effect spell-level]
+  {:content (str "Cast " (:name spell-effect) " on yourself?")
+   :action-label "Yes!"
+   :action-event [:effect/add (:id spell-effect) {:spell-level spell-level}]
+   :duration-ms 10000})
+
+(reg-event-fx
+  ::cast-spell
+  [trim-v (inject-cofx ::inject/sub
+                       ^:ignore-dispose [:all-effects/map])]
+  (fn-traced [{effects :all-effects/map}
+              [{spell-id :id :as spell} {:keys [slot-kind
+                                                slot-level
+                                                slot-total]}]]
+    (let [spell-effect (get effects spell-id)]
+      {:dispatch-n (list
+                     (if (and spell-effect
+                              (not (:save spell-effect)))
+                       ; NOTE: if the spell has a save, it's probably not
+                       ; something we can cast on ourselves?
+                       [:notify! (spell-effect-prompt
+                                   spell-effect
+                                   slot-level)]
+                       [:notify! {:content (str "You cast " (:name spell))
+                                  :duration :short}])
+                     [::use-spell-slot
+                      slot-kind
+                      slot-level
+                      slot-total])})))
 
 (reg-event-fx
   ::use-spell-slot

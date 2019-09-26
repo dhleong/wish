@@ -318,7 +318,10 @@
                       (let [action (or (when (= id (:id c))
                                          ; attuned equipment, probably
                                          c)
-                                       (feature-by-id data-source c id))]
+                                       (feature-by-id data-source c id)
+                                       (js/console.warn
+                                         "Could not find " filter-type
+                                         " with id " id))]
 
                         (-> action
                             (update :desc (fn [d]

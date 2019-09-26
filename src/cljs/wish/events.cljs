@@ -145,16 +145,20 @@
   [trim-v]
   (fn [{:keys [db]} [{:keys [duration duration-ms content
                              dismissable?]
-                      :or {dismissable? true}}]]
+                      :or {dismissable? true}
+                      :as notification}]]
     (let [created (js/Date.now)
           id (keyword (str created))]
       {:db (assoc-in db [:notifications id]
-                     {:id id
-                      :created created
-                      :content content
-                      :dismiss-event (when (or (nil? duration)
-                                               dismissable?)
-                                       [::remove-notify! id])})
+                     (merge
+                       {:id id
+                        :created created
+                        :content content
+                        :dismiss-event (when (or (nil? duration)
+                                                 dismissable?)
+                                         [::remove-notify! id])}
+                       (select-keys notification
+                                    [:action-label :action-event])))
        :dispatch-later [(when (or duration duration-ms)
                           {:ms (case duration
                                  :short 3000
@@ -778,12 +782,18 @@
 
 (reg-event-fx
   :effect/add
-  [trim-v]
-  (fn [cofx [effect-id & [args]]]
+  [trim-v (inject-cofx ::inject/sub
+                       ^:ignore-dispose [:all-effects/map])]
+  (fn [{effects :all-effects/map :as cofx} [effect-id & [args]]]
     (let [args (or args true)]
-      (update-sheet-path cofx [:effects]
-                         update effect-id
-                         effect-add args))))
+      (-> cofx
+          (update-sheet-path [:effects]
+                             update effect-id
+                             effect-add args)
+          (assoc :dispatch
+                 (when-let [{n :name} (get effects effect-id)]
+                   [:notify! {:content (str "You are now affected by " n)
+                              :duration :short}]))))))
 
 (defn effect-remove [old-args to-remove]
   (when (seq? old-args)

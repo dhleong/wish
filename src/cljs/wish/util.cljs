@@ -102,7 +102,8 @@
   [& events]
   (fn-click [e]
     (doseq [event events]
-      (>evt event))
+      (when event
+        (>evt event)))
 
     ; always prevent propagation
     (.stopPropagation e)))

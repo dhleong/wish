@@ -182,8 +182,11 @@
                            (>evt [:+use use-id 1]))
                          (do
                            (log "Cast " s " AT " castable-level)
-                           (>evt [::events/use-spell-slot
-                                  slot-kind slot-level slot-total])))))}
+                           (>evt [::events/cast-spell
+                                  s
+                                  {:slot-kind slot-kind
+                                   :slot-level slot-level
+                                   :slot-total slot-total}])))))}
 
         ; div content:
         (if (or use-id use-slot?)

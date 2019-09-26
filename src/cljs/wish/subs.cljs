@@ -311,11 +311,17 @@
     [effect]))
 
 (reg-id-sub
-  :all-effects
+  :all-effects/map
   :<- [:sheet-engine-state]
   (fn [source _]
     (when source
-      (vals (:effects source)))))
+      (:effects source))))
+
+(reg-id-sub
+  :all-effects
+  :<- [:all-effects/map]
+  (fn [effects-map _]
+    (vals effects-map)))
 
 (reg-id-sub
   :all-effects/sorted
