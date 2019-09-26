@@ -32,10 +32,9 @@
    :uses-ammunition? "Uses Ammunition"
    :versatile "Versatile"})
 
-(defn- generic-info
-  [entity]
-  (let [{:keys [aoe damage range]} entity]
-    (when (or aoe damage range)
+(defn- generic-info [entity]
+  (let [{:keys [aoe damage dice range]} entity]
+    (when (or aoe damage dice range)
       [:table.info
        [:tbody
         (when-let [cast-time (:time entity)]
@@ -70,11 +69,19 @@
            [:th.header "Damage Type"]
            [:td (str/capitalize
                   (name damage))]])
+
+        (when dice
+          [:tr
+           [:th.header (if damage
+                         "Damage"
+                         "Healing")]
+           [:td (if (fn? dice)
+                  (dice (:wish/container entity))
+                  dice)]])
         ]]
       )))
 
-(defn info
-  [entity]
+(defn info [entity]
   [:div (styles/info-overlay)
    (when-let [n (:name entity)]
      [:div.name n])

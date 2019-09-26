@@ -327,7 +327,8 @@
                             (update :desc (fn [d]
                                             (if (fn? d)
                                               (d c)
-                                              d)))))
+                                              d)))
+                            (assoc :wish/container c)))
 
                       (cond
                         (map? flags) flags
