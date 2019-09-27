@@ -11,20 +11,12 @@ before_script:
     - export WISH_VERSION=$(git rev-parse --short HEAD)
 
 script:
-    - lein test
+    - npm test
     - scripts/compile-builtin-sources
 
 after_success:
-    # For some reason, the node_modules used for running the karma tests seems
-    # to interfere with production build, breaking the SwipeableViews component
-    # in some way. It's unclear why (maybe cljsbuild is using the wrong version
-    # of react, or some dependency, that it's pulling from node_modules?) but
-    # simply deleting node_modules seems to fix it. Since we only use
-    # node_modules for testing, that seems a reasonable fix
-    - rm -rf node_modules
-
     # build if on the master branch (in prep for deploy)
-    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then lein build || travis_terminate 1; fi
+    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then npm run build || travis_terminate 1; fi
 
 cache:
     directories:
