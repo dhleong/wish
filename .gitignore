@@ -15,4 +15,3 @@ out
 nashorn_code_cache
 .planck_cache
 .shadow-cljs
-package.json

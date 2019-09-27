@@ -6,6 +6,10 @@ sudo: true
 addons:
     chrome: stable
 
+install:
+    - npm install
+    - npm run start
+
 before_script:
     # set the version variable
     - export WISH_VERSION=$(git rev-parse --short HEAD)
