@@ -19,7 +19,7 @@
 (def ^:private pushy-supported? (and (not LOCAL)
                                      (pushy/supported?)))
 
-(def ^:private pushy-prefix "/wish")
+(def ^:private pushy-prefix config/server-root)
 (def ^:private secretary-prefix (if pushy-supported?
                                   (str pushy-prefix "/")
                                   "#"))

@@ -17,9 +17,9 @@
 (def shell-root (str config/server-root "/"))
 
 (def files-to-cache #js [shell-root
-                         (str config/server-root "/js/compiled/app.js")
-                         (str config/server-root "/css/site.css")
-                         (str config/server-root "/assets/icon/icon-192.png")
+                         (str shell-root "js/compiled/app.js")
+                         (str shell-root "css/site.css")
+                         (str shell-root "assets/icon/icon-192.png")
 
                          ; external resources:
                          "https://fonts.googleapis.com/icon?family=Material+Icons"])
