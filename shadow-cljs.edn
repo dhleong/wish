@@ -1,5 +1,5 @@
 ;; shadow-cljs configuration
-{:dev-http {3451 "resources/public"}
+{:dev-http {3450 "resources/public"}
 
  :source-paths ["src/cljc" "src/cljs" "src/cljs-worker"
 
@@ -41,7 +41,11 @@
                 :output-dir "resources/public/js/compiled/"
                 :asset-path "/js/compiled"
 
-                :modules {:app {:init-fn wish.core/init}}}
+                :modules {:app {:init-fn wish.core/init}
+
+                          :worker {:entries [wish.worker.core]
+                                   :depends-on #{:app}
+                                   :web-worker true}}}
 
           :ci {:target :karma
                :output-to "target/ci.js"}}}
