@@ -3,9 +3,7 @@
 
  :source-paths ["src/cljc" "src/cljs" "src/cljs-worker"
 
-                ; TODO refactor to use build config defines
-                "dev/cljs"
-                ]
+                "test/cljs"]
 
  :dependencies [; core:
                 [reagent "0.8.1"]
