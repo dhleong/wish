@@ -2,9 +2,9 @@
       :doc "Virtual list"}
   wish.views.widgets.virtual-list
   (:require [reagent.core :as r]
-            ["react-virtualized/dist/commonjs/List" :default List]
-            ["react-virtualized/dist/commonjs/AutoSizer" :default AutoSizer]
-            ["react-virtualized/dist/commonjs/CellMeasurer" :default CellMeasurer]))
+            ["react-virtualized/dist/commonjs/List" :refer [List]]
+            ["react-virtualized/dist/commonjs/AutoSizer" :refer [AutoSizer]]
+            ["react-virtualized/dist/commonjs/CellMeasurer" :as rv :refer [CellMeasurer]]))
 
 (def ^:private virtualized-list (r/adapt-react-class List))
 (def ^:private auto-sizer (r/adapt-react-class AutoSizer))
@@ -30,8 +30,7 @@
   ; DON'T persist the cache, else changes to the items
   ; (for example, marking some "selected" or not) will NOT allow them
   ; to render with a different height
-  (let [cache (js/ReactVirtualized.CellMeasurerCache.
-                #js {:fixedWidth true})]
+  (let [cache (rv/CellMeasurerCache. #js {:fixedWidth true})]
     [auto-sizer
      (fn [js-size]
        (r/as-element

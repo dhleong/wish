@@ -3,7 +3,7 @@
   wish.views.widgets.swipeable
   (:require [clojure.set :refer [map-invert]]
             [reagent.core :as r]
-            ["react-swipeable-views" :refer [SwipeableViews]]
+            ["react-swipeable-views" :default SwipeableViews]
             [wish.util :refer [<sub]]))
 
 (def ^:private swipeable-views (r/adapt-react-class SwipeableViews))
