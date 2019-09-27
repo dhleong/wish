@@ -1,0 +1,48 @@
+;; shadow-cljs configuration
+{:dev-http {3451 "resources/public"}
+
+ :source-paths ["src/cljc" "src/cljs" "src/cljs-worker"
+
+                ; TODO refactor to use build config defines
+                "dev/cljs"
+                ]
+
+ :dependencies [; core:
+                [reagent "0.8.1"]
+                [re-frame "0.10.7"]
+
+                ; navigation:
+                [clj-commons/secretary "1.2.4"]
+                [kibu/pushy "0.3.8"]
+
+                [wish-engine "0.1.0-SNAPSHOT"]
+
+                ; style and input:
+                [net.dhleong/spade "1.0.2"]
+                [reagent-forms "0.5.43"]
+                [re-pressed "0.3.0"]
+
+                ; ::inject/sub cofx (for subscriptions in event handlers)
+                [re-frame-utils "0.1.0"]
+
+                ; util:
+                [alandipert/storage-atom "2.0.1"]
+                [com.cognitect/transit-cljs "0.8.256"]
+                [com.cemerick/url "0.1.1"]
+                [com.rpl/specter "1.1.2"]
+                [cljs-ajax "0.8.0"]
+
+                ; dev dependencies
+                [binaryage/devtools "0.9.10"]
+                [day8.re-frame/re-frame-10x "0.4.0"]
+                [day8.re-frame/tracing "0.5.1"]]
+
+ :builds {:app {:target :browser
+                :output-dir "resources/public/js/compiled/"
+                :asset-path "/js/compiled"
+
+                :modules {:app {:init-fn wish.core/init}}}
+
+          :ci {:target :karma
+               :output-to "target/ci.js"}}}
+

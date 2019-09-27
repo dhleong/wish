@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.log :refer [log] :as log])
   (:require [clojure.core.async :refer [<!]]
-            [cljsjs.socket-io-client]
+            ["socket.io-client" :refer [io]]
             [wish.config :as config]
             [wish.providers :as providers]
             [wish.sheets.util :refer [unpack-id]]
@@ -177,9 +177,9 @@
     (on-push! session-id data)))
 
 (defn- connect-sio [session-id]
-  (doto (js/io (str config/push-server "/" session-id)
-               #js {:path (str "/" push-server-version
-                               "/push/sessions/io/")})
+  (doto (io (str config/push-server "/" session-id)
+            #js {:path (str "/" push-server-version
+                            "/push/sessions/io/")})
     (.on "error" on-sio-error)
     (.on "connect" #(on-open session-id))
     (.on "message" #(on-sio-message session-id %))))

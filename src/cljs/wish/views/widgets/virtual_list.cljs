@@ -2,11 +2,13 @@
       :doc "Virtual list"}
   wish.views.widgets.virtual-list
   (:require [reagent.core :as r]
-            [cljsjs.react-virtualized]))
+            ["react-virtualized/dist/commonjs/List" :default List]
+            ["react-virtualized/dist/commonjs/AutoSizer" :default AutoSizer]
+            ["react-virtualized/dist/commonjs/CellMeasurer" :default CellMeasurer]))
 
-(def ^:private virtualized-list (r/adapt-react-class js/ReactVirtualized.List))
-(def ^:private auto-sizer (r/adapt-react-class js/ReactVirtualized.AutoSizer))
-(def ^:private cell-measurer (r/adapt-react-class js/ReactVirtualized.CellMeasurer))
+(def ^:private virtualized-list (r/adapt-react-class List))
+(def ^:private auto-sizer (r/adapt-react-class AutoSizer))
+(def ^:private cell-measurer (r/adapt-react-class CellMeasurer))
 
 (defn virtual-list
   "virtual-list is perhaps not the most optimized implementation, but it does
