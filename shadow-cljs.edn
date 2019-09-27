@@ -45,7 +45,15 @@
 
                           :worker {:entries [wish.worker.core]
                                    :depends-on #{:app}
-                                   :web-worker true}}}
+                                   :web-worker true}}
+
+                :release
+                {:closure-defines
+                 {wish.config/VERSION #shadow/env "WISH_VERSION"
+                  wish.config/server-root "/wish"
+                  wish.config/full-url-root "https://dhleong.github.io/wish"
+                  wish.config/gdrive-client-id "661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com"
+                  wish.config/push-server "https://wish-server.now.sh"}}}
 
           :ci {:target :karma
                :output-to "target/ci.js"}}}
