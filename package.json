@@ -4,14 +4,14 @@
   "dependencies": {
     "create-react-class": "^15.6.3",
     "nprogress": "^0.2.0",
-    "react": "^16.10.0",
-    "react-dom": "^16.10.0",
+    "react": "16.8.6",
+    "react-dom": "16.8.6",
     "react-swipeable-views": "^0.13.3",
     "react-virtualized": "^9.21.1",
     "socket.io-client": "^2.3.0"
   },
   "devDependencies": {
-    "highlight.js": "^9.15.10",
+    "highlight.js": "9.15.8",
     "karma": "^4.3.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
@@ -21,7 +21,8 @@
     "shadow-cljs": "^2.8.59"
   },
   "scripts": {
-    "create-build-report": "shadow-cljs run shadow.cljs.build-report app worker build-report.html && open build-report.html",
+    "create-build-report": "shadow-cljs run shadow.cljs.build-report app build-report.html && open build-report.html",
+    "create-build-report:worker": "shadow-cljs run shadow.cljs.build-report worker build-report.html && open build-report.html",
     "build": "npm run build:css && npm run build:gh-pages",
     "build:css": "lessc less/site.less resources/public/css/site.css",
     "build:simple": "shadow-cljs release :app :worker",
