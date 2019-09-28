@@ -16,3 +16,5 @@ nashorn_code_cache
 .planck_cache
 .shadow-cljs
 build-report.html
+cljs-runtime
+manifest.edn

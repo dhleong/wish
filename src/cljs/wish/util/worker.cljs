@@ -45,7 +45,7 @@
 
 (defn register! []
   (-> js/navigator.serviceWorker
-      (.register (str config/server-root "/js/compiled/worker.js"))
+      (.register (str config/server-root "/worker.js"))
       (.then
         (fn [reg]
           (log "mounted service worker! " reg))
