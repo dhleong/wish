@@ -47,7 +47,8 @@
 
                 :release
                 {:compiler-options
-                 {:strip-type-prefixes #{"wish.util.shadow"}}
+                 {:fn-invoke-direct true
+                  :strip-type-prefixes #{"wish.util.shadow"}}
 
                  :closure-defines
                  {wish.config/VERSION #shadow/env "WISH_VERSION"
