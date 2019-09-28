@@ -15,13 +15,16 @@
     "karma": "^4.3.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
+    "less": "^3.10.3",
     "react-flip-move": "^3.0.3",
     "react-highlight.js": "^1.0.7",
     "shadow-cljs": "^2.8.59"
   },
   "scripts": {
     "create-build-report": "shadow-cljs run shadow.cljs.build-report app build-report.html && open build-report.html",
-    "build": "shadow-cljs release :app",
+    "build": "npm run build:css && npm run build:gh-pages",
+    "build:css": "lessc less/site.less resources/public/css/site.css",
+    "build:simple": "shadow-cljs release :app",
     "build:debug": "shadow-cljs release :app --config-merge '{:clojure-defines {wish.config/gdrive-client-id \"661182319990-3aa8akj9fh8eva9lf7bt02621q2i18s6.apps.googleusercontent.com\"}}'",
     "build:gh-pages": "shadow-cljs release :app --config-merge '{:closure-defines {wish.config/server-root \"/wish\"}}'",
     "dev": "shadow-cljs start && shadow-cljs watch :app",
