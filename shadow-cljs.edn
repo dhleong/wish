@@ -16,7 +16,7 @@
                 [wish-engine "0.1.0-SNAPSHOT"]
 
                 ; style and input:
-                [net.dhleong/spade "1.0.2"]
+                [net.dhleong/spade "1.0.3"]
                 [reagent-forms "0.5.43"]
                 [re-pressed "0.3.1"]
 
