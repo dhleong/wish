@@ -20,7 +20,7 @@ script:
 
 after_success:
     # build if on the master branch (in prep for deploy)
-    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then npm run build || travis_terminate 1; fi
+    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then npm run build:gh-pages || travis_terminate 1; fi
 
 cache:
     directories:
