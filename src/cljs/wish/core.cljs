@@ -10,11 +10,13 @@
             [wish.fx]
             [wish.subs]
             [wish.util.netwatcher :as netwatcher]
+            [wish.util.shadow :as shadow]
             [wish.util.worker :as worker]))
 
 (defn dev-setup []
   (when config/debug?
     (enable-console-print!)
+    (shadow/listen!)
     (println "dev mode")))
 
 (defn mount-worker []

@@ -46,7 +46,10 @@
                                    :web-worker true}}
 
                 :release
-                {:closure-defines
+                {:compiler-options
+                 {:strip-type-prefixes #{"wish.util.shadow"}}
+
+                 :closure-defines
                  {wish.config/VERSION #shadow/env "WISH_VERSION"
                   wish.config/server-root "/wish"
                   wish.config/full-url-root "https://dhleong.github.io/wish"
