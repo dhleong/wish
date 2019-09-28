@@ -1,2 +1,1 @@
-{:linters
- {:unused-namespace {:exclude [cljs-css-modules.macro]}}}
+{:linters {}}
