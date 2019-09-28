@@ -7,7 +7,13 @@ addons:
     chrome: stable
 
 install:
-    - npm install
+    # install clj
+    - curl -O https://download.clojure.org/install/linux-install-1.10.1.466.sh
+    - chmod +x linux-install-1.10.1.466.sh
+    - sudo ./linux-install-1.10.1.466.sh
+
+    # install npm and clojure dependencies (plus start shadow server)
+    - npm ci
     - npm run start
 
 before_script:
