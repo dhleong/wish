@@ -7,7 +7,7 @@
 
  :dependencies [; core:
                 [reagent "0.8.1"]
-                [re-frame "0.10.7"]
+                [re-frame "0.10.9"]
 
                 ; navigation:
                 [clj-commons/secretary "1.2.4"]
@@ -18,7 +18,7 @@
                 ; style and input:
                 [net.dhleong/spade "1.0.2"]
                 [reagent-forms "0.5.43"]
-                [re-pressed "0.3.0"]
+                [re-pressed "0.3.1"]
 
                 ; ::inject/sub cofx (for subscriptions in event handlers)
                 [re-frame-utils "0.1.0"]
