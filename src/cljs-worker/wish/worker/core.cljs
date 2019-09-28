@@ -123,6 +123,10 @@
       (contains? #{"apis.google.com"}
                  (:host url))
 
+      ; don't cache shadow-cljs requests
+      (and config/debug?
+           (str/starts-with? (:path url) "/worker/"))
+
       ; also, don't interfere with requests to the push-server.
       ; This is generally only a problem for local dev
       (and (= (:port push-server-url)
