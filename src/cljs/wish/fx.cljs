@@ -13,6 +13,28 @@
             [wish.util :refer [>evt]]
             [wish.util.nav :as nav]))
 
+
+; ======= global ==========================================
+
+(def ^:private keyed-dispatches (volatile! {}))
+
+;; like :dispatch-later, but if it contains a :key only one
+;; will ever exist
+(reg-fx
+  :dispatch-later-keyed
+  (fn [value]
+    (doseq [{:keys [ms dispatch] k :key} (remove nil? value)]
+      (when-not (or (empty? dispatch) (not (number? ms)))
+        (when-let [old (get @keyed-dispatches k)]
+          (js/clearTimeout old))
+        (let [new-timeout (js/setTimeout #(>evt dispatch) ms)]
+          (when k
+            (vswap! keyed-dispatches
+                    assoc
+                    k
+                    new-timeout)))))))
+
+
 ; ======= html stuff =======================================
 
 (reg-fx
