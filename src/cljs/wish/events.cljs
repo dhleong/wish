@@ -869,11 +869,16 @@
 
                       ; base of 2s delay
                       2000)]
-      (log "Retry push connection after " new-delay)
-      {:db (assoc db ::push/retry-delay new-delay)
-       :dispatch-later-keyed [{:ms new-delay
-                               :key :push/retry-later
-                               :dispatch [:push/check]}]})))
+      (if (and goog.DEBUG
+                     (= new-delay last-delay))
+        (log "DEBUG ONLY: Giving up push-retry")
+
+        (do
+          (log "Retry push connection after " new-delay)
+          {:db (assoc db ::push/retry-delay new-delay)
+           :dispatch-later-keyed [{:ms new-delay
+                                   :key :push/retry-later
+                                   :dispatch [:push/check]}]})))))
 
 (reg-event-fx
   ::push/session-created
