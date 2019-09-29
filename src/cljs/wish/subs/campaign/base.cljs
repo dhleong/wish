@@ -11,5 +11,6 @@
     (fn [sheet _]
       (getter sheet))))
 
+(reg-meta-sub :meta/notes :notes)
 (reg-meta-sub :meta/workspace :workspace)
 (reg-meta-sub :meta/spaces :spaces)
