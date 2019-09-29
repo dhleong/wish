@@ -27,7 +27,7 @@
 
 (defn entity-card [e]
   ; TODO
-  [:div (str e)])
+  [:div.entity-card (str e)])
 
 (defn view
   [section]

@@ -13,9 +13,16 @@
   ::spaces
   :<- [::spaces-by-id]
   :<- [:meta/workspace]
-  (fn [[spaces workspace]]
-    (->> workspace
+  (fn [#_[spaces workspace]]
+    ; TODO
+    #_(->> workspace
          (map spaces)
 
          ; TODO inflate ids
-         )))
+         )
+
+    [{:id :s/serenity
+      :p {:id :n/serenity
+          :n "Serenity"
+          }}]
+    ))
