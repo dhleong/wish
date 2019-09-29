@@ -92,16 +92,22 @@
                   :n/2
                   :f/3]}
 
+ ; :spaces is an ordered list of "space" objects. A space is a single
+ ; "primary" entry and zero or more "secondary" entries, for quick
+ ; reference, where an "entry" can be a note, folder, npc, etc.
+ :spaces [{:id :s/ariel-hospital
+           :n "Ariel Hospital"
+           :p :n/ariel-hospital
+           :s [:n/guards :custom/mreynolds]}]
+
  ; what's currently on the workspace?
  ; The Workspace consists of a single "primary" column and a single
  ; "secondary" column. Things in the "secondary" column are associated
  ; with an entry in the "primary" column for quick reference. On mobile,
  ; they may be accessible via a side-swipe; on desktop or tablet, they
- ; are placed adjacent to the primary column
- :workspace [[:primary/1 :secondary/1 :secondary/2]
-
-             ; each item in the workspace is wrapped in a vector; the
-             ; first entry is the primary column item, and anything else
-             ; goes in the secondary column
-             [:primary/2 :secondary/1]]
+ ; are placed adjacent to the primary column.
+ ; :workspace is a vector of space IDs. if a space is in :workspaces,
+ ; it is considered "active."
+ ; a new space may be created by dragging an entity onto the primary column
+ :workspace [:s/ariel-hospital]
  }
