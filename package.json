@@ -2,11 +2,10 @@
   "name": "wish",
   "private": true,
   "dependencies": {
-    "create-react-class": "^15.6.3",
     "nprogress": "^0.2.0",
-    "react": "16.8.6",
+    "react": "^16.10.1",
     "react-beautiful-dnd": "^11.0.5",
-    "react-dom": "16.8.6",
+    "react-dom": "^16.10.1",
     "react-swipeable-views": "^0.13.3",
     "react-virtualized": "^9.21.1",
     "socket.io-client": "^2.3.0"
