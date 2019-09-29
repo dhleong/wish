@@ -6,7 +6,7 @@
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [icon link link>evt]]
             [wish.views.campaign.events :as events]
-            [wish.views.campaign.subs :as subs]))
+            [wish.subs.campaign.members :as members]))
 
 (defn- sheet-loader [sheet]
   [:div "Loading " (:name sheet) "..."])
@@ -47,7 +47,7 @@
        [:li "Send the invite link that appears to the character's owner."]]]
 
      [:div.candidates
-      (for [c (<sub [::subs/campaign-members])]
+      (for [c (<sub [::members/all])]
         ^{:key (:id c)}
         [:div.character
          [:div.name (:name c)]
@@ -73,7 +73,7 @@
            (icon :close)]]
          ])
 
-      (for [c (<sub [::subs/add-char-candidates])]
+      (for [c (<sub [::members/candidates])]
         ^{:key (:id c)}
         [:div.character
          [:div.name (:name c)]
@@ -85,7 +85,7 @@
      ]))
 
 (defn chars-carousel [chars-card-view]
-  (if-let [members (seq (<sub [::subs/campaign-members]))]
+  (if-let [members (seq (<sub [::members/all]))]
     [:div.carousel-container
      [:div.carousel
 

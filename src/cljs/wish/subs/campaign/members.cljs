@@ -1,24 +1,9 @@
-(ns ^{:author "Daniel Leong"
-      :doc "Campaign-specific subs"}
-  wish.views.campaign.subs
-  (:require [re-frame.core :refer [reg-sub]]))
-
-(defn- reg-meta-sub
-  [id getter]
-  (reg-sub
-    id
-    :<- [:sheet-meta]
-    (fn [sheet _]
-      (getter sheet))))
-
-(reg-meta-sub :meta/workspace :workspace)
-
-;;
-;; Campaign members
-;;
+(ns wish.subs.campaign.members
+  (:require [re-frame.core :refer [reg-sub]]
+            [wish.subs.campaign.base]))
 
 (reg-sub
-  ::add-char-candidates
+  ::candidates
   :<- [:meta/players]
   :<- [:known-sheets]
   (fn [[current-members sheets]]
@@ -29,7 +14,7 @@
               (get by-mine true)))))
 
 (reg-sub
-  ::campaign-members
+  ::all
   :<- [:meta/players]
   :<- [:sheets]
   (fn [[char-sheet-ids sheets] _]
