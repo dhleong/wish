@@ -2,11 +2,38 @@
   (:require [reagent.core :as r]
             ["react-beautiful-dnd" :refer [DragDropContext Droppable Draggable]]))
 
+
+(declare draggable)
+
+; ======= util ============================================
+
+(defn- unpack-opts [{:keys [id attrs] :as opts}]
+  (let [attrs (when (fn? attrs)
+                attrs)
+        opts (dissoc opts :id :attrs)]
+    [(str id) opts attrs]))
+
+(defn- indexify-children [children]
+  (let [last-index (volatile! -1)]
+    (for [c children]
+      (let [draggable-form? (and (vector? c)
+                                 (identical? draggable (first c))
+                                 (map? (second c)))]
+        (if (and draggable-form?
+                 (not (:index (second c))))
+          ; common case: index not provided; generate the
+          ; index
+          (assoc-in c [1 :index] (vswap! last-index inc))
+
+          ; other case: either not a draggable (and thus doesn't
+          ; need an index) or index wasprovided
+          c)))))
+
+; ======= public interface ================================
+
 (defn drag-drop-context [opts & children]
   (into [:> DragDropContext opts]
         children))
-
-(declare draggable)
 
 (defn droppable
   "Droppable is an abstraction over a :div that can accept elements being
@@ -22,29 +49,19 @@
 
    Every other key of `opts` will be merged into the `:div`'s map."
   [opts & children]
-  (let [droppable-id (:id opts)
-        attrs (when (fn? (:attrs opts))
-                (:attrs opts))
-        opts (dissoc opts :id :attrs)]
-    [:> Droppable {:droppable-id (str droppable-id)}
+  (let [[id opts attrs] (unpack-opts opts)]
+    [:> Droppable {:droppable-id id}
      (fn [provided snapshot]
-       (let [child-index (volatile! -1)]
-         (r/as-element
-           (into
-             [:div (merge opts
-                          (when attrs
-                            (attrs (.-isDraggingOver snapshot)))
-                          {:ref (.-innerRef provided)}
-                          (js->clj (.-droppableProps provided)))
-              (.-placeholder provided)]
+       (r/as-element
+         (into
+           [:div (merge opts
+                        (when attrs
+                          (attrs (.-isDraggingOver snapshot)))
+                        {:ref (.-innerRef provided)}
+                        (js->clj (.-droppableProps provided)))
+            (.-placeholder provided)]
 
-             (for [c children]
-               (if (and (vector? c)
-                        (identical? draggable (first c))
-                        (map? (second c))
-                        (not (:index (second c))))
-                 (assoc-in c [1 :index] (vswap! child-index inc))
-                 c))))))]))
+           (indexify-children children))))]))
 
 (defn draggable
   "Droppable is an abstraction over a :div that can be dragged. Its usage
@@ -61,13 +78,9 @@
 
    `opts` MAY contain:
    - `:attrs`, as per `droppable`"
-  [opts & children]
-  (let [draggable-id (:id opts)
-        attrs (when (fn? (:attrs opts))
-                (:attrs opts))
-        index (:index opts)
-        opts (dissoc opts :id :attrs)]
-    [:> Draggable {:draggable-id (str draggable-id)
+  [{:keys [index] :as opts} & children]
+  (let [[id opts attrs] (unpack-opts opts)]
+    [:> Draggable {:draggable-id (str id)
                    :index index}
      (fn [provided snapshot]
        (r/as-element
@@ -75,8 +88,7 @@
            [:div (merge opts
                         (when attrs
                           (attrs (.-isDragging snapshot)))
-                        {:ref (.-innerRef provided)
-                         :style (.. provided -draggableProps -style)}
+                        {:ref (.-innerRef provided)}
                         (js->clj (.-draggableProps provided))
                         (js->clj (.-dragHandleProps provided)))]
            children)))]))

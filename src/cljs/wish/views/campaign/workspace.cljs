@@ -34,7 +34,6 @@
 ; ======= space ===========================================
 
 (defn- space [entity-card item]
-  (println "SPACE=" item)
   (let [{primary :p secondary :s} item]
     ; TODO
     [:div.space
