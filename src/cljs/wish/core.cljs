@@ -10,11 +10,13 @@
             [wish.fx]
             [wish.subs]
             [wish.util.netwatcher :as netwatcher]
+            [wish.util.shadow :as shadow]
             [wish.util.worker :as worker]))
 
 (defn dev-setup []
   (when config/debug?
     (enable-console-print!)
+    (shadow/listen!)
     (println "dev mode")))
 
 (defn mount-worker []
@@ -24,7 +26,7 @@
 
     (worker/register!)))
 
-(defn mount-root [& first?]
+(defn ^:dev/after-load mount-root [& first?]
   (re-frame/clear-subscription-cache!)
   (when (and config/debug?
              (not first?))
@@ -35,7 +37,7 @@
   (reagent/render [views/main]
                   (.getElementById js/document "app")))
 
-(defn ^:export init []
+(defn init []
   (re-frame/dispatch-sync [::events/initialize-db])
   (re-frame/dispatch-sync [::rp/add-keyboard-event-listener "keydown"])
   (routes/app-routes)

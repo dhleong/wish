@@ -15,12 +15,11 @@
     <div id="app">
         <div id="splash-container">
             <div class="splash">
-                <img class="logo" src="/wish/assets/icon/icon-192.png" onerror="this.src='assets/icon/icon-192.png'" />
+                <img class="logo" src="/wish/assets/icon/icon-192.png" onerror="this.src='/assets/icon/icon-192.png'" />
                 WISH
             </div>
         </div>
     </div>
-    <script src="js/compiled/app.js"></script>
 
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
@@ -54,7 +53,7 @@
     </script>
     <!-- End Single Page Apps for GitHub Pages -->
 
-    <script>wish.core.init();</script>
+    <script src="/js/compiled/app.js"></script>
     <script async defer src="https://apis.google.com/js/api.js"
         onerror="wish.providers.gdrive.handle_client_load(false)"
         onload="this.onload=function(){};wish.providers.gdrive.handle_client_load(true)"

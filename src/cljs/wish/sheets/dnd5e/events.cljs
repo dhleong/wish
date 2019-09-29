@@ -89,9 +89,9 @@
   (let [{:keys [db]} cofx
         sheet-id (active-sheet-id db)
         temp-hp (get-in db [:sheets sheet-id :sheet :temp-hp])
-        used-temp (when (< amount 0)
-                    (if (> temp-hp 0)
-                      (min temp-hp (Math/abs amount))))
+        used-temp (when (and (< amount 0)
+                             (> temp-hp 0))
+                    (min temp-hp (Math/abs amount)))
 
         ; first, if we used any temp hp, use it
         cofx (if used-temp

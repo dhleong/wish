@@ -269,7 +269,7 @@
        (when (:dice s)
          (let [{:keys [damage]} s
                dice-value (invoke-callable s :dice)
-               base-dice (if (not= spell-level base-level)
+               base-dice (when (not= spell-level base-level)
                            (invoke-callable
                              (-> s
                                  (assoc :spell-level base-level)

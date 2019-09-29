@@ -14,4 +14,7 @@ out
 .bin
 nashorn_code_cache
 .planck_cache
-package.json
+.shadow-cljs
+build-report.html
+cljs-runtime
+manifest.edn
