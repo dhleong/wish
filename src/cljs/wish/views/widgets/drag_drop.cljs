@@ -88,16 +88,18 @@
   (let [[id opts attrs] (unpack-opts opts)]
     [:> Droppable {:droppable-id id}
      (fn [provided snapshot]
-       (r/as-element
-         (into
-           [:div (merge opts
-                        (when attrs
-                          (attrs (.-isDraggingOver snapshot)))
-                        {:ref (.-innerRef provided)}
-                        (js->clj (.-droppableProps provided)))
-            (.-placeholder provided)]
-
-           (indexify-children (flatten-children children)))))]))
+       (let [combined-opts (merge opts
+                                  (when attrs
+                                    (attrs (.-isDraggingOver snapshot)))
+                                  {:ref (.-innerRef provided)}
+                                  (js->clj (.-droppableProps provided)))]
+         (r/as-element
+           (conj
+             (->> children
+                  flatten-children
+                  indexify-children
+                  (into [:div combined-opts]))
+             (.-placeholder provided)))))]))
 
 (defn draggable
   "Droppable is an abstraction over a :div that can be dragged. Its usage
@@ -119,12 +121,13 @@
     [:> Draggable {:draggable-id (str id)
                    :index index}
      (fn [provided snapshot]
-       (r/as-element
-         (into
-           [:div (merge opts
-                        (when attrs
-                          (attrs (.-isDragging snapshot)))
-                        {:ref (.-innerRef provided)}
-                        (js->clj (.-draggableProps provided))
-                        (js->clj (.-dragHandleProps provided)))]
-           children)))]))
+       (let [combined-opts (merge opts
+                                  (when attrs
+                                    (attrs (.-isDragging snapshot)))
+                                  {:ref (.-innerRef provided)}
+                                  (js->clj (.-draggableProps provided))
+                                  (js->clj (.-dragHandleProps provided)))]
+         (r/as-element
+           (into
+             [:div combined-opts]
+             children))))]))
