@@ -3,8 +3,9 @@
   wish.views.campaign.workspace
   (:require [spade.core :refer [defattrs]]
             [wish.views.widgets.drag-drop :refer [drag-drop-context draggable droppable]]
-            [wish.util :refer [<sub]]
+            [wish.util :refer [>evt <sub]]
             [wish.subs.campaign.workspace :as workspace]
+            [wish.events.campaign.workspace :as workspace-events]
             [wish.style.flex :as flex]
             [wish.views.widgets :refer [formatted-text]]))
 
@@ -64,19 +65,22 @@
 
 ; ======= space ===========================================
 
+(defn- draggable-content [entity-card {:keys [kind] :as entity}]
+  (case kind
+    ; NOTE: built-in entity card types for eg notes
+    :note [note-card entity]
+
+    ; fallback to a custom entity card for the sheet:
+    [entity-card entity]))
+
 (defn- entity-draggable
   "NOTE: this should be called as a function so that the
    `draggable` may be a top-level child of the `droppable`"
-  [entity-card {:keys [kind id] :as entity}]
+  [entity-card {:keys [id] :as entity}]
   ^{:key id}
   [draggable {:id id
               :attrs entity-draggable-style}
-   (case kind
-     ; NOTE: built-in entity card types for eg notes
-     :note [note-card entity]
-
-     ; fallback to a custom entity card for the sheet:
-     [entity-card entity])])
+   [draggable-content entity-card entity]])
 
 (defn- space [entity-card item]
   (let [{:keys [primary secondary]} item]
@@ -84,7 +88,8 @@
      [droppable {:id (str (:id item) "/primary")
                  :type "all"
                  :attrs primary-col-style}
-      (entity-draggable entity-card primary)]
+      ; the primary of a story cannot be dragged
+      [draggable-content entity-card primary]]
 
      [droppable {:id (str (:id item) "/secondary")
                  :type "all"
@@ -95,8 +100,9 @@
 
 ; ======= public interface ================================
 
-(defn- on-drag-end [{:keys [item from to]}]
-  (println "DROP " item "FROM " from " ONTO " to))
+(defn- on-drag-end [{:keys [item from to] :as ev}]
+  (println "DROP " item "FROM " from " ONTO " to)
+  (>evt [::workspace-events/drag ev]))
 
 (defn workspace [& {:keys [entity-card]}]
   (let [spaces (<sub [::workspace/spaces])]

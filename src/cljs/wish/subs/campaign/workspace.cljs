@@ -17,7 +17,9 @@
     #_(->map spaces)
     {:s/serenity
      {:id :s/serenity
-      :p :n/serenity}}))
+      :p :n/serenity
+      :s [:n/ariel-hospital
+          :n/bobble-head-geisha-caper]}}))
 
 (reg-sub
   ::fake-notes-by-id
@@ -25,8 +27,18 @@
     {:n/serenity
      {:id :n/serenity
       :n "Serenity"
-      :contents ["Text note"]
-      }}))
+      :contents ["Text note"]}
+
+     :n/ariel-hospital
+     {:id :n/ariel-hospital
+      :n "Ariel Hospital"
+      :contents ["It's a hospital"]}
+
+     :n/bobble-head-geisha-caper
+     {:id :n/bobble-head-geisha-caper
+      :n "Bobble-headed Geisha Caper"
+      :contents ["People love those!"]}
+     }))
 
 (reg-sub
   ::fake-workspace

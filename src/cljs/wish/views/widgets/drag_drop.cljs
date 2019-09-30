@@ -14,6 +14,15 @@
         opts (dissoc opts :id :attrs)]
     [(str id) opts attrs]))
 
+(defn- flatten-children [children]
+  (mapcat
+    (fn [c]
+      (if (and (coll? c)
+               (vector? (first c)))
+        c
+        [c]))
+    children))
+
 (defn- indexify-children [children]
   (let [last-index (volatile! -1)]
     (for [c children]
@@ -37,19 +46,21 @@
     [(keyword nsp n) (keyword part)]))
 
 (defn- unpack-drag-end [ev]
-  (let [source (.-source ev)
-        dest (.-destination ev)
-        source-index (.-index source)
-        dest-index (.-index dest)
-        source-id (.-droppableId source)
-        dest-id (.-droppableId dest)]
-    (when (and (= "DROP" (.-reason ev))
-               (not (and (= source-index dest-index)
-                         (= source-id dest-id))))
-      {:from (conj (unpack-droppable-id source-id) source-index)
-       :to (conj (unpack-droppable-id dest-id) dest-index)
-       :item (let [[nsp n] (-> (.-draggableId ev) (subs 1) (str/split #"/"))]
-               (keyword nsp n))})))
+  (when (and (.-source ev)
+             (.-destination ev))
+    (let [source (.-source ev)
+          dest (.-destination ev)
+          source-index (.-index source)
+          dest-index (.-index dest)
+          source-id (.-droppableId source)
+          dest-id (.-droppableId dest)]
+      (when (and (= "DROP" (.-reason ev))
+                 (not (and (= source-index dest-index)
+                           (= source-id dest-id))))
+        {:from (conj (unpack-droppable-id source-id) source-index)
+         :to (conj (unpack-droppable-id dest-id) dest-index)
+         :item (let [[nsp n] (-> (.-draggableId ev) (subs 1) (str/split #"/"))]
+                 (keyword nsp n))}))))
 
 (defn drag-drop-context [opts & children]
   (let [on-drag-end (when-let [handler (:on-drag-end opts)]
@@ -86,7 +97,7 @@
                         (js->clj (.-droppableProps provided)))
             (.-placeholder provided)]
 
-           (indexify-children children))))]))
+           (indexify-children (flatten-children children)))))]))
 
 (defn draggable
   "Droppable is an abstraction over a :div that can be dragged. Its usage
