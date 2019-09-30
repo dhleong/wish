@@ -1,5 +1,6 @@
 (ns wish.views.widgets.drag-drop
-  (:require [reagent.core :as r]
+  (:require [clojure.string :as str]
+            [reagent.core :as r]
             ["react-beautiful-dnd" :refer [DragDropContext Droppable Draggable]]))
 
 
@@ -31,9 +32,33 @@
 
 ; ======= public interface ================================
 
+(defn- unpack-droppable-id [id]
+  (let [[nsp n part] (-> id (subs 1) (str/split #"/"))]
+    [(keyword nsp n) (keyword part)]))
+
+(defn- unpack-drag-end [ev]
+  (let [source (.-source ev)
+        dest (.-destination ev)
+        source-index (.-index source)
+        dest-index (.-index dest)
+        source-id (.-droppableId source)
+        dest-id (.-droppableId dest)]
+    (when (and (= "DROP" (.-reason ev))
+               (not (and (= source-index dest-index)
+                         (= source-id dest-id))))
+      {:from (conj (unpack-droppable-id source-id) source-index)
+       :to (conj (unpack-droppable-id dest-id) dest-index)
+       :item (let [[nsp n] (-> (.-draggableId ev) (subs 1) (str/split #"/"))]
+               (keyword nsp n))})))
+
 (defn drag-drop-context [opts & children]
-  (into [:> DragDropContext opts]
-        children))
+  (let [on-drag-end (when-let [handler (:on-drag-end opts)]
+                      (fn on-drag-end [ev]
+                        (when-let [unpacked (unpack-drag-end ev)]
+                          (handler unpacked))))
+        opts (assoc opts :on-drag-end on-drag-end)]
+    (into [:> DragDropContext opts]
+          children)))
 
 (defn droppable
   "Droppable is an abstraction over a :div that can accept elements being

@@ -48,13 +48,6 @@
      :box-shadow "0 8px 6px -6px black"
      :overflow 'hidden}))
 
-; ======= util ============================================
-
-(defn- id-for [item]
-  (or (when (keyword? item)
-        item)
-      (:id item)))
-
 
 ; ======= built-in card types =============================
 
@@ -66,24 +59,27 @@
    (when-let [n (:n entity)]
      [:h3 n])
 
-   ; TODO format
-   [formatted-text :div (:contents entity)]])
+   [formatted-text :div.contents (:contents entity)]])
 
 
 ; ======= space ===========================================
 
-(defn- entity-draggable [entity-card {:keys [kind id] :as entity}]
+(defn- entity-draggable
+  "NOTE: this should be called as a function so that the
+   `draggable` may be a top-level child of the `droppable`"
+  [entity-card {:keys [kind id] :as entity}]
   ^{:key id}
   [draggable {:id id
               :attrs entity-draggable-style}
    (case kind
-     ; TODO built-in entity card types for eg notes
+     ; NOTE: built-in entity card types for eg notes
      :note [note-card entity]
+
+     ; fallback to a custom entity card for the sheet:
      [entity-card entity])])
 
 (defn- space [entity-card item]
   (let [{:keys [primary secondary]} item]
-    ; TODO
     [:div (space-style)
      [droppable {:id (str (:id item) "/primary")
                  :type "all"
@@ -99,16 +95,13 @@
 
 ; ======= public interface ================================
 
-(defn- on-drag-end [result]
-  (println "END: " result))
+(defn- on-drag-end [{:keys [item from to]}]
+  (println "DROP " item "FROM " from " ONTO " to))
 
 (defn workspace [& {:keys [entity-card]}]
   (let [spaces (<sub [::workspace/spaces])]
     [:div (workspace-style)
-     [drag-drop-context {:on-drag-end on-drag-end
-                         :on-drag-start #(println "START " %)
-                         :on-drag-update #(println "UPDATE " %)
-                         }
+     [drag-drop-context {:on-drag-end on-drag-end}
       (for [s spaces]
-        ^{:key (id-for s)}
+        ^{:key (:id s)}
         [space entity-card s])]]))
