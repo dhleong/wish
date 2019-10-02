@@ -16,30 +16,26 @@
     :flow :vertical
     :center :horizontal
 
-    {:height "300px"   ; TODO ??
-     :width "100vw"
-     :overflow-x 'hidden}
-    )
-  )
+    {:width "100vw"}))
 
 (defattrs space-style []
   (flex/create
-    {:height "100%"}))
+    {:height "70%"}))
 
 (defattrs droppable-style [dropping-over?]
-  {:height "70%"
-   :background (if dropping-over?
+  {:background (if dropping-over?
                  "#aee"
                  "#eee")})
 
-(defattrs primary-col-style [dropping-over?]
-  {:composes (droppable-style dropping-over?)
+(defattrs primary-col-style []
+  {:composes (droppable-style false)
    :width "50vw"})
 
 (defattrs secondary-col-style [dropping-over?]
   {:composes (droppable-style dropping-over?)
    :background (when-not dropping-over?
                  :background "#fafafa")
+   :overflow-y 'auto
    :width "35vw"})
 
 (defattrs entity-draggable-style [dragging?]
@@ -82,12 +78,12 @@
               :attrs entity-draggable-style}
    [draggable-content entity-card entity]])
 
-(defn- space [entity-card item]
-  (let [{:keys [primary secondary]} item]
-    [:div (space-style)
-     [droppable {:id (str (:id item) "/primary")
-                 :type "all"
-                 :attrs primary-col-style}
+(defn- space [i entity-card item]
+  (let [{:keys [id primary secondary]} item]
+    [draggable {:id id
+                :index i
+                :attrs space-style}
+     [:div (primary-col-style)
       ; the primary of a story cannot be dragged
       [draggable-content entity-card primary]]
 
@@ -108,6 +104,7 @@
   (let [spaces (<sub [::workspace/spaces])]
     [:div (workspace-style)
      [drag-drop-context {:on-drag-end on-drag-end}
-      (for [s spaces]
-        ^{:key (:id s)}
-        [space entity-card s])]]))
+      [droppable {:id :stories}
+       (for [[i s] (map-indexed list spaces)]
+         ^{:key (:id s)}
+         [space i entity-card s])]]]))
