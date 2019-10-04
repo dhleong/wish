@@ -20,7 +20,7 @@
 
 (defattrs space-style []
   (flex/create
-    {:height "70%"}))
+    {:height "250px"}))
 
 (defattrs droppable-style [dropping-over?]
   {:background (if dropping-over?
@@ -88,7 +88,7 @@
       [draggable-content entity-card primary]]
 
      [droppable {:id (str (:id item) "/secondary")
-                 :type "all"
+                 :type :notes
                  :attrs secondary-col-style}
       (for [s secondary]
         (entity-draggable entity-card s))]]))
@@ -104,7 +104,8 @@
   (let [spaces (<sub [::workspace/spaces])]
     [:div (workspace-style)
      [drag-drop-context {:on-drag-end on-drag-end}
-      [droppable {:id :stories}
+      [droppable {:id :spaces
+                  :type :spaces}
        (for [[i s] (map-indexed list spaces)]
          ^{:key (:id s)}
          [space i entity-card s])]]]))

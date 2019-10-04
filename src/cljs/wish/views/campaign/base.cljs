@@ -13,7 +13,7 @@
     [workspace
      :entity-card entity-card]
 
-    [:div.info
+    #_[:div.info
      "This is the campaign page."
 
      [:div.group

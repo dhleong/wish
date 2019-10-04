@@ -11,8 +11,9 @@
 (defn- unpack-opts [{:keys [id attrs] :as opts}]
   (let [attrs (when (fn? attrs)
                 attrs)
-        opts (dissoc opts :id :attrs)]
-    [(str id) opts attrs]))
+        container-opts (select-keys opts [:type])
+        opts (dissoc opts :id :attrs :type)]
+    [(str id) container-opts opts attrs]))
 
 (defn- flatten-children [children]
   (mapcat
@@ -78,6 +79,9 @@
    `opts` MUST contain `:id`, which must be unique across the parent
    drag-drop-context.
 
+   `opts` MAY container `:type`, used as the equivalent property on
+   the `Droppable`.
+
    If `opts` contains a fn `:attrs`, it is assumed to be a Spade style
    fn, which will get applied to the `:div`. The `:attrs` fn will be
    called with a boolean value of `true` when an item is being dragged
@@ -85,8 +89,9 @@
 
    Every other key of `opts` will be merged into the `:div`'s map."
   [opts & children]
-  (let [[id opts attrs] (unpack-opts opts)]
-    [:> Droppable {:droppable-id id}
+  (let [[id container-opts opts attrs] (unpack-opts opts)]
+    [:> Droppable (assoc container-opts
+                         :droppable-id id)
      (fn [provided snapshot]
        (let [combined-opts (merge opts
                                   (when attrs
@@ -115,11 +120,13 @@
      this; otherwise, it is required.
 
    `opts` MAY contain:
-   - `:attrs`, as per `droppable`"
+   - `:attrs`, as per `droppable`
+   - `:type`, as per `droppable`"
   [{:keys [index] :as opts} & children]
-  (let [[id opts attrs] (unpack-opts opts)]
-    [:> Draggable {:draggable-id (str id)
-                   :index index}
+  (let [[id container-opts opts attrs] (unpack-opts (dissoc opts :index))]
+    [:> Draggable (assoc container-opts
+                         :draggable-id (str id)
+                         :index index)
      (fn [provided snapshot]
        (let [combined-opts (merge opts
                                   (when attrs
