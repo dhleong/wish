@@ -1,7 +1,10 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign.chars-carousel"}
   wish.views.campaign.chars-carousel
-  (:require [wish.util :refer [<sub >evt]]
+  (:require [spade.core :refer [defattrs]]
+            [wish.style.flex :as flex]
+            [wish.style.shared :refer [metadata]]
+            [wish.util :refer [<sub >evt]]
             [wish.util.nav :as nav :refer [sheet-url]]
             [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [icon link link>evt]]
@@ -33,10 +36,25 @@
         (>evt [:load-sheet! sheet-id])
         [sheet-loader sheet]))))
 
+
+; ======= overlay =========================================
+
+(defattrs add-chars-overlay-style []
+  {:padding "32px"}
+
+  [:.desc (merge metadata
+                 {:padding "8px"})]
+
+  [:.character (flex/create
+                 :center :vertical
+                 {:width "100%"
+                  :margin "8px 0"})
+   [:.name {:width "45%"}]])
+
 (defn add-chars-overlay []
   (let [campaign-id (<sub [:active-sheet-id])
         campaign-name (<sub [:meta/name])]
-    [:div.add-chars-overlay
+    [:div (add-chars-overlay-style)
      [:div.title
       "Add characters to " campaign-name]
 
@@ -84,9 +102,34 @@
          ])]
      ]))
 
+
+; ======= the carousel ====================================
+
+(defattrs carousel-style []
+  (flex/create
+    {:width "100%"
+     :overflow-x 'auto})
+
+  [:.carousel (flex/create
+                {:margin 'auto})
+   [:a.add-button (flex/create
+                    :flow :vertical
+                    :center :vertical
+                    {:padding "8px"})]
+   [:a.card {:color "inherit"
+             :margin "8px 4px"
+             :padding 0}]
+   [:div.card {:background-color "#eee"
+               :border-radius "4px"
+               :padding "8px"
+               :text-align 'center
+               :width "220px"}
+    [:&:hover {:background-color "#ddd"}]
+    [:&:active {:background-color "#ccc"}]]])
+
 (defn chars-carousel [chars-card-view]
   (if-let [members (seq (<sub [::members/all]))]
-    [:div.carousel-container
+    [:div (carousel-style)
      [:div.carousel
 
       (for [c members]
