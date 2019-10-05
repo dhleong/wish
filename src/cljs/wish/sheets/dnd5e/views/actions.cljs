@@ -220,11 +220,6 @@
                         (scroll-into-view el)))}
       label])])
 
-(defn- actions-page [id form]
-  ^{:key id}
-  [:div (styles/swipeable-page)
-   form])
-
 (def ^:private action-pages
   [[:combat "Combat"]
    [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]

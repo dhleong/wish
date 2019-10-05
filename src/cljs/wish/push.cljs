@@ -156,7 +156,7 @@
 (defn- on-open [session-id]
   (log/info "Connected to session " session-id))
 
-(defn- connect-sse [session-id]
+(defn connect-sse [session-id]
   (doto (js/EventSource.
           (str push-url-base "/sessions/sse/" session-id))
     (.addEventListener "error" on-error)
