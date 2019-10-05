@@ -19,8 +19,11 @@
   (defroute "/campaigns/new" []
     (navigate! :new-campaign))
 
-  (defroute #"/campaigns/([a-z0-9-]+/[^/]+)" [id]
+  (defroute #"/campaigns/([a-z0-9-]+/[^/]+)[/]?" [id]
     (navigate! :campaign [(keyword id)]))
+
+  (defroute #"/campaigns/([a-z0-9-]+/[^/]+)/([^/]+)" [id section]
+    (navigate! :campaign [(keyword id) (keyword section)]))
 
   (defroute #"/join-campaign/([a-z0-9-]+/[^/]+)(/n/[^/]+)?/as/(.*)" [campaign-id label sheet-id]
     (navigate! :join-campaign [(keyword campaign-id)

@@ -3,30 +3,49 @@
   wish.views.campaign.base
   (:require [spade.core :refer [defattrs]]
             [wish.style.flex :as flex]
+            [wish.util.nav :refer [campaign-url]]
+            [wish.util :refer [<sub]]
             [wish.views.campaign.chars-carousel :refer [chars-carousel]]
             [wish.views.campaign.workspace :refer [workspace]]
-            [wish.views.error-boundary :refer [error-boundary]]))
+            [wish.views.error-boundary :refer [error-boundary]]
+            [wish.views.widgets :refer [link]]))
+
+(defn- campaign-sub-url [& sections]
+  (apply campaign-url (<sub [:active-sheet-id]) sections))
 
 (defattrs campaign-nav-style []
   (flex/create
     :center :horizontal
-    {:background "#eee"
+    {:background "#666666"
      :margin-bottom "8px"
      :padding "8px 0"
-     :width "100%"}))
+     :width "100%"})
+  [:div.nav-link {:color "#f0f0f0"}])
 
-(defn- campaign-nav []
+(defn- campaign-link [current-section & {:keys [section label]}]
+  (if (= current-section section)
+    [:div.nav-link label]
+    [link {:href (campaign-sub-url section)}
+     label]))
+
+(defn- campaign-nav [section]
   [:div (campaign-nav-style)
-   [:div.button "Notes"]
-   [:div.button "Spaces"]])
+   [campaign-link section
+    :label "Home"]
+   [campaign-link section
+    :section :notes
+    :label "Notes"]
+   [campaign-link section
+    :section :spaces
+    :label "Spaces"]])
 
 (defn campaign-page
-  [_section & {:keys [char-card entity-card]}]
+  [section & {:keys [char-card entity-card]}]
   [error-boundary
    [:div.campaign
-    [chars-carousel char-card]
+    [campaign-nav section]
 
-    [campaign-nav]
+    [chars-carousel char-card]
 
     [workspace
      :entity-card entity-card]
