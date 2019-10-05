@@ -1,0 +1,5 @@
+#!/bin/bash
+# prepare for publishing if on travis
+
+sed -i 's|/js/compiled|/wish/js/compiled|' resources/public/index.html
+
