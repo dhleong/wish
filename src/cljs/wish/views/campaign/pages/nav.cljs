@@ -23,7 +23,7 @@
     [link {:href (campaign-sub-url section)}
      label]))
 
-(defn- campaign-nav [section]
+(defn campaign-nav [section]
   [:div (campaign-nav-style)
    [campaign-link section
     :label "Home"]
