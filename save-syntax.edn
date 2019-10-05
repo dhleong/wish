@@ -80,9 +80,9 @@
  ;
  ; :notes is a map whose keys are IDs and the values are notes
  ; The ID of a note ALWAYS has the namespace `n`
- :notes {:n/id [{:n "Note Name"
-                 :m modified-timestamp}
-                [:link]]}
+ :notes {:n/id {:n "Note Name"
+                :m modified-timestamp
+                :c "Contents"}}
 
  ; :folders is a map whose keys are IDs and the values are folders
  ; the ID of a folder ALWAYS has the namespace `f`
