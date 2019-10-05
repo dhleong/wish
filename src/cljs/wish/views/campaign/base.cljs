@@ -12,8 +12,8 @@
     :center :horizontal
     {:background "#eee"
      :margin-bottom "8px"
-     :padding "8px"
-     :width "100vw"}))
+     :padding "8px 0"
+     :width "100%"}))
 
 (defn- campaign-nav []
   [:div (campaign-nav-style)
