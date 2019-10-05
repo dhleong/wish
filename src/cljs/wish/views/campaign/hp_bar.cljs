@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "hp-bar"}
   wish.views.campaign.hp-bar
-  (:require [garden.color :as color]))
+  (:require [garden.color :as color]
+            [spade.core :refer [defattrs]]))
 
 (def ^:private health-colors
   ["#cc4433"
@@ -46,9 +47,31 @@
             end (nth health-colors (inc int-val))]
         (weighted-mix start end weight)))))
 
+(defattrs hp-bar-style [& {:keys [height]
+                           :or {height "30pt"}}]
+  {:position 'relative
+   :background-color "#fcfcfc"
+   :border-radius "4px"
+   :height height}
+
+  [:.bar {:position 'absolute
+          :left 0
+          :top 0
+          :bottom 0
+          :border-radius "4px"
+
+          :transition "all 450ms cubic-bezier(0, 0, 0.2, 1)"}]
+  [:.label {:font-size "16pt"
+            :position 'absolute
+            :left 0
+            :right 0
+            :top 0
+            :bottom 0
+            :line-height height}])
+
 (defn hp-bar [hp max-hp]
   (let [perc (/ hp max-hp)]
-    [:div.hp-bar
+    [:div (hp-bar-style)
      [:div.bar {:style {:background-color (perc->color perc)
                         :width (css% perc)}}]
      [:div.label

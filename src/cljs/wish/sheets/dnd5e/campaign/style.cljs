@@ -5,6 +5,13 @@
             [wish.style.flex :as flex :refer [flex]]))
 
 (defattrs char-card []
+  [:.name-row (flex/create
+                :center :vertical
+                {:margin-bottom "8px"})
+   [:.name {:margin-right "8px"}]
+   [:.hp {:position 'relative
+          :flex-grow 1}]]
+
   [:.abilities (merge flex
                       flex/justify-center)
    [:.label {:font-size "0.7em"}]
