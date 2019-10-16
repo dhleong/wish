@@ -37,6 +37,10 @@
     :vertical (if (= :vertical (:flow m))
                 justify-center
                 align-center)))
+(defmethod apply-flex-opt :wrap?
+  [_ [_ v]]
+  (when v
+    wrap))
 
 (defn create [& options]
   (let [opts (apply hash-map (remove map? options))

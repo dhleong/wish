@@ -1,6 +1,7 @@
 (ns wish.views.campaign.pages.nav
   (:require [spade.core :refer [defattrs]]
             [wish.style.flex :as flex]
+            [wish.style.media :as media]
             [wish.util.nav :refer [campaign-url]]
             [wish.util :refer [<sub]]
             [wish.views.widgets :refer [link]]))
@@ -9,12 +10,11 @@
   (apply campaign-url (<sub [:active-sheet-id]) sections))
 
 (defattrs campaign-nav-style []
-  (flex/create
-    :center :horizontal
-    {:background "#666666"
-     :margin-bottom "8px"
-     :padding "8px 0"
-     :width "100%"})
+  (flex/create)
+
+  (at-media media/smartphones
+    (flex/create
+      :center :horizontal))
   [:div.nav-link {:color "#f0f0f0"}])
 
 (defn- campaign-link [current-section & {:keys [section label]}]

@@ -1,6 +1,22 @@
 (ns wish.views.campaign.pages.notes
-  (:require [wish.subs.campaign.notes :as notes]
+  (:require [spade.core :refer [defattrs]]
+            [wish.style.flex :as flex]
+            [wish.subs.campaign.notes :as notes]
             [wish.util :refer [<sub]]))
+
+
+; ======= header ==========================================
+
+(defattrs header-style []
+  (flex/create
+    :flow :vertical
+    :center :vertical
+    {:height "100%"
+     :text-align 'right}))
+
+(defn header []
+  [:div (header-style)
+   [:div.search "Search"]])
 
 (defn- notes-list [notes]
   [:<>
