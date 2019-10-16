@@ -15,6 +15,7 @@
   (at-media media/smartphones
     (flex/create
       :center :horizontal))
+
   [:div.nav-link {:color "#f0f0f0"}])
 
 (defn- campaign-link [current-section & {:keys [section label]}]
