@@ -6,7 +6,7 @@
                 "test/cljs"]
 
  :nrepl {:port 9888
-         :middleware [refactor-nrepl.middleware/wrap-refactor]}
+         :middleware [cider.nrepl/cider-middleware refactor-nrepl.middleware/wrap-refactor]}
 
  :dependencies [; core:
                 [reagent "0.9.0-rc1"]
