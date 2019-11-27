@@ -570,11 +570,11 @@
        label]]
 
      [:tr
-      (let [] (for [[id _] labeled-abilities]
-                ^{:key id}
-                [:td (if-let [b (get bonuses id)]
-                       (mod->str b)
-                       "—")]))]]))
+      (for [[id _] labeled-abilities]
+        ^{:key id}
+        [:td (if-let [b (get bonuses id)]
+               (mod->str b)
+               "—")])]]))
 
 (defn abilities-page []
   (let [mode (<sub [::builder/abilities-mode])]
