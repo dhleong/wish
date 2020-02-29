@@ -33,40 +33,32 @@ the [System Reference Document][5].
 
 ## Development Mode
 
-### Using Vim:
+Wish is built and developed using [shadow-cljs][7]. There is a separate
+build target for the `:app` and the service `:worker`; you will probably
+want to attach to the `:app` target.
 
-I recommend using [vim-fireplace][2]. You should be able to connect
-to the repl within Figwheel using the normal methods. [My dotfiles][3]
-have fairly extensive customization if you want a place to start.
+I develop in Vim, and recommend using [vim-fireplace][2]. You should be
+able to connect to the repl within [shadow-cljs][7] using its normal
+methods.  [My dotfiles][3] have fairly extensive customization if you want
+a place to start.
 
-### Start Cider from Emacs:
+### Getting started
 
-Put this in your Emacs config file:
+First, you'll need to get a [node.js][8] environment setup with `npm`.
+Then, simply run `npm install` to install [shadow-cljs][7] and all the
+Javascript dependencies.
 
-```
-(setq cider-cljs-lein-repl
-	"(do (require 'figwheel-sidecar.repl-api)
-         (figwheel-sidecar.repl-api/start-figwheel!)
-         (figwheel-sidecar.repl-api/cljs-repl))")
-```
+### Compile css
 
-Navigate to a clojurescript file and start a figwheel REPL with `cider-jack-in-clojurescript` or (`C-c M-J`)
-
-### Compile css:
-
-Compile css file once.
+Compile css file once:
 
 ```
-lein less once
+npm run build:css
 ```
 
-Automatically recompile css file on change.
-
-```
-lein less auto
-```
-
-CSS also gets automatically built when running `lein build`.
+CSS also gets automatically built when running `npm run build`. Note that
+we are migrating away from using Less for CSS, and instead will be using
+[spade][9] for all styling going forward.
 
 ### Compile builtin Data Sources:
 
@@ -81,30 +73,38 @@ This script uses [wish-compiler][4] under the hood, which can be used to compile
 ### Run application:
 
 ```
-lein figwheel
+npm run dev
 ```
 
-Figwheel will automatically push cljs changes to the browser.
+shadow will automatically push cljs changes to the browser.
 
 Wait a bit, then browse to [http://localhost:3450](http://localhost:3450).
+
+This will keep the shadow server running in the background, for quick
+restarts. To stop the shadow server, use `npm run stop`. If you prefer not
+to keep the shadow server running, you can instead use `npm run watch`.
 
 ### Run tests:
 
 ```
-lein clean
-lein npm install
-lein test
+npm run test
 ```
 
-The above assumes that you have Chrome installed for running the tests. `lein-npm` is used to install the Karma test runners for executing the tests.
+The above assumes that you have Chrome installed for running the tests.
+
 
 ## Production Build
-
 
 To compile clojurescript to javascript:
 
 ```
-lein build
+npm run build:simple
+```
+
+For deploying to github pages, we use:
+
+```
+npm run build
 ```
 
 [1]: https://github.com/Day8/re-frame
@@ -113,3 +113,6 @@ lein build
 [4]: https://github.com/dhleong/wish-compiler
 [5]: http://dnd.wizards.com/articles/features/systems-reference-document-srd
 [6]: https://github.com/dhleong/wish/blob/master/scripts/wish-compiler
+[7]: https://shadow-cljs.github.io/docs/UsersGuide.html
+[8]: https://nodejs.org
+[9]: https://github.com/dhleong/spade
