@@ -7,6 +7,7 @@
             [wish.routes :as routes]
             [wish.views :as views]
             [wish.config :as config]
+            [wish.providers :as providers]
             [wish.fx]
             [wish.subs]
             [wish.util.netwatcher :as netwatcher]
@@ -32,7 +33,7 @@
              (not first?))
     ; hot-reload providers; don't do it the first time,
     ; since it's requested as part of db init
-    (wish.providers/init!))
+    (providers/init!))
   (netwatcher/attach!)
   (reagent/render [views/main]
                   (.getElementById js/document "app")))
