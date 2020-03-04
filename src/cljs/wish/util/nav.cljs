@@ -65,7 +65,7 @@
     (str "#" raw-link)))
 
 (defn navigate! [& args]
-  (>evt [into [:navigate!] args]))
+  (>evt (into [:navigate!] args)))
 
 (defn replace!
   "Wrapper around js/window.location.replace"
