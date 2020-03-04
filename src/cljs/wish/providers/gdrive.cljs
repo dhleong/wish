@@ -222,13 +222,13 @@
           (.get)))
 
 (defn- auth-response []
-  (some-> (current-user)
+  (some-> ^js (current-user)
           (.getAuthResponse)))
 
 (defn- access-token
   "When logged in, get the current user's access token"
   []
-  (some-> (auth-response)
+  (some-> ^js (auth-response)
           (.-access_token)))
 
 (defn- update-signin-status!
@@ -271,7 +271,7 @@
 (defn request-read!
   "Starts the flow to request readonly scope. Returns a channel"
   []
-  (some-> (current-user)
+  (some-> ^js (current-user)
           (.grant #js {:scope drive-read-scope})
           (promise->chan)))
 
@@ -279,7 +279,7 @@
   "Returns truthy if the active user should have read access
    to any file shared with them, else nil"
   []
-  (when-let [user (current-user)]
+  (when-let [^js user (current-user)]
     (or (.hasGrantedScopes user drive-read-scope)
         (.hasGrantedScopes user drive-full-scope))))
 
@@ -326,7 +326,7 @@
     (.signOut)))
 
 (defn active-user []
-  (when-let [profile (some-> (current-user)
+  (when-let [profile (some-> ^js (current-user)
                              (.getBasicProfile))]
     {:name (.getName profile)
      :email (.getEmail profile)}))
