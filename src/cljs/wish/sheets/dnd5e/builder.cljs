@@ -279,7 +279,7 @@
     [:div.feature-options {:field :single-select
                            :id :races}
      (for [r (<sub [::builder/available-races])]
-       [:div.feature-option {:key (:id r) }
+       [:div.feature-option {:key (:id r)}
         ^{:key (:id r)}
         [:div {:class (when (:subrace-of r)
                         "subrace")}

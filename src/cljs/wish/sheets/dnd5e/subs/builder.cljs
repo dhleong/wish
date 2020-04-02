@@ -112,8 +112,12 @@
 (reg-sub
   ::available-races
   :<- [:available-entities :races]
-  (fn [all-races]
-    (->> all-races
+  :<- [:available-entities :subraces]
+  (fn [[all-races all-subraces]]
+    (->> all-subraces
+         (map (fn [subrace]
+                (assoc subrace :subrace-of (:wish/parent-race-id subrace))))
+         (concat all-races)
          (sort-by (fn [e]
                     [(or (:subrace-of e)
                          (:id e))
