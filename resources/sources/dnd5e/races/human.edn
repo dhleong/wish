@@ -23,3 +23,47 @@
            :max-options 1
            :values (items-from-list :all-languages)}))})
 
+(declare-subrace
+  
+  :human
+
+
+  {:id :human/variant
+   :name "Variant Human"
+
+   :! (on-state
+        (provide-attr
+           :5e/ability-score-increase)
+
+        (provide-features
+           {:id :human/skills
+            :name "Skills"
+            :desc "You gain proficiency in one skill of your choice."
+            :max-options 1
+            :values (items-from-list :all-skill-proficiencies)}
+
+            {:id :human/feats
+             :name "Feat"
+             :desc "A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides."
+             :max-options 1
+             :values (items-from-list :all-feats)}
+
+            {:id :human/ability-score-increase
+             :name "Ability Score Increase"
+             :desc "Two different ability scores of your choice increase by 1."
+             :max-options 2
+             :multi? false
+             :values
+             (for [abi [["Strength" :str]
+                        ["Dexterity" :dex]
+                        ["Constitution" :con]
+                        ["Intelligence" :int]
+                        ["Wisdom" :wis]
+                        ["Charisma" :cha]]]
+               (let [label (abi 0)
+                     kw (abi 1)]
+                 {:id (keyword "ability" (name kw))
+                  :name label
+                  :! (on-state
+                       (provide-attr
+                         [:buffs kw (:wish/option-id state)] 1))}))}))})
