@@ -15,7 +15,24 @@
           :darkvision
           :fey-ancestry
 
-          :ability-improvement
+          {:id :half-elf/ability-improvement
+           :implicit? true
+           :name "Ability Score Improvement"
+           :desc "Two ability scores of your choice, other than Charisma, increase by 1."
+           :max-options 2
+           :values
+           (for [abi [["Strength" :str]
+                      ["Dexterity" :dex]
+                      ["Constitution" :con]
+                      ["Intelligence" :int]
+                      ["Wisdom" :wis]]]
+             (let [label (abi 0)
+                   kw (abi 1)]
+               {:id (keyword "ability" (name kw))
+                :name label
+                :! (on-state
+                     (provide-attr
+                       [:buffs kw (:wish/option-id state)] 1))}))}
 
           {:id :half-elf/skill-versatility
            :name "Skill Versatility"
