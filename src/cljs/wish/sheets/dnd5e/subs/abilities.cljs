@@ -15,29 +15,37 @@
   (fn [sheet]
     (:abilities sheet)))
 
+(defn- ability-buffs [entity]
+  (->> entity
+       :attrs
+       :buffs
+       (#(select-keys % (map first data/labeled-abilities)))
+       (reduce-kv (fn [m abi buffs]
+                    (assoc m abi (apply + (vals buffs))))
+                  {})))
+
+(defn- combine-ability-buffs [& buffs]
+  (apply merge-with + buffs))
+
 ; NOTE: we compute these buffs by hand because we (potentially) need the
 ; dependent sub to compute other buffs
 (reg-id-sub
   ::improvements
   :<- [:classes]
-  :<- [:races]
   :<- [:effects]
   (fn [entity-lists]
     (->> entity-lists
          flatten
-         (map (comp :buffs :attrs))
-         (apply merge-with merge)
-         (#(select-keys % (map first data/labeled-abilities)))
-         (reduce-kv (fn [m abi buffs]
-                      (assoc m abi (apply + (vals buffs))))
-                    {})
-         )))
+         (map ability-buffs)
+         (apply combine-ability-buffs))))
 
 (reg-id-sub
   ::racial
   :<- [:race]
   (fn [race]
-    (-> race :attrs :5e/ability-score-increase)))
+    (combine-ability-buffs
+      (-> race :attrs :5e/ability-score-increase)
+      (ability-buffs race))))
 
 ; ability scores are a function of the raw, rolled stats
 ; in the sheet, racial modififiers, and any ability score improvements
