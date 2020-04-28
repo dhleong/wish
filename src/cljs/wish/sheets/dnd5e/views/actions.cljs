@@ -340,10 +340,11 @@
    :long-rest "Long Rest"})
 
 (defn describe-uses
-  [uses trigger]
-  (if (= 1 uses)
-    (str "Once per " (trigger-labels trigger))
-    (str uses " uses / " (trigger-labels trigger))))
+  [item uses trigger]
+  (cond
+    (:restore-desc item) (:restore-desc item)
+    (= 1 uses) (str "Once per " (trigger-labels trigger))
+    :else (str uses " uses / " (trigger-labels trigger))))
 
 (defn limited-use-section []
   (let [items (<sub [::limited-use/configs])
@@ -358,7 +359,7 @@
             [:div.info
              [:div.name (:name item)]
              [:div.recovery
-              (describe-uses uses (:restore-trigger item))]]
+              (describe-uses item uses (:restore-trigger item))]]
             [usage-box item uses used-count]]))
 
        [:div.explanation

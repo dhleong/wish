@@ -61,16 +61,23 @@ Your choice grants you features when you choose it at 1st level and again at 6th
           :!
           (on-state
             (add-limited-use
-              {:id :sorcerer/points#uses,
-               :name "Sorcery Points",
-               :uses (fn [#{level}] level),
-               :restore-trigger :long-rest,
+              {:id :sorcerer/points#uses
+               :name "Sorcery Points"
+               :uses (fn [#{level}] level)
+               :restore-trigger (if (< (:level state) 20)
+                                  :long-rest
+
+                                  ; NOTE: trigger on *both*; a long rest triggers
+                                  ; both, but if we don't declare both we will only
+                                  ; see :short-rest
+                                  #{:short-rest :long-rest})
+               :restore-desc (when (= (:level state) 20)
+                               "20 / Long Rest; 4 / Short Rest")
                :restore-amount
                (fn [#{trigger used level}]
                  (if (= :short-rest trigger)
                    (when (= 20 level) (min used 4))
-                   used)),
-               :levels {20 {:restore-trigger :short-rest}}})
+                   used))})
             (provide-attr [:action :sorcerer/font-of-magic] true))}))},
     3
     {:!
