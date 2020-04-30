@@ -505,7 +505,6 @@
   [limited-used limited-use-config triggers]
   (reduce
     (fn [limited-used trigger]
-      (println "APPLY " trigger)
       (apply-limited-use-trigger
         limited-used
         limited-use-config
