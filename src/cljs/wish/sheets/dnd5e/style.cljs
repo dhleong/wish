@@ -39,7 +39,8 @@
 (defattrs layout []
   (at-media media/smartphones
     (merge flex/justify-center
-           {:width "100%"})
+           {:width "100%"
+            :height "100%"})
     [:.side {:width "92% !important"}])
 
   (at-media media/tablets
@@ -48,6 +49,7 @@
     [:.nav>.section {:font-size "1.5em"}])
 
   (at-media media/not-smartphones
+    {:overflow-y 'auto}
     [:.side {:height "100%"
              :overflow-y 'auto}])
 
@@ -60,7 +62,6 @@
          flex/grow
          {:align-self 'center
           :justify-content 'space-around
-          :height "100%"
           :width "100%" ; ensure we stretch as wide as we can
           :max-width "1100px"})
 
