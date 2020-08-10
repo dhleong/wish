@@ -98,7 +98,9 @@
                 :color "#fff"
                 :font-size "80%"
                 :border-radius "12px" }
-    [:&.p {:background-color color-platinum}]
+    [:&.p {:background-color color-platinum}
+     (at-media media/dark-scheme
+       {:color theme/text-primary-on-light})]
     [:&.g {:background-color color-gold}]
     [:&.e {:background-color color-electrum}]
     [:&.s {:background-color color-silver}]

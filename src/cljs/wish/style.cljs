@@ -5,6 +5,7 @@
             [wish.config :refer [server-root]]
             [wish.style.media :as media]))
 
+(def text-primary-on-light "#191d24")
 (def text-primary-on-dark "#f4f7ff")
 
 (defglobal global-styles

@@ -39,7 +39,7 @@
                  {:border-collapse 'collapse})]
   [:th.header {:font-size "80%"}
    (at-media media/dark-scheme
-     {:color "#191d24"})
+     {:color theme/text-primary-on-light})
    [:&.p {:background-color styles/color-platinum} ]
    [:&.g {:background-color styles/color-gold}]
    [:&.e {:background-color styles/color-electrum}]
