@@ -5,10 +5,15 @@
             [wish.config :refer [server-root]]
             [wish.style.media :as media]))
 
+(def text-primary-on-dark "#f4f7ff")
+
 (defglobal global-styles
   (at-media media/dark-scheme
-    [:body {:background "#191d24"
-            :color "#f4f7ff"}]))
+    [:body {:background "#000"
+            :color text-primary-on-dark}]
+    [:input :textarea {:background-color "#444"
+                       :color text-primary-on-dark}]
+    [:.button {:background-color "#555"}]))
 
 (defn asset [n]
   (str server-root "/assets/" n))

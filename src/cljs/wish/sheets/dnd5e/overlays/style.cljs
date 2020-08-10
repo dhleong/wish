@@ -1,5 +1,6 @@
 (ns wish.sheets.dnd5e.overlays.style
   (:require [spade.core :refer [defattrs]]
+            [wish.style :as theme]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]
@@ -194,6 +195,10 @@
                    :padding "4px"}
    [:.choice {:color "rgba(0,0,0, 0.5)"
               :padding "4px"}
+
+    (at-media media/dark-scheme
+      {:color [["rgba(255,255,255, 0.5)"]]})
+
     ["&:nth-child(n+2)" {:position 'relative
                          :padding-top "12px"}
      [:&:before {:content "''"
@@ -208,9 +213,14 @@
                 :position 'absolute
                 :padding "0 8px"
                 :top "-3px"
-                :left "3em"
-                }]]
-    [:&.chosen {:color "#000"}]]]
+                :left "3em"}
+      (at-media media/dark-scheme
+        {:background-color "#444"})]]
+    [:&.chosen {:color "#000"}
+     (at-media media/dark-scheme
+       {:color theme/text-primary-on-dark})]
+
+    ]]
   [:.pack
    [:.contents metadata]]
   [:.accept {:padding "8px"

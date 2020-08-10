@@ -3,6 +3,7 @@
   wish.sheets.dnd5e.style
   (:require [garden.color :as color]
             [spade.core :refer [defclass defattrs]]
+            [wish.style :as theme]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]))
@@ -310,7 +311,9 @@
   [:.expandable>.button {:background 'none
                          :border-top "1px solid #333"
                          :color "#000"
-                         :padding 0}]
+                         :padding 0}
+   (at-media media/dark-scheme
+     {:color theme/text-primary-on-dark})]
   [:.item (merge flex/center
                  {:font-size "80%"
                   :padding "4px 8px"})
