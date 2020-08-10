@@ -3,6 +3,7 @@
   wish.sheets.dnd5e.style
   (:require [garden.color :as color]
             [spade.core :refer [defclass defattrs]]
+            [wish.style :as theme]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.media :as media]
             [wish.style.shared :refer [metadata]]))
@@ -97,7 +98,9 @@
                 :color "#fff"
                 :font-size "80%"
                 :border-radius "12px" }
-    [:&.p {:background-color color-platinum}]
+    [:&.p {:background-color color-platinum}
+     (at-media media/dark-scheme
+       {:color theme/text-primary-on-light})]
     [:&.g {:background-color color-gold}]
     [:&.e {:background-color color-electrum}]
     [:&.s {:background-color color-silver}]
@@ -118,8 +121,13 @@
           :margin "0 8px 0 0"})
   [:&.upcast {:position 'relative
               :border (str "2px solid " color-accent2)}
+   (at-media media/dark-scheme
+     {:background-color "#555"})
    [:&:hover {:background-color "#f0f0f0"
-              :color "#333"}]
+              :color "#333"}
+    (at-media media/dark-scheme
+      {:background-color "#777"
+       :color theme/text-primary-on-dark})]
    [:&:hover>.upcast-level
     {:background (color/lighten color-accent2 20)}]
    [:.upcast-level {:position 'absolute
@@ -138,7 +146,10 @@
   [:&.button
    [:&.disabled disabled-button]
    [:&.nested:hover {:background-color "#f0f0f0"
-                     :color "#333"}]])
+                     :color "#333"}
+    (at-media media/dark-scheme
+      {:background-color "#777"
+       :color theme/text-primary-on-dark})]])
 
 (defattrs spell-card []
   {:max-width "300px"}
@@ -147,7 +158,9 @@
    [:th.header {:text-align 'right}]]
   [:.desc {:font-size "90%"}]
 
-  [:.upcast {:color color-accent2}]
+  [:.upcast {:color color-accent2}
+   (at-media media/dark-scheme
+     {:color (color/lighten color-accent2 20)})]
 
   [:.cast-container (merge flex
                            flex/justify-center)]
@@ -296,7 +309,7 @@
                   :font-size "80%"}]
 
   [:.spell flex/center
-   [:.upcast {:color color-accent2}]
+   [:.upcast {:color color-accent2} ]
    [:.meta metadata]
    [:.spell-info flex/grow
     [:.name {:font-weight "bold"}]]
@@ -310,7 +323,9 @@
   [:.expandable>.button {:background 'none
                          :border-top "1px solid #333"
                          :color "#000"
-                         :padding 0}]
+                         :padding 0}
+   (at-media media/dark-scheme
+     {:color theme/text-primary-on-dark})]
   [:.item (merge flex/center
                  {:font-size "80%"
                   :padding "4px 8px"})

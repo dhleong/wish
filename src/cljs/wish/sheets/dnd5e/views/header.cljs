@@ -21,6 +21,9 @@
              :refer [link link>evt]]))
 
 (defattrs header-container-style []
+  (at-media media/dark-scheme
+    {:background "#333"})
+
   {:display 'block
    :background "#666666"})
 
