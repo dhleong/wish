@@ -11,8 +11,9 @@
   (at-media media/dark-scheme
     [:body {:background "#000"
             :color text-primary-on-dark}]
-    [:input :textarea {:background-color "#444"
-                       :color text-primary-on-dark}]
+    [:input :textarea :select {:background-color "#444"
+                               :color text-primary-on-dark}]
+
     [:.button {:background-color "#555"}
      [:&:hover {:background-color "#666666"}]]))
 
