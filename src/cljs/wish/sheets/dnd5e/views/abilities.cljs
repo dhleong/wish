@@ -40,11 +40,10 @@
 
    ; this is the semi-circle
    [:&.half::before
-    {:width "4px"
-     :border-color "#fff"
+    {:width "3px"
+     :border-color styles/color-proficient
      :border-radius "8px 0 0 8px"
-     :margin-right "4px"
-     }]
+     :margin-right "4px"}]
    ; this is the outline of the circle
    [:&.half::after
     {:content "' '"
