@@ -3,6 +3,7 @@
 @import "media.less";
 
 @link-color: #fbc02d;
+@primary-on-dark: #f4f7ff;
 
 body {
     margin: 0;
@@ -45,6 +46,9 @@ a {
 }
 
 #footer-container {
+    @link-default: #333;
+    @link-dark: @primary-on-dark;
+
     .flex();
     .flex-direction(column);
     height: 100vh;
@@ -65,7 +69,7 @@ a {
         padding: 16px;
 
         a.link {
-            color: #333;
+            color: @link-default;
 
             &:not(:first-child):before {
                 content: '·';
@@ -78,7 +82,7 @@ a {
                 color: #999;
 
                 &:not(:first-child):before {
-                    color: #333;
+                    color: @link-default;
                 }
             }
         }
@@ -86,9 +90,25 @@ a {
         .version {
             .flex-grow();
             text-align: right;
-            color: fade(#333, 7%);
+            color: fade(@link-default, 7%);
             cursor: pointer;
         }
+
+        @media @dark-scheme {
+            background-color: #333;
+
+            a.link {
+                color: @link-dark;
+                &:hover:not(:first-child):before {
+                    color: @link-dark
+                }
+            }
+
+            .version {
+                color: fade(@link-dark, 7%);
+            }
+        }
+
     }
 }
 
