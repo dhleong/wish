@@ -24,8 +24,8 @@ script:
     - scripts/compile-builtin-sources
 
 after_success:
-    # build if on the master branch (in prep for deploy)
-    - if [ "$TRAVIS_BRANCH" = master ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then npm run build || travis_terminate 1; fi
+    # build if on the main branch (in prep for deploy)
+    - if [ "$TRAVIS_BRANCH" = main ] && [ -z "$TRAVIS_PULL_REQUEST_BRANCH" ]; then npm run build || travis_terminate 1; fi
 
 cache:
     directories:
@@ -37,6 +37,6 @@ deploy:
     github_token: $GITHUB_DEPLOY # Set in travis-ci.org dashboard
     local_dir: resources/public
     on:
-        branch: master
+        branch: main
 
 
