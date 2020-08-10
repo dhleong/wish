@@ -38,7 +38,9 @@
                  flex/align-center
                  {:border-collapse 'collapse})]
   [:th.header {:font-size "80%"}
-   [:&.p {:background-color styles/color-platinum}]
+   (at-media media/dark-scheme
+     {:color "#191d24"})
+   [:&.p {:background-color styles/color-platinum} ]
    [:&.g {:background-color styles/color-gold}]
    [:&.e {:background-color styles/color-electrum}]
    [:&.s {:background-color styles/color-silver}]
