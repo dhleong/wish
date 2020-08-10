@@ -13,7 +13,8 @@
             :color text-primary-on-dark}]
     [:input :textarea {:background-color "#444"
                        :color text-primary-on-dark}]
-    [:.button {:background-color "#555"}]))
+    [:.button {:background-color "#555"}
+     [:&:hover {:background-color "#666666"}]]))
 
 (defn asset [n]
   (str server-root "/assets/" n))
