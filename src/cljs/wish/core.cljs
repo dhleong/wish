@@ -9,6 +9,7 @@
             [wish.config :as config]
             [wish.providers :as providers]
             [wish.fx]
+            [wish.style]
             [wish.subs]
             [wish.util.netwatcher :as netwatcher]
             [wish.util.shadow :as shadow]

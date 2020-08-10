@@ -8,3 +8,4 @@
 (def tablets {:max-width "1024px"})
 (def laptops {:min-width "1100px"})
 
+(def dark-scheme {:prefers-color-scheme 'dark})
