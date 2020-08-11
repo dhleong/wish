@@ -138,11 +138,13 @@ You can use Empowered Spell even if you have already used a different Metamagic 
   {:id :sorcerer/metamagic-heightened,
    :name "Heightened Spell",
    :desc
-   "When you cast a spell that forces a creature to make a saving throw to resist its effects, you can spend 3 sorcery points to give one target of the spell disadvantage on its first saving throw made against the spell."}
+   "When you cast a spell that forces a creature to make a saving throw to resist its effects, you can spend 3 sorcery points to give one target of the spell disadvantage on its first saving throw made against the spell."
+   :consumes/amount 3}
   {:id :sorcerer/metamagic-quickened,
    :name "Quickened Spell",
    :desc
-   "When you cast a spell that has a casting time of 1 action, you can spend 2 sorcery points to change the casting time to 1 bonus action for this casting."}
+   "When you cast a spell that has a casting time of 1 action, you can spend 2 sorcery points to change the casting time to 1 bonus action for this casting."
+   :consumes/amount 2}
   {:id :sorcerer/metamagic-subtle,
    :name "Subtle Spell",
    :desc

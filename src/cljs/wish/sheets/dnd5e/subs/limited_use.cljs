@@ -64,10 +64,35 @@
 
       ; special case
       (subscribe [::spells/usable-slot-for entity])))
-  (fn [input [_ {id :consumes}]]
+  (fn [input [_ {id :consumes
+                 amount :consumes/amount
+                 :as entity}]]
     (if (not= :*spell-slot id)
       ; easy case
-      input
+      (assoc input
+             :consumed-amount
+             (cond
+               ; easy case:
+               (number? amount) amount
+
+               ; also easy:
+               (nil? amount) 1
+
+               (fn? amount)
+               (let [context (:wish/container entity)
+                     result (amount context)]
+                 (if (number? result)
+                   result
+
+                   (js/console.warn
+                     "WARN: " result " returned from :consumes/amount fn for "
+                     (:id entity)
+                     "\n provided: " (keys context))))
+
+               :else (do
+                       (js/console.warn
+                         "WARN: unexpected :consumes/amount: " amount)
+                       1)))
 
       {:id :*spell-slot
        :name (str (get data/level-suffixed (:level input))

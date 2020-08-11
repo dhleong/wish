@@ -150,7 +150,7 @@
 (defn consume-use-block
   [consumable {:keys [omit-name]}]
   (when-let [use-id (:consumes consumable)]
-    (when-let [{:keys [name uses-left] :as info}
+    (when-let [{:keys [name uses-left consumed-amount] :as info}
                (<sub [::limited-use/consumable-for consumable])]
       (if (= :*spell-slot use-id)
         ; consuming spell slots is a special case
@@ -168,10 +168,12 @@
            [:div.name name])
 
          [:div.uses uses-left " left"]
-         (when (> uses-left 0)
+         (if (>= uses-left consumed-amount)
            [:div.button
-            {:on-click (click>evt [::events/+use info 1])}
-            "Use 1"])]))))
+            {:on-click (click>evt [::events/+use info consumed-amount])}
+            (str "Use " consumed-amount)]
+           [:div.button.disabled
+            (str "Use " consumed-amount)])]))))
 
 (defn- action-block [a]
   [:div.action
