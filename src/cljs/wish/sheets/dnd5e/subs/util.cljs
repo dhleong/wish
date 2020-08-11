@@ -27,8 +27,14 @@
 
 (defn feature-by-id
   ([container feature-id]
-   (or (get-in container [:features feature-id])
-       (get-in container [:list-entities feature-id])))
+   (cond
+     (keyword? feature-id)
+     (or (get-in container [:features feature-id])
+         (get-in container [:list-entities feature-id]))
+
+     ; actually, an option value:
+     (vector? feature-id)
+     (get-in container (into [:options] feature-id))))
   ([data-source container feature-id]
    (or (feature-by-id container feature-id)
        (feature-by-id data-source feature-id)
