@@ -314,7 +314,6 @@
          (mapcat
            (fn [c]
              (map (fn [[id flags]]
-                    (println "action?" id)
                     (with-meta
                       (let [action (or (when (= id (:id c))
                                          ; attuned equipment, probably

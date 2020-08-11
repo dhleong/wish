@@ -82,6 +82,32 @@
 (def std-slots-label "Spell Slots")
 
 
+; ======= shared utils ====================================
+
+(defn usable-slots-for
+  [slots spellcaster s]
+  (let [{use-id :consumes
+         :keys [spell-level at-will?]} s
+        limited-use? (and use-id
+                          (not= :*spell-slot use-id))
+        cantrip? (= 0 spell-level)
+        at-will? (or cantrip? at-will?)
+        no-slots? (= :none (:slots spellcaster))]
+    (when-not (or limited-use? at-will?
+                  ; no-slot casters can still have a slot
+                  ; if it's a spell-slot-based limited use
+                  (when-not (= :*spell-slot use-id)
+                    no-slots?))
+      ; if it's at-will or powered by a limited-use,
+      ; there's no possible usable slot because it doesn't
+      ; use *any* slots.
+      ; Of course, if the limited-use is the special
+      ; :*spell-slot type, then we *can* use slots
+      (->> slots
+           (filter #(>= (:level %)
+                        spell-level))))))
+
+
 ; ======= spellcasting-related subscriptions ==============
 
 (reg-sub
@@ -287,21 +313,37 @@
 (reg-sub
   ::prepared-spells-filtered
   :<- [::all-prepared-spells]
-  (fn [spells [_ filter-type]]
+  :<- [::available-slots]
+  :<- [::spellcaster-blocks-by-id]
+  (fn [[spells slots spellcasters] [_ filter-type]]
     (when-not (= :special-action filter-type)
-      (filter (case filter-type
-                :action (fn [s]
-                          (and (not (util/bonus-action? s))
-                               (not (util/reaction? s))))
-                :bonus util/bonus-action?
-                :reaction util/reaction?
+      (->> spells
+           (filter (case filter-type
+                     :action (fn [s]
+                               (and (not (util/bonus-action? s))
+                                    (not (util/reaction? s))))
+                     :bonus util/bonus-action?
+                     :reaction util/reaction?
 
-                (if (number? filter-type)
-                  #(= filter-type (:level %))
+                     (if (number? filter-type)
+                       #(= filter-type (:level %))
 
-                  (throw (js/Error.
-                           (str "Unknown spell filter-type:" filter-type)))))
-              spells))))
+                       (throw (js/Error.
+                                (str "Unknown spell filter-type:" filter-type))))))
+           (map (fn [s]
+                  (if (or (= 0 (:spell-level s))
+                          (:at-will? s))
+                    ; at-will spells and cantrips don't need to bother with
+                    ; computing usable slots
+                    s
+
+                    (let [spellcaster (get spellcasters (::source s))
+                          usable-slots (usable-slots-for slots spellcaster s)
+                          best-slot (first usable-slots)]
+                      (assoc s
+                             :requires-upcast? (> (:level best-slot)
+                                                  (:spell-level s))
+                             :no-slot? (nil? best-slot))))))))))
 
 ; reduces ::prepared-spells into {:cantrips, :spells},
 ; AND removes ones that are always prepared
@@ -704,29 +746,6 @@
   :<- [::spell-slots-used]
   (fn [[slots used] _]
     (available-slots slots used)))
-
-(defn usable-slots-for
-  [slots spellcaster s]
-  (let [{use-id :consumes
-         :keys [spell-level at-will?]} s
-        limited-use? (and use-id
-                          (not= :*spell-slot use-id))
-        cantrip? (= 0 spell-level)
-        at-will? (or cantrip? at-will?)
-        no-slots? (= :none (:slots spellcaster))]
-    (when-not (or limited-use? at-will?
-                  ; no-slot casters can still have a slot
-                  ; if it's a spell-slot-based limited use
-                  (when-not (= :*spell-slot use-id)
-                    no-slots?))
-      ; if it's at-will or powered by a limited-use,
-      ; there's no possible usable slot because it doesn't
-      ; use *any* slots.
-      ; Of course, if the limited-use is the special
-      ; :*spell-slot type, then we *can* use slots
-      (->> slots
-           (filter #(>= (:level %)
-                        spell-level))))))
 
 (reg-sub
   ::usable-slots-for

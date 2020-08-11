@@ -193,7 +193,11 @@
           (for [s spells]
             ^{:key [(::spells/source s) (:id s)]}
             [:div.spell-name.clickable
-             {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])}
+             {:on-click (click>evt [:toggle-overlay [#'overlays/spell-info s]])
+              :class [(when (:no-slot? s)
+                        :no-slot)
+                      (when (:requires-upcast? s)
+                        :requires-upcast)]}
              (:name s)])])
 
        (when actions

@@ -252,7 +252,11 @@
                      :font-weight 'bold}]
    [:.spell-name {:font-size "80%"
                   :font-style 'italic
-                  :padding "4px"}]]
+                  :padding "4px"}
+    [:&.no-slot {:text-decoration 'line-through}]
+    [:&.requires-upcast {:color color-accent2}
+     (at-media media/dark-scheme
+       {:color (color/lighten color-accent2 20)})]]]
   [:.action
    [:.name {:font-size "90%"
             :font-weight 'bold
