@@ -117,12 +117,13 @@
 (defclass cast-spell []
   (merge text-center
          {:width "3.5em"
-          :padding "4px"
+          :padding [["4px" :!important]]
           :margin "0 8px 0 0"})
   [:&.upcast {:position 'relative
               :border (str "2px solid " color-accent2)}
    (at-media media/dark-scheme
-     {:background-color "#555"})
+     {:background-color "#555"
+      :border-color (color/lighten color-accent2 20)})
    [:&:hover {:background-color "#f0f0f0"
               :color "#333"}
     (at-media media/dark-scheme
@@ -138,7 +139,9 @@
                     :right 0
                     :bottom "-0.7em"
                     :font-size "0.5em"
-                    :transform "translate(50%, 0)"}]]
+                    :transform "translate(50%, 0)"}
+    (at-media media/dark-scheme
+      {:background-color (color/lighten color-accent2 20)})]]
   [:.uses-remaining {:padding "0.1em"
                      :font-size "0.7em"
                      :font-style 'italic}]
@@ -282,7 +285,11 @@
    [:.usage
     [:.button (merge button)
      [:&.selected {:background-color "#ddd"}
-      [:&:hover {:background-color "#eee"}]]]
+      [:&:hover {:background-color "#eee"}]]
+
+     (at-media media/dark-scheme
+       [:&.selected {:background-color "#171717"}
+        [:&:hover {:background-color "#222"}]])]
 
     [:input.uses-left (merge text-center
                              {:width "3em"})]
@@ -309,7 +316,9 @@
                   :font-size "80%"}]
 
   [:.spell flex/center
-   [:.upcast {:color color-accent2} ]
+   [:.upcast {:color color-accent2}
+    (at-media media/dark-scheme
+      {:color (color/lighten color-accent2 20)})]
    [:.meta metadata]
    [:.spell-info flex/grow
     [:.name {:font-weight "bold"}]]
