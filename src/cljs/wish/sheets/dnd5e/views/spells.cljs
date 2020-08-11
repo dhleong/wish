@@ -14,49 +14,50 @@
 
 ; ======= Spells ===========================================
 
-(defn spell-block
-  [s]
+(defn spell-block [s]
   (let [base-level (:spell-level s)
         cantrip? (= 0 base-level)
         {cast-level :level} (<sub [::spells/usable-slot-for s])
         upcast? (when cast-level
                   (not= cast-level base-level))
         level (or cast-level base-level)]
-    [expandable
-     [:div.spell
-      [cast-button {:nested? true} s]
+    [:<>
+     [cast-button {:nested? true} s]
+     [expandable
+      [:div.spell
+       [cast-button {:placeholder? true} s]
 
-      [:div.spell-info
-       [:div.name (:name s)]
+       [:div.spell-info
+        [:div.name (:name s)]
 
-       [:div.meta {:class (when upcast?
-                            "upcast")}
-        (if cantrip?
-          "Cantrip"
-          (str "Level " level))
-        ; concentration? ritual?
-        [spell-tags s]]]
-
-      (cond
-        (:dice s)
-        [:div.dice {:class (when upcast?
+        [:div.meta {:class (when upcast?
                              "upcast")}
-         (invoke-callable
-           (assoc s :spell-level level)
-           :dice)
-         (when-let [buffs (:buffs s)]
-           (when-let [buff (buffs s)]
-             (str " + " buff)))
-         ]
+         (if cantrip?
+           "Cantrip"
+           (str "Level " level))
+         ; concentration? ritual?
+         [spell-tags s]]]
 
-        (:save s)
-        [:div.dice
-         [:div.meta (:save-label s)]
-         (:save-dc s)]
-        )]
+       (cond
+         (:dice s)
+         [:div.dice {:class (when upcast?
+                              "upcast")}
+          (invoke-callable
+            (assoc s :spell-level level)
+            :dice)
+          (when-let [buffs (:buffs s)]
+            (when-let [buff (buffs s)]
+              (str " + " buff)))
+          ]
 
-     ; collapsed:
-     [spell-card s]]))
+         (:save s)
+         [:div.dice
+          [:div.meta (:save-label s)]
+          (:save-dc s)]
+         )]
+
+      ; collapsed:
+      [spell-card s]]]))
 
 (defn spell-slot-use-block
   [kind level total used]
@@ -66,7 +67,7 @@
     :consume-evt [::events/use-spell-slot kind level total]
     :restore-evt [::events/restore-spell-slot kind level total]}])
 
-(defn spells-list [spells]
+(defn- spells-list [spells]
   [:<>
    (for [s spells]
      ^{:key (:id s)}

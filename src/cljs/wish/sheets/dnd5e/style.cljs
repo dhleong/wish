@@ -148,16 +148,20 @@
 
   [:&.button
    [:&.disabled disabled-button]
-   [:&.nested:hover {:background-color "#f0f0f0"
-                     :color "#333"}
-    (at-media media/dark-scheme
-      {:background-color "#777"
-       :color theme/text-primary-on-dark})]
-   [:&.nested:active {:background-color "#f0f0f0"
-                     :color "#333"}
-    (at-media media/dark-scheme
-      {:background-color "#222"
-       :color theme/text-primary-on-dark})]])
+   [:&.placeholder {:visibility 'hidden}]
+   [:&.nested {:position 'absolute
+               :margin-top "8px"
+               :margin-left "16px"}
+    [:&:hover {:background-color "#f0f0f0"
+                      :color "#333"}
+     (at-media media/dark-scheme
+       {:background-color "#777"
+        :color theme/text-primary-on-dark})]
+    [:&:active {:background-color "#f0f0f0"
+                       :color "#333"}
+     (at-media media/dark-scheme
+       {:background-color "#222"
+        :color theme/text-primary-on-dark})]]])
 
 (defattrs spell-card []
   {:max-width "300px"}
