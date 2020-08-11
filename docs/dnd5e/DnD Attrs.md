@@ -106,6 +106,23 @@ EX:
         true))}
 ```
 
+To make an option available as an Action, instead of using its ID, you must
+instead use a vector tuple consisting of its feature's ID and its ID.
+
+EX:
+
+```clojure
+(declare-options
+  :sorcerer/metamagic
+  {:id :sorcerer/metamagic-extended,
+   :name "Extended Spell",
+   :desc "When you cast a spell that has a duration of 1 minute or longer, you can spend 1 sorcery point to double its duration, to a maximum duration of 24 hours."
+   :! (on-state
+        (provide-attr
+          [:action [:sorcerer/metamagic :sorcerer/metamagic-extended]]
+          true))})
+```
+
 ## `:attacks`
 
 Provides extra attacks, such as the Dragonborn Breath Weapon.
