@@ -310,12 +310,35 @@
   (fn [by-class [_ class-id]]
     (get by-class class-id)))
 
+(defn- fill-spell-usability [slots spellcasters limited-uses s]
+  (cond
+    (or (= 0 (:spell-level s))
+        (:at-will? s))
+    ; at-will spells and cantrips don't need to bother with
+    ; computing usable slots
+    s
+
+    ; handle spells backed by a limited use item
+    (:consumes s)
+    (let [limited-use (get limited-uses (:consumes s))]
+      (assoc s :no-slot? (= (:uses-left limited-use) 0)))
+
+    :else
+    (let [spellcaster (get spellcasters (::source s))
+          usable-slots (usable-slots-for slots spellcaster s)
+          best-slot (first usable-slots)]
+      (assoc s
+             :requires-upcast? (> (:level best-slot)
+                                  (:spell-level s))
+             :no-slot? (nil? best-slot)))))
+
 (reg-sub
   ::prepared-spells-filtered
   :<- [::all-prepared-spells]
   :<- [::available-slots]
   :<- [::spellcaster-blocks-by-id]
-  (fn [[spells slots spellcasters] [_ filter-type]]
+  :<- [:wish.sheets.dnd5e.subs.limited-use/map]
+  (fn [[spells slots spellcasters limited-uses] [_ filter-type]]
     (when-not (= :special-action filter-type)
       (->> spells
            (filter (case filter-type
@@ -330,20 +353,7 @@
 
                        (throw (js/Error.
                                 (str "Unknown spell filter-type:" filter-type))))))
-           (map (fn [s]
-                  (if (or (= 0 (:spell-level s))
-                          (:at-will? s))
-                    ; at-will spells and cantrips don't need to bother with
-                    ; computing usable slots
-                    s
-
-                    (let [spellcaster (get spellcasters (::source s))
-                          usable-slots (usable-slots-for slots spellcaster s)
-                          best-slot (first usable-slots)]
-                      (assoc s
-                             :requires-upcast? (> (:level best-slot)
-                                                  (:spell-level s))
-                             :no-slot? (nil? best-slot))))))))))
+           (map (partial fill-spell-usability slots spellcasters limited-uses))))))
 
 ; reduces ::prepared-spells into {:cantrips, :spells},
 ; AND removes ones that are always prepared
