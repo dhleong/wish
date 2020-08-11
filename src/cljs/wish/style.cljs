@@ -3,6 +3,7 @@
   wish.style
   (:require [spade.core :refer [defglobal]]
             [wish.config :refer [server-root]]
+            [wish.style.components]
             [wish.style.media :as media]))
 
 (def text-primary-on-light "#191d24")
@@ -13,10 +14,7 @@
     [:body {:background "#000"
             :color text-primary-on-dark}]
     [:input :textarea :select {:background-color "#444"
-                               :color text-primary-on-dark}]
-
-    [:.button {:background-color "#555"}
-     [:&:hover {:background-color "#666666"}]]))
+                               :color text-primary-on-dark}]))
 
 (defn asset [n]
   (str server-root "/assets/" n))

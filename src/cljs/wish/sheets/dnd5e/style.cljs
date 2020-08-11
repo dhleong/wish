@@ -117,7 +117,7 @@
 (defclass cast-spell []
   (merge text-center
          {:width "3.5em"
-          :padding "4px"
+          :padding [["4px" :!important]]
           :margin "0 8px 0 0"})
   [:&.upcast {:position 'relative
               :border (str "2px solid " color-accent2)}
@@ -282,7 +282,11 @@
    [:.usage
     [:.button (merge button)
      [:&.selected {:background-color "#ddd"}
-      [:&:hover {:background-color "#eee"}]]]
+      [:&:hover {:background-color "#eee"}]]
+
+     (at-media media/dark-scheme
+       [:&.selected {:background-color "#171717"}
+        [:&:hover {:background-color "#222"}]])]
 
     [:input.uses-left (merge text-center
                              {:width "3em"})]
