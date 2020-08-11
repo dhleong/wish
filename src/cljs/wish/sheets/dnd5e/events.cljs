@@ -175,18 +175,19 @@
 (reg-event-fx
   ::+use
   [trim-v]
-  (fn-traced [cofx [info]]
-    (if (not= :*spell-slot (:id info))
-      ; easy case
-      {:dispatch-n (list [:+use (:id info) 1]
-                         (when-let [effect (:adds-effect info)]
-                           (build-effect-add-event effect)))}
+  (fn-traced [cofx [info amount]]
+    (let [amount (or amount 1)]
+      (if (not= :*spell-slot (:id info))
+        ; easy case
+        {:dispatch-n (list [:+use (:id info) amount]
+                           (when-let [effect (:adds-effect info)]
+                             (build-effect-add-event effect)))}
 
-      ; special case for spells
-      {:dispatch [::use-spell-slot
-                  (:slot-kind info)
-                  (:slot-level info)
-                  (:max-slots info)]})))
+        ; special case for spells
+        {:dispatch [::use-spell-slot
+                    (:slot-kind info)
+                    (:slot-level info)
+                    (:max-slots info)]}))))
 
 (reg-event-fx
   ::toggle-used
