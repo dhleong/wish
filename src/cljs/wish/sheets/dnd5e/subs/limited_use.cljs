@@ -37,15 +37,21 @@
          (sort-by :name))))
 
 (reg-sub
-  ::by-id
+  ::map
   :<- [::configs]
   :<- [:limited-used]
-  (fn [[items used] [_ id]]
+  (fn [[items used] _]
     (->> items
-         (filter #(= id (:id %)))
-         (map #(assoc % :uses-left (- (:uses %)
-                                      (get used id))))
-         first)))
+         (map (fn [{:keys [id uses] :as item}]
+                [id (assoc item :uses-left (- uses
+                                              (get used id)))]))
+         (into {}))))
+
+(reg-sub
+  ::by-id
+  :<- [::map]
+  (fn [m [_ id]]
+    (get m id)))
 
 ; Takes an entity with :consumes and returns something that can be
 ; consumed from it. Usually this delegates to [::by-id (:consumes a)], but
