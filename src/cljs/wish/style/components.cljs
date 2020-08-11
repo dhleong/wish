@@ -33,6 +33,7 @@
 
    (at-media media/dark-scheme
      [:& {:background-color "#555"}
-      [:&:hover {:background-color "#666666"}]])
+      [:&:hover {:background-color "#666666"}]
+      [:&:active {:background "#333"}]])
 
    ])

@@ -152,6 +152,11 @@
                      :color "#333"}
     (at-media media/dark-scheme
       {:background-color "#777"
+       :color theme/text-primary-on-dark})]
+   [:&.nested:active {:background-color "#f0f0f0"
+                     :color "#333"}
+    (at-media media/dark-scheme
+      {:background-color "#222"
        :color theme/text-primary-on-dark})]])
 
 (defattrs spell-card []
