@@ -11,7 +11,8 @@
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.overlays.style :as styles]
-            [wish.sheets.dnd5e.widgets :refer [item-quantity-manager
+            [wish.sheets.dnd5e.widgets :refer [consume-use-block
+                                               item-quantity-manager
                                                spell-aoe
                                                spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts]]
@@ -90,7 +91,7 @@
      [spell-card entity]
 
      [:<>
-      (generic-info entity)
+      [generic-info entity]
 
       (when-let [d (:desc entity)]
         [formatted-text :div.desc d])
@@ -100,6 +101,9 @@
          (for [effect effects]
            ^{:key effect}
            [:li effect])])
+
+      (when (:consumes entity)
+        [consume-use-block entity])
 
       (when (inv/stacks? entity)
         [item-quantity-manager entity])]) ])
@@ -111,7 +115,7 @@
   [:div (styles/info-overlay)
    [:div.name (:name entity)]
 
-   (generic-info entity)
+   [generic-info entity]
 
    (let [{:keys [spell-level duration]} entity]
      (when (or spell-level duration)

@@ -379,3 +379,35 @@
                      (nth slots
                           new-index))))))}
      @spell-atom]))
+
+
+; ======= limited use =====================================
+
+(defn consume-use-block
+  ([consumable] (consume-use-block consumable nil))
+  ([consumable {:keys [omit-name on-click-spell-slots]}]
+   (when-let [use-id (:consumes consumable)]
+     (when-let [{:keys [name uses-left consumed-amount] :as info}
+                (<sub [::limited-use/consumable-for consumable])]
+       (if (= :*spell-slot use-id)
+         ; consuming spell slots is a special case
+         [:div (styles/consumable-use-block)
+          (if (<= uses-left 0)
+            [:div.uses "0 spell slots left"]
+            [:div.button
+             {:on-click on-click-spell-slots}
+             (str uses-left " spell slots left")])]
+
+         ; normal case:
+         [:div (styles/consumable-use-block)
+
+          (when (not= name omit-name)
+            [:div.name name])
+
+          [:div.uses uses-left " left"]
+          (if (>= uses-left consumed-amount)
+            [:div.button
+             {:on-click (click>evt [::events/+use info consumed-amount])}
+             (str "Use " consumed-amount)]
+            [:div.button.disabled
+             (str "Use " consumed-amount)])])))))

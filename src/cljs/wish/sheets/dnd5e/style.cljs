@@ -6,7 +6,7 @@
             [wish.style :as theme]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.media :as media]
-            [wish.style.shared :refer [metadata]]))
+            [wish.style.shared :as shared :refer [metadata]]))
 
 (def color-accent "#fbc02d")
 (def color-accent2 "#6f49b9")
@@ -246,6 +246,9 @@
                  {:margin-left "16px"})
    [:.amount {:padding "0 12px"}]
    [:.consume {:padding "4px"}]]
+
+  [:.special>.action (merge shared/clickable
+                            {:min-height "2em"})]
 
   [:.spells (merge flex/center
                    flex/wrap
