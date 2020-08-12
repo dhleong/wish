@@ -434,12 +434,18 @@
   [values available-map]
   (map
     (fn [v]
-      (assoc v :available?
-             (if-let [available? (:available? v)]
-               (available? available-map)
+      (if (map? v)
+        (assoc v :available?
+               (if-let [available? (:available? v)]
+                 (available? available-map)
 
-               ; if not provided, it's always available
-               true)))
+                 ; if not provided, it's always available
+                 true))
+
+        ;; ignore? at least, don't crash....
+        (do
+          (js/console.warn "Expected feature value to be a map; but was: " v)
+          v)))
     values))
 
 (defn- inflate-feature-options
