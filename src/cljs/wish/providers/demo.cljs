@@ -12,7 +12,8 @@
                               "/demo"))
 
 (def ^:private demo-sheets
-  {"mreynolds" {:name "Mal Reynolds"}})
+  {"mreynolds" {:name "Mal Reynolds"}
+   "katara" {:name "Katara"}})
 
 (defn- list-sheets []
   (for [[id data] demo-sheets]
