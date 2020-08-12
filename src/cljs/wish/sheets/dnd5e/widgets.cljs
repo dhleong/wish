@@ -113,7 +113,7 @@
   "Renders a button to cast the given spell at its current level.
    Renders a box with 'At Will' if the spell is a cantrip"
   ([s] (cast-button nil s))
-  ([{:keys [base-level upcastable? nested?]
+  ([{:keys [base-level upcastable? nested? placeholder?]
      :or {upcastable? true}} s]
    (let [cantrip? (= 0 (:spell-level s))
          at-will? (or cantrip?
@@ -162,17 +162,17 @@
 
      (if at-will?
        ; easy case; at-will spells don't need a "cast" button
-       [:div.cast {:class (styles/cast-spell)}
-        "At Will"]
+       ; in fact, when nested we don't need to render anything
+       (when-not nested?
+         [:div.cast {:class [(styles/cast-spell)]}
+          "At Will"])
 
        [:div.cast.button
         {:class [(styles/cast-spell)
-                 (when nested?
-                   "nested")
-                 (when-not has-uses?
-                   "disabled")
-                 (when upcast?
-                   "upcast")]
+                 (when nested? :nested)
+                 (when-not has-uses? :disabled)
+                 (when upcast? :upcast)
+                 (when placeholder? :placeholder)]
          :on-click (fn-click [e]
                      (when has-uses?
                        (.stopPropagation e)
