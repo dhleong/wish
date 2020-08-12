@@ -49,7 +49,7 @@
 
       (when-not can-use-sheets?
         [:div
-         "Want to give Wish a test drive before connecting a Provider? Sure thing? Enable or disable demo sheets here:"])
+         "Want to give Wish a test drive before connecting a Provider? Sure thing! Toggle Demo Sheet visibility here:"])
 
       [:div.explanation
        "Demo sheets start with some fixed values, but you can freely modify them to play with any available classes and features. Changes will " [:i "not"] " actually be persisted."]
