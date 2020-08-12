@@ -718,8 +718,11 @@
   (fn [[used slot-types]]
     (reduce-kv
       (fn [m id used]
-        (let [id-ns (namespace id)
-              level (-> id name wstr/last-char int)]
+        ; NOTE: in general id should never be nil, but in case a sheet gets in
+        ; a bad state like this, we can safely ignore a nil limited-use ID
+        (let [id-ns (when id
+                      (namespace id))
+              level (some-> id name wstr/last-char int)]
           (cond
             (= "slots" id-ns)
             (assoc-in m [:standard level] used)
