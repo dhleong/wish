@@ -13,10 +13,15 @@
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.sheets.dnd5e.views.shared :refer [buff-kind-attrs-from-path]]
-            [wish.sheets.dnd5e.widgets :refer [cast-button]]
+            [wish.sheets.dnd5e.widgets :as widgets :refer [cast-button]]
             [wish.views.widgets
              :refer-macros [icon]
              :refer [formatted-text link>evt]]))
+
+(defn consume-use-block [consumable opts]
+  [widgets/consume-use-block consumable
+   (assoc opts :on-click-spell-slots
+          (click>evt [:toggle-overlay [#'overlays/info consumable]]))])
 
 ; ======= Actions ==========================================
 
@@ -139,41 +144,13 @@
 
    (when-let [actions (seq (<sub [::combat/special-actions]))]
      [:div.special
-      [:h4 "Special Attack Actions"]
+      [:h4 "Special Actions"]
       (for [a actions]
         ^{:key (:id a)}
-        [:div.clickable
+        [:div.action
          {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
          (:name a)])])
    ])
-
-(defn consume-use-block
-  [consumable {:keys [omit-name]}]
-  (when-let [use-id (:consumes consumable)]
-    (when-let [{:keys [name uses-left consumed-amount] :as info}
-               (<sub [::limited-use/consumable-for consumable])]
-      (if (= :*spell-slot use-id)
-        ; consuming spell slots is a special case
-        [:div (styles/consumable-use-block)
-         (if (<= uses-left 0)
-           [:div.uses "0 spell slots left"]
-           [:div.button
-            {:on-click (click>evt [:toggle-overlay [#'overlays/info consumable]])}
-            (str uses-left " spell slots left")])]
-
-        ; normal case:
-        [:div (styles/consumable-use-block)
-
-         (when (not= name omit-name)
-           [:div.name name])
-
-         [:div.uses uses-left " left"]
-         (if (>= uses-left consumed-amount)
-           [:div.button
-            {:on-click (click>evt [::events/+use info consumed-amount])}
-            (str "Use " consumed-amount)]
-           [:div.button.disabled
-            (str "Use " consumed-amount)])]))))
 
 (defn- action-block [a]
   [:div.action
