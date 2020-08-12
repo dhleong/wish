@@ -152,16 +152,10 @@
    [:&.nested {:position 'absolute
                :margin-top "8px"
                :margin-left "16px"}
-    [:&:hover {:background-color "#f0f0f0"
-                      :color "#333"}
-     (at-media media/dark-scheme
-       {:background-color "#777"
-        :color theme/text-primary-on-dark})]
-    [:&:active {:background-color "#f0f0f0"
-                       :color "#333"}
-     (at-media media/dark-scheme
-       {:background-color "#222"
-        :color theme/text-primary-on-dark})]]])
+    ; make the bg transparent so highlights for the parent element
+    ; come through cleanly (unless we're being pressed/hovered)
+    ["&:not(:hover):not(:active)"
+     {:background-color "rgba(0,0,0,0)"}]]])
 
 (defattrs spell-card []
   {:max-width "300px"}
