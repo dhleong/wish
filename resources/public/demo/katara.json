@@ -1,0 +1,57 @@
+{:v [1 1],
+ :races [:human],
+ :limited-uses
+ {:hp#uses 0, :hit-dice/d8#uses 2, :slots/level-1 1, :slots/level-3 1},
+ :equipped #{},
+ :updated 1537829926756,
+ :sources [:wish/wdnd5e-srd],
+ :name "Katara",
+ :type :sheet,
+ :sheet
+ {:abilities-mode :standard,
+  :abilities {:cha 14, :int 13, :wis 15, :con 12, :dex 10, :str 8},
+  :max-hp-mode :average,
+  :hp-rolled {},
+  :attuned #{}},
+ :inventory {},
+ :effects {},
+ :kind :dnd5e,
+ :options
+ {:druid/skill-proficiencies
+  [:proficiency/perception :proficiency/medicine],
+  :human/extra-language [:lang/aquan],
+  :druid/bonus-cantrip [:spell/druidcraft],
+  :custom-bg/skill-proficiencies
+  [:proficiency/animal-handling :proficiency/nature],
+  :custom-bg/tools-or-languages [:lang/elvish :lang/dwarvish],
+  :background [:background/custom],
+  :druid/circle [:druid/circle-land],
+  :ability-improvement#druid#1
+  {:id :ability-improvement, :value [:ability/wis :ability/wis]},
+  :abi-or-feat#druid#1 {:id :abi-or-feat, :value [:abi-or-feat/abi]},
+  :ability-improvement#druid#0
+  {:id :ability-improvement, :value [:ability/wis :ability/wis]},
+  :druid/spells-list
+  #{:spell/purify-food-and-drink :spell/lesser-restoration
+    :spell/hold-person
+    :spell/cure-wounds
+    :spell/pass-without-trace
+    :spell/commune-with-nature
+    :spell/dispel-magic
+    :spell/protection-from-energy
+    :spell/polymorph
+    :spell/poison-spray
+    :spell/fog-cloud
+    :spell/guidance
+    :spell/mending
+    :spell/resistance
+    :spell/greater-restoration
+    :spell/create-or-destroy-water
+    :spell/ice-storm
+    :spell/animal-friendship
+    :spell/mass-cure-wounds},
+  :druid/circle-spells [:druid/circle-coast],
+  :abi-or-feat#druid#0 {:id :abi-or-feat, :value [:abi-or-feat/abi]}},
+ :items {}, 
+ :classes {:druid {:id :druid, :level 10, :primary? true}}}
+

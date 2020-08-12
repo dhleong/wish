@@ -27,6 +27,10 @@
     ; we're always ready immediately
     (to-chan [:ready]))
 
+  (connect! [this]
+    ; not supported
+    nil)
+
   (disconnect! [this]
     ; not supported
     nil)

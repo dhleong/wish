@@ -6,30 +6,34 @@
   (:require [clojure.core.async :as async :refer [<!]]
             [cljs.reader :as edn]
             [wish.providers.caching :refer [with-caching]]
+            [wish.providers.demo :as demo]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.gdrive.errors :as gdrive-errors]
             [wish.providers.wish :as wish]
             [wish.providers.core :as provider]
             [wish.sheets.util :refer [unpack-id]]
-            [wish.util :refer [>evt]]
+            [wish.util :refer [->map >evt]]
             [wish.views.widgets :as widgets]))
 
 (def ^:private providers
-  {:gdrive
-   {:id :gdrive
-    :name "Google Drive"
-    :config #'gdrive-config/view
-    :error-resolver #'gdrive-errors/view
-    :errors #{:no-shared-sheets}
-    :share! #'gdrive/share!
-    :inst (with-caching
-            (gdrive/create-provider))}
+  (->map
+    [{:id :gdrive
+      :name "Google Drive"
+      :config #'gdrive-config/view
+      :error-resolver #'gdrive-errors/view
+      :errors #{:no-shared-sheets}
+      :share! #'gdrive/share!
+      :inst (with-caching
+              (gdrive/create-provider))}
 
-   :wish
-   {:id :wish
-    :name "Wish Built-ins"
-    :inst (wish/create-provider)}})
+     {:id :wish
+      :name "Wish Built-ins"
+      :inst (wish/create-provider)}
+
+     {:id :demo
+      :name "Demos"
+      :inst (demo/create-provider)}]))
 
 (defonce ^:private last-data-source-query (atom 0))
 
@@ -105,6 +109,13 @@
 
         ; still waiting
         (recur new-chs)))))
+
+(defn connect! [provider-id]
+  (log "provider connect! " provider-id)
+  (if-let [inst (provider-key provider-id :inst)]
+    (provider/connect! inst)
+
+    (throw (js/Error. (str "No provider instance for " provider-id)))))
 
 (defn disconnect! [provider-id]
   (log "provider disconnect! " provider-id)

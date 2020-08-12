@@ -176,8 +176,10 @@
 (defn ->map
   "Given a seq of entities, return a map of :id -> entity"
   [entities]
-  (zipmap
-    (map :id entities)
+  (reduce
+    (fn [m {id :id :as entity}]
+      (assoc m id entity))
+    {}
     entities))
 
 (defn ->set

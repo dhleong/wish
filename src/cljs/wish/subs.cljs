@@ -11,6 +11,9 @@
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
             [wish.util :refer [deep-merge]]))
 
+
+(def ^:private non-storable-providers #{:wish :demo})
+
 (reg-sub :device-type :device-type)
 (reg-sub :showing-overlay :showing-overlay)
 
@@ -48,7 +51,7 @@
   (fn [states _]
     (->> states
          (remove (fn [[k _]]
-                   (= :wish k))))))
+                   (contains? non-storable-providers k))))))
 
 (reg-sub
   :any-storable-provider?
