@@ -492,6 +492,9 @@
             :else
             (<! state)))))
 
+  (connect! [this]
+    (signin!))
+
   (disconnect! [this]
     (signout!))
 

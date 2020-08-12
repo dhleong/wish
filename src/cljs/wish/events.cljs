@@ -232,6 +232,12 @@
     {:providers/query-sheets provider-id}))
 
 (reg-event-fx
+  :providers/connect!
+  [trim-v]
+  (fn-traced [{:keys [db]} [provider-id]]
+    {:providers/connect! provider-id}))
+
+(reg-event-fx
   :providers/disconnect!
   [trim-v]
   (fn-traced [{:keys [db]} [provider-id]]

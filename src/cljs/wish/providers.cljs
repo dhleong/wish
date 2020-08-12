@@ -6,6 +6,7 @@
   (:require [clojure.core.async :as async :refer [<!]]
             [cljs.reader :as edn]
             [wish.providers.caching :refer [with-caching]]
+            [wish.providers.demo :as demo]
             [wish.providers.gdrive :as gdrive]
             [wish.providers.gdrive.config :as gdrive-config]
             [wish.providers.gdrive.errors :as gdrive-errors]
@@ -29,7 +30,13 @@
    :wish
    {:id :wish
     :name "Wish Built-ins"
-    :inst (wish/create-provider)}})
+    :inst (wish/create-provider)}
+
+   :demo
+   {:id :Demo
+    :name "Demos"
+    :inst (demo/create-provider)}
+   })
 
 (defonce ^:private last-data-source-query (atom 0))
 
@@ -105,6 +112,13 @@
 
         ; still waiting
         (recur new-chs)))))
+
+(defn connect! [provider-id]
+  (log "provider connect! " provider-id)
+  (if-let [inst (provider-key provider-id :inst)]
+    (provider/connect! inst)
+
+    (throw (js/Error. (str "No provider instance for " provider-id)))))
 
 (defn disconnect! [provider-id]
   (log "provider disconnect! " provider-id)

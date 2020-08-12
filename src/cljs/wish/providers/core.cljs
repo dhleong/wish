@@ -25,6 +25,10 @@
       - :sheet
       - :campaign")
 
+  (connect!
+    [this]
+    "Called when the user requested to start the connect flow for this provider")
+
   (disconnect!
     [this]
     "Called when the user requested to disconnect this provider")
@@ -47,8 +51,10 @@
   (query-sheets
     [this]
     "Query for known character sheets, returning a channel that emits
-     `[err data]`, where `data` is a sequence of {:id,:name,:mine?}.
-     :id should already be formatted as per `wish.sheets.util/make-id`")
+     `[err data]`, where `data` is a sequence of
+     [:id {:name,:mine?,:type}] pairs.
+     :id should already be formatted as per `wish.sheets.util/make-id`
+     :type must be either :sheet or :campaign")
 
   (save-sheet
     [this id data data-str]
