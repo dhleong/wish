@@ -14,6 +14,7 @@
             [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
+            [wish.style.media :as media]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
@@ -576,6 +577,11 @@
                (mod->str b)
                "—")])]]))
 
+(defattrs ability-label [label]
+  [:&:after {:content (str "'" label "'")}]
+  (at-media media/smartphones
+    [:&:after {:content (str "'" (subs label 0 3) "'")}]))
+
 (defn abilities-page []
   (let [mode (<sub [::builder/abilities-mode])]
     [:div (abilities-style)
@@ -607,7 +613,7 @@
        [:tr
         (for [[id label] labeled-abilities]
           ^{:key id}
-          [:th label])]
+          [:th (ability-label label)])]
 
        ; see comment on the definition of these vars above
        (case mode
