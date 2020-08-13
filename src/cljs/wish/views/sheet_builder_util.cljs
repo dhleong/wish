@@ -86,9 +86,7 @@
    [:.nav-link {:display 'flex
                 :align-items 'center}]
 
-   #_[:.icon {:display 'none}]
    (at-media media/smartphones
-     [:.icon {:display 'block}]
      [:.label {:display 'none}])
    ])
 
