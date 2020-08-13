@@ -3,24 +3,28 @@
   wish.views.sheet-builder-util
   (:require-macros [wish.util :refer [fn-click]])
   (:require [reagent.core :as r]
+            [spade.core :refer [defattrs defclass]]
             [wish.util :refer [<sub >evt click>evt]]
             [wish.util.nav :refer [sheet-url]]
             [wish.providers :as providers]
+            [wish.style.media :as media]
+            [wish.style.util :refer [linear-gradient]]
             [wish.views.widgets :refer [link link>evt save-state] :refer-macros [icon]]))
 
-(defn- find-section
-  [candidates target-id]
-  (reduce-kv
-    (fn [_ i [id info]]
-      (when (= id target-id)
-        (reduced
-          [i id info])))
-    nil
-    candidates))
+(defclass sections-class []
+  {:display 'flex
+   :flex-wrap [['wrap :!important]]
+   :justify-content 'center}
+
+  [:&.spread {:width "100%"
+              :justify-content 'space-between}]
+  [:.section {:width "400px"
+              :margin "8px"}])
+
+; ======= util ============================================
 
 (defn count-max-options
-  ([feature]
-   (count-max-options feature nil))
+  ([feature] (count-max-options feature nil))
   ([{values :values
      accepted? :max-options}
     extra-info]
@@ -41,6 +45,51 @@
        ;; fallback, I guess?
        (count values))))
 
+
+; ======= builder section routing =========================
+
+(defattrs builder-attrs []
+  [:.header {:display 'flex
+             :flex-direction 'column
+             :align-items 'center
+             :padding-bottom "1em"}
+   [:&.sticky {:position 'sticky
+               :top 0
+               :background (linear-gradient
+                             :180deg
+                             ["#fff" :50%]
+                             ["rgba(255,255,255,0)" :100%])}
+    (at-media media/dark-scheme
+     {:background (linear-gradient
+                    :180deg
+                    ["#000" :50%]
+                    ["rgba(0,0,0,0)" :100%])})]]
+
+  [:.builder-main {:width "600px"}]
+  [:.section-arrow {:padding "4px 8px"}
+   [:&.prev {:margin-right "8px"}]
+   [:&.empty {:visibility 'hidden}]])
+
+(defattrs header-row [& sticky?]
+  {:composes (sections-class)
+   :align-items 'center
+
+   :position (when sticky?
+               'sticky)
+   :top 0
+   })
+
+(defn- find-section
+  [candidates target-id]
+  (reduce-kv
+    (fn [_ i [id info]]
+      (when (= id target-id)
+        (reduced
+          [i id info])))
+    nil
+    candidates))
+
+
 (defn router
   "Sections should be a vector of [id {:name, :fn}] pairs,
    in the order in which they should appear"
@@ -52,42 +101,50 @@
         next-sec (when (< index (dec (count sections)))
                    (nth sections (inc index)))]
     (println "[builder-router] " sheet-id " / " current-section)
-    [:div.builder
-     [:div.header.sections
-      (for [[id info] sections]
-        ^{:key id}
-        [:div.section-link
-         {:class (when (= id current-section)
-                   "selected")}
-         [link {:href (sheet-url sheet-id :builder id)}
-          (:name info)]])
+    [:div (builder-attrs)
+     [:div.header
+      [:div (header-row)
+       (for [[id info] sections]
+         ^{:key id}
+         [:div.section-link
+          {:class (when (= id current-section)
+                    "selected")}
+          [link {:href (sheet-url sheet-id :builder id)}
+           (:name info)]])]]
 
-      [save-state]
+     [:div.sticky.header
+      [:div (header-row)
+       [:div.section-arrow.prev {:class (when-not prev-sec
+                                          :empty)}
+        (if-let [[prev-id _] prev-sec]
+          [link {:href (sheet-url sheet-id :builder prev-id)}
+           (icon :arrow-back)]
 
-      [link {:href (sheet-url sheet-id)}
-       (icon :description)]
+          [:div.nav-link
+           (icon :arrow-back)])]
 
-      ]
+       [save-state]
 
-     [:div.sections
-      [:div.section-arrow.prev
-       (when-let [[prev-id prev-info] prev-sec]
-         [link {:href (sheet-url sheet-id :builder prev-id)}
-          (:name prev-info)])]
+       [link {:href (sheet-url sheet-id)}
+        (icon :description)]
 
+       [:div.section-arrow.next
+        (if-let [[next-id _] next-sec]
+          [link {:href (sheet-url sheet-id :builder next-id)}
+           (icon :arrow-forward)]
+          [link {:href (sheet-url sheet-id)}
+           (icon :check)])]
+       ]]
+
+     [:div {:class (sections-class)}
       [:div.builder-main
        (if section-info
          [(:fn section-info)]
          [:div.error "Unknown section " current-section])]
+      ]]))
 
-      [:div.section-arrow.next
-       (if-let [[next-id next-info] next-sec]
-         [link {:href (sheet-url sheet-id :builder next-id)}
-          (:name next-info)]
 
-         ; TODO probably, only show if the sheet is "ready" to use
-         [link {:href (sheet-url sheet-id)}
-          "Let's play!"])]]]))
+; ======= campaign management =============================
 
 (defn campaign-manager []
   (when-let [campaign-info (<sub [:meta/campaign])]
@@ -123,11 +180,20 @@
            "Click here if you want to leave this campaign."]
           ])])))
 
+
+; ======= data source management ==========================
+
+(defattrs refresh-button-attrs []
+  {:display 'inline}
+  [:i.material-icons {:font-size "16pt"
+                      :vertical-align 'middle}]
+  [:.invisible {:visibility 'hidden}])
+
 (defn- data-source [selected-source-ids {:keys [id] :as s}]
   (let [sheet-id (<sub [:active-sheet-id])
         selected? (contains? @selected-source-ids id)]
     [:div
-     [:div.refresh-button
+     [:div (refresh-button-attrs)
       (if selected?
         [link>evt [:reload-sheet-source! sheet-id id]
          (icon :refresh)]
