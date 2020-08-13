@@ -9,7 +9,8 @@
             [wish.providers :as providers]
             [wish.style.media :as media]
             [wish.style.util :refer [linear-gradient]]
-            [wish.views.widgets :refer [link link>evt save-state] :refer-macros [icon]]))
+            [wish.views.widgets :refer [link link>evt save-state] :refer-macros [icon]]
+            [wish.views.widgets.circular-progress :refer [circular-progress]]))
 
 (defclass sections-class []
   {:display 'flex
@@ -25,25 +26,40 @@
 
 (defn count-max-options
   ([feature] (count-max-options feature nil))
-  ([{values :values
-     accepted? :max-options}
-    extra-info]
+  ([{:keys [max-options values]} extra-info]
    ; if it's a const number, we can skip some steps
-   (or (when (number? accepted?)
-         accepted?)
+   (or (when (number? max-options)
+         max-options)
 
-       (first
-         (keep
-           (fn [to-take]
-             (when-not (accepted? (merge
-                                    extra-info
-                                    {:features
-                                     (take to-take values)}))
-               (dec to-take)))
-           (range 1 (inc (count values)))))
+       (when-let [n (max-options extra-info)]
+         (when (number? n)
+           n))
 
        ;; fallback, I guess?
        (count values))))
+
+
+; ======= selected option count indicator =================
+
+(defattrs selected-option-counter-attrs []
+  {:display 'inline-flex
+   :vertical-align 'middle
+   :text-align 'center
+   :justify-content 'center
+   :align-items 'center
+   :width "40px"
+   :height "40px"
+   :font-size "14px"})
+
+(defn selected-option-counter [selected limit]
+  [:div (selected-option-counter-attrs)
+   (cond
+     (= selected limit) (icon :check-circle-outline)
+     (= 0 selected) [circular-progress 0 limit
+                     :stroke-width 4]
+
+     :else [circular-progress selected limit
+            :stroke-width 4])])
 
 
 ; ======= builder section routing =========================

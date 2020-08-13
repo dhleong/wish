@@ -21,7 +21,8 @@
             [wish.views.sheet-builder-util :refer [campaign-manager
                                                    data-source-manager
                                                    router
-                                                   count-max-options]]
+                                                   count-max-options
+                                                   selected-option-counter]]
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select :refer [limited-select]]
@@ -66,12 +67,19 @@
    [:.dice {:font-weight "bold"}]])
 
 (defattrs feature-options-style []
-  [:.feature>.content {:padding "0 12px"}
-   [:.desc style/metadata]]
+  [:.feature
+   [:.content {:padding "0 12px"}
+    [:.desc style/metadata]
+    [:.selected-count (merge style/metadata
+                             {:font-weight 'bold})]]]
 
   ; features provided by another feature:
   [:.feature.provided {:margin-left "16px"}
-     [:.title {:font-size "1.1em"}]]
+   [:.title {:font-size "1.1em"}]]
+
+  [:.title {:display 'flex
+            :flex-direction 'row
+            :align-items 'center}]
 
   [:.class.feature-option.disabled {:color "#ccc"
                                     :cursor 'default}
@@ -189,13 +197,18 @@
                                      (:id f)
                                      instance-id])
         available-options (->> (:values f)
-                               (filter #(contains? available-options-set (:id %))))]
+                               (filter #(contains? available-options-set (:id %))))
+        max-options (let [max-options (:max-options f)]
+                      (if (fn? max-options)
+                        (max-options extra-info)
+                        max-options))
+        doc-path [instance-id]]
     [limited-select
-     :accepted? (:max-options f)
+     :accepted? max-options
      :doc doc
      :extra-info extra-info
      :options available-options
-     :path [instance-id]
+     :path doc-path
      :render-item (fn [opts option]
                     [limited-select-feature-option opts option])]))
 
@@ -242,26 +255,35 @@
      (for [[feature-id f] features]
        (let [instance-id (or (:wish/instance-id f)
                              feature-id)
-             ;; extra-info (dissoc source-info :features :limited-uses :&levels)
-             doc {:get #(<sub [:options-> %])
+             get-option #(<sub [:options-> %])
+             doc {:get get-option
                   :save! (fn [path v]
                            (>evt [:update-meta [:options]
                                   update
                                   (first path)
                                   expand-val
                                   f path v]))
-                  :doc #(<sub [:meta/options])}]
+                  :doc #(<sub [:meta/options])}
+
+             max-options (count-max-options f extra-info)
+             selected-count (count (get-option [instance-id]))]
 
          ^{:key instance-id}
          [:div.feature {:class (when (> (count (:wish/sort f)) 2)
                                  "provided")}
           [:h3.title
+           [selected-option-counter
+            selected-count
+            max-options]
+
            (:name f)
+
            (when-let [n (:wish/instance f)]
-             (str " #" (inc n)))
-           #_(str "—Sort: `" (or (:wish/sort f)
-                                 "(no sort)")
-                  "`")]
+             (str " #" (inc n)))]
+
+          (when (< selected-count max-options)
+            [:div.content>div.selected-count
+             "Selected " selected-count " / " max-options])
 
           [:div.content
            (when-let [desc (:desc f)]
