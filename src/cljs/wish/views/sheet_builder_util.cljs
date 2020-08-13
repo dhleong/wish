@@ -76,8 +76,21 @@
 
    :position (when sticky?
                'sticky)
-   :top 0
-   })
+   :top 0}
+
+  [:.section-link
+   [:&.selected [:a {:color [["#000" :!important]]}
+                 (at-media media/dark-scheme
+                   {:color [["#fff" :!important]]})]]
+
+   [:.nav-link {:display 'flex
+                :align-items 'center}]
+
+   #_[:.icon {:display 'none}]
+   (at-media media/smartphones
+     [:.icon {:display 'block}]
+     [:.label {:display 'none}])
+   ])
 
 (defn- find-section
   [candidates target-id]
@@ -110,7 +123,8 @@
           {:class (when (= id current-section)
                     "selected")}
           [link {:href (sheet-url sheet-id :builder id)}
-           (:name info)]])]]
+           [:span.icon (:icon info)]
+           [:span.label (:name info)]]])]]
 
      [:div.sticky.header
       [:div (header-row)

@@ -656,16 +656,28 @@
 
 ; ======= router ===========================================
 
+(defattrs icon-nav-attrs []
+  {:padding "0 8px"})
+
+(defn icon-nav [ico]
+  [:div (icon-nav-attrs)
+   ico])
+
 (def pages
-  [[:home {:name "Home"
+  [[:home {:name "Config"
+           :icon [icon-nav (icon :app-settings-alt)]
            :fn #'home-page}]
    [:race {:name "Race"
+           :icon [icon-nav (icon :emoji-people)]
            :fn #'race-page}]
    [:abilities {:name "Abilities"
+                :icon [icon-nav (icon :school)]
                 :fn #'abilities-page}]
    [:background {:name "Background"
+                 :icon [icon-nav (icon :history-edu)]
                  :fn #'background-page}]
    [:class {:name "Level Up"
+            :icon [icon-nav (icon :plus-one)]
             :fn #'classes-page}]])
 
 (defn view
