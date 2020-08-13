@@ -31,9 +31,23 @@
    (or (when (number? max-options)
          max-options)
 
+       ; if the fn returns a number, we can use that
        (when-let [n (max-options extra-info)]
          (when (number? n)
            n))
+
+       ; perhaps it expects a set of features?
+       ; I'm not sure if we ever used this, but...
+       (first
+         (keep
+           (fn [to-take]
+             (when-not (max-options
+                         (merge
+                           extra-info
+                           {:features
+                            (take to-take values)}))
+               (dec to-take)))
+           (range 1 (inc (count values)))))
 
        ;; fallback, I guess?
        (count values))))
