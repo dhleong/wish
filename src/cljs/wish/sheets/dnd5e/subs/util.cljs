@@ -1,7 +1,7 @@
 (ns wish.sheets.dnd5e.subs.util
   (:require [clojure.string :as str]
             [wish-engine.core :as engine]
-            [wish.sources.util :as src-util]
+            [wish.sheets.util :as sheet-util]
             [wish.subs-util :refer [reg-id-sub]]
             [wish.util.string :as wstr]
             [wish.util :refer [->set]]))
@@ -25,20 +25,8 @@
                    (wstr/includes-any-case? n filter-str))))
     coll))
 
-(defn feature-by-id
-  ([container feature-id]
-   (cond
-     (keyword? feature-id)
-     (or (get-in container [:features feature-id])
-         (get-in container [:list-entities feature-id]))
-
-     ; actually, an option value:
-     (vector? feature-id)
-     (get-in container (into [:options] feature-id))))
-  ([data-source container feature-id]
-   (or (feature-by-id container feature-id)
-       (feature-by-id data-source feature-id)
-       (src-util/inflate-feature data-source container feature-id))))
+; TODO migrate instead of aliasing, probably
+(def feature-by-id sheet-util/feature-by-id)
 
 (defn feature-in-lists [engine-state entity-lists id]
   (or (feature-by-id engine-state id)

@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "Sheet-related utils"}
   wish.sheets.util
-  (:require [wish.subs-util :refer [active-sheet-id]]))
+  (:require [wish.sources.util :as src-util]
+            [wish.subs-util :refer [active-sheet-id]]))
 
 (defn unpack-id
   "Unpack a sheet id into its provider and
@@ -77,3 +78,21 @@
   [{:keys [db]} use-id]
   (when-let [sheet-id (active-sheet-id db)]
     (get-in db [:sheets sheet-id :limited-uses use-id])))
+
+
+; ======= wish-engine conveniences ========================
+
+(defn feature-by-id
+  ([container feature-id]
+   (cond
+     (keyword? feature-id)
+     (or (get-in container [:features feature-id])
+         (get-in container [:list-entities feature-id]))
+
+     ; actually, an option value:
+     (vector? feature-id)
+     (get-in container (into [:options] feature-id))))
+  ([data-source container feature-id]
+   (or (feature-by-id container feature-id)
+       (feature-by-id data-source feature-id)
+       (src-util/inflate-feature data-source container feature-id))))
