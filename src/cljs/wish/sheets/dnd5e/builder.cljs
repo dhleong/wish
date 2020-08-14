@@ -14,13 +14,15 @@
             [wish.sheets.dnd5e.subs.hp :as hp]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
+            [wish.style.media :as media]
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [campaign-manager
                                                    data-source-manager
                                                    router
-                                                   count-max-options]]
+                                                   count-max-options
+                                                   selected-option-counter]]
             [wish.views.widgets :refer [formatted-text]]
             [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select :refer [limited-select]]
@@ -65,12 +67,19 @@
    [:.dice {:font-weight "bold"}]])
 
 (defattrs feature-options-style []
-  [:.feature>.content {:padding "0 12px"}
-   [:.desc style/metadata]]
+  [:.feature
+   [:.content {:padding "0 12px"}
+    [:.desc style/metadata]
+    [:.selected-count (merge style/metadata
+                             {:font-weight 'bold})]]]
 
   ; features provided by another feature:
   [:.feature.provided {:margin-left "16px"}
-     [:.title {:font-size "1.1em"}]]
+   [:.title {:font-size "1.1em"}]]
+
+  [:.title {:display 'flex
+            :flex-direction 'row
+            :align-items 'center}]
 
   [:.class.feature-option.disabled {:color "#ccc"
                                     :cursor 'default}
@@ -188,13 +197,18 @@
                                      (:id f)
                                      instance-id])
         available-options (->> (:values f)
-                               (filter #(contains? available-options-set (:id %))))]
+                               (filter #(contains? available-options-set (:id %))))
+        max-options (let [max-options (:max-options f)]
+                      (if (fn? max-options)
+                        (max-options extra-info)
+                        max-options))
+        doc-path [instance-id]]
     [limited-select
-     :accepted? (:max-options f)
+     :accepted? max-options
      :doc doc
      :extra-info extra-info
      :options available-options
-     :path [instance-id]
+     :path doc-path
      :render-item (fn [opts option]
                     [limited-select-feature-option opts option])]))
 
@@ -241,26 +255,40 @@
      (for [[feature-id f] features]
        (let [instance-id (or (:wish/instance-id f)
                              feature-id)
-             ;; extra-info (dissoc source-info :features :limited-uses :&levels)
-             doc {:get #(<sub [:options-> %])
+             get-option #(<sub [:options-> %])
+             doc {:get get-option
                   :save! (fn [path v]
                            (>evt [:update-meta [:options]
                                   update
                                   (first path)
                                   expand-val
                                   f path v]))
-                  :doc #(<sub [:meta/options])}]
+                  :doc #(<sub [:meta/options])}
+
+             max-options (count-max-options f extra-info)
+             selected-count (count (get-option [instance-id]))
+
+             ; special cases: (should we have a flag on the feature?)
+             count-options (not= :feats feature-id)]
 
          ^{:key instance-id}
          [:div.feature {:class (when (> (count (:wish/sort f)) 2)
                                  "provided")}
           [:h3.title
+           (when count-options
+             [selected-option-counter
+              selected-count
+              max-options])
+
            (:name f)
+
            (when-let [n (:wish/instance f)]
-             (str " #" (inc n)))
-           #_(str "—Sort: `" (or (:wish/sort f)
-                                 "(no sort)")
-                  "`")]
+             (str " #" (inc n)))]
+
+          (when (and count-options
+                     (< selected-count max-options))
+            [:div.content>div.selected-count
+             "Selected " selected-count " / " max-options])
 
           [:div.content
            (when-let [desc (:desc f)]
@@ -576,6 +604,11 @@
                (mod->str b)
                "—")])]]))
 
+(defattrs ability-label [label]
+  [:&:after {:content (str "'" label "'")}]
+  (at-media media/smartphones
+    [:&:after {:content (str "'" (subs label 0 3) "'")}]))
+
 (defn abilities-page []
   (let [mode (<sub [::builder/abilities-mode])]
     [:div (abilities-style)
@@ -607,7 +640,7 @@
        [:tr
         (for [[id label] labeled-abilities]
           ^{:key id}
-          [:th label])]
+          [:th (ability-label label)])]
 
        ; see comment on the definition of these vars above
        (case mode
@@ -650,16 +683,28 @@
 
 ; ======= router ===========================================
 
+(defattrs icon-nav-attrs []
+  {:padding "0 8px"})
+
+(defn icon-nav [ico]
+  [:div (icon-nav-attrs)
+   ico])
+
 (def pages
-  [[:home {:name "Home"
+  [[:home {:name "Config"
+           :icon [icon-nav (icon :app-settings-alt)]
            :fn #'home-page}]
    [:race {:name "Race"
+           :icon [icon-nav (icon :emoji-people)]
            :fn #'race-page}]
    [:abilities {:name "Abilities"
+                :icon [icon-nav (icon :school)]
                 :fn #'abilities-page}]
    [:background {:name "Background"
+                 :icon [icon-nav (icon :history-edu)]
                  :fn #'background-page}]
    [:class {:name "Level Up"
+            :icon [icon-nav (icon :plus-one)]
             :fn #'classes-page}]])
 
 (defn view

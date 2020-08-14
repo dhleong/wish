@@ -9,6 +9,13 @@
              {:values [:a :b :c]
               :max-options 2}))))
 
+  (testing "simple fn-based :max-options"
+    (let [compiled (constantly 42)]
+      (is (= 42
+             (count-max-options
+               {:values [:a :b :c :d]
+                :max-options compiled})))))
+
   (testing "fn-based :max-options"
     (let [compiled (fn [{:keys [features]}]
                      (<= (count features) 3))]
