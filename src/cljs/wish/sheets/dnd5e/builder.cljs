@@ -18,7 +18,8 @@
             [wish.util :refer [<sub >evt click>reset! click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
-            [wish.views.sheet-builder-util :refer [campaign-manager
+            [wish.views.sheet-builder-util :refer [availability-group
+                                                   campaign-manager
                                                    data-source-manager
                                                    router
                                                    count-max-options
@@ -266,7 +267,8 @@
                   :doc #(<sub [:meta/options])}
 
              max-options (count-max-options f extra-info)
-             selected-count (count (get-option [instance-id]))
+             selected (get-option [instance-id])
+             selected-count (count selected)
 
              ; special cases: (should we have a flag on the feature?)
              count-options (not= :feats feature-id)]
@@ -289,6 +291,10 @@
                      (< selected-count max-options))
             [:div.content>div.selected-count
              "Selected " selected-count " / " max-options])
+
+          (when-let [group-ids (:availability-groups f)]
+            [:div.content
+             [availability-group instance-id group-ids]])
 
           [:div.content
            (when-let [desc (:desc f)]

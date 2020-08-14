@@ -49,6 +49,7 @@
           {:id :custom-bg/tools-or-languages
            :name "Proficiencies (Choose either 2 tools, 2 languages, or one of each.)"
            :implicit? true
+           :availability-groups [:languages :proficiency]
            :max-options 2
            :values [(items-from-list :all-languages)
                     (items-from-list :all-tool-proficiencies)]}))})

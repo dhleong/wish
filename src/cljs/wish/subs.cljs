@@ -8,6 +8,7 @@
             [wish.inventory :as inv]
             [wish.providers :as providers]
             [wish.sheets.compiler :as compiler]
+            [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
             [wish.util :refer [deep-merge]]))
 
@@ -448,6 +449,28 @@
           v)))
     values))
 
+(defn- choose-availability-groups [feature]
+  (if (:availability-groups feature)
+    ; quick reject: manually selected
+    feature
+
+    ; NOTE: we *could* check every value and compile a list, but
+    ; that seems quite inefficient...
+    (let [v1 (first (:values feature))
+          v2 (second (:values feature))
+          group1 (when (coll? (:availability-attr v1))
+                   (first (:availability-attr v1)))
+          group2 (when (coll? (:availability-attr v2))
+                   (first (:availability-attr v2)))]
+
+      ; if availability-attr is a vector, the first element is the group
+      ; and the second is the attribute
+      (if (and (not (nil? group1))
+               (or (nil? v2)
+                   (= group1 group2)))
+        (assoc feature :availability-groups [group1])
+        feature))))
+
 (defn- inflate-feature-options
   [[source features attrs options sheet]]
   (->> features
@@ -476,7 +499,11 @@
                              v))
 
                          ; finally, sort the values
-                         (update :values (partial sort-by :name))))))))
+                         (update :values (partial sort-by :name))
+
+                         ; if the values belong to an availability group,
+                         ; determine that
+                         choose-availability-groups))))))
 
 (defn- only-feature-options
   [[data-source features attrs options sheet]]
@@ -534,6 +561,20 @@
   :<- [:meta/options]
   :<- [:meta/sheet]
   only-feature-options)
+
+(reg-sub
+  :options-selected-in-other-groups
+  (fn [[_ feature-id _availability-groups]]
+    [(subscribe [:sheet-engine-state])
+     (subscribe [:all-attrs])
+     (subscribe [:options-> [feature-id]])])
+  (fn [[data-source all-attrs selected-here] [_ _ availability-groups]]
+    (let [all-selected (mapcat
+                         #(keys (get all-attrs %))
+                         availability-groups)
+          selected-elsewhere-ids (remove (set selected-here) all-selected)]
+      (map (partial feature-by-id data-source)
+           selected-elsewhere-ids))))
 
 ; semantic convenience for single-race systems
 (reg-id-sub

@@ -76,6 +76,27 @@
             :stroke-width 4])])
 
 
+; ======= availability group info =========================
+
+(defattrs availability-group-attrs []
+  {:padding-bottom "12px"}
+  [:.item {:display 'inline-block
+           :font-size "10pt"}
+   ["&:not(:last-child)" {:padding-right "0.5em"}
+    [:&:after {:content "','"}]]])
+
+(defn availability-group [instance-id group-ids]
+  (when-let [selected-other (seq (<sub [:options-selected-in-other-groups
+                                        instance-id
+                                        group-ids]))]
+    [:div (availability-group-attrs)
+     [:div.label "Acquired elsewhere:"]
+     [:div.items
+      (for [f selected-other]
+        ^{:key (:id f)}
+        [:div.item (:name f)])]]))
+
+
 ; ======= builder section routing =========================
 
 (defattrs builder-attrs []

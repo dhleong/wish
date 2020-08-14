@@ -35,7 +35,7 @@
         {:id kw
          :name label
          :implicit? true
-         :availability-attr kw})))
+         :availability-attr [:skill-proficiencies kw]})))
 
   (declare-list
 
@@ -49,7 +49,7 @@
         {:id expertise-kw
          :name label
          :implicit? true
-         :availability-attr expertise-kw
+         :availability-attr [:expertise expertise-kw]
          :available? (fn [#{attrs}]
                        (kw attrs))}))))
 
@@ -102,7 +102,7 @@
       {:id kw
        :name label
        :implicit? true
-       :availability-attr kw})))
+       :availability-attr [:proficiency kw]})))
 
 ; ======= Weapon proficiencies ============================
 
@@ -135,7 +135,7 @@
        :implicit? true
        :! (on-state
             (provide-attr [:weapon-kinds kind-kw] true)
-            (provide-attr kw true))})))
+            (provide-attr [:proficiency kw] true))})))
 
 (declare-list
  {:id :weapon-category-proficiencies
@@ -146,13 +146,13 @@
   :implicit? true
   :! (on-state
        (provide-attr [:weapon-categories :martial] true)
-       (provide-attr :proficiency/martial-weapons true))}
+       (provide-attr [:proficiency :proficiency/martial-weapons] true))}
  {:id :proficiency/simple-weapons
   :name "Simple Weapons"
   :implicit? true
   :! (on-state
        (provide-attr [:weapon-categories :simple] true)
-       (provide-attr :proficiency/simple-weapons true))})
+       (provide-attr [:proficiency :proficiency/simple-weapons] true))})
 
 
 ; ======= Armor proficiencies =============================
@@ -172,4 +172,4 @@
        :name label
        :implicit? true
        :! (on-state
-            (provide-attr kw true))})))
+            (provide-attr [:proficiency kw] true))})))

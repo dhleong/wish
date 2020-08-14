@@ -53,11 +53,12 @@
   (fn [entity-lists _]
     (->> entity-lists
          flatten
-         (mapcat :attrs)
+         (mapcat (fn [{:keys [attrs]}]
+                   (concat (:skill-proficiencies attrs)
+                           (:proficiency attrs))))
+         ; we now have a seq of proficiency -> true/false: clean up
          (keep (fn [[k v]]
-                 (when (and v
-                            (= "proficiency" (namespace k)))
-                   k)))
+                 (when v k)))
          (into #{}))))
 
 (reg-sub
@@ -129,17 +130,11 @@
 (reg-sub
   ::languages
   :<- [:sheet-engine-state]
-  :<- [:races]
-  :<- [:classes]
-  :<- [:effects]
-  (fn [[data-source & entity-lists] _]
-    (->> entity-lists
-         flatten
-         (mapcat :attrs)
-         (keep (fn [[k v]]
-                 (when (and v
-                            (= "lang" (namespace k)))
-                   k)))
+  :<- [:all-attrs]
+  (fn [[data-source all-attrs] _]
+    (->> all-attrs
+         :languages
+         keys
          (keep (partial feature-by-id data-source))
          (sort-by :name))))
 
