@@ -1,16 +1,17 @@
 (ns wish.events
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx
+  (:require [clojure.set :as set]
+            [re-frame.core :refer [reg-event-db reg-event-fx
                                    path
                                    inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
+            [wish-engine.core :as engine]
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
-            [wish.subs-util :as util]
             [wish.util :refer [invoke-callable update-dissoc]]))
 
 (reg-event-fx
@@ -295,17 +296,57 @@
 
 (reg-event-fx
   :update-class-level
-  [trim-v]
-  (fn-traced [{:keys [db] :as cofx} [class-id new-level]]
+  [trim-v
+   (inject-cofx ::inject/sub [:active-sheet-id])
+   (inject-cofx ::inject/sub [:sheet-engine-state])
+   (inject-cofx ::inject/sub [:meta/options])
+   (inject-cofx ::inject/sub [:meta/classes])
+   ]
+  (fn-traced [{:keys [db active-sheet-id sheet-engine-state]
+               :meta/keys [options classes]
+               :as cofx}
+              [class-id new-level]]
     (let [path [class-id :level]
-          sheet-id (util/active-sheet-id db)
-          sheet-level-path (concat [:sheets sheet-id :classes] path)
-          old (get-in db sheet-level-path)
-          updated (update-sheet-path cofx [:classes] assoc-in path new-level)]
-      (when (> new-level old)
-        (println "level up " old " -> " new-level))
-      updated
-      )))
+          sheet-level-path (concat [:sheets active-sheet-id :classes] path)
+          old-level (get-in db sheet-level-path)
+          updated (update-sheet-path cofx [:classes] assoc-in path new-level)
+          base-meta (->> classes
+                         (filter (fn [{:keys [id]}]
+                                   (= id class-id)))
+                         first)
+          updated-meta (assoc base-meta :level new-level)]
+
+      (if (> new-level old-level)
+        (let [old-features (:features
+                             (engine/inflate-class
+                               sheet-engine-state class-id base-meta options))
+              new-features (:features
+                             (engine/inflate-class
+                               sheet-engine-state class-id updated-meta options))
+
+              ; TODO increase in available options for features?
+
+              ; newly-added features:
+              diff (set/difference (into #{} (keys new-features))
+                                   (into #{} (keys old-features)))]
+
+          ; TODO we probably don't actually want separate notifications for
+          ; each...? Might not be terrible if we can use it to link to
+          ; each feature from the notification...
+          (assoc updated
+                 :dispatch-n
+                 (cons
+                   [:notify! {:content (str "Welcome to Level " new-level "!")
+                              :duration :long}]
+                   (for [new-item-id diff]
+                     (let [f (get new-features new-item-id)]
+                       (println (:name (get new-features new-item-id)))
+                       [:notify! {:content (str "You have gained: " (:name f))
+                                  :duration :long}])))))
+
+        (do
+          (println "other level change: " old-level " -> " new-level)
+          updated)))))
 
 
 ; ======= sheet-related ====================================
