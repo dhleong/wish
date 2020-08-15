@@ -12,7 +12,7 @@
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
-            [wish.util :refer [invoke-callable update-dissoc]]))
+            [wish.util :refer [distinct-by invoke-callable update-dissoc]]))
 
 (reg-event-fx
   ::initialize-db
@@ -320,11 +320,10 @@
              (when (and (number? old-max)
                         (number? new-max)
                         (> new-max old-max))
-               (println (:name f) old-max " -> " new-max)
                ^{:key (:id f)}
                [:div.item
                 (- new-max old-max)
-                " new options for "
+                " additional options for "
                 (format-link f)])))]])]))
 
 (reg-event-fx
@@ -363,12 +362,12 @@
               ; TODO increase in available options for old features?
               increased-options (->> old-features
                                      vals
+                                     (distinct-by :wish/instance-id)
                                      (filter :max-options)
                                      (map (juxt :max-options
                                                 (comp new-features :id)))
                                      (filter (fn [[old-max new-feature]]
-                                               (not= old-max (:max-options new-feature))))
-                                     )
+                                               (not= old-max (:max-options new-feature)))))
 
               content [level-up-notification opts
                        :new-level new-level
