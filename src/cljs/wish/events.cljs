@@ -294,18 +294,33 @@
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
 
+(defn level-up-notification [opts & {:keys [new-features
+                                            new-level]}]
+  [:div
+   [:div.title "Welcome to Level " new-level "!"]
+
+   (when (seq new-features)
+     [:div.new-features
+      [:div.label "You have gained: "]
+      [:div.items
+       (for [f new-features]
+         ^{:key (:id f)}
+         [:div.item
+          (if-let [format-link (:format-link opts)]
+            [format-link f]
+            (:name f))])]])])
+
 (reg-event-fx
   :update-class-level
   [trim-v
    (inject-cofx ::inject/sub [:active-sheet-id])
    (inject-cofx ::inject/sub [:sheet-engine-state])
    (inject-cofx ::inject/sub [:meta/options])
-   (inject-cofx ::inject/sub [:meta/classes])
-   ]
+   (inject-cofx ::inject/sub [:meta/classes])]
   (fn-traced [{:keys [db active-sheet-id sheet-engine-state]
                :meta/keys [options classes]
                :as cofx}
-              [class-id new-level]]
+              [class-id new-level {:keys [format-link] :as opts}]]
     (let [path [class-id :level]
           sheet-level-path (concat [:sheets active-sheet-id :classes] path)
           old-level (get-in db sheet-level-path)
@@ -328,21 +343,13 @@
 
               ; newly-added features:
               diff (set/difference (into #{} (keys new-features))
-                                   (into #{} (keys old-features)))]
+                                   (into #{} (keys old-features)))
 
-          ; TODO we probably don't actually want separate notifications for
-          ; each...? Might not be terrible if we can use it to link to
-          ; each feature from the notification...
-          (assoc updated
-                 :dispatch-n
-                 (cons
-                   [:notify! {:content (str "Welcome to Level " new-level "!")
-                              :duration :long}]
-                   (for [new-item-id diff]
-                     (let [f (get new-features new-item-id)]
-                       (println (:name (get new-features new-item-id)))
-                       [:notify! {:content (str "You have gained: " (:name f))
-                                  :duration :long}])))))
+              content [level-up-notification opts
+                       :new-level new-level
+                       :new-features (map new-features diff)]]
+
+          (assoc updated :dispatch [:notify! {:content content}]))
 
         (do
           (println "other level change: " old-level " -> " new-level)

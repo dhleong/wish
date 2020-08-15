@@ -8,6 +8,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [spade.core :refer [defattrs]]
             [wish.sheets.dnd5e.builder.data :as data]
+            [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.builder :as builder]
@@ -15,7 +16,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.style.media :as media]
-            [wish.util :refer [<sub >evt click>reset! click>swap!]]
+            [wish.util :refer [<sub >evt click>reset! click>evt click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [availability-group
@@ -331,6 +332,16 @@
 
 ; ======= class management/level-up ========================
 
+(defn- level-up-feature-link [f]
+  ; TODO can we provide links to specific feature instances?
+  [:a {:href "#"
+       :on-click (click>evt [:toggle-overlay
+                             [#'overlays/info f]])}
+   (:name f)])
+
+(def ^:private level-up-config
+  {:format-link #'level-up-feature-link})
+
 (defn class-section [class-info]
   [:div.class-section
    [:div.class-header
@@ -350,7 +361,8 @@
                 ; NOTE this seems to get triggered whenever this section is
                 ; rendered for some reason...
                 (when-not (= v (<sub [::subs/class-level (first path)]))
-                  (>evt [:update-class-level (first path) v])
+                  (>evt [:update-class-level (first path) v
+                         level-up-config])
                   #_(>evt [:update-meta [:classes] assoc-in path v])))}]
 
      [:div.remove.clickable
