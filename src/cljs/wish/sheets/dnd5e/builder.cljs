@@ -350,7 +350,8 @@
                 ; NOTE this seems to get triggered whenever this section is
                 ; rendered for some reason...
                 (when-not (= v (<sub [::subs/class-level (first path)]))
-                  (>evt [:update-meta [:classes] assoc-in path v])))}]
+                  (>evt [:update-class-level (first path) v])
+                  #_(>evt [:update-meta [:classes] assoc-in path v])))}]
 
      [:div.remove.clickable
       {:title (str "Remove " (:name class-info) " Class")

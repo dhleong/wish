@@ -10,6 +10,7 @@
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
+            [wish.subs-util :as util]
             [wish.util :refer [invoke-callable update-dissoc]]))
 
 (reg-event-fx
@@ -291,6 +292,20 @@
 
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
+
+(reg-event-fx
+  :update-class-level
+  [trim-v]
+  (fn-traced [{:keys [db] :as cofx} [class-id new-level]]
+    (let [path [class-id :level]
+          sheet-id (util/active-sheet-id db)
+          sheet-level-path (concat [:sheets sheet-id :classes] path)
+          old (get-in db sheet-level-path)
+          updated (update-sheet-path cofx [:classes] assoc-in path new-level)]
+      (when (> new-level old)
+        (println "level up " old " -> " new-level))
+      updated
+      )))
 
 
 ; ======= sheet-related ====================================
