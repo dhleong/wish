@@ -250,57 +250,60 @@
      f instance-id sub-vector
      extra-info doc]))
 
+(defn- single-feature-options-selection
+  [sub-vector extra-info instance-id doc f]
+  (let [max-options (count-max-options f extra-info)
+        selected ((:get doc) [instance-id])
+        selected-count (count selected)
+
+        ; special cases: (should we have a flag on the feature?)
+        count-options (not= :feats (:id f))]
+    [:div.feature {:class (when (> (count (:wish/sort f)) 2)
+                           "provided")}
+    [:h3.title
+     (when count-options
+       [selected-option-counter
+        selected-count
+        max-options])
+
+     (:name f)
+
+     (when-let [n (:wish/instance f)]
+       (str " #" (inc n)))]
+
+    (when (and count-options
+               (< selected-count max-options))
+      [:div.content>div.selected-count
+       "Selected " selected-count " / " max-options])
+
+    (when-let [group-ids (:availability-groups f)]
+      [:div.content
+       [availability-group instance-id group-ids]])
+
+    [:div.content
+     (when-let [desc (:desc f)]
+       [formatted-text :div.desc desc])
+
+     [feature-options f instance-id sub-vector extra-info doc]]]))
+
 (defn feature-options-selection [sub-vector extra-info]
   (if-let [features (seq (<sub sub-vector))]
     [:div (feature-options-style)
      (for [[feature-id f] features]
        (let [instance-id (or (:wish/instance-id f)
                              feature-id)
-             get-option #(<sub [:options-> %])
-             doc {:get get-option
+             doc {:get #(<sub [:options-> %])
                   :save! (fn [path v]
                            (>evt [:update-meta [:options]
                                   update
                                   (first path)
                                   expand-val
                                   f path v]))
-                  :doc #(<sub [:meta/options])}
-
-             max-options (count-max-options f extra-info)
-             selected (get-option [instance-id])
-             selected-count (count selected)
-
-             ; special cases: (should we have a flag on the feature?)
-             count-options (not= :feats feature-id)]
+                  :doc #(<sub [:meta/options])}]
 
          ^{:key instance-id}
-         [:div.feature {:class (when (> (count (:wish/sort f)) 2)
-                                 "provided")}
-          [:h3.title
-           (when count-options
-             [selected-option-counter
-              selected-count
-              max-options])
-
-           (:name f)
-
-           (when-let [n (:wish/instance f)]
-             (str " #" (inc n)))]
-
-          (when (and count-options
-                     (< selected-count max-options))
-            [:div.content>div.selected-count
-             "Selected " selected-count " / " max-options])
-
-          (when-let [group-ids (:availability-groups f)]
-            [:div.content
-             [availability-group instance-id group-ids]])
-
-          [:div.content
-           (when-let [desc (:desc f)]
-             [formatted-text :div.desc desc])
-
-           [feature-options f instance-id sub-vector extra-info doc]]])) ]
+         [single-feature-options-selection
+          sub-vector extra-info instance-id doc f])) ]
 
     ; no features
     [:p "No features with options available yet."]))
