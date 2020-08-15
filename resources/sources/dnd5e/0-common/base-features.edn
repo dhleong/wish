@@ -18,5 +18,6 @@
 
 You can normally only take feats in place of Ability Score Improvements, but with permission from your DM you may add extra feats here."
   :primary-only? true
+  :unrestricted-options? true
   :max-options 99
   :values (items-from-list :all-feats)})

@@ -255,13 +255,11 @@
   (let [max-options (count-max-options f extra-info)
         selected ((:get doc) [instance-id])
         selected-count (count selected)
-
-        ; special cases: (should we have a flag on the feature?)
-        count-options (not= :feats (:id f))]
+        count-options? (not (:unrestricted-options? f))]
     [:div.feature {:class (when (> (count (:wish/sort f)) 2)
                            "provided")}
     [:h3.title
-     (when count-options
+     (when count-options?
        [selected-option-counter
         selected-count
         max-options])
@@ -271,7 +269,7 @@
      (when-let [n (:wish/instance f)]
        (str " #" (inc n)))]
 
-    (when (and count-options
+    (when (and count-options?
                (< selected-count max-options))
       [:div.content>div.selected-count
        "Selected " selected-count " / " max-options])

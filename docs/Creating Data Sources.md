@@ -63,6 +63,15 @@ Quicken Spell metamagic consumes 2 Sorcery Points:
 
 Piece of cake.
 
+## Unrestricted options selection
+
+This is probably an unusual case, but, for example, Wish provides a feature
+called `:feats` which allows users to add as many Feats to their character as
+they like, for facilitating homebrew situations.  Normally, Wish will
+helpfully count how many options you've selected and indicate that against the
+max allowed for a feature. Since `:feats` effectively has no max, it is marked
+with `:unrestricted-options? true` so that we don't show that UI.
+
 
 [1]: https://cljdoc.org/d/wish-engine/wish-engine/0.1.0-SNAPSHOT/api/wish-engine.scripting-api
 [2]: https://cljdoc.org/d/wish-engine/wish-engine/0.1.0-SNAPSHOT/api/wish-engine.scripting-api#provide-limited-use
