@@ -51,7 +51,7 @@
          :implicit? true
          :availability-attr [:expertise expertise-kw]
          :available? (fn [#{attrs}]
-                       (kw attrs))}))))
+                       (get-in attrs [:skill-proficiencies kw]))}))))
 
 (declare-list
 
