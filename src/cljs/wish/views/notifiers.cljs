@@ -3,6 +3,7 @@
             [wish.style.media :as media]
             [wish.util :refer [<sub click>evts]]
             [wish.events :as events]
+            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [icon link>evt]]))
 
 (defattrs notifiers-attrs []
@@ -62,7 +63,9 @@
                  :> dismiss-event}
        (icon :close)]])
 
-   [:div.content content]
+   [:div.content
+    [error-boundary
+     content]]
 
    (when action-event
      [:div.action

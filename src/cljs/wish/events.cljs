@@ -294,21 +294,38 @@
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
 
-(defn level-up-notification [opts & {:keys [new-features
+(defn level-up-notification [opts & {:keys [increased-options
+                                            new-features
                                             new-level]}]
-  [:div
-   [:div.title "Welcome to Level " new-level "!"]
+  (let [format-link (if-let [f (:format-link opts)]
+                      f
+                      :name)
+        anything-new? (or (seq new-features)
+                          (seq increased-options))]
+    [:div
+     [:div.title "Welcome to Level " new-level "!"]
 
-   (when (seq new-features)
-     [:div.new-features
-      [:div.label "You have gained: "]
-      [:div.items
-       (for [f new-features]
-         ^{:key (:id f)}
-         [:div.item
-          (if-let [format-link (:format-link opts)]
-            [format-link f]
-            (:name f))])]])])
+     (when anything-new?
+       [:div.new-features
+        [:div.label "You have gained: "]
+        [:div.items
+         (for [f new-features]
+           ^{:key (:id f)}
+           [:div.item
+            (format-link f)])]
+
+        [:div.items
+         (for [[old-max f] increased-options]
+           (let [new-max (:max-options f)]
+             (when (and (number? old-max)
+                        (number? new-max)
+                        (> new-max old-max))
+               (println (:name f) old-max " -> " new-max)
+               ^{:key (:id f)}
+               [:div.item
+                (- new-max old-max)
+                " new options for "
+                (format-link f)])))]])]))
 
 (reg-event-fx
   :update-class-level
@@ -339,15 +356,24 @@
                              (engine/inflate-class
                                sheet-engine-state class-id updated-meta options))
 
-              ; TODO increase in available options for features?
-
               ; newly-added features:
               diff (set/difference (into #{} (keys new-features))
                                    (into #{} (keys old-features)))
 
+              ; TODO increase in available options for old features?
+              increased-options (->> old-features
+                                     vals
+                                     (filter :max-options)
+                                     (map (juxt :max-options
+                                                (comp new-features :id)))
+                                     (filter (fn [[old-max new-feature]]
+                                               (not= old-max (:max-options new-feature))))
+                                     )
+
               content [level-up-notification opts
                        :new-level new-level
-                       :new-features (map new-features diff)]]
+                       :new-features (map new-features diff)
+                       :increased-options increased-options]]
 
           (assoc updated :dispatch [:notify! {:content content}]))
 
