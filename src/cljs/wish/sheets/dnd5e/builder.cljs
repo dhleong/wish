@@ -43,13 +43,25 @@
              (or (:wish/instance-id f)
                  (:id f))))
 
+(defn- scroll-to-id! [id]
+  (when-let [el (js/document.getElementById id)]
+    (let [body-top (-> js/document.body (.getBoundingClientRect) (.-top))
+          el-top (-> el (.getBoundingClientRect) (.-top))
+          el-position (- el-top body-top)
+
+          header-height (some-> (js/document.getElementById "builder-header")
+                                (.-clientHeight))
+          top (- el-position header-height)]
+      (js/window.scrollTo
+        (clj->js {:top top
+                  :behavior :smooth})))))
+
+(defn- scroll-to-class! [c]
+  (scroll-to-id! (class-element-id c)))
+
 (defn- scroll-to-feature! [f]
-  (some-> (js/document.getElementById
-            (feature-element-id f))
-          (.scrollIntoView
-            #js {:behavior "smooth"
-                 :block "center"
-                 :inline "center"})))
+  (scroll-to-id! (feature-element-id f)))
+
 
 ; ======= CSS ==============================================
 
@@ -517,6 +529,27 @@
 
      ]))
 
+(defattrs quick-nav-attrs []
+  [:.links {:padding "0 8px"}]
+  [:.class-link {:display 'flex
+                 :align-items 'center
+                 :padding "4px 0"}])
+
+(defn- quick-nav []
+  (let [existing-classes (<sub [:classes])]
+    [:div (quick-nav-attrs)
+     [:h3 "Quick Nav"]
+
+     [:div.links
+      (for [c existing-classes]
+        ^{:key (:id c)}
+        [:a.class-link {:href "#"
+                        :on-click (fn-click
+                                    (scroll-to-class! c))}
+         (:name c)
+         (icon :get-app)])]
+     ]))
+
 (defn classes-page []
   (r/with-let [initial-classes (<sub [:classes])
                show-picker? (r/atom (empty? initial-classes))]
@@ -541,6 +574,9 @@
           [:a {:href "#"
                :on-click (click>swap! show-picker? not)}
            "Add another class"]])
+
+       ; quick nav
+       [quick-nav]
 
        ; class feature config
        (for [c existing-classes]
