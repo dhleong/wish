@@ -1,8 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "base"}
   wish.views.campaign.base
-  (:require [wish.views.campaign.chars-carousel :refer [chars-carousel]]
-            [wish.views.error-boundary :refer [error-boundary]]))
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [wish.views.campaign.chars-carousel :refer [chars-carousel]]))
 
 (defn campaign-page
   [_section & {:keys [char-card]}]

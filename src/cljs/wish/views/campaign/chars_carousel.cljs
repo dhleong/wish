@@ -1,9 +1,9 @@
 (ns ^{:author "Daniel Leong"
       :doc "campaign.chars-carousel"}
   wish.views.campaign.chars-carousel
-  (:require [wish.util :refer [<sub >evt]]
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [wish.util :refer [<sub >evt]]
             [wish.util.nav :as nav :refer [sheet-url]]
-            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [icon link link>evt]]
             [wish.views.campaign.events :as events]
             [wish.views.campaign.subs :as subs]))

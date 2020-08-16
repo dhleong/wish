@@ -1,9 +1,9 @@
 (ns wish.views.notifiers
-  (:require [spade.core :refer [defattrs defkeyframes]]
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [spade.core :refer [defattrs defkeyframes]]
             [wish.style.media :as media]
             [wish.util :refer [<sub click>evts]]
             [wish.events :as events]
-            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :refer [icon link>evt]]))
 
 (defattrs notifiers-attrs []

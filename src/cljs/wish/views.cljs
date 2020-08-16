@@ -1,21 +1,19 @@
 (ns wish.views
-  (:require
-   [wish.providers :as providers]
-   [wish.sheets :as sheets]
-   [wish.util :refer [<sub click>evt]]
-   [wish.views.error-boundary :refer [error-boundary]]
-   [wish.views.campaign-browser :as campaign-browser]
-   [wish.views.campaign.join :as join-campaign]
-   [wish.views.home :refer [home]]
-   [wish.views.new-campaign :as new-campaign]
-   [wish.views.new-sheet :refer [new-sheet-page]]
-   [wish.views.router :refer [router]]
-   [wish.views.sheet-browser :as sheet-browser]
-   [wish.views.splash :as splash]
-   [wish.views.notifiers :refer [notifiers]]
-   [wish.views.widgets :refer-macros [icon]]
-   [wish.views.widgets.media-tracker :refer [media-tracker]]
-   ))
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [wish.providers :as providers]
+            [wish.sheets :as sheets]
+            [wish.util :refer [<sub click>evt]]
+            [wish.views.campaign-browser :as campaign-browser]
+            [wish.views.campaign.join :as join-campaign]
+            [wish.views.home :refer [home]]
+            [wish.views.new-campaign :as new-campaign]
+            [wish.views.new-sheet :refer [new-sheet-page]]
+            [wish.views.router :refer [router]]
+            [wish.views.sheet-browser :as sheet-browser]
+            [wish.views.splash :as splash]
+            [wish.views.notifiers :refer [notifiers]]
+            [wish.views.widgets :refer-macros [icon]]
+            [wish.views.widgets.media-tracker :refer [media-tracker]]))
 
 (def pages
   {:campaign #'sheets/campaign

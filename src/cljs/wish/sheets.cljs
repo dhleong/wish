@@ -1,7 +1,8 @@
 (ns ^{:author "Daniel Leong"
       :doc "sheets"}
   wish.sheets
-  (:require [wish.sheets.dnd5e :as dnd5e]
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [wish.sheets.dnd5e :as dnd5e]
             [wish.sheets.dnd5e.builder :as dnd5e-builder]
             [wish.sheets.dnd5e.campaign :as dnd5e-campaign]
             [wish.sheets.dnd5e.engine :as dnd5e-engine]
@@ -10,7 +11,6 @@
                                     error-resolver-view]]
             [wish.util :refer [click>evt <sub >evt]]
             [wish.util.nav :refer [sheet-url]]
-            [wish.views.error-boundary :refer [error-boundary]]
             [wish.views.widgets :as widgets :refer [link link>evt]]))
 
 ; ======= const data =======================================

@@ -30,13 +30,26 @@
             [wish.views.widgets.limited-select :refer [limited-select]]
             [wish.views.widgets.multi-limited-select]))
 
-(defn- feature-element-id [f]
-  (let [id (or (:wish/instance-id f)
-               (:id f))
-        space (namespace id)
-        n (name id)]
-    (str "feat-" space "-" n)))
+(defn- kw->el-id [prefix kw]
+  (let [space (namespace kw)
+        n (name kw)]
+    (str prefix space "-" n)))
 
+(defn- class-element-id [c]
+  (kw->el-id "class-" (:id c)))
+
+(defn- feature-element-id [f]
+  (kw->el-id "feat-"
+             (or (:wish/instance-id f)
+                 (:id f))))
+
+(defn- scroll-to-feature! [f]
+  (some-> (js/document.getElementById
+            (feature-element-id f))
+          (.scrollIntoView
+            #js {:behavior "smooth"
+                 :block "center"
+                 :inline "center"})))
 
 ; ======= CSS ==============================================
 
@@ -357,12 +370,7 @@
    (when (:max-options f)
      [:a.jump {:href "#"
                :on-click (fn-click
-                           (some-> (js/document.getElementById
-                                     (feature-element-id f))
-                                   (.scrollIntoView
-                                     #js {:behavior "smooth"
-                                          :block "center"
-                                          :inline "center"})))}
+                           (scroll-to-feature! f))}
       (icon :get-app)])])
 
 (def ^:private level-up-config
@@ -370,7 +378,7 @@
 
 (defn class-section [class-info]
   [:div.class-section
-   [:div.class-header
+   [:div.class-header {:id (class-element-id class-info)}
     [:div.row
      [:div.name (:name class-info)]
 

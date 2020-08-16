@@ -1,6 +1,6 @@
 (ns wish.sheets.dnd5e.views.shared
-  (:require [wish.util :refer [<sub]]
-            [wish.views.error-boundary :refer [error-boundary]]
+  (:require [archetype.views.error-boundary :refer [error-boundary]]
+            [wish.util :refer [<sub]]
             [wish.sheets.dnd5e.subs :as subs]))
 
 (defn buff-kind->attrs [buff-kind]
