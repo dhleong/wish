@@ -31,7 +31,8 @@
             [wish.views.widgets.multi-limited-select]))
 
 (defn- feature-element-id [f]
-  (let [id (:id f)
+  (let [id (or (:wish/instance-id f)
+               (:id f))
         space (namespace id)
         n (name id)]
     (str "feat-" space "-" n)))
