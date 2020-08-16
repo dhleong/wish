@@ -128,7 +128,7 @@
 
    :position (when sticky?
                'sticky)
-   :top 0}
+   :top (when sticky? "-1px")}
 
   [:.section-link
    [:&.selected [:a {:color [["#000" :!important]]}
