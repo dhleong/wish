@@ -103,7 +103,8 @@
   [:.header {:display 'flex
              :flex-direction 'column
              :align-items 'center
-             :padding-bottom "1em"}
+             :padding-bottom "1em"
+             :z-index 1}
    [:&.sticky {:position 'sticky
                :top 0
                :background (linear-gradient
