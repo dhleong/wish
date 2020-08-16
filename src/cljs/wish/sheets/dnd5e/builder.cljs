@@ -30,6 +30,13 @@
             [wish.views.widgets.limited-select :refer [limited-select]]
             [wish.views.widgets.multi-limited-select]))
 
+(defn- feature-element-id [f]
+  (let [id (:id f)
+        space (namespace id)
+        n (name id)]
+    (str "feat-" space "-" n)))
+
+
 ; ======= CSS ==============================================
 
 (defattrs abilities-style []
@@ -258,7 +265,8 @@
         selected-count (count selected)
         count-options? (not (:unrestricted-options? f))]
     [:div.feature {:class (when (> (count (:wish/sort f)) 2)
-                           "provided")}
+                           "provided")
+                   :id (feature-element-id f)}
     [:h3.title
      (when count-options?
        [selected-option-counter
@@ -332,12 +340,29 @@
 
 ; ======= class management/level-up ========================
 
+(defattrs level-up-feature-link-attrs []
+  {:display 'inline-flex
+   :align-items 'center
+   :min-height "2em"}
+  [:.jump {:padding "0 8px"}])
+
 (defn- level-up-feature-link [f]
-  ; TODO can we provide links to specific feature instances?
-  [:a {:href "#"
-       :on-click (click>evt [:toggle-overlay
-                             [#'overlays/info f]])}
-   (:name f)])
+  [:div (level-up-feature-link-attrs)
+   [:a {:href "#"
+        :on-click (click>evt [:toggle-overlay
+                              [#'overlays/info f]])}
+    (:name f)]
+
+   (when (:max-options f)
+     [:a.jump {:href "#"
+               :on-click (fn-click
+                           (some-> (js/document.getElementById
+                                     (feature-element-id f))
+                                   (.scrollIntoView
+                                     #js {:behavior "smooth"
+                                          :block "center"
+                                          :inline "center"})))}
+      (icon :get-app)])])
 
 (def ^:private level-up-config
   {:format-link #'level-up-feature-link})
