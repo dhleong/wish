@@ -33,10 +33,10 @@
                 (provide-attr [:weapon-kinds :handaxe] true)
                 (provide-attr [:weapon-kinds :light-hammer] true)
                 (provide-attr [:weapon-kinds :warhammer] true)
-                (provide-attr :proficiency/battleaxe true)
-                (provide-attr :proficiency/handaxe true)
-                (provide-attr :proficiency/light-hammer true)
-                (provide-attr :proficiency/warhammer true))}
+                (provide-attr [:proficiency :proficiency/battleaxe] true)
+                (provide-attr [:proficiency :proficiency/handaxe] true)
+                (provide-attr [:proficiency :proficiency/light-hammer] true)
+                (provide-attr [:proficiency :proficiency/warhammer] true))}
 
           {:id :dwarf/tool-proficiency
            :name "Tool Proficiency"

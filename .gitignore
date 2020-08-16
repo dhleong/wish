@@ -18,3 +18,5 @@ nashorn_code_cache
 build-report.html
 cljs-runtime
 manifest.edn
+
+.vercel

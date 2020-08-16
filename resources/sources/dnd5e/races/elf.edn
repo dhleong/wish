@@ -60,8 +60,8 @@
                (provide-attr [:weapon-kinds :longbow] true)
                (provide-attr [:weapon-kinds :shortsword] true)
                (provide-attr [:weapon-kinds :shortbow] true)
-               (provide-attr :proficiency/longsword true)
-               (provide-attr :proficiency/longbow true)
-               (provide-attr :proficiency/shortsword true)
-               (provide-attr :proficiency/shortbow true))}))})
+               (provide-attr [:proficiency :proficiency/longsword] true)
+               (provide-attr [:proficiency :proficiency/longbow] true)
+               (provide-attr [:proficiency :proficiency/shortsword] true)
+               (provide-attr [:proficiency :proficiency/shortbow] true))}))})
 
