@@ -165,7 +165,7 @@
                    (nth sections (inc index)))]
     (println "[builder-router] " sheet-id " / " current-section)
     [:div (builder-attrs)
-     [:div.header
+     [:div#builder-header.header
       [:div (header-row)
        (for [[id info] sections]
          ^{:key id}
