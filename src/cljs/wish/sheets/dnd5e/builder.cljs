@@ -388,8 +388,7 @@
                 ; rendered for some reason...
                 (when-not (= v (<sub [::subs/class-level (first path)]))
                   (>evt [:update-class-level (first path) v
-                         level-up-config])
-                  #_(>evt [:update-meta [:classes] assoc-in path v])))}]
+                         level-up-config])))}]
 
      [:div.remove.clickable
       {:title (str "Remove " (:name class-info) " Class")
