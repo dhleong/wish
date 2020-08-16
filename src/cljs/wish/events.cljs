@@ -359,15 +359,18 @@
               diff (set/difference (into #{} (keys new-features))
                                    (into #{} (keys old-features)))
 
-              ; TODO increase in available options for old features?
+              ; increase in available options for old features
               increased-options (->> old-features
                                      vals
-                                     (distinct-by :wish/instance-id)
+                                     (distinct-by (fn [f]
+                                                    (or (:wish/instance-id f)
+                                                        (:id f))))
                                      (filter :max-options)
                                      (map (juxt :max-options
                                                 (comp new-features :id)))
                                      (filter (fn [[old-max new-feature]]
-                                               (not= old-max (:max-options new-feature)))))
+                                               (not= old-max
+                                                     (:max-options new-feature)))))
 
               content [level-up-notification opts
                        :new-level new-level
