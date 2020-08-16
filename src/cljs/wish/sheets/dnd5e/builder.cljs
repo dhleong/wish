@@ -8,6 +8,7 @@
             [reagent-forms.core :refer [bind-fields]]
             [spade.core :refer [defattrs]]
             [wish.sheets.dnd5e.builder.data :as data]
+            [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.builder :as builder]
@@ -15,7 +16,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.util :refer [mod->str]]
             [wish.style.media :as media]
-            [wish.util :refer [<sub >evt click>reset! click>swap!]]
+            [wish.util :refer [<sub >evt click>reset! click>evt click>swap!]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.shared :as style]
             [wish.views.sheet-builder-util :refer [availability-group
@@ -28,6 +29,14 @@
             [wish.views.widgets.dynamic-list]
             [wish.views.widgets.limited-select :refer [limited-select]]
             [wish.views.widgets.multi-limited-select]))
+
+(defn- feature-element-id [f]
+  (let [id (or (:wish/instance-id f)
+               (:id f))
+        space (namespace id)
+        n (name id)]
+    (str "feat-" space "-" n)))
+
 
 ; ======= CSS ==============================================
 
@@ -257,7 +266,8 @@
         selected-count (count selected)
         count-options? (not (:unrestricted-options? f))]
     [:div.feature {:class (when (> (count (:wish/sort f)) 2)
-                           "provided")}
+                           "provided")
+                   :id (feature-element-id f)}
     [:h3.title
      (when count-options?
        [selected-option-counter
@@ -331,6 +341,33 @@
 
 ; ======= class management/level-up ========================
 
+(defattrs level-up-feature-link-attrs []
+  {:display 'inline-flex
+   :align-items 'center
+   :min-height "2em"}
+  [:.jump {:padding "0 8px"}])
+
+(defn- level-up-feature-link [f]
+  [:div (level-up-feature-link-attrs)
+   [:a {:href "#"
+        :on-click (click>evt [:toggle-overlay
+                              [#'overlays/info f]])}
+    (:name f)]
+
+   (when (:max-options f)
+     [:a.jump {:href "#"
+               :on-click (fn-click
+                           (some-> (js/document.getElementById
+                                     (feature-element-id f))
+                                   (.scrollIntoView
+                                     #js {:behavior "smooth"
+                                          :block "center"
+                                          :inline "center"})))}
+      (icon :get-app)])])
+
+(def ^:private level-up-config
+  {:format-link #'level-up-feature-link})
+
 (defn class-section [class-info]
   [:div.class-section
    [:div.class-header
@@ -350,7 +387,8 @@
                 ; NOTE this seems to get triggered whenever this section is
                 ; rendered for some reason...
                 (when-not (= v (<sub [::subs/class-level (first path)]))
-                  (>evt [:update-meta [:classes] assoc-in path v])))}]
+                  (>evt [:update-class-level (first path) v
+                         level-up-config])))}]
 
      [:div.remove.clickable
       {:title (str "Remove " (:name class-info) " Class")

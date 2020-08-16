@@ -108,7 +108,8 @@ Any spell slot you create with this feature vanishes when you finish a long rest
           :desc
           "At 3rd level, you gain the ability to twist your spells to suit your needs. You gain two of the following Metamagic options of your choice. You gain another one at 10th and 17th level.
 You can use only one Metamagic option on a spell when you cast it, unless otherwise noted.",
-          :max-options (fn [#{level}] (cond (< level 10) 2 (< level 17) 3 :else 4))}))},
+          :max-options (let [level (:level state)]
+                         (cond (< level 10) 2 (< level 17) 3 :else 4))}))},
     4 {:! (on-state (provide-features :abi-or-feat))},
     8 {:! (on-state (provide-features :abi-or-feat))},
     12 {:! (on-state (provide-features :abi-or-feat))},

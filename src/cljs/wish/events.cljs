@@ -1,16 +1,18 @@
 (ns wish.events
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [re-frame.core :refer [reg-event-db reg-event-fx
+  (:require [clojure.set :as set]
+            [re-frame.core :refer [reg-event-db reg-event-fx
                                    path
                                    inject-cofx trim-v]]
             [day8.re-frame.tracing :refer-macros [fn-traced]]
             [vimsical.re-frame.cofx.inject :as inject]
+            [wish-engine.core :as engine]
             [wish.db :as db]
             [wish.fx :as fx]
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
-            [wish.util :refer [invoke-callable update-dissoc]]))
+            [wish.util :refer [distinct-by invoke-callable update-dissoc]]))
 
 (reg-event-fx
   ::initialize-db
@@ -291,6 +293,95 @@
 
       ; delete the sheet source to trigger a reload
       [:db :sheet-sources sheet-id] nil)))
+
+(defn level-up-notification [opts & {:keys [increased-options
+                                            new-features
+                                            new-level]}]
+  (let [format-link (if-let [f (:format-link opts)]
+                      f
+                      :name)
+        anything-new? (or (seq new-features)
+                          (seq increased-options))]
+    [:div
+     [:div.title "Welcome to Level " new-level "!"]
+
+     (when anything-new?
+       [:div.new-features
+        [:div.label "You have gained: "]
+        [:div.items
+         (for [f new-features]
+           ^{:key (:id f)}
+           [:div.item
+            (format-link f)])]
+
+        [:div.items
+         (for [[old-max f] increased-options]
+           (let [new-max (:max-options f)]
+             (when (and (number? old-max)
+                        (number? new-max)
+                        (> new-max old-max))
+               ^{:key (:id f)}
+               [:div.item
+                (- new-max old-max)
+                " additional options for "
+                (format-link f)])))]])]))
+
+(reg-event-fx
+  :update-class-level
+  [trim-v
+   (inject-cofx ::inject/sub [:active-sheet-id])
+   (inject-cofx ::inject/sub [:sheet-engine-state])
+   (inject-cofx ::inject/sub [:meta/options])
+   (inject-cofx ::inject/sub [:meta/classes])]
+  (fn-traced [{:keys [db active-sheet-id sheet-engine-state]
+               :meta/keys [options classes]
+               :as cofx}
+              [class-id new-level {:keys [format-link] :as opts}]]
+    (let [path [class-id :level]
+          sheet-level-path (concat [:sheets active-sheet-id :classes] path)
+          old-level (get-in db sheet-level-path)
+          updated (update-sheet-path cofx [:classes] assoc-in path new-level)
+          base-meta (->> classes
+                         (filter (fn [{:keys [id]}]
+                                   (= id class-id)))
+                         first)
+          updated-meta (assoc base-meta :level new-level)]
+
+      (if (> new-level old-level)
+        (let [old-features (:features
+                             (engine/inflate-class
+                               sheet-engine-state class-id base-meta options))
+              new-features (:features
+                             (engine/inflate-class
+                               sheet-engine-state class-id updated-meta options))
+
+              ; newly-added features:
+              diff (set/difference (into #{} (keys new-features))
+                                   (into #{} (keys old-features)))
+
+              ; increase in available options for old features
+              increased-options (->> old-features
+                                     vals
+                                     (distinct-by (fn [f]
+                                                    (or (:wish/instance-id f)
+                                                        (:id f))))
+                                     (filter :max-options)
+                                     (map (juxt :max-options
+                                                (comp new-features :id)))
+                                     (filter (fn [[old-max new-feature]]
+                                               (not= old-max
+                                                     (:max-options new-feature)))))
+
+              content [level-up-notification opts
+                       :new-level new-level
+                       :new-features (map new-features diff)
+                       :increased-options increased-options]]
+
+          (assoc updated :dispatch [:notify! {:content content}]))
+
+        (do
+          (println "other level change: " old-level " -> " new-level)
+          updated)))))
 
 
 ; ======= sheet-related ====================================
