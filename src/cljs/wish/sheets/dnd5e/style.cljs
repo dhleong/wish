@@ -28,6 +28,7 @@
 (def disabled-button {:font-style 'italic
                       :color "rgba(1,1,1, 0.25) !important"
                       :cursor 'default})
+(def disabled-button-dark {:color "rgba(255,255,255, 0.25) !important"})
 
 ;;
 ;; 35/65 layout
@@ -147,7 +148,8 @@
                      :font-style 'italic}]
 
   [:&.button
-   [:&.disabled disabled-button]
+   [:&.disabled disabled-button
+    (at-media media/dark-scheme disabled-button-dark)]
    [:&.placeholder {:visibility 'hidden}]
    [:&.nested {:position 'absolute
                :margin-top "8px"
@@ -306,7 +308,8 @@
 
     [:.many flex/center
      [:.modify {:padding "8px"}
-      [:&.disabled disabled-button]]]]])
+      [:&.disabled disabled-button
+       (at-media media/dark-scheme disabled-button-dark)]]]]])
 
 (defattrs spells-section []
   [:.spell-slot-level flex/center
@@ -363,7 +366,8 @@
                       :text-overflow 'ellipsis
                       :white-space 'pre}]]
    [:.button {:font-size "60%"}
-    [:&.disabled disabled-button]
+    [:&.disabled disabled-button
+     (at-media media/dark-scheme disabled-button-dark)]
     [:&:hover {:background-color "#f0f0f0"
                :color "#333"}
      [:&.disabled {:background-color "#ccc"}]]]]
