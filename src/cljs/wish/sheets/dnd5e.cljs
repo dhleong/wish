@@ -3,7 +3,8 @@
   wish.sheets.dnd5e
   (:require [archetype.views.error-boundary :refer [error-boundary]]
             [reagent.core :as r]
-            [wish.util :refer [>evt <sub click>evt]]
+            [spade.core :refer [defclass]]
+            [wish.util :refer [>evt <sub click>evt conj-class]]
             [wish.util.scroll :refer [scrolled-amount]]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs.spells :as subs-spells]
@@ -30,6 +31,9 @@
       :on-click (click>evt [::events/page! id])}
      label]))
 
+(defclass main-section-class []
+  {:padding-bottom "env(safe-area-inset-bottom)"})
+
 (defn- main-section
   [{id :key} page opts content]
   ; NOTE: NOT a ratom, else we get an endless render loop
@@ -45,7 +49,9 @@
             (.scrollIntoView r #js {:behavior "smooth"
                                     :block "nearest"
                                     :inline "nearest"}))))
-    [:div.section (assoc opts :ref #(reset! view-ref %))
+    [:div.section (-> opts
+                      (assoc :ref #(reset! view-ref %))
+                      (update :class conj-class (main-section-class)))
      content]))
 
 (defn- sheet-right-page []

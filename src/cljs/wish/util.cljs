@@ -203,3 +203,20 @@
               {}
               the-map))))
 
+(defn conj-class
+  "Expected to be used as, eg:
+
+    (update opts :class conj-class extra-class)
+
+   where `opts` is an element options map possibly containing
+   the key `:class`, which can be missing, a vector of class names,
+   or a scalar of a single class name."
+  [old new-class]
+  (cond
+    (coll? old)
+    (cons new-class old)
+
+    old
+    [new-class old]
+
+    :else [new-class]))
