@@ -212,6 +212,8 @@
                     {:border-bottom "1px solid #333"
                      :margin-bottom "8px"
                      :overflow-x 'hidden})
+   (at-media media/dark-scheme
+     [:& {:color theme/header-primary-on-dark}])
    ["&:not(:first-child)"
     {:margin-top "32px"}]
    [:.filter {:padding "4px"}

@@ -1,6 +1,7 @@
 (ns wish.sheets.dnd5e.views.header
   (:require [clojure.string :as str]
             [spade.core :refer [defattrs]]
+            [wish.style :refer [text-primary-on-dark]]
             [wish.style.flex :as flex :refer [flex]]
             [wish.style.media :as media]
             [wish.util :refer [<sub click>evt]]
@@ -57,7 +58,7 @@
 
   [:& (merge flex
              flex/wrap
-             {:color "#f0f0f0"
+             {:color text-primary-on-dark
               :margin "0 auto"
               :padding "4px 0"
               :max-width "1200px"
