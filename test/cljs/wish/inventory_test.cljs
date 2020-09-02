@@ -1,6 +1,15 @@
 (ns wish.inventory-test
   (:require [cljs.test :refer-macros [deftest testing is]]
-            [wish.inventory :refer [stacks?]]))
+            [cljs.reader :as edn]
+            [wish.inventory :as inv :refer [stacks?]]))
+
+(deftest custom-id-test
+  (testing "Custom-ids can be read back from edn"
+    (let [n "500GP of Gems"
+          id (inv/custom-id n)]
+      (= id
+         (edn/read-string
+           (str id))))))
 
 (deftest stacks?-test
   (testing "Auto-stack by type"

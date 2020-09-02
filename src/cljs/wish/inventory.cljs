@@ -6,18 +6,21 @@
 (def stackable-types #{:ammunition
                        :potion})
 
+(def custom-namespace "custom")
+
 (defn custom?
   "Given an item map, check if it's a custom item"
   [item]
   (or (nil? (:id item))
-      (= "custom"
+      (= custom-namespace
          (namespace (:id item)))))
 
 (defn custom-id
   "Given the name of an item, generate a custom item-id for it"
   [item-name]
-  (keyword "custom"
+  (keyword custom-namespace
            (str
+             "w"
              (str/replace
                item-name
                #"[^a-zA-Z0-9]" "")
@@ -30,7 +33,7 @@
   [item]
   (or (not= (:id item)
             (:item-id item))
-      (= "custom" (namespace (:id item)))))
+      (= custom-namespace (namespace (:id item)))))
 
 (defn instantiate-id
   "Given an item ID, return a NEW instance id for it.
