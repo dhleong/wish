@@ -97,13 +97,17 @@
          :consume-evt [::events/update-death-saves inc :saves]
          :restore-evt [::events/update-death-saves dec :saves]}]]]]))
 
-(defn- hp-form [& {:keys [hp max-hp]}]
+(defn- hp-form [& {:keys [hp max-hp max-mod]}]
   [:div.sections
    [:a {:href "#"
         :on-click (click>evt [::events/update-hp -1 max-hp])}
     (icon :remove-circle)]
 
-   [:div.current-hp hp]
+   [:div.current-hp {:class (case max-mod
+                              :buff "buffed"
+                              :nerf "nerfed"
+                              nil)}
+    hp]
 
    [:a {:href "#"
         :on-click (click>evt [::events/update-hp 1 max-hp])}
@@ -191,7 +195,7 @@
 
 (defn overlay []
   (r/with-let [state (r/atom {})]
-    (let [[hp max-hp] (<sub [::hp/state])
+    (let [[hp max-hp max-mod] (<sub [::hp/state])
           temp-hp (<sub [::hp/temp])
           {:keys [heal damage]} @state
           new-hp (max
@@ -207,7 +211,8 @@
        [:h4 "Hit Points"]
        [hp-form
         :hp hp
-        :max-hp max-hp]
+        :max-hp max-hp
+        :max-mod max-mod]
 
        [:h5.centered.section-header "Quick Adjust"]
        [quick-adjust-form state

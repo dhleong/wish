@@ -79,7 +79,9 @@
 
   [:.current-hp (merge styles/text-center
                        {:width "5em"
-                        :font-size "1.2em"})]
+                        :font-size "1.2em"})
+   [:&.buffed {:color "#00cc00"}]
+   [:&.nerfed {:color "#cc0000"}]]
   [:.centered styles/text-center]
   [:.section-header {:margin-bottom "0px"}]
 

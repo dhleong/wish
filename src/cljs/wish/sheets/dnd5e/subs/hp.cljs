@@ -3,6 +3,7 @@
             [wish.sheets.dnd5e.util :as util :refer [ability->mod ->die-use-kw]]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.util :refer [reg-sheet-sub]]
+            [wish.sheets.dnd5e.views.shared :refer [buff-value->kind]]
             [wish.subs-util :refer [reg-id-sub query-vec->preferred-id]]
             [wish.util :refer [<sub]]))
 
@@ -123,15 +124,24 @@
        buffs)))
 
 (reg-id-sub
+  ::max-mod
+  :<- [::temp-max]
+  (fn [temp-max _]
+    (buff-value->kind temp-max)))
+
+(reg-id-sub
   ::state
   :<- [::temp]
   :<- [::max]
+  :<- [::max-mod]
   :<- [:limited-used]
-  (fn [[temp-hp max-hp limited-used-map]]
+  (fn [[temp-hp max-hp max-mod limited-used-map]]
     (let [used-hp (or (:hp#uses limited-used-map)
                       0)]
       [(+ temp-hp
-          (- max-hp used-hp)) max-hp])))
+          (- max-hp used-hp))
+       max-hp
+       max-mod])))
 
 ; returns a list of {:die,:classes,:used,:total}
 ; where :classes is a list of class names, sorted by die size.

@@ -105,14 +105,14 @@
 
 ; ======= Top bar ==========================================
 
-(defn- hp-normal [hp max-hp]
+(defn- hp-normal [hp max-hp hp-mod]
   (let [buff-kind (<sub [::effects/change-for :hp-max])]
     [:<>
      [:div.label [:span.content "Hit Points"]]
      [:div.value
       [:div.now hp]
       [:div.divider " / "]
-      [:div.max (buff-kind->attrs buff-kind)
+      [:div.max (buff-kind->attrs (or hp-mod buff-kind))
        max-hp]]]))
 
 (defn- save-indicators
@@ -136,12 +136,12 @@
       [save-indicators "☠️" :fail fails]])))
 
 (defn hp []
-  (let [[hp max-hp] (<sub [::hp/state])]
+  (let [[hp max-hp hp-mod] (<sub [::hp/state])]
     [:div.clickable.hp.col
      {:on-click (click>evt [:toggle-overlay [#'hp-overlay]])}
 
      (if (> hp 0)
-       [hp-normal hp max-hp]
+       [hp-normal hp max-hp hp-mod]
        [hp-death-saving-throws])]))
 
 (defn buffable-stat [stat-id label & content]
