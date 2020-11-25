@@ -11,7 +11,7 @@
     "socket.io-client": "^2.3.0"
   },
   "devDependencies": {
-    "highlight.js": "9.15.8",
+    "highlight.js": "10.1.2",
     "karma": "^4.3.0",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
