@@ -1,0 +1,71 @@
+name: Continuous Integration
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node_version: [12]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Clojure dependency cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('shadow-cljs.edn') }}
+        restore-keys: |
+          ${{ runner.os }}-m2-
+
+    - name: Node dependency cache
+      uses: actions/cache@v2
+      with:
+        path: **/node_modules
+        key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-node-
+
+    - name: Generate WISH_VERSION
+      uses: benjlevesque/short-sha@v1.2
+      id: short-sha
+
+    - name: Install dependencies + start shadow server
+      run: |
+        npm ci
+        npm run start
+      env:
+        CI: true
+
+        # set the version variable *now* so the server process has it
+        WISH_VERSION: ${{ steps.short-sha.outputs.sha }}
+
+    - name: Verify
+      run: |
+        npm run lint && \
+        npm run test && \
+        scripts/compile-builtin-sources
+
+      env:
+        CI: true
+
+    - name: Build for Deploy
+      if: github.ref == 'refs/heads/main'
+      run: npm run build
+
+    - name: Deploy
+      if: github.ref == 'refs/heads/main'
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./resources/public
+      env:
+        WISH_VERSION: ${{ steps.short-sha.outputs.sha }}
