@@ -2,7 +2,7 @@
       :doc "It watches the network"}
   wish.util.netwatcher
   (:require-macros [wish.util.log :refer [log]])
-  (:require [goog.events :as events :refer [EventType]]
+  (:require [goog.events :as events]
             [wish.util :refer [>evt]]))
 
 (defonce ^:private network-listener-key (atom nil))
@@ -24,6 +24,6 @@
 
            (events/listen
              js/window
-             #js [(.-OFFLINE EventType)
-                  (.-ONLINE EventType)]
+             #js [events/EventType.OFFLINE
+                  events/EventType.ONLINE]
              on-network-changed))))

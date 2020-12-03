@@ -1,6 +1,6 @@
 (ns wish.core
   (:require-macros [wish.util.log :as log :refer [log]])
-  (:require [reagent.core :as reagent]
+  (:require [reagent.dom :as rdom]
             [re-frame.core :as re-frame]
             [re-pressed.core :as rp]
             [wish.events :as events]
@@ -36,8 +36,8 @@
     ; since it's requested as part of db init
     (providers/init!))
   (netwatcher/attach!)
-  (reagent/render [views/main]
-                  (.getElementById js/document "app")))
+  (rdom/render [views/main]
+               (.getElementById js/document "app")))
 
 (defn init []
   (re-frame/dispatch-sync [::events/initialize-db])

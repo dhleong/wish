@@ -3,7 +3,7 @@
   wish.util.worker
   (:require-macros [wish.util.log :as log :refer [log]])
   (:require [cljs.reader :as edn]
-            [goog.events :as gevents :refer [EventType]]
+            [goog.events :as gevents]
             [wish.config :as config]
             [wish.util :refer [>evt]]))
 
@@ -31,8 +31,8 @@
 
            (let [new-key (gevents/listen
                            js/navigator.serviceWorker
-                           (.-MESSAGE EventType)
-                           (fn [evt]
+                           gevents/EventType.MESSAGE
+                           (fn [^js evt]
                              (-> evt
                                  (.getBrowserEvent)
                                  (.-data)

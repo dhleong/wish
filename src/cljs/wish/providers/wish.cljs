@@ -1,7 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Builtin provider for data sources"}
   wish.providers.wish
-  (:require [clojure.core.async :refer [to-chan]]
+  (:require [clojure.core.async :refer [to-chan!]]
             [wish.config :as config]
             [wish.providers.core :refer [IProvider]]
             [wish.sheets.util :refer [make-id]]
@@ -21,11 +21,11 @@
   IProvider
   (id [this] :wish)
   (create-file [this kind file-name data]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (to-chan! [[(js/Error. "Not implemented") nil]]))
 
   (init! [this]
     ; we're always ready immediately
-    (to-chan [:ready]))
+    (to-chan! [:ready]))
 
   (connect! [this]
     ; not supported
@@ -40,7 +40,7 @@
     (if-let [url (str data-root (:path (builtin-sources id)))]
       (GET url {:response-format :text})
 
-      (to-chan [[(js/Error. (str "No such source: " id))]])))
+      (to-chan! [[(js/Error. (str "No such source: " id))]])))
 
   (query-data-sources [this]
     (>evt [:add-data-sources
@@ -50,13 +50,13 @@
 
   (query-sheets [this]
     ; we never provide any sheets
-    (to-chan [[nil nil]]))
+    (to-chan! [[nil nil]]))
 
   (register-data-source [this]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (to-chan! [[(js/Error. "Not implemented") nil]]))
 
   (save-sheet [this file-id data data-str]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (to-chan! [[(js/Error. "Not implemented") nil]]))
 
   (watch-auth [this]
     ; not supported
