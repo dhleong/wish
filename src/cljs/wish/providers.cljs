@@ -166,7 +166,8 @@
           [nil read-data]
           [(ex-info
              "Not a sheet"
-             {:error :not-sheet})]))
+             {:error :not-sheet
+              :data data})]))
       (catch :default e
         [e nil]))))
 

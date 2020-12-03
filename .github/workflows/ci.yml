@@ -44,27 +44,28 @@ jobs:
       id: short-sha
 
     - name: Install dependencies + start shadow server
-      run: |
-        npm ci
-        npm run start
-      env:
-        CI: true
+      run: npm ci
 
+    - name: Start shadow server
+      run: npm run start
+      env:
         # set the version variable *now* so the server process has it
         WISH_VERSION: ${{ steps.short-sha.outputs.sha }}
 
-    - name: Verify
-      run: |
-        npm run lint && \
-        npm run test && \
-        scripts/compile-builtin-sources
+    - name: Verify Lint
+      run: npm run lint
 
-      env:
-        CI: true
+    - name: Verify Tests
+      run: npm run test
+
+    - name: Compile and verify builtin sources
+      run: scripts/compile-builtin-sources
 
     - name: Build for Deploy
       if: github.ref == 'refs/heads/main'
       run: npm run build
+      env:
+        WISH_VERSION: ${{ steps.short-sha.outputs.sha }}
 
     - name: Deploy
       if: github.ref == 'refs/heads/main'
@@ -72,5 +73,3 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./resources/public
-      env:
-        WISH_VERSION: ${{ steps.short-sha.outputs.sha }}
