@@ -53,7 +53,7 @@
     (doto (History.)
       (gevents/listen
         HistoryEventType/NAVIGATE
-        (fn [event]
+        (fn [^js event]
           (secretary/dispatch! (.-token event))))
       (.setEnabled true))))
 
