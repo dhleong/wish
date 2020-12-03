@@ -4,7 +4,7 @@
   (:require-macros [cljs.core.async :refer [go]]
                    [wish.util.async :refer [call-with-cb->chan]]
                    [wish.util.log :as log :refer [log]])
-  (:require [clojure.core.async :refer [promise-chan close! put! to-chan <!]]
+  (:require [clojure.core.async :refer [promise-chan close! put! to-chan! <!]]
             [clojure.string :as str]
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
@@ -540,7 +540,7 @@
           data-str))
 
       ; not ready? don't try
-      (to-chan [[(js/Error. "No network; unable to save sheet") nil]])))
+      (to-chan! [[(js/Error. "No network; unable to save sheet") nil]])))
 
   (watch-auth [this]
     (when-let [resp (auth-response)]

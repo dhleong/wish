@@ -1,5 +1,5 @@
 (ns wish.providers.demo
-  (:require [clojure.core.async :refer [to-chan]]
+  (:require [clojure.core.async :refer [to-chan!]]
             [clojure.pprint :refer [pprint]]
             [alandipert.storage-atom :refer [local-storage]]
             [wish.config :as config]
@@ -26,13 +26,13 @@
   IProvider
   (id [this] :demo)
   (create-file [this kind file-name data]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (to-chan! [[(js/Error. "Not implemented") nil]]))
 
   (init! [this]
     ; TODO configure state
     (if (true? (:enabled @provider-state))
-      (to-chan [:ready])
-      (to-chan [:signed-out])))
+      (to-chan! [:ready])
+      (to-chan! [:signed-out])))
 
   (connect! [this]
     (swap! provider-state assoc :enabled true)
@@ -47,24 +47,24 @@
       (GET (str data-root "/" id ".json")
            {:response-format :text})
 
-      (to-chan [[(js/Error. (str "No such sheet: " id))]])))
+      (to-chan! [[(js/Error. (str "No such sheet: " id))]])))
 
   (query-data-sources [this]
     ; nop
     )
 
   (query-sheets [this]
-    (to-chan [[nil (list-sheets)]]))
+    (to-chan! [[nil (list-sheets)]]))
 
   (register-data-source [this]
-    (to-chan [[(js/Error. "Not implemented") nil]]))
+    (to-chan! [[(js/Error. "Not implemented") nil]]))
 
   (save-sheet [this file-id data data-str]
     (println "'Saving' " file-id ": ")
     (if config/debug?
       (pprint data)
       (println data-str))
-    (to-chan [[nil nil]]))
+    (to-chan! [[nil nil]]))
 
   (watch-auth [this]
     ; not supported
