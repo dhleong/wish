@@ -3,6 +3,7 @@
 (def default-db
   {:page [:splash]
    :device-type :default
+   :touch? false ; true if there is a touch screen
 
    :updates {:latest nil
              :ignored :unknown}
