@@ -15,8 +15,7 @@
             :right 0
             :text-align 'center
             :top :50%
-            :transform "translateY(-50%)"
-            }])
+            :transform "translateY(-50%)"}])
 
 (defn- polar-angle
   "Given a box circumscribing a circle and a point relative to that box,
@@ -58,32 +57,36 @@
                               this-touch)))
     (swap! state-ref assoc :last-touch this-touch)))
 
-(defn spinning-modifier [ratom {:keys [path]}]
+(defn spinning-modifier [ratom & {:keys [initial maximum path]}]
   (letfn [(<v []
             (get-in @ratom path 0))
           (>v [v]
             (assoc-in @ratom path v))]
-    (r/with-let [initial (<v)
-                 state (atom nil)
+    (r/with-let [state (atom nil)
                  rotation (r/atom 0)]
-      (let [current (<v)
-            delta (- current initial)]
+      (let [delta (int (* maximum (/ @rotation 360)))
+            current (+ initial delta)]
         [:div {:class (spinning-modifier-class)
-               :on-touch-move (partial on-touch-move state rotation)}
+               :on-touch-move (partial on-touch-move state rotation)
+               :on-touch-end #(swap! state dissoc :last-touch)}
          [:div.spinner {:ref #(when-let [el %]
                                 (let [rect (.getBoundingClientRect el)]
                                   (swap! state assoc :element
                                          [(.-x rect) (.-y rect)
                                           (.-width rect)
                                           (.-height rect)])))
-                        :style {:transform (str "rotate("
+                        #_:style #_{:transform (str "rotate("
                                                 @rotation
                                                 "deg)")}}
           [circular-progress
-           2 100 ;; TODO ?
+           delta maximum
            ;; delta 100
            :stroke-width 12
            :width 128]]
 
-         [:div.value "42" delta current]
+         [:div.value
+          [:div.result current]
+
+          (when-not (= 0 delta)
+            [:div.mod delta])]
          ]))))

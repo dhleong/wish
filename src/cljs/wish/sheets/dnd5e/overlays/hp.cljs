@@ -208,13 +208,18 @@
     :new-hp new-hp]
    ])
 
-(defn- touchable-ui [{:keys [state]}]
+(defn- touchable-ui [{:keys [state hp max-hp]}]
   [:<>
    [:h4 "Hit Points"]
 
    [:div.touchable
     [spinning-modifier
      state
+     :initial hp
+     :maximum (condp > max-hp
+                50 15
+                100 25
+                30)
      :path [:heal]]]
    ])
 
