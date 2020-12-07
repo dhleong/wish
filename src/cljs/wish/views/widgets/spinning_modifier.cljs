@@ -1,12 +1,14 @@
 (ns wish.views.widgets.spinning-modifier
   (:require [reagent.core :as r]
-            [spade.core :refer [defattrs]]
+            [spade.core :refer [defclass]]
             [wish.views.widgets.circular-progress
              :refer [circular-progress]]))
 
-(defattrs spinning-modifier-attrs []
+(defclass spinning-modifier-class []
   {:display 'inline-block
    :position 'relative}
+
+  [:.spinner {:touch-action 'none}]
 
   [:.value {:position 'absolute
             :left 0
@@ -24,11 +26,17 @@
     (r/with-let [initial (<v)]
       (let [current (<v)
             delta (- current initial)]
-        [:div (spinning-modifier-attrs)
-         [circular-progress
-          delta 100
-          :stroke-width 12
-          :width 128]
+        [:div {:class (spinning-modifier-class)
+               :on-touch-move (fn [^js e]
+                                (let [touch (first (.-touches e))
+                                      x (.-clientX touch)
+                                      y (.-clientY touch)]
+                                  (println "> " x y)))}
+         [:div.spinner
+          [circular-progress
+           delta 100
+           :stroke-width 12
+           :width 128]]
 
          [:div.value "42" current]
          ]))))
