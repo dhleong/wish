@@ -217,6 +217,10 @@
      state
      :initial hp
      :maximum max-hp
+     :delta->color (fn delta->color [delta]
+                     (cond
+                       (> delta 0) "#00cc00"
+                       (< delta 0) "#cc0000"))
      :per-rotation (condp > max-hp
                      100 20
                      40)

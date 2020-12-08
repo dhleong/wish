@@ -15,7 +15,9 @@
             :right 0
             :text-align 'center
             :top :50%
-            :transform "translateY(-50%)"}])
+            :transform "translateY(-50%)"}
+   [:.mod {:font-size "110%"
+           :font-weight 'bold}]])
 
 (defn- polar-angle
   "Given a box circumscribing a circle and a point relative to that box,
@@ -65,7 +67,9 @@
     (swap! state-ref assoc :last-touch this-touch)))
 
 (defn spinning-modifier [ratom & {:keys [initial maximum
-                                         per-rotation path]}]
+                                         delta->color
+                                         per-rotation path]
+                                  :or {delta->color (constantly nil)}}]
   (letfn [(<v []
             (get-in @ratom path 0))
           (>v [v]
@@ -74,7 +78,8 @@
                  rotation (r/atom 0)]
       (let [delta (int (* per-rotation (/ @rotation 360)))
             current (min (+ initial delta)
-                         maximum)]
+                         maximum)
+            color (delta->color delta)]
         [:div {:class (spinning-modifier-class)
                :on-touch-move (partial on-touch-move state rotation)
                :on-touch-end #(swap! state dissoc :last-touch)}
@@ -85,6 +90,7 @@
                                           (.-width rect)
                                           (.-height rect)])))}
           [circular-progress delta per-rotation
+           :color color
            :transition-duration "0.2s"
            :stroke-width 16
            :width 112]]
@@ -93,7 +99,7 @@
           [:div.result current]
 
           (when-not (= 0 delta)
-            [:div.mod
+            [:div.mod {:style {:color color}}
              (when (> delta 0) "+")
              delta])]
          ]))))
