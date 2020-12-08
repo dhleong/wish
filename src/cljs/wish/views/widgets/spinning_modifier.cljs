@@ -35,16 +35,23 @@
         py (- py y radius)]
 
     ; from: https://math.stackexchange.com/a/1744369
-    (-> (js/Math.atan2 py px)
+    (js/Math.atan2 py px)))
 
-        ; convert to degreese
-        (* 180)
-        (/ js/Math.PI))))
+(def ^:private two-pi (* js/Math.PI 2))
 
 (defn compute-rotation [element last-touch this-touch]
   (let [last-angle (polar-angle element last-touch)
-        this-angle (polar-angle element this-touch)]
-    (- this-angle last-angle)))
+        this-angle (polar-angle element this-touch)
+        delta (- this-angle last-angle)
+        normalized (cond
+                     (> delta js/Math.PI) (- two-pi delta)
+                     (< delta (- js/Math.PI)) (+ two-pi delta)
+                     :else delta)]
+    (-> normalized
+
+        ; convert to degrees:
+        (* 180)
+        (/ js/Math.PI))))
 
 (defn on-touch-move [state-ref rotation-ref, ^js e]
   (let [touch (first (.-touches e))
