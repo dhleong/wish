@@ -216,10 +216,10 @@
     [spinning-modifier
      state
      :initial hp
-     :maximum (condp > max-hp
-                50 15
-                100 25
-                30)
+     :maximum max-hp
+     :per-rotation (condp > max-hp
+                     100 20
+                     40)
      :path [:heal]]]
    ])
 

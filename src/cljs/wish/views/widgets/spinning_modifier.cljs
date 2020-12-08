@@ -64,15 +64,17 @@
                               this-touch)))
     (swap! state-ref assoc :last-touch this-touch)))
 
-(defn spinning-modifier [ratom & {:keys [initial maximum path]}]
+(defn spinning-modifier [ratom & {:keys [initial maximum
+                                         per-rotation path]}]
   (letfn [(<v []
             (get-in @ratom path 0))
           (>v [v]
             (assoc-in @ratom path v))]
     (r/with-let [state (atom nil)
                  rotation (r/atom 0)]
-      (let [delta (int (* maximum (/ @rotation 360)))
-            current (+ initial delta)]
+      (let [delta (int (* per-rotation (/ @rotation 360)))
+            current (min (+ initial delta)
+                         maximum)]
         [:div {:class (spinning-modifier-class)
                :on-touch-move (partial on-touch-move state rotation)
                :on-touch-end #(swap! state dissoc :last-touch)}
@@ -81,19 +83,17 @@
                                   (swap! state assoc :element
                                          [(.-x rect) (.-y rect)
                                           (.-width rect)
-                                          (.-height rect)])))
-                        #_:style #_{:transform (str "rotate("
-                                                @rotation
-                                                "deg)")}}
-          [circular-progress
-           delta maximum
-           ;; delta 100
-           :stroke-width 12
-           :width 128]]
+                                          (.-height rect)])))}
+          [circular-progress delta per-rotation
+           :transition-duration "0.2s"
+           :stroke-width 16
+           :width 112]]
 
          [:div.value
           [:div.result current]
 
           (when-not (= 0 delta)
-            [:div.mod delta])]
+            [:div.mod
+             (when (> delta 0) "+")
+             delta])]
          ]))))
