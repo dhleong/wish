@@ -1,8 +1,16 @@
 (ns wish.views.widgets.spinning-modifier
   (:require [reagent.core :as r]
-            [spade.core :refer [defclass]]
+            [spade.core :refer [defattrs defclass defkeyframes]]
             [wish.views.widgets.circular-progress
              :refer [circular-progress]]))
+
+; by accepting the delta, we ensure that the animation has "changed"
+; every time they rotate, so this animation will restart, giving a
+; ratchet-like effect, like the numbers "clicking" into place.
+(defkeyframes grow-in [delta]
+  ^{:key delta}
+  [:from {:transform "scale(0.8)"}]
+  [:to {:transform "scale(1.0)"}])
 
 (defclass spinning-modifier-class []
   {:display 'inline-block
@@ -18,6 +26,11 @@
             :transform "translateY(-50%)"}
    [:.mod {:font-size "110%"
            :font-weight 'bold}]])
+
+(defattrs modifier-attrs [color delta]
+  ^{:key ""} ; we don't need to create a new class every time
+  {:animation [[(grow-in delta) "175ms" "cubic-bezier(0, 0, 0.2, 1)"]]
+   :color color})
 
 (defn- polar-angle
   "Given a box circumscribing a circle and a point relative to that box,
@@ -99,7 +112,7 @@
           [:div.result current]
 
           (when-not (= 0 delta)
-            [:div.mod {:style {:color color}}
+            [:div.mod (modifier-attrs color delta)
              (when (> delta 0) "+")
              delta])]
          ]))))
