@@ -86,7 +86,10 @@
   [:.section-header {:margin-bottom "0px"}]
 
   [:.touchable (merge flex/vertical
-                      flex/align-center)]
+                      flex/align-center)
+   [:input.apply (merge
+                   styles/button
+                   {:margin-top "1em"})]]
 
   [:.new-hp (merge styles/text-center
                    {:padding "12px"

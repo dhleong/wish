@@ -16,6 +16,10 @@
             [wish.views.widgets.spinning-modifier
              :refer [spinning-modifier]]))
 
+(defn- apply-hp-delta! [delta max-hp]
+  (>evt [::events/update-hp delta max-hp])
+  (>evt [:toggle-overlay nil]))
+
 (defn- condition-widget
   [[id level] _on-delete]
   (let [c (get data/conditions id)]
@@ -120,8 +124,7 @@
    {:on-submit (fn-click
                  (let [{:keys [heal damage]} @state]
                    (log "Update HP: heal +" heal "  -" damage)
-                   (>evt [::events/update-hp (- heal damage) max-hp])
-                   (>evt [:toggle-overlay nil])))}
+                   (apply-hp-delta! (- heal damage) max-hp)))}
    [:div.sections
 
     [:div.quick-adjust
@@ -224,7 +227,17 @@
      :per-rotation (condp > max-hp
                      100 20
                      40)
-     :path [:heal]]]
+     :path [:heal]]
+
+    (when (let [delta (:heal @state)]
+            (and delta (not= 0 delta)))
+      [:div.sections
+       [:input.apply {:type 'button
+                      :value "Apply!"
+                      :on-click (fn-click
+                                  (apply-hp-delta! (:heal @state) max-hp))
+                      }] ])
+    ]
    ])
 
 ; ======= public interface ================================

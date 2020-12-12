@@ -85,14 +85,18 @@
                                   :or {delta->color (constantly nil)}}]
   (letfn [(<v []
             (get-in @ratom path 0))
-          (>v [v]
-            (assoc-in @ratom path v))]
+          (v< [v]
+            (swap! ratom assoc-in path v))]
     (r/with-let [state (atom nil)
                  rotation (r/atom 0)]
       (let [delta (int (* per-rotation (/ @rotation 360)))
             current (min (+ initial delta)
                          maximum)
             color (delta->color delta)]
+
+        (when-not (= (<v) delta)
+          (v< delta))
+
         [:div {:class (spinning-modifier-class)
                :on-touch-move (partial on-touch-move state rotation)
                :on-touch-end #(swap! state dissoc :last-touch)}
