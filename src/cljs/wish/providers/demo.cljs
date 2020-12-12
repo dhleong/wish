@@ -24,49 +24,49 @@
 
 (deftype DemoProvider [provider-state]
   IProvider
-  (id [this] :demo)
-  (create-file [this kind file-name data]
+  (id [_] :demo)
+  (create-file [_ _kind _file-name _data]
     (to-chan! [[(js/Error. "Not implemented") nil]]))
 
-  (init! [this]
+  (init! [_]
     ; TODO configure state
     (if (true? (:enabled @provider-state))
       (to-chan! [:ready])
       (to-chan! [:signed-out])))
 
-  (connect! [this]
+  (connect! [_]
     (swap! provider-state assoc :enabled true)
     (>evt [:put-provider-state! :demo :ready]))
 
-  (disconnect! [this]
+  (disconnect! [_]
     (swap! provider-state dissoc :enabled)
     (>evt [:put-provider-state! :demo :signed-out]))
 
-  (load-raw [this id]
+  (load-raw [_ id]
     (if (demo-sheets id)
       (GET (str data-root "/" id ".json")
            {:response-format :text})
 
       (to-chan! [[(js/Error. (str "No such sheet: " id))]])))
 
-  (query-data-sources [this]
+  (query-data-sources [_]
     ; nop
     )
 
-  (query-sheets [this]
+  (query-sheets [_]
     (to-chan! [[nil (list-sheets)]]))
 
-  (register-data-source [this]
+  (register-data-source [_]
     (to-chan! [[(js/Error. "Not implemented") nil]]))
 
-  (save-sheet [this file-id data data-str]
+  (save-sheet [_ file-id data data-str]
     (println "'Saving' " file-id ": ")
     (if config/debug?
       (pprint data)
       (println data-str))
     (to-chan! [[nil nil]]))
 
-  (watch-auth [this]
+  (watch-auth [_]
     ; not supported
     nil))
 

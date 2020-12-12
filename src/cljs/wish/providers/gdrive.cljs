@@ -9,7 +9,7 @@
             [goog.dom :as dom]
             [wish.config :refer [gdrive-client-id]]
             [wish.data :as data]
-            [wish.providers.core :refer [IProvider load-raw]]
+            [wish.providers.core :refer [IProvider]]
             [wish.providers.gdrive.api :as api :refer [->clj]]
             [wish.sheets.util :refer [make-id]]
             [wish.util :refer [>evt]]
@@ -446,9 +446,9 @@
 
 (deftype GDriveProvider []
   IProvider
-  (id [this] :gdrive)
+  (id [_] :gdrive)
 
-  (create-file [this kind file-name data]
+  (create-file [_ kind file-name data]
     (log/info "Create " kind ": " file-name)
     (go (let [[err resp] (<! (upload-data
                                :create
@@ -461,7 +461,7 @@
               (log/info "CREATED" resp)
               [nil (make-id :gdrive pro-sheet-id)])))))
 
-  #_(delete-sheet [this info]
+  #_(delete-sheet [_ info]
       (log/info "Delete " (:gapi-id info))
       (-> js/gapi.client.drive.files
           (.delete #js {:fileId (:gapi-id info)})
@@ -470,7 +470,7 @@
                  (fn [e]
                    (log/warn "Failed to delete " (:gapi-id info))))))
 
-  (init! [this]
+  (init! [_]
     (go (let [state @gapi-state]
           (cond
             ; try to load gapi again
@@ -492,17 +492,17 @@
             :else
             (<! state)))))
 
-  (connect! [this]
+  (connect! [_]
     (signin!))
 
-  (disconnect! [this]
+  (disconnect! [_]
     (signout!))
 
   (load-raw
-    [this id]
+    [_ id]
     (when-gapi-available do-load-raw id))
 
-  (query-data-sources [this]
+  (query-data-sources [_]
     ; TODO indicate query state?
     (do-query-files
       "appProperties has { key='wish-type' and value='data-source' }"
@@ -513,19 +513,19 @@
                                   (assoc file :id id))
                                 files)]))))
 
-  (query-sheets [this]
+  (query-sheets [_]
     (when-gapi-available
       query-files
       (str "(appProperties has { key='wish-type' and value='wish-sheet' }) "
            "or (appProperties has { key='wish-type' and value='wish-campaign' })")))
 
-  (register-data-source [this]
+  (register-data-source [_]
     ; TODO sanity checks galore
     (pick-file {:mimeType source-mime
                 :description source-desc
                 :props source-props}))
 
-  (save-sheet [this file-id data data-str]
+  (save-sheet [_ file-id data data-str]
     (if (= :ready @gapi-state)
       (do
         (log/info "Save " file-id data)
@@ -542,7 +542,7 @@
       ; not ready? don't try
       (to-chan! [[(js/Error. "No network; unable to save sheet") nil]])))
 
-  (watch-auth [this]
+  (watch-auth [_]
     (when-let [resp (auth-response)]
       {:id_token (.-id_token resp)
        :access_token (access-token)})))

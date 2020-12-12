@@ -110,4 +110,4 @@
   (list-entities [this kind]
     (cat-all this #(list-entities % kind)))
 
-  (raw [this] {}))
+  (raw [_] {}))

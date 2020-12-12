@@ -48,11 +48,11 @@
 
 (deftype CachingProvider [base my-id storage dirty?-storage]
   IProvider
-  (id [this] my-id)
-  (create-file [this kind file-name data]
+  (id [_] my-id)
+  (create-file [_ kind file-name data]
     (provider/create-file base kind file-name data))
 
-  (init! [this]
+  (init! [_]
     (go (let [base-state (or (<! (<!timeout (provider/init! base)))
                              :unavailable)]
           (when (= :ready base-state)
@@ -65,7 +65,7 @@
             ; if base is unavailable, we can take over
             :cache-only))))
 
-  (disconnect! [this]
+  (disconnect! [_]
     ; clear cache
     (reset! storage nil)
 
@@ -73,7 +73,7 @@
     (provider/disconnect! base))
 
   (load-raw
-    [this id]
+    [_ id]
     (go (let [is-dirty? (contains? @dirty?-storage id)
               [err resp :as result] (when-not is-dirty?
                                       ; don't try to load from provider if dirty
@@ -110,10 +110,10 @@
             ; no cache backup; just return the result
             result))))
 
-  (query-data-sources [this]
+  (query-data-sources [_]
     (provider/query-data-sources base))
 
-  (query-sheets [this]
+  (query-sheets [_]
     (let [ch (chan)
           from-cache (get @storage ::sheets)]
       (go
@@ -138,10 +138,10 @@
           (close! ch)))
       ch))
 
-  (register-data-source [this]
+  (register-data-source [_]
     (provider/register-data-source base))
 
-  (save-sheet [this file-id data data-str]
+  (save-sheet [_ file-id data data-str]
     (log/info "save-sheet to cache: " file-id)
     (swap! storage assoc file-id data-str)
     (swap! dirty?-storage conj file-id)
@@ -156,7 +156,7 @@
           ; return the result as-is
           result)))
 
-  (watch-auth [this]
+  (watch-auth [_]
     ; delegate
     (provider/watch-auth base)))
 

@@ -19,46 +19,46 @@
 
 (deftype WishProvider []
   IProvider
-  (id [this] :wish)
-  (create-file [this kind file-name data]
+  (id [_] :wish)
+  (create-file [_ _kind _file-name _data]
     (to-chan! [[(js/Error. "Not implemented") nil]]))
 
-  (init! [this]
+  (init! [_]
     ; we're always ready immediately
     (to-chan! [:ready]))
 
-  (connect! [this]
+  (connect! [_]
     ; not supported
     nil)
 
-  (disconnect! [this]
+  (disconnect! [_]
     ; not supported
     nil)
 
   (load-raw
-    [this id]
+    [_ id]
     (if-let [url (str data-root (:path (builtin-sources id)))]
       (GET url {:response-format :text})
 
       (to-chan! [[(js/Error. (str "No such source: " id))]])))
 
-  (query-data-sources [this]
+  (query-data-sources [_]
     (>evt [:add-data-sources
            (map (fn [[str-id info]]
                   (assoc info :id (make-id :wish str-id)))
                 builtin-sources)]))
 
-  (query-sheets [this]
+  (query-sheets [_]
     ; we never provide any sheets
     (to-chan! [[nil nil]]))
 
-  (register-data-source [this]
+  (register-data-source [_]
     (to-chan! [[(js/Error. "Not implemented") nil]]))
 
-  (save-sheet [this file-id data data-str]
+  (save-sheet [_ _file-id _data _data-str]
     (to-chan! [[(js/Error. "Not implemented") nil]]))
 
-  (watch-auth [this]
+  (watch-auth [_]
     ; not supported
     nil))
 
