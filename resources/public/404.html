@@ -11,9 +11,9 @@
       // If you're creating a Project Pages site and NOT using a custom domain,
       // then set segmentCount to 1 (enterprise users may need to set it to > 1).
       // Otherwise, leave segmentCount as 0.
-      var segmentCount = 1;
+      var segmentCount = 0;
       var l = window.location;
-      if (l.hostname === 'localhost') segmentCount = 0;
+      if (l.hostname.match(/github\.io$/)) segmentCount = 1;
 
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
