@@ -164,12 +164,20 @@
                      (engine/inflate-list
                        engine-state c options kinds))))
 
-         (map (fn [{:keys [id]}]
-                (if (namespace id)
+         (map (fn [{:keys [id] :as feature}]
+                (cond
+                  (or (nil? id)
+                      (not (keyword? id)))
+                  (js/console.warn
+                    "WARN: invalid id (from finesse-weapon-kinds): "
+                    feature)
+
                   ; unpack eg :proficiency/longsword
+                  (namespace id)
                   (keyword (name id))
 
                   ; regular weapon kind id
+                  :else
                   id)))
          set)))
 
