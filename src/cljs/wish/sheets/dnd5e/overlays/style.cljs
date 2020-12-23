@@ -160,7 +160,8 @@
     [:.hit-die styles/button]]
    [:.hit-die-use flex/center
     [:.hit-die-value {:width "5em"}]]]
-  [:.desc metadata])
+  [:.desc metadata]
+  [:.restored-items {:margin-left "1.5em"}])
 
 (defattrs spell-info-overlay []
   base-overlay)

@@ -5,7 +5,8 @@
             [wish.sheets.dnd5e.subs.inventory :as inventory]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.subs-util :refer [reg-id-sub]]
-            [wish.util :refer [invoke-callable]]))
+            [wish.util :refer [invoke-callable]]
+            [wish.util.limited-use :refer [restore-trigger-matches?]]))
 
 (reg-id-sub
   ::configs
@@ -101,3 +102,41 @@
        :slot-kind (:kind input)
        :slot-level (:level input)
        :max-slots (:total input)})))
+
+(defn- restorable-amount [use-obj used triggers]
+  (->> triggers
+       (filter (partial restore-trigger-matches?
+                        (:restore-trigger use-obj)))
+       (map (fn [trigger]
+              (invoke-callable
+                use-obj
+                :restore-amount
+                :used used
+                :trigger trigger)))
+       (apply max)))
+
+(reg-id-sub
+  ::restorable
+  :<- [::map]
+  :<- [:limited-used]
+  (fn [[configs used] [_ triggers]]
+    (when (or (not (coll? triggers))
+              (empty? triggers))
+      (throw (ex-info "Invalid restore triggers collection: " triggers)))
+
+    (seq
+      (reduce-kv
+        (fn [coll use-id used]
+          (let [addition
+                (when (> used 0)
+                  (when-let [use-obj (get configs use-id)]
+                    (when-let [restore-amount (restorable-amount
+                                                use-obj
+                                                used
+                                                triggers)]
+                      [use-obj restore-amount])))]
+            (if addition
+              (conj coll addition)
+              coll)))
+        []
+        used))))
