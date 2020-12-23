@@ -97,7 +97,7 @@ While you are transformed, the following rules apply:
                                :uses 2
                                :restore-trigger :short-rest})
                             (provide-attr
-                              [:action :druid/wild-shape#uses]
+                              [:action :druid/wild-shape]
                               true))}
 
                       {:id :druid/circle
