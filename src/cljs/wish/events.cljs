@@ -12,7 +12,8 @@
             [wish.inventory :as inv]
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
-            [wish.util :refer [distinct-by invoke-callable update-dissoc]]))
+            [wish.util :refer [distinct-by invoke-callable update-dissoc]]
+            [wish.util.limited-use :refer [restore-trigger-matches?]]))
 
 (reg-event-fx
   ::initialize-db
@@ -542,14 +543,6 @@
 
 
 ; ======= Limited-use handling =============================
-
-(defn restore-trigger-matches?
-  [required actual]
-  (cond
-    (keyword? required) (= required actual)
-    (set? required) (contains? required actual)
-    (coll? required) (contains? (set required)
-                                actual)))
 
 (defn apply-limited-use-trigger
   "limited-used is a map whose keys are limited-use item ids and whose values

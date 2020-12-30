@@ -6,6 +6,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.hp :as hp]
+            [wish.sheets.dnd5e.subs.limited-use :as limited-use]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.util :refer [->die-use-kw mod->str]]
             [wish.util :refer [<sub click>evts click>swap!]]
@@ -82,6 +83,11 @@
           :placeholder "Extra?"]
          ]))))
 
+(defn- restored-limited-use [use-obj restored-amount]
+  (if (> (:uses use-obj) 1)
+    [:p.desc (:name use-obj) ": " restored-amount]
+    [:p.desc (:name use-obj)]))
+
 
 ; ======= public interface ================================
 
@@ -115,6 +121,15 @@
         [dice-usage state]]
 
        ; TODO support (or at least surface) things like arcane recovery?
+
+       ; enumerate recovered resources
+       (when-let [restorable (<sub [::limited-use/restorable [:short-rest]])]
+         [:p.desc "Also recovered as part of the short rest:"
+
+          [:div.restored-items
+           (for [[use-obj restored-amount] restorable]
+             ^{:key (:id use-obj)}
+             [restored-limited-use use-obj restored-amount])]])
 
        [:div.button
         {:on-click (click>evts [:trigger-limited-use-restore :short-rest]
