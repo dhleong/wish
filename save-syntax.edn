@@ -53,6 +53,12 @@
  ; opaque, sheet-specific data
  :sheet {}
 
+ ; summoned/recruited ally creatures and their states
+ :allies [{:id :creature-id
+           :instance :instance-id
+           :notes "Etc."
+           :hp 42}]
+
  ; notes is a sequence of [date note] pairs
  :notes
  [[1234 "Note"]]}

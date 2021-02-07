@@ -3,6 +3,8 @@
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
+            [wish-engine.state :as engine-state]
+            [wish-engine.util :as engine-util]
             [wish.data :as data]
             [wish.db :as db]
             [wish.inventory :as inv]
@@ -10,7 +12,7 @@
             [wish.sheets.compiler :as compiler]
             [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [deep-merge]]))
+            [wish.util :refer [assoc-by-id deep-merge]]))
 
 
 (def ^:private non-storable-providers #{:wish :demo})
@@ -120,6 +122,7 @@
 (reg-meta-sub :meta/options :options)
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub ::meta-items :items)
+(reg-meta-sub :meta/allies :allies)
 (reg-meta-sub :meta/effects :effects)
 (reg-meta-sub :meta/equipped :equipped)
 (reg-meta-sub :meta/campaign :campaign)
@@ -262,6 +265,20 @@
                                                     active-id))]
       (when err
         info))))
+
+(reg-id-sub
+  :composite-sheet-engine-state
+  :<- [:sheet-engine-state]
+  :<- [:classes]
+  :<- [:races]
+  (fn [[source & entities]]
+    (when source
+      (engine-state/with-entity
+        source
+        (->> entities
+             (apply concat)
+             (reduce engine-util/merge-entities))
+        {}))))
 
 
 ; ======= Accessors for the active sheet ===================
@@ -711,6 +728,43 @@
          :items
          vals
          (sort-by :name))))
+
+
+; ======= allies ==========================================
+
+(reg-id-sub
+  ::ally-ids
+  :<- [:meta/allies]
+  (fn [allies]
+    (into #{} (map :id allies))))
+
+(defn- inflate-ally [_source entity]
+  ; TODO
+  entity)
+
+(reg-id-sub
+  ::inflated-ally-entities
+  :<- [:composite-sheet-engine-state]
+  :<- [::ally-ids]
+  (fn [[source ids]]
+    (->> (engine/inflate-list source ids)
+         (transduce
+           (map (partial inflate-ally source))
+           assoc-by-id
+           {}))))
+
+(reg-id-sub
+  :allies
+  :<- [::inflated-ally-entities]
+  :<- [:meta/allies]
+  (fn [[entities-map allies]]
+    (->> allies
+         (reduce
+           (fn [r {id :id :as ally}]
+             (if-let [v (get entities-map id)]
+               (conj r (merge v ally))
+               r))
+           []))))
 
 
 ; ======= character builder-related ========================

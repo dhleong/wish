@@ -173,12 +173,17 @@
                           {}
                           e)))))))
 
+(defn assoc-by-id
+  ([] {})
+  ([m] m)
+  ([m entity]
+   (assoc m (:id entity) entity)))
+
 (defn ->map
   "Given a seq of entities, return a map of :id -> entity"
   [entities]
   (reduce
-    (fn [m {id :id :as entity}]
-      (assoc m id entity))
+    assoc-by-id
     {}
     entities))
 
