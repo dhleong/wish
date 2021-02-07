@@ -79,6 +79,11 @@
            [equipment-choice state (conj path i) (second v) chosen?]
 
            (and (vector? v)
+                (= :pack (first v)))
+           [equipment-pack (second v) (when chosen?
+                                        :expand!)]
+
+           (and (vector? v)
                 (= :count (first v)))
            [equipment-count (second v) (peek v)]
 
