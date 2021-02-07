@@ -166,8 +166,7 @@
   "Like (assoc), but safely expands vectors"
   [vect index v]
   (let [existing (count vect)]
-    (if (and vect
-             (or (<= index existing)))
+    (if (and vect (<= index existing))
       ; easy case
       (assoc vect index v)
 
