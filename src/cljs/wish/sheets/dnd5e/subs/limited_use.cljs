@@ -3,6 +3,7 @@
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.subs-util :refer [reg-id-sub]]
             [wish.util :refer [invoke-callable]]
@@ -13,8 +14,9 @@
   :<- [:all-limited-use-configs]
   :<- [:total-level]
   :<- [::abilities/modifiers]
+  :<- [::proficiency/bonus]
   :<- [::inventory/attuned-ids]
-  (fn [[items total-level modifiers attuned-set]]
+  (fn [[items total-level modifiers prof-bonus attuned-set]]
     (->> items
          (remove :implicit?)
 
@@ -26,6 +28,7 @@
                           (if (ifn? value)
                             (invoke-callable limited-use :uses
                                              :modifiers modifiers
+                                             :proficiency-bonus prof-bonus
                                              :total-level total-level)
                             value)))))
 
