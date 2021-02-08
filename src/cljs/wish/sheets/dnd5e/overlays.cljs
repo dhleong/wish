@@ -10,6 +10,7 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
+            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.widgets :refer [consume-use-block
                                                item-quantity-manager
@@ -34,7 +35,8 @@
    :versatile "Versatile"})
 
 (defn- generic-info [entity]
-  (let [{:keys [aoe damage dice range]} entity]
+  (let [{:keys [aoe damage dice range]} entity
+        proficiency-bonus (<sub [::proficiency/bonus])]
     (when (or aoe damage dice range)
       [:table.info
        [:tbody
@@ -77,7 +79,8 @@
                          "Damage"
                          "Healing")]
            [:td (if (fn? dice)
-                  (dice (:wish/container entity))
+                  (dice (assoc (:wish/container entity)
+                               :proficiency-bonus proficiency-bonus))
                   dice)]])
         ]]
       )))
