@@ -2,10 +2,10 @@
   (:require [re-frame.core :as rf :refer [reg-sub]]
             ;; [wish-engine.core :as engine]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
+            [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.util :refer [distinct-by invoke-callable]]))
 
 (defn- inflate-actions [_engine dice-context ally]
-  (println "actions <-" ally)
   (concat
     ; attacks first:
     (->> ally
@@ -14,6 +14,10 @@
          (map (fn [[id v]]
                 (assoc v :id id
                        :from ally
+                       :to-hit (when (:to-hit v)
+                                 (apply invoke-callable
+                                        v :to-hit
+                                        dice-context))
                        :dmg (apply invoke-callable
                               v :dice
                               dice-context)))))
@@ -29,8 +33,10 @@
 (reg-sub
   ::dice-context
   :<- [::proficiency/bonus]
-  (fn [proficiency-bonus]
-    {:proficiency-bonus proficiency-bonus}))
+  :<- [::spells/spell-attack-bonuses]
+  (fn [[proficiency-bonus bonuses]]
+    {:proficiency-bonus proficiency-bonus
+     :spell-bonuses bonuses}))
 
 (reg-sub
   ::actions
