@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "DND 5e sheet"}
   wish.sheets.dnd5e
-  (:require [archetype.views.error-boundary :refer [error-boundary]]
-            [reagent.core :as r]
+  (:require [reagent.core :as r]
             [spade.core :refer [defclass]]
             [wish.util :refer [>evt <sub click>evt conj-class]]
             [wish.util.scroll :refer [scrolled-amount]]
@@ -16,6 +15,7 @@
             [wish.sheets.dnd5e.views.header :as header]
             [wish.sheets.dnd5e.views.inventory :as inventory]
             [wish.sheets.dnd5e.views.spells :as spells]
+            [wish.views.widgets.error-boundary :refer [error-boundary]]
             [wish.views.widgets.swipeable :refer [swipeable]]))
 
 (def ^:private nav-ref (atom nil))

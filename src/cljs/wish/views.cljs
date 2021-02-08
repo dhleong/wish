@@ -1,6 +1,5 @@
 (ns wish.views
-  (:require [archetype.views.error-boundary :refer [error-boundary]]
-            [wish.providers :as providers]
+  (:require [wish.providers :as providers]
             [wish.sheets :as sheets]
             [wish.util :refer [<sub click>evt]]
             [wish.views.campaign-browser :as campaign-browser]
@@ -13,6 +12,7 @@
             [wish.views.splash :as splash]
             [wish.views.notifiers :refer [notifiers]]
             [wish.views.widgets :refer-macros [icon]]
+            [wish.views.widgets.error-boundary :refer [error-boundary]]
             [wish.views.widgets.media-tracker :refer [media-tracker]]))
 
 (def pages

@@ -4,8 +4,13 @@
   (:require-macros [wish.util :refer [fn-click]])
   (:require [re-frame.core :refer [subscribe dispatch]]))
 
-(def <sub (comp deref subscribe))
 (def >evt dispatch)
+;; (def <sub (comp deref subscribe))
+(defn <sub [query]
+  (try @(subscribe query)
+       (catch :default e
+         (throw (ex-info (str "ERROR deref'ing " query)
+                         {:error e})))))
 
 (defn distinct-by
   ([f]
