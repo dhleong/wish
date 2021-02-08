@@ -39,7 +39,10 @@
       {:on-click (click>evt [:toggle-overlay
                              [#'overlays/info s]])
        :class "clickable"})
-    (:name s) ]
+    [:div.action (:name s)]
+    (when-let [source (:from s)]
+      [:div.source "From " (:name source)])
+    ]
 
    (when (:consumes s)
      (when-let [{:keys [uses-left] :as info}

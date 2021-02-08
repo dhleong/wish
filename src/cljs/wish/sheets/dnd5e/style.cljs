@@ -235,7 +235,8 @@
     {:float 'right}]]
 
   [:.attack flex/center
-   [:.name flex/grow]
+   [:.name flex/grow
+    [:.source {:font-size "70%"}]]
    [:.info-group (merge flex/center
                         flex/vertical-center
                         {:padding "4px"})

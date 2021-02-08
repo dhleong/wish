@@ -13,6 +13,7 @@
          :attacks
          (map (fn [[id v]]
                 (assoc v :id id
+                       :from ally
                        :dmg (apply invoke-callable
                               v :dice
                               dice-context)))))
