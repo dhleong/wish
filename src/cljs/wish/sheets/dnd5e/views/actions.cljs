@@ -155,12 +155,7 @@
         ^{:key (:id a)}
         [:div.action
          {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
-         (:name a)])])
-
-   [subscription-attacks
-    "Ally Actions"
-    :sub [::allies/actions]]
-   ])
+         (:name a)])]) ])
 
 (defn- action-block [a]
   [:div.action
@@ -195,6 +190,18 @@
             ^{:key (:id a)}
             [action-block a])])])))
 
+
+; ======= allies ==========================================
+
+(defn- allies []
+  ; TODO we want more info per ally (manage HP, dismiss, etc)
+  [subscription-attacks
+   "Ally Actions"
+   :sub [::allies/actions]]
+  )
+
+; ======= navigation ======================================
+
 (defn- scroll-into-view [el]
   (.scrollIntoView el #js {:behavior "smooth"
                            :block "start"
@@ -215,6 +222,7 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
+   [:allies "Allies" :when-any-<sub [[:allies]]]
    [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]
                                        [::combat/actions-for-type :action]]]
    [:bonuses "Bonuses" :when-any-<sub [[::spells/prepared-spells-filtered :bonus]
@@ -369,6 +377,11 @@
 
      [actions-header page-state :combat]
      [actions-combat]
+
+     (when (seq (<sub [:allies]))
+       [:<>
+        [actions-header page-state :allies]
+        [allies]])
 
      [actions-for-type :action
       [actions-header page-state :actions]]
