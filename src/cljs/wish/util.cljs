@@ -7,17 +7,31 @@
 (def <sub (comp deref subscribe))
 (def >evt dispatch)
 
-(defn distinct-by [f coll]
-  (let [step (fn step [xs seen]
-               (lazy-seq
-                 ((fn [[x :as xs] seen]
-                    (when-let [s (seq xs)]
-                      (let [fx (f x)]
-                        (if (contains? seen fx)
-                          (recur (rest s) seen)
-                          (cons x (step (rest s) (conj seen fx)))))))
-                  xs seen)))]
-    (step coll #{})))
+(defn distinct-by
+  ([f]
+   ; transducer implementation based on core/distinct
+   (fn [rf]
+     (let [seen (volatile! #{})]
+       (fn
+         ([] (rf))
+         ([result] (rf result))
+         ([result input]
+          (let [k (f input)]
+            (if (contains? @seen k)
+              result
+              (do (vswap! seen conj k)
+                  (rf result input)))))))))
+  ([f coll]
+   (let [step (fn step [xs seen]
+                (lazy-seq
+                  ((fn [[x :as xs] seen]
+                     (when-let [s (seq xs)]
+                       (let [fx (f x)]
+                         (if (contains? seen fx)
+                           (recur (rest s) seen)
+                           (cons x (step (rest s) (conj seen fx)))))))
+                   xs seen)))]
+     (step coll #{}))))
 
 (defn dec-dissoc
   "Update the key `k` in the given map `m`, decrementing it

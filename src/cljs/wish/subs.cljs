@@ -738,9 +738,11 @@
   (fn [allies]
     (into #{} (map :id allies))))
 
-(defn- inflate-ally [_source entity]
-  ; TODO
-  entity)
+(defn- inflate-ally [source entity]
+  ;; actually... should we provide the meta/allies map as the "entity
+  ;; state"?
+  (merge entity
+         (engine/inflate-entity source entity {} {})))
 
 (reg-id-sub
   ::inflated-ally-entities

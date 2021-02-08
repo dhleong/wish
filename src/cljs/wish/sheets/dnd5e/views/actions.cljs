@@ -8,6 +8,7 @@
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.subs.allies :as allies]
             [wish.sheets.dnd5e.subs.combat :as combat]
             [wish.sheets.dnd5e.subs.limited-use :as limited-use]
             [wish.sheets.dnd5e.subs.spells :as spells]
@@ -92,6 +93,14 @@
 
     [:div.ammo "(no ammunition)"]))
 
+(defn- subscription-attacks [title & {:keys [sub props]}]
+  (when-let [attacks (seq (<sub sub))]
+    [:div.other
+     [:h4 title]
+     (for [a attacks]
+       ^{:key (:id a)}
+       [attack-block a props])]))
+
 (defn- actions-combat []
   [:<>
 
@@ -128,19 +137,13 @@
          (when (:uses-ammunition? w)
            [ammunition-block-for w])])])
 
-   (when-let [spell-attacks (seq (<sub [::spells/spell-attacks]))]
-     [:div.spell-attacks
-      [:h4 "Spell Attacks"]
-      (for [s spell-attacks]
-        ^{:key (:id s)}
-        [attack-block s {:class :spell-attack}])])
-
-   (when-let [attacks (seq (<sub [::combat/other-attacks]))]
-     [:div.other
-      [:h4 "Other Attacks"]
-      (for [a attacks]
-        ^{:key (:id a)}
-        [attack-block a])])
+   [subscription-attacks
+    "Spell Attacks"
+    :sub [::spells/spell-attacks]
+    :props {:class :spell-attack}]
+   [subscription-attacks
+    "Other Attacks"
+    :sub [::combat/other-attacks]]
 
    (when-let [actions (seq (<sub [::combat/special-actions]))]
      [:div.special
@@ -150,6 +153,10 @@
         [:div.action
          {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
          (:name a)])])
+
+   [subscription-attacks
+    "Ally Actions"
+    :sub [::allies/actions]]
    ])
 
 (defn- action-block [a]
