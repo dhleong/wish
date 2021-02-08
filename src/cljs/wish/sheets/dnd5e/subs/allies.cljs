@@ -5,7 +5,7 @@
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.util :refer [distinct-by invoke-callable]]))
 
-(defn- inflate-actions [_engine dice-context ally]
+(defn- inflate-actions [engine dice-context ally]
   (concat
     ; attacks first:
     (->> ally
@@ -14,21 +14,25 @@
          (map (fn [[id v]]
                 (assoc v :id id
                        :from ally
-                       :to-hit (when (:to-hit v)
-                                 (apply invoke-callable
-                                        v :to-hit
-                                        dice-context))
+                       :to-hit (apply invoke-callable
+                                      v :to-hit
+                                      dice-context)
                        :dmg (apply invoke-callable
                               v :dice
                               dice-context)))))
 
-    ; TODO other actions:
-    #_(->> ally
+    ; other actions:
+    (->> ally
        :attrs
        :actions
-       keys)
-    )
-  )
+       keys
+       (keep (fn [id]
+               (when-let [f (or (get-in ally [:features id])
+                                (get-in engine [:features id]))]
+                 (assoc f :from ally
+                        :dmg (apply invoke-callable
+                                    f :dice
+                                    dice-context))))))))
 
 (reg-sub
   ::dice-context
