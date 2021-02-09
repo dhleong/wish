@@ -272,7 +272,13 @@
    [:.name {:font-size "90%"
             :font-weight 'bold
             :font-style 'italic}]
-   [:.desc metadata]])
+   [:.desc metadata]]
+
+  [:.ally
+   [:.info {:display :flex
+            :flex-direction :row}]
+   [:.actions {:margin-left "16px"}]]
+  )
 
 (defattrs features-section []
   [:.features-category>h3 {:border-bottom "1px solid #000"}]

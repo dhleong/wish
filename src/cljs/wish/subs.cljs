@@ -12,7 +12,7 @@
             [wish.sheets.compiler :as compiler]
             [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [assoc-by-id deep-merge]]))
+            [wish.util :refer [assoc-by-id deep-merge invoke-callable]]))
 
 
 (def ^:private non-storable-providers #{:wish :demo})
@@ -312,6 +312,17 @@
     (->> classes
          (filter :primary?)
          first)))
+
+; sum of levels from all classes
+(reg-id-sub
+  :class-levels
+  :<- [:classes]
+  (fn [classes _]
+    (reduce
+      (fn [m class-obj]
+        (assoc m (:id class-obj) (:level class-obj)))
+      {}
+      classes)))
 
 ; sum of levels from all classes
 (reg-id-sub
@@ -738,20 +749,33 @@
   (fn [allies]
     (into #{} (map :id allies))))
 
-(defn- inflate-ally [source entity]
+(defn- inflate-ally [source context entity]
   ;; actually... should we provide the meta/allies map as the "entity
   ;; state"?
-  (merge entity
-         (engine/inflate-entity source entity {} {})))
+  (as->
+    (merge entity
+           (engine/inflate-entity source entity {} {}))
+    inflated
+
+    (update inflated :max-hp (fn [v]
+                               (if v v
+                                 (apply invoke-callable
+                                        inflated :hit-points
+                                        context))))
+
+    (update inflated :hp (fn [v]
+                           (if v v
+                             (:max-hp inflated))))))
 
 (reg-id-sub
   ::inflated-ally-entities
   :<- [:composite-sheet-engine-state]
+  :<- [:class-levels]
   :<- [::ally-ids]
-  (fn [[source ids]]
+  (fn [[source levels ids]]
     (->> (engine/inflate-list source ids)
          (transduce
-           (map (partial inflate-ally source))
+           (map (partial inflate-ally source [:levels levels]))
            assoc-by-id
            {}))))
 

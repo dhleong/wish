@@ -1,6 +1,5 @@
 (ns wish.sheets.dnd5e.subs.allies
   (:require [re-frame.core :as rf :refer [reg-sub]]
-            ;; [wish-engine.core :as engine]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
             [wish.util :refer [distinct-by invoke-callable]]))
@@ -43,16 +42,18 @@
      :spell-bonuses bonuses}))
 
 (reg-sub
-  ::actions
+  ::with-actions
   :<- [:composite-sheet-engine-state]
   :<- [::dice-context]
   :<- [:allies]
   (fn [[engine dice-context allies]]
-    (->> allies
-         (transduce
-           (comp
-             (distinct-by :id)
-             (mapcat (partial inflate-actions
-                              engine
-                              (flatten (seq dice-context)))))
-           conj []))))
+    (let [context-list (flatten (seq dice-context))]
+      (->> allies
+           (transduce
+             (map (fn [ally]
+                    (assoc ally
+                           :actions (inflate-actions
+                                      engine
+                                      context-list
+                                      ally))))
+             conj [])))))

@@ -96,13 +96,17 @@
 
     [:div.ammo "(no ammunition)"]))
 
+(defn- attacks-block [props attacks]
+  [:<>
+   (for [a attacks]
+     ^{:key (:id a)}
+     [attack-block a props])])
+
 (defn- subscription-attacks [title & {:keys [sub props]}]
   (when-let [attacks (seq (<sub sub))]
     [:div.other
      [:h4 title]
-     (for [a attacks]
-       ^{:key (:id a)}
-       [attack-block a props])]))
+     [attacks-block props attacks]]))
 
 (defn- actions-combat []
   [:<>
@@ -193,11 +197,26 @@
 
 ; ======= allies ==========================================
 
+(defn- ally-info-block [a]
+  [:div.info.clickable {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
+   [:div.name (:name a)]
+
+  ; TODO manage HP, dismiss, etc
+   (when-let [max-hp (:max-hp a)]
+     [:div.hp (:hp a) "/" max-hp])
+
+   (when-let [ac (:ac a)]
+     [:div.ac "AC " ac])])
+
 (defn- allies []
-  ; TODO we want more info per ally (manage HP, dismiss, etc)
-  [subscription-attacks
-   "Ally Actions"
-   :sub [::allies/actions]]
+  [:<>
+   (for [a (<sub [::allies/with-actions])]
+     ^{:key [(:id a) (:instance a)]}
+     [:div.ally
+      [ally-info-block a]
+
+      [:div.actions
+       [attacks-block {} (:actions a)]]])]
   )
 
 ; ======= navigation ======================================
