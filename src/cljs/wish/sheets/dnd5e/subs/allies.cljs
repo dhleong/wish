@@ -2,7 +2,7 @@
   (:require [re-frame.core :as rf :refer [reg-sub]]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
-            [wish.util :refer [distinct-by invoke-callable]]))
+            [wish.util :refer [invoke-callable]]))
 
 (defn- inflate-actions [engine dice-context ally]
   (concat
