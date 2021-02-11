@@ -106,13 +106,15 @@
 
 (reg-sub
   ::unarmed-strike
-  :<- [:classes]
   :<- [:sheet-engine-state]
   :<- [::abilities/modifiers]
   :<- [::proficiency/bonus]
-  (fn [[classes data-source modifiers proficiency-bonus]]
+  :<- [:races]
+  :<- [:classes]
+  (fn [[data-source modifiers proficiency-bonus & feature-sources]]
     ; prefer the first non-implicit result
-    (->> classes
+    (->> feature-sources
+         (apply concat)
          (map (fn [c]
                 (assoc
                   (or (-> c :features :unarmed-strike)
