@@ -229,9 +229,8 @@
      [:div.ac "AC " ac])
 
    [:div.buttons
-    [:div.dismiss.button {:on-click (fn-click [e]
-                                      (.stopPropagation e)
-                                      (>evt [:ally/dismiss (:id a)]))}
+    [:div.dismiss.button {:on-click (click>evt [:ally/dismiss (:id a)]
+                                               :propagate? false)}
      "Dismiss"]]
    ])
 

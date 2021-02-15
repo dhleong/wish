@@ -904,6 +904,14 @@
 ; ======= ally management =================================
 
 (reg-event-fx
+  :ally/add
+  [trim-v]
+  (fn [cofx [ally-spec]]
+    (update-sheet-path cofx [:allies]
+                       (fnil conj [])
+                       ally-spec)))
+
+(reg-event-fx
   :ally/dismiss
   [trim-v]
   (fn [cofx [{:keys [id instance-id]}]]
