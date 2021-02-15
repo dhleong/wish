@@ -55,7 +55,7 @@
 
  ; summoned/recruited ally creatures and their states
  :allies [{:id :creature-id
-           :instance :instance-id
+           :instance-id :instance-id
            :notes "Etc."
            :hp 42}]
 

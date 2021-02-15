@@ -13,6 +13,7 @@
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
             [wish.util :refer [distinct-by invoke-callable update-dissoc]]
+            [wish.util.collections :refer [disj-by]]
             [wish.util.limited-use :refer [restore-trigger-matches?]]))
 
 (reg-event-fx
@@ -905,9 +906,13 @@
 (reg-event-fx
   :ally/dismiss
   [trim-v]
-  (fn [_cofx [ally-id]]
-    (println "TODO: dismiss" ally-id)
-    #_(update-sheet-path cofx [:allies])))
+  (fn [cofx [{:keys [id instance-id]}]]
+    (update-sheet-path cofx [:allies]
+                       disj-by
+                       (fn [ally]
+                         (if instance-id
+                           (= (:instance-id ally) instance-id)
+                           (= (:id ally) id))))))
 
 
 ; ======= Save-state handling ==============================
