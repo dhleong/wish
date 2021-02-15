@@ -22,7 +22,7 @@
   [coll pred]
   (when coll
     (cond
-      (vector? coll) (if-let [index (index-where coll pred)]
+      (vector? coll) (when-let [index (index-where coll pred)]
                        (into (subvec coll 0 index)
                              (subvec coll (inc index))))
 
