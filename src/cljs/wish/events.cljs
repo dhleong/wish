@@ -918,6 +918,7 @@
     (update-sheet-path cofx [:allies]
                        disj-by
                        (fn [ally]
+                         (println "match? " ally " vs " id " / " instance-id)
                          (if instance-id
                            (= (:instance-id ally) instance-id)
                            (= (:id ally) id))))))

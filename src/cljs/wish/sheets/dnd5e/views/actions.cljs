@@ -229,7 +229,7 @@
      [:div.ac "AC " ac])
 
    [:div.buttons
-    [:div.dismiss.button {:on-click (click>evt [:ally/dismiss (:id a)]
+    [:div.dismiss.button {:on-click (click>evt [:ally/dismiss a]
                                                :propagate? false)}
      "Dismiss"]]
    ])
