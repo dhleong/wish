@@ -2,6 +2,7 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [spade.core :refer [defattrs]]
             [wish.util :refer [>evt <sub click>evt]
              :refer-macros [fn-click]]
             [wish.sheets.dnd5e.events :as events]
@@ -197,22 +198,41 @@
 
 ; ======= allies ==========================================
 
+(defattrs ally-attrs []
+  [:.info {:display :flex
+           :flex-direction :row
+           :align-items :center
+           :padding [["8px" 0]]}
+   ["&>div:not(:first-child)" {:padding [[0 "4px"]]}
+    [:&::before {:content "' · '"}]]
+   [:.buttons {:display :flex
+               :flex-direction :row}
+    [:>.button {:padding [["2px" "8px"]]}]]]
+  [:.actions {:margin-left "16px"}])
+
 (defn- ally-info-block [a]
   [:div.info.clickable {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
    [:div.name (:name a)]
 
-  ; TODO manage HP, dismiss, etc
    (when-let [max-hp (:max-hp a)]
+     ; TODO manage HP
      [:div.hp (:hp a) "/" max-hp])
 
    (when-let [ac (:ac a)]
-     [:div.ac "AC " ac])])
+     [:div.ac "AC " ac])
+
+   [:div.buttons
+    [:div.dismiss.button {:on-click (fn-click [e]
+                                      (.stopPropagation e)
+                                      (>evt [:ally/dismiss (:id a)]))}
+     "Dismiss"]]
+   ])
 
 (defn- allies []
   [:<>
    (for [a (<sub [::allies/with-actions])]
      ^{:key [(:id a) (:instance a)]}
-     [:div.ally
+     [:div (ally-attrs)
       [ally-info-block a]
 
       [:div.actions

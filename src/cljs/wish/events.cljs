@@ -900,6 +900,16 @@
                          effect-remove args))))
 
 
+; ======= ally management =================================
+
+(reg-event-fx
+  :ally/dismiss
+  [trim-v]
+  (fn [_cofx [ally-id]]
+    (println "TODO: dismiss" ally-id)
+    #_(update-sheet-path cofx [:allies])))
+
+
 ; ======= Save-state handling ==============================
 
 (reg-event-db
