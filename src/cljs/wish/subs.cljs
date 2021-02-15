@@ -792,7 +792,6 @@
                r))
            []))))
 
-
 ; ======= character builder-related ========================
 
 (reg-sub

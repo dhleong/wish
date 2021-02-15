@@ -1,7 +1,10 @@
 (ns wish.sheets.dnd5e.subs.allies
   (:require [re-frame.core :as rf :refer [reg-sub]]
+            [wish-engine.core :as engine]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.subs.spells :as spells]
+            [wish.sheets.dnd5e.subs.util :refer [filter-by-str]]
+            [wish.subs-util :refer [reg-id-sub]]
             [wish.util :refer [invoke-callable]]))
 
 (defn- inflate-actions [engine dice-context ally]
@@ -32,7 +35,6 @@
                         :dmg (apply invoke-callable
                                     f :dice
                                     dice-context))))))))
-
 (reg-sub
   ::dice-context
   :<- [::proficiency/bonus]
@@ -57,3 +59,34 @@
                                       context-list
                                       ally))))
              conj [])))))
+
+
+; ======= selection/favoriting ============================
+
+(reg-sub
+  :5e/allies-filter
+  (fn [db]
+    (:5e/allies-filter db nil)))
+
+(reg-id-sub
+  ::all-inflated
+  :<- [:composite-sheet-engine-state]
+  (fn [source _]
+    (engine/inflate-list source :all-creatures)))
+
+(reg-id-sub
+  ::all-sorted
+  :<- [::all-inflated]
+  (fn [all _]
+    (->> all (sort-by :name))))
+
+(reg-sub
+  ::all
+  :<- [::all-sorted]
+  :<- [:5e/allies-filter]
+  (fn [[items filter-str]]
+    (->> items
+         ;; (remove :feature-only?)
+         ;; (remove (comp active-ids :id))
+         (filter-by-str filter-str))))
+
