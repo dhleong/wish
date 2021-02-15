@@ -12,7 +12,8 @@
             [wish.sheets.compiler :as compiler]
             [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [assoc-by-id deep-merge invoke-callable]]))
+            [wish.util :refer [assoc-by-id deep-merge invoke-callable]]
+            [wish.util.dice :as dice]))
 
 
 (def ^:private non-storable-providers #{:wish :demo})
@@ -758,10 +759,17 @@
     inflated
 
     (update inflated :max-hp (fn [v]
-                               (if v v
-                                 (apply invoke-callable
-                                        inflated :hit-points
-                                        context))))
+                               (cond
+                                 v v
+                                 (string? v) (dice/compute-average v)
+
+                                 (string? (:hit-points inflated))
+                                 (dice/compute-average
+                                   (:hit-points inflated))
+
+                                 :else (apply invoke-callable
+                                              inflated :hit-points
+                                              context))))
 
     (update inflated :hp (fn [v]
                            (if v v
