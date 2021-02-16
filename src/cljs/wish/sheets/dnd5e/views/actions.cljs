@@ -234,16 +234,39 @@
      "Dismiss"]]
    ])
 
-(defn- allies []
-  [:<>
-   (for [a (<sub [::allies/with-actions])]
-     ^{:key [(:id a) (:instance a)]}
-     [:div (ally-attrs)
-      [ally-info-block a]
+(defn- preferred-ally-block [a]
+  [:div.info.clickable {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
+   [:div.name (:name a)]
 
-      [:div.actions
-       [attacks-block {} (:actions a)]]])]
-  )
+   [:div.buttons
+    [:div.button.button {:on-click (click>evt [:ally/add a]
+                                              :propagate? false)}
+     "Summon"]]
+   ])
+
+(defattrs allies-attrs []
+  [:h4 {:margin-bottom 0}])
+
+(defn- allies []
+  [:div (allies-attrs)
+   (when-let [summoned (seq (<sub [::allies/with-actions]))]
+     [:<>
+      [:h4 "Summoned"]
+      (for [a summoned]
+        ^{:key [(:id a) (:instance a)]}
+        [:div (ally-attrs)
+         [ally-info-block a]
+
+         [:div.actions
+          [attacks-block {} (:actions a)]]])])
+
+   (when-let [preferred (seq (<sub [:allies/preferred]))]
+     [:<>
+      [:h4 "Preferred"]
+      (for [a preferred]
+        ^{:key [:summon (:id a)]}
+        [:div (ally-attrs)
+         [preferred-ally-block a]])])])
 
 ; ======= navigation ======================================
 
@@ -267,7 +290,8 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
-   [:allies "Allies" :when-any-<sub [[:allies]]]
+   [:allies "Allies" :when-any-<sub [[:allies]
+                                     [:allies/preferred]]]
    [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]
                                        [::combat/actions-for-type :action]]]
    [:bonuses "Bonuses" :when-any-<sub [[::spells/prepared-spells-filtered :bonus]
@@ -423,7 +447,8 @@
      [actions-header page-state :combat]
      [actions-combat]
 
-     (when (seq (<sub [:allies]))
+     (when (or (seq (<sub [:allies]))
+               (seq (<sub [:allies/preferred])))
        [:<>
         [actions-header page-state :allies]
         [allies]])
