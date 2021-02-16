@@ -4,8 +4,8 @@
             [wish.inventory :refer [instantiate-id]]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.subs.allies :as allies]
-            [wish.util :refer [click>evts <sub]]
-            [wish.views.widgets :as widgets]
+            [wish.util :refer [click>evt click>evts <sub]]
+            [wish.views.widgets :as widgets :refer-macros [icon]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 (defattrs ally-attrs []
@@ -13,10 +13,21 @@
    :width :100%
    :align-items :center
    :flex-direction :row}
+  [:.favorite {:padding "4px"}]
   [:.name {:flex-grow 1}])
 
-(defn- ally-browser-item [{id :id :as ally}]
+(defn- ally-browser-item [{:keys [id preferred?] :as ally}]
   [:div (ally-attrs)
+   [:div.favorite
+    (let [ico (if preferred?
+                (icon :favorite)
+                (icon :favorite-border))]
+      (if (= :forced preferred?)
+        ico
+        [:a {:href "#"
+             :on-click (click>evt [:ally/toggle-favorite ally])}
+         ico]))]
+
    [:div.name (:name ally)]
 
    [:div.button {:on-click (click>evts

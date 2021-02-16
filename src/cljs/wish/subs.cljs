@@ -12,7 +12,7 @@
             [wish.sheets.compiler :as compiler]
             [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [assoc-by-id deep-merge invoke-callable]]
+            [wish.util :refer [assoc-by-id deep-merge distinct-by invoke-callable]]
             [wish.util.dice :as dice]))
 
 
@@ -124,6 +124,7 @@
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub ::meta-items :items)
 (reg-meta-sub :meta/allies :allies)
+(reg-meta-sub :meta/preferred-allies :allies/preferred)
 (reg-meta-sub :meta/effects :effects)
 (reg-meta-sub :meta/equipped :equipped)
 (reg-meta-sub :meta/campaign :campaign)
@@ -799,6 +800,42 @@
                (conj r (merge v ally))
                r))
            []))))
+
+;; Returns a map of :id -> true/:forced
+(reg-id-sub
+  :allies/preferred-map
+  :<- [:composite-sheet-engine-state]
+  :<- [:meta/preferred-allies]
+  (fn [[source sheet-preferred-set]]
+    ; override "base" with any forced by a feature (eg wildfire spirit)
+    (reduce
+      (fn [m ally]
+        (assoc m (:id ally) :forced))
+
+      ; base is all those defined on the sheet
+      (zipmap sheet-preferred-set
+              (repeat true))
+
+      (engine/inflate-list source :allies/preferred))))
+
+(reg-id-sub
+  :allies/preferred-items
+  :<- [:composite-sheet-engine-state]
+  :<- [:meta/preferred-allies]
+  (fn [[sources sheet-preferred]]
+    (concat
+      (engine/inflate-list sources :allies/preferred)
+      (when (coll? sheet-preferred)
+        (engine/inflate-list sources sheet-preferred)))))
+
+(reg-id-sub
+  :allies/preferred
+  :<- [:allies/preferred-items]
+  (fn [items]
+    (->> items
+         (distinct-by :id)
+         (sort-by :name))))
+
 
 ; ======= character builder-related ========================
 

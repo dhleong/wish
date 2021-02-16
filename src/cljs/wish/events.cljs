@@ -13,7 +13,7 @@
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
             [wish.util :refer [distinct-by invoke-callable update-dissoc]]
-            [wish.util.collections :refer [disj-by]]
+            [wish.util.collections :refer [disj-by toggle-in-set]]
             [wish.util.limited-use :refer [restore-trigger-matches?]]))
 
 (reg-event-fx
@@ -917,11 +917,16 @@
   (fn [cofx [{:keys [id instance-id]}]]
     (update-sheet-path cofx [:allies]
                        disj-by
-                       (fn [ally]
-                         (println "match? " ally " vs " id " / " instance-id)
-                         (if instance-id
-                           (= (:instance-id ally) instance-id)
-                           (= (:id ally) id))))))
+                       (if instance-id
+                         #(= (:instance-id %) instance-id)
+                         #(= (:id %) id)))))
+
+(reg-event-fx
+  :ally/toggle-favorite
+  [trim-v]
+  (fn [cofx [{:keys [id]}]]
+    (update-sheet-path cofx [:allies/preferred]
+                       toggle-in-set id)))
 
 
 ; ======= Save-state handling ==============================

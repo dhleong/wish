@@ -71,8 +71,11 @@
 (reg-id-sub
   ::all-inflated
   :<- [:composite-sheet-engine-state]
-  (fn [source _]
-    (engine/inflate-list source :all-creatures)))
+  :<- [:allies/preferred-map]
+  (fn [[source preferred] _]
+    (->> (engine/inflate-list source :all-creatures)
+         (map (fn [{id :id :as ally}]
+                (assoc ally :preferred? (preferred id)))))))
 
 (reg-id-sub
   ::all-sorted

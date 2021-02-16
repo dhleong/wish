@@ -28,3 +28,9 @@
                        coll)
 
       :else (throw (ex-info "Unsupported coll" {:coll coll})))))
+
+(defn toggle-in-set
+  [coll v]
+  (if (contains? coll v)
+    (disj coll v)
+    ((fnil conj #{}) coll v)))
