@@ -909,7 +909,7 @@
   (fn [cofx [ally-spec]]
     (update-sheet-path cofx [:allies]
                        (fnil conj [])
-                       ally-spec)))
+                       (select-keys ally-spec [:id :instance-id]))))
 
 (defn- ally-matcher [{:keys [id instance-id]}]
   (if instance-id
@@ -927,14 +927,14 @@
 (reg-event-fx
   :ally/toggle-favorite
   [trim-v]
-  (fn [cofx [{:keys [id]}]]
+  (fn-traced [cofx [{:keys [id]}]]
     (update-sheet-path cofx [:allies/preferred]
                        toggle-in-set id)))
 
 (reg-event-fx
   :ally/set-in
   [trim-v]
-  (fn [cofx [query set-path new-value]]
+  (fn-traced [cofx [query set-path new-value]]
     (update-sheet-path
       cofx [:allies]
       (fn [allies]
