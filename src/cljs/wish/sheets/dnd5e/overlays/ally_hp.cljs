@@ -5,14 +5,19 @@
             [wish.util :refer [>evt <sub]]))
 
 (defattrs overlay-attrs []
-  styles/overlay)
+  styles/overlay
+  [:.quick-edit {:display :flex
+                 :flex-direction :row
+                 :align-items :center
+                 :justify-content :space-between}
+   [:input {:font-size "1.2em"
+            :width "5em"}]])
 
 (defn overlay [ally]
   [:div (overlay-attrs)
    [:h3 "HP: " (:name ally)]
-   (println ally)
    [bind-fields
-    [:div
+    [:div.quick-edit
      [:input.number {:field :fast-numeric
                      :id :hp
                      :min 0}]
