@@ -836,6 +836,16 @@
          (distinct-by :id)
          (sort-by :name))))
 
+(reg-id-sub
+  :ally-state
+  :<- [:meta/allies]
+  (fn [allies [_ ally]]
+    (->> allies
+         (filter (fn [info]
+                   (= (select-keys ally [:id :instance-id])
+                      (select-keys info [:id :instance-id]))))
+         first)))
+
 
 ; ======= character builder-related ========================
 

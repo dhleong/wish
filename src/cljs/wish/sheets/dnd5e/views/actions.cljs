@@ -8,6 +8,7 @@
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays :as overlays]
             [wish.sheets.dnd5e.overlays.allies :as allies-manager]
+            [wish.sheets.dnd5e.overlays.ally-hp :as ally-hp]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
             [wish.sheets.dnd5e.subs.allies :as allies]
@@ -222,8 +223,9 @@
    [:div.name (:name a)]
 
    (when-let [max-hp (:max-hp a)]
-     ; TODO manage HP
-     [:div.hp (:hp a) "/" max-hp])
+     [:div.hp {:on-click (click>evt [:toggle-overlay [#'ally-hp/overlay a]]
+                                    :propagate? false)}
+      (:hp a) "/" max-hp])
 
    (when-let [ac (:ac a)]
      [:div.ac "AC " ac])
