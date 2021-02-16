@@ -2,12 +2,16 @@
   (:require [clojure.string :as str]
             [reagent.core :as r]
             [reagent-forms.core :refer [bind-fields]]
+            [spade.core :refer [defattrs]]
             [wish.util :refer [>evt <sub click>evt]
              :refer-macros [fn-click]]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays :as overlays]
+            [wish.sheets.dnd5e.overlays.allies :as allies-manager]
+            [wish.sheets.dnd5e.overlays.ally-hp :as ally-hp]
             [wish.sheets.dnd5e.overlays.effects :as effects-manager]
             [wish.sheets.dnd5e.style :as styles]
+            [wish.sheets.dnd5e.subs.allies :as allies]
             [wish.sheets.dnd5e.subs.combat :as combat]
             [wish.sheets.dnd5e.subs.limited-use :as limited-use]
             [wish.sheets.dnd5e.subs.spells :as spells]
@@ -38,7 +42,10 @@
       {:on-click (click>evt [:toggle-overlay
                              [#'overlays/info s]])
        :class "clickable"})
-    (:name s) ]
+    [:div.action (:name s)]
+    (when-let [source (:from s)]
+      [:div.source "From " (:name source)])
+    ]
 
    (when (:consumes s)
      (when-let [{:keys [uses-left] :as info}
@@ -92,19 +99,37 @@
 
     [:div.ammo "(no ammunition)"]))
 
+(defn- attacks-block [props attacks]
+  [:<>
+   (for [a attacks]
+     ^{:key (:id a)}
+     [attack-block a props])])
+
+(defn- subscription-attacks [title & {:keys [sub props]}]
+  (when-let [attacks (seq (<sub sub))]
+    [:div.other
+     [:h4 title]
+     [attacks-block props attacks]]))
+
 (defn- actions-combat []
   [:<>
 
    [:div.combat-info
-    (for [info (<sub [::combat/info])]
-      ^{:key (:name info)}
-      [:span.item
-       (:name info) ": " (:value info)])
+    [:div.items
+     (for [info (<sub [::combat/info])]
+       ^{:key (:name info)}
+       [:span.item
+        (:name info) ": " (:value info)])]
 
-    [:a.effects {:href "#"
-                 :on-click (click>evt [:toggle-overlay
-                                       [#'effects-manager/overlay]])}
-     "Add Effect"]]
+    [:div.menus
+     [:a.menu {:href "#"
+               :on-click (click>evt [:toggle-overlay
+                                     [#'effects-manager/overlay]])}
+      "Add\u00A0Effect"]
+     [:a.menu {:href "#"
+               :on-click (click>evt [:toggle-overlay
+                                     [#'allies-manager/overlay]])}
+      "Manage\u00A0Allies"]]]
 
    (when-let [effects (seq (<sub [:effects]))]
      [:div.effects.combat-info
@@ -128,19 +153,13 @@
          (when (:uses-ammunition? w)
            [ammunition-block-for w])])])
 
-   (when-let [spell-attacks (seq (<sub [::spells/spell-attacks]))]
-     [:div.spell-attacks
-      [:h4 "Spell Attacks"]
-      (for [s spell-attacks]
-        ^{:key (:id s)}
-        [attack-block s {:class :spell-attack}])])
-
-   (when-let [attacks (seq (<sub [::combat/other-attacks]))]
-     [:div.other
-      [:h4 "Other Attacks"]
-      (for [a attacks]
-        ^{:key (:id a)}
-        [attack-block a])])
+   [subscription-attacks
+    "Spell Attacks"
+    :sub [::spells/spell-attacks]
+    :props {:class :spell-attack}]
+   [subscription-attacks
+    "Other Attacks"
+    :sub [::combat/other-attacks]]
 
    (when-let [actions (seq (<sub [::combat/special-actions]))]
      [:div.special
@@ -149,8 +168,7 @@
         ^{:key (:id a)}
         [:div.action
          {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
-         (:name a)])])
-   ])
+         (:name a)])]) ])
 
 (defn- action-block [a]
   [:div.action
@@ -185,6 +203,75 @@
             ^{:key (:id a)}
             [action-block a])])])))
 
+
+; ======= allies ==========================================
+
+(defattrs ally-attrs []
+  [:.info {:display :flex
+           :flex-direction :row
+           :align-items :center
+           :padding [["8px" 0]]}
+   ["&>div:not(:first-child)" {:padding [[0 "4px"]]}
+    [:&::before {:content "' · '"}]]
+   [:.buttons {:display :flex
+               :flex-direction :row}
+    [:>.button {:padding [["2px" "8px"]]}]]]
+  [:.actions {:margin-left "16px"}])
+
+(defn- ally-info-block [a]
+  [:div.info.clickable {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
+   [:div.name (:name a)]
+
+   (when-let [max-hp (:max-hp a)]
+     [:div.hp {:on-click (click>evt [:toggle-overlay [#'ally-hp/overlay a]]
+                                    :propagate? false)}
+      (:hp a) "/" max-hp])
+
+   (when-let [ac (:ac a)]
+     [:div.ac "AC " ac])
+
+   [:div.buttons
+    [:div.dismiss.button {:on-click (click>evt [:ally/dismiss a]
+                                               :propagate? false)}
+     "Dismiss"]]
+   ])
+
+(defn- preferred-ally-block [a]
+  [:div.info.clickable {:on-click (click>evt [:toggle-overlay [#'overlays/info a]])}
+   [:div.name (:name a)]
+
+   [:div.buttons
+    [:div.button.button {:on-click (click>evt [:ally/add a]
+                                              :propagate? false)}
+     "Summon"]]
+   ])
+
+(defattrs allies-attrs []
+  [:h4 {:margin-bottom 0}])
+
+(defn- allies []
+  [:div (allies-attrs)
+   (when-let [summoned (seq (<sub [::allies/with-actions]))]
+     [:<>
+      [:h4 "Summoned"]
+      (for [a summoned]
+        ^{:key [(:id a) (:instance a)]}
+        [:div (ally-attrs)
+         [ally-info-block a]
+
+         [:div.actions
+          [attacks-block {} (:actions a)]]])])
+
+   (when-let [preferred (seq (<sub [:allies/preferred]))]
+     [:<>
+      [:h4 "Preferred"]
+      (for [a preferred]
+        ^{:key [:summon (:id a)]}
+        [:div (ally-attrs)
+         [preferred-ally-block a]])])])
+
+; ======= navigation ======================================
+
 (defn- scroll-into-view [el]
   (.scrollIntoView el #js {:behavior "smooth"
                            :block "start"
@@ -205,6 +292,8 @@
 
 (def ^:private action-pages
   [[:combat "Combat"]
+   [:allies "Allies" :when-any-<sub [[:allies]
+                                     [:allies/preferred]]]
    [:actions "Actions" :when-any-<sub [[::spells/prepared-spells-filtered :action]
                                        [::combat/actions-for-type :action]]]
    [:bonuses "Bonuses" :when-any-<sub [[::spells/prepared-spells-filtered :bonus]
@@ -359,6 +448,12 @@
 
      [actions-header page-state :combat]
      [actions-combat]
+
+     (when (or (seq (<sub [:allies]))
+               (seq (<sub [:allies/preferred])))
+       [:<>
+        [actions-header page-state :allies]
+        [allies]])
 
      [actions-for-type :action
       [actions-header page-state :actions]]

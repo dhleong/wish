@@ -221,21 +221,33 @@
     [:a {:font-size "75%"}]]]
 
   [:.combat-info (merge metadata
-                        {:margin-bottom "8px"})
+                        flex
+                        {:flex-direction :row
+                         :justify-content :space-between
+                         :margin-bottom "8px"})
+   [:.items {:flex-grow 1}
+    [:.item
+     ["&:not(:first-child)" {:padding-right "0.5em"}
+      [:&:before {:content "'·'"
+                  :display 'inline-block
+                  :text-align 'center
+                  :width "1em"}]]]]
+   [:.menus {:display :flex
+             :flex-direction :row
+             :flex-wrap :wrap
+             :flex-shrink 1
+             :justify-content :flex-end}
+    [:.menu {:display :inline-flex
+             :padding "4px"}]]
+
    [:&.effects {:color color-accent2}
     [:a {:color color-accent2}
      [:&:hover {:color (color/lighten color-accent2 20)}]]]
-   [:.item
-    ["&:not(:first-child)" {:padding-right "0.5em"}
-     [:&:before {:content "'·'"
-                 :display 'inline-block
-                 :text-align 'center
-                 :width "1em"}]]]
-   [:.effects
-    {:float 'right}]]
+   ]
 
   [:.attack flex/center
-   [:.name flex/grow]
+   [:.name flex/grow
+    [:.source {:font-size "70%"}]]
    [:.info-group (merge flex/center
                         flex/vertical-center
                         {:padding "4px"})

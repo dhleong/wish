@@ -3,6 +3,8 @@
   (:require [clojure.string :as str]
             [re-frame.core :refer [reg-sub subscribe]]
             [wish-engine.core :as engine]
+            [wish-engine.state :as engine-state]
+            [wish-engine.util :as engine-util]
             [wish.data :as data]
             [wish.db :as db]
             [wish.inventory :as inv]
@@ -10,7 +12,8 @@
             [wish.sheets.compiler :as compiler]
             [wish.sheets.util :refer [feature-by-id]]
             [wish.subs-util :refer [active-sheet-id reg-id-sub]]
-            [wish.util :refer [deep-merge]]))
+            [wish.util :refer [assoc-by-id deep-merge distinct-by invoke-callable]]
+            [wish.util.dice :as dice]))
 
 
 (def ^:private non-storable-providers #{:wish :demo})
@@ -120,6 +123,8 @@
 (reg-meta-sub :meta/options :options)
 (reg-meta-sub :meta/inventory :inventory)
 (reg-meta-sub ::meta-items :items)
+(reg-meta-sub :meta/allies :allies)
+(reg-meta-sub :meta/preferred-allies :allies/preferred)
 (reg-meta-sub :meta/effects :effects)
 (reg-meta-sub :meta/equipped :equipped)
 (reg-meta-sub :meta/campaign :campaign)
@@ -263,6 +268,20 @@
       (when err
         info))))
 
+(reg-id-sub
+  :composite-sheet-engine-state
+  :<- [:sheet-engine-state]
+  :<- [:classes]
+  :<- [:races]
+  (fn [[source & entities]]
+    (when source
+      (engine-state/with-entity
+        source
+        (->> entities
+             (apply concat)
+             (reduce engine-util/merge-entities))
+        {}))))
+
 
 ; ======= Accessors for the active sheet ===================
 
@@ -295,6 +314,17 @@
     (->> classes
          (filter :primary?)
          first)))
+
+; sum of levels from all classes
+(reg-id-sub
+  :class-levels
+  :<- [:classes]
+  (fn [classes _]
+    (reduce
+      (fn [m class-obj]
+        (assoc m (:id class-obj) (:level class-obj)))
+      {}
+      classes)))
 
 ; sum of levels from all classes
 (reg-id-sub
@@ -711,6 +741,110 @@
          :items
          vals
          (sort-by :name))))
+
+
+; ======= allies ==========================================
+
+(reg-id-sub
+  ::ally-ids
+  :<- [:meta/allies]
+  (fn [allies]
+    (into #{} (map :id allies))))
+
+(defn- inflate-ally [source context entity]
+  ;; actually... should we provide the meta/allies map as the "entity
+  ;; state"?
+  (as->
+    (merge entity
+           (engine/inflate-entity source entity {} {}))
+    inflated
+
+    (update inflated :max-hp (fn [v]
+                               (cond
+                                 v v
+                                 (string? v) (dice/compute-average v)
+
+                                 (string? (:hit-points inflated))
+                                 (dice/compute-average
+                                   (:hit-points inflated))
+
+                                 :else (apply invoke-callable
+                                              inflated :hit-points
+                                              context))))
+
+    (update inflated :hp (fn [v]
+                           (if v v
+                             (:max-hp inflated))))))
+
+(reg-id-sub
+  ::inflated-ally-entities
+  :<- [:composite-sheet-engine-state]
+  :<- [:class-levels]
+  :<- [::ally-ids]
+  (fn [[source levels ids]]
+    (->> (engine/inflate-list source ids)
+         (transduce
+           (map (partial inflate-ally source [:levels levels]))
+           assoc-by-id
+           {}))))
+
+(reg-id-sub
+  :allies
+  :<- [::inflated-ally-entities]
+  :<- [:meta/allies]
+  (fn [[entities-map allies]]
+    (->> allies
+         (reduce
+           (fn [r {id :id :as ally}]
+             (if-let [v (get entities-map id)]
+               (conj r (merge v ally))
+               r))
+           []))))
+
+;; Returns a map of :id -> true/:forced
+(reg-id-sub
+  :allies/preferred-map
+  :<- [:composite-sheet-engine-state]
+  :<- [:meta/preferred-allies]
+  (fn [[source sheet-preferred-set]]
+    ; override "base" with any forced by a feature (eg wildfire spirit)
+    (reduce
+      (fn [m ally]
+        (assoc m (:id ally) :forced))
+
+      ; base is all those defined on the sheet
+      (zipmap sheet-preferred-set
+              (repeat true))
+
+      (engine/inflate-list source :allies/preferred))))
+
+(reg-id-sub
+  :allies/preferred-items
+  :<- [:composite-sheet-engine-state]
+  :<- [:meta/preferred-allies]
+  (fn [[sources sheet-preferred]]
+    (concat
+      (engine/inflate-list sources :allies/preferred)
+      (when (coll? sheet-preferred)
+        (engine/inflate-list sources sheet-preferred)))))
+
+(reg-id-sub
+  :allies/preferred
+  :<- [:allies/preferred-items]
+  (fn [items]
+    (->> items
+         (distinct-by :id)
+         (sort-by :name))))
+
+(reg-id-sub
+  :ally-state
+  :<- [:meta/allies]
+  (fn [allies [_ ally]]
+    (->> allies
+         (filter (fn [info]
+                   (= (select-keys ally [:id :instance-id])
+                      (select-keys info [:id :instance-id]))))
+         first)))
 
 
 ; ======= character builder-related ========================

@@ -13,6 +13,7 @@
             [wish.push :as push]
             [wish.sheets.util :refer [update-uses update-sheet-path unpack-id]]
             [wish.util :refer [distinct-by invoke-callable update-dissoc]]
+            [wish.util.collections :refer [disj-by index-where toggle-in-set]]
             [wish.util.limited-use :refer [restore-trigger-matches?]]))
 
 (reg-event-fx
@@ -899,6 +900,47 @@
                          update-dissoc effect-id
                          effect-remove args))))
 
+
+; ======= ally management =================================
+
+(reg-event-fx
+  :ally/add
+  [trim-v]
+  (fn [cofx [ally-spec]]
+    (update-sheet-path cofx [:allies]
+                       (fnil conj [])
+                       (select-keys ally-spec [:id :instance-id]))))
+
+(defn- ally-matcher [{:keys [id instance-id]}]
+  (if instance-id
+    #(= (:instance-id %) instance-id)
+    #(= (:id %) id)))
+
+(reg-event-fx
+  :ally/dismiss
+  [trim-v]
+  (fn [cofx [query]]
+    (update-sheet-path cofx [:allies]
+                       disj-by
+                       (ally-matcher query))))
+
+(reg-event-fx
+  :ally/toggle-favorite
+  [trim-v]
+  (fn-traced [cofx [{:keys [id]}]]
+    (update-sheet-path cofx [:allies/preferred]
+                       toggle-in-set id)))
+
+(reg-event-fx
+  :ally/set-in
+  [trim-v]
+  (fn-traced [cofx [query set-path new-value]]
+    (update-sheet-path
+      cofx [:allies]
+      (fn [allies]
+        (if-let [index (index-where allies (ally-matcher query))]
+          (assoc-in allies (cons index set-path) new-value)
+          allies)))))
 
 ; ======= Save-state handling ==============================
 
