@@ -942,6 +942,13 @@
           (assoc-in allies (cons index set-path) new-value)
           allies)))))
 
+(reg-event-db
+  :allies/select-category
+  [trim-v]
+  (fn-traced [db [category-id]]
+    (assoc db :allies/selected-category category-id)))
+
+
 ; ======= Save-state handling ==============================
 
 (reg-event-db
