@@ -71,11 +71,16 @@
 (reg-id-sub
   ::all-inflated
   :<- [:composite-sheet-engine-state]
+  :<- [:allies/selected-category]
   :<- [:allies/preferred-map]
-  (fn [[source preferred] _]
+  (fn [[source category preferred] _]
     (->> (engine/inflate-list source :all-creatures)
-         (map (fn [{id :id :as ally}]
-                (assoc ally :preferred? (preferred id)))))))
+         (transduce
+           (comp
+             (filter (:filter category identity))
+             (map (fn [{id :id :as ally}]
+                    (assoc ally :preferred? (preferred id)))))
+           conj []))))
 
 (reg-id-sub
   ::all-sorted

@@ -1,10 +1,11 @@
 (ns wish.sheets.dnd5e.overlays.allies
   "Ally management overlay"
-  (:require [spade.core :refer [defattrs]]
+  (:require [santiago.select :refer [select]]
+            [spade.core :refer [defattrs]]
             [wish.inventory :refer [instantiate-id]]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.subs.allies :as allies]
-            [wish.util :refer [click>evt click>evts <sub]]
+            [wish.util :refer [click>evt click>evts <sub >evt]]
             [wish.views.widgets :as widgets :refer-macros [icon]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
@@ -38,6 +39,31 @@
     "Summon"]
    ])
 
+(defattrs ally-category-attrs []
+  [:.desc {:font-size :80%
+           :padding "4px"}])
+
+(defn- ally-category-selector []
+  (when-let [categories (seq (<sub [:allies/categories]))]
+    (let [selected (<sub [:allies/selected-category])]
+      [:div (ally-category-attrs)
+       "Category Filter:"
+
+       [select {:on-change (fn [new-id]
+                             (>evt [:allies/select-category new-id]))
+                :value (:id selected)}
+        [:option {:key nil}
+         "(None)"]
+
+        (for [{:keys [id] :as category} categories]
+          [:option {:key id}
+           (:name category)])]
+
+       (when selected
+         [:div.desc (:desc selected)])
+       ])
+    ))
+
 (defn overlay []
   [:div (styles/item-adder-overlay)
    [:h4 "Allies"]
@@ -46,6 +72,8 @@
     {:filter-key :5e/allies-filter
      :placeholder "Search for an ally..."
      :auto-focus true}]
+
+   [ally-category-selector]
 
    [:div.item-browser.scrollable
     [virtual-list

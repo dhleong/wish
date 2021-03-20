@@ -846,6 +846,25 @@
                       (select-keys info [:id :instance-id]))))
          first)))
 
+(reg-id-sub
+  :allies/categories
+  :<- [:composite-sheet-engine-state]
+  (fn [sources _]
+    (engine/inflate-list sources :wish/ally-categories)))
+
+(reg-sub
+  :allies/selected-category-id
+  (fn [db _]
+    (:allies/selected-category db)))
+
+(reg-sub
+  :allies/selected-category
+  :<- [:composite-sheet-engine-state]
+  :<- [:allies/selected-category-id]
+  (fn [[sources category-id] _]
+    (when category-id
+      (first (engine/inflate-list sources [category-id])))))
+
 
 ; ======= character builder-related ========================
 

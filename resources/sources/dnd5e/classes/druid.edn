@@ -98,7 +98,32 @@ While you are transformed, the following rules apply:
                                :restore-trigger :short-rest})
                             (provide-attr
                               [:action :druid/wild-shape]
-                              true))}
+                              true)
+
+                            (provide-to-list
+                              :wish/ally-categories
+                              {:id :druid/wild-shape-allies
+                               :name "Wild Shape"
+                               :desc (str "You can use your action to magically assume the shape of a beast that you have seen before with a challenge rating of "
+                                          (cond
+                                            (< (:level state) 4) "1/4 or lower that doesn't have a flying or swimming speed, like a Wolf."
+                                            (< (:level state) 8) "1/2 or lower that doesn't have a flying speed, like a Crocadile."
+                                            :else "1 or lower, like a Giant Eagle."))
+                               :filter (cond
+                                        (< (:level state) 4) (fn [#{challenge speed type}]
+                                                               (and (= :beast type)
+                                                                    (<= challenge 0.25)
+                                                                    (not (.includes speed "fly"))
+                                                                    (not (.includes speed "swim"))))
+                                        (< (:level state) 8) (fn [#{challenge speed type}]
+                                                               (and (= :beast type)
+                                                                    (<= challenge 0.5)
+                                                                    (not (.includes speed "fly"))))
+                                        :else (fn [#{challenge type}]
+                                                (and (= :beast type)
+                                                     (<= challenge 1))))}
+                              )
+                            )}
 
                       {:id :druid/circle
                        :name "Druid Circle"
