@@ -40,7 +40,7 @@
    ])
 
 (defattrs ally-category-attrs []
-  [:.desc {:font-size :90%
+  [:.desc {:font-size :80%
            :padding "4px"}])
 
 (defn- ally-category-selector []
