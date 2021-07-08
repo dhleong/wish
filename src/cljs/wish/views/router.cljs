@@ -2,7 +2,7 @@
       :doc "router"}
   wish.views.router
   (:require [wish.util :refer [<sub >evt]]
-            [wish.views.footer :refer [footer]]))
+            [wish.views.footer :refer [footer footer-container-attrs]]))
 
 (defn- pick-page-title []
   (let [current-sheet-name (:name (<sub [:sheet-meta]))]
@@ -28,7 +28,7 @@
 
     (if (has-footer? page)
       ; we have to do a bit of wrapping to render the footer nicely
-      [:div#footer-container
+      [:div (footer-container-attrs)
        [:div.content
         page-form]
        [footer]]

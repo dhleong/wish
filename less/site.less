@@ -11,15 +11,6 @@ body {
     font-family: sans-serif;
 }
 
-a {
-    color: @link-color;
-    text-decoration: none;
-
-    &:hover {
-        color: lighten(@link-color, 20%);
-    }
-}
-
 #app {
     height: 100vh;
 }
@@ -44,74 +35,6 @@ a {
         }
     }
 }
-
-#footer-container {
-    @link-default: #333;
-    @link-dark: @primary-on-dark;
-
-    .flex();
-    .flex-direction(column);
-    height: 100vh;
-
-    & > .content {
-        .flex-shrt(1 0 auto);
-
-        padding: 16px;
-    }
-
-    & > .footer {
-        .flex-shrink(0);
-        .flex();
-
-        background-color: #eee;
-        font-size: 80%;
-        margin-top: 12px;
-        padding: 16px;
-
-        a.link {
-            color: @link-default;
-
-            &:not(:first-child):before {
-                content: '·';
-                display: inline-block;
-                text-align: center;
-                width: 1em;
-            }
-
-            &:hover {
-                color: #999;
-
-                &:not(:first-child):before {
-                    color: @link-default;
-                }
-            }
-        }
-
-        .version {
-            .flex-grow();
-            text-align: right;
-            color: fade(@link-default, 7%);
-            cursor: pointer;
-        }
-
-        @media @dark-scheme {
-            background-color: #333;
-
-            a.link {
-                color: @link-dark;
-                &:hover:not(:first-child):before {
-                    color: @link-dark
-                }
-            }
-
-            .version {
-                color: fade(@link-dark, 7%);
-            }
-        }
-
-    }
-}
-
 
 //
 // Other mixins
