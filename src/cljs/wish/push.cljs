@@ -180,7 +180,7 @@
   (doto (io (str config/push-server "/" session-id)
             #js {:path (str "/" push-server-version
                             "/push/sessions/io/")})
-    (.on "error" on-sio-error)
+    (.on "connect_error" on-sio-error)
     (.on "connect" #(on-open session-id))
     (.on "message" #(on-sio-message session-id %))))
 

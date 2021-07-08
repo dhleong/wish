@@ -2,22 +2,23 @@
   "name": "wish",
   "private": true,
   "dependencies": {
+    "isarray": "^2.0.5",
     "nprogress": "^0.2.0",
-    "react": "17.0.1",
-    "react-dom": "17.0.1",
-    "react-swipeable-views": "^0.14.0-alpha.0",
-    "react-virtualized": "^9.22.2",
-    "socket.io-client": "^2.3.1"
+    "react": "17.0.2",
+    "react-dom": "17.0.2",
+    "react-swipeable-views": "^0.14.0",
+    "react-virtualized": "^9.22.3",
+    "socket.io-client": "^4.1.2"
   },
   "devDependencies": {
     "highlight.js": "10.4.1",
-    "karma": "^5.2.3",
+    "karma": "^6.3.4",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
     "less": "^3.12.2",
     "react-flip-move": "^3.0.4",
     "react-highlight.js": "^1.0.7",
-    "shadow-cljs": "^2.11.8"
+    "shadow-cljs": "^2.14.6"
   },
   "scripts": {
     "create-build-report": "shadow-cljs run shadow.cljs.build-report app build-report.html && open build-report.html",
@@ -31,6 +32,8 @@
     "build:gh-pages": "shadow-cljs release :app worker --config-merge '{:closure-defines {wish.config/server-root \"/wish\"}}'",
     "dev": "shadow-cljs start && npm run watch",
     "lint": "clojure -Sdeps '{:deps {clj-kondo {:mvn/version \"RELEASE\"}}}' -m clj-kondo.main --lint src --config .clj-kondo/config.edn",
+    "old:clojure": "clojure -Sdeps '{:deps {antq/antq {:mvn/version \"RELEASE\"}}}' -m antq.core",
+    "old": "npm outdated; npm run old:clojure",
     "start": "shadow-cljs start",
     "stop": "shadow-cljs stop",
     "watch": "shadow-cljs watch :app :worker",
