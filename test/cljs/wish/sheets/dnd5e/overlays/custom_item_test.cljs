@@ -62,6 +62,16 @@
               :type :other
               :name "Serenity"}))))
 
+  (testing "Item kind subtype"
+    (is (= {:id :serenity
+            :type :ship
+            :kind {:ship :firefly}}
+
+           (item->form-state
+             {:id :serenity
+              :type :ship
+              :kind :firefly}))))
+
   (testing "Limited use w/action"
     (is (= {:id :serenity
             :type :gear

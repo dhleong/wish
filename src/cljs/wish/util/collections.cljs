@@ -29,6 +29,21 @@
 
       :else (throw (ex-info "Unsupported coll" {:coll coll})))))
 
+(defn update-some
+  "Update the key `k` in the given collection *if* it is `contains?` in it"
+  ([coll k f]
+   (if (contains? coll k)
+     (update coll k f)
+     coll))
+  ([coll k f x]
+   (if (contains? coll k)
+     (update coll k f x)
+     coll))
+  ([coll k f x y]
+   (if (contains? coll k)
+     (update coll k f x y)
+     coll)))
+
 (defn toggle-in-set
   [coll v]
   (if (contains? coll v)

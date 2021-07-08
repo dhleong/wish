@@ -8,6 +8,7 @@
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.data :as data]
             [wish.sheets.dnd5e.overlays.style :as styles]
+            [wish.util.collections :refer [update-some]]
             [wish.util :refer [>evt <sub fn-click]]))
 
 
@@ -95,6 +96,10 @@
             item))
         original-item
         (rest (:!-raw original-item)))
+
+      ; Restore the :kind map based on its selected type
+      (update-some :kind (fn [actual-kind]
+                           {(:type original-item) actual-kind}))
 
       (dissoc :! :!-raw :consumes :limited-uses :attrs
               :attuned? :wish/equipped?)))
