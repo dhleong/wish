@@ -111,6 +111,14 @@
      [:h4 title]
      [attacks-block props attacks]]))
 
+(defn- manage-allies-link []
+  [:a.menu {:href "#"
+            :on-click (click>evt [:toggle-overlay
+                                  [#'allies-manager/overlay]])}
+   "Manage"
+   [:span.if-space
+    "\u00A0Allies"]])
+
 (defn- actions-combat []
   [:<>
 
@@ -126,10 +134,7 @@
                :on-click (click>evt [:toggle-overlay
                                      [#'effects-manager/overlay]])}
       "Add\u00A0Effect"]
-     [:a.menu {:href "#"
-               :on-click (click>evt [:toggle-overlay
-                                     [#'allies-manager/overlay]])}
-      "Manage\u00A0Allies"]]]
+     [manage-allies-link]]]
 
    (when-let [effects (seq (<sub [:effects]))]
      [:div.effects.combat-info
@@ -331,7 +336,7 @@
                          before-delta)))]
     (subvec pages start end)))
 
-(defn- actions-header [state header-id]
+(defn- actions-header [state header-id & extra-headers]
   (let [smartphone? (= :smartphone (<sub [:device-type]))
         available-pages (->> action-pages
                              (filter (fn [[_ _ & {:keys [when-any-<sub]}]]
@@ -355,6 +360,9 @@
 
      (when (not= (first (peek pages-to-show)) (first (peek action-pages)))
        [combat-page-link state (first (peek action-pages)) "…" false])
+
+     (when (seq extra-headers)
+       (into [:div.extras] extra-headers))
      ]))
 
 ; ======= Limited-use ======================================
@@ -452,7 +460,8 @@
      (when (or (seq (<sub [:allies]))
                (seq (<sub [:allies/preferred])))
        [:<>
-        [actions-header page-state :allies]
+        [actions-header page-state :allies
+         [manage-allies-link]]
         [allies]])
 
      [actions-for-type :action

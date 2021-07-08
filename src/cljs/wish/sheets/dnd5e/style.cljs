@@ -218,7 +218,15 @@
     {:margin-top "32px"}]
    [:.filter {:padding "4px"}
     [:.unselectable {:font-weight 'bold}]
-    [:a {:font-size "75%"}]]]
+    [:a {:font-size "75%"}]]
+   [:.extras (merge flex
+                    flex/grow
+                    {:flex-direction :column
+                     :justify-content :center
+                     :align-items 'flex-end})
+    [:.menu metadata
+     (at-media media/smartphones
+       [:.if-space {:display 'none}])]]]
 
   [:.combat-info (merge metadata
                         flex
