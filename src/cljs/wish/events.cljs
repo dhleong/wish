@@ -731,7 +731,8 @@
 
     ; instantiate each one
     (reduce
-      #(update-sheet-path %1 [] inventory-add item)
+      (fn [sheet _]
+        (update-sheet-path sheet [] inventory-add item))
       cofx
       (range quantity))))
 
