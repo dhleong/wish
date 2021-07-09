@@ -176,7 +176,7 @@
          "Show unavailable spells"]])
      ]))
 
-(defn overlay [spellcaster & {:keys [mode]
-                              :or {mode :default}}]
+(defn ^:scrollable overlay [spellcaster & {:keys [mode]
+                                           :or {mode :default}}]
   (r/with-let [hide-unavailable? (r/atom true)]
     [spell-management* spellcaster mode hide-unavailable?]))

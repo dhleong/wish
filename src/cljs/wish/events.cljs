@@ -51,25 +51,27 @@
                           sheet-kind]}))
 
 ; expects a full reagent form, eg: [#'hp-overlay]
+; NOTE: passing kwarg options after the spec can probably be considered
+; deprecated. Args should be set as metadata on the fn itself
 (reg-event-fx
   :toggle-overlay
   [trim-v]
   (fn-traced [{:keys [db]} [[overlay-fn & args :as overlay-spec] & {:keys [scrollable?] :as opts}]]
-    {:db (if overlay-spec
-           (update db
-                   :showing-overlay
-                   (fn [old new-spec]
-                     (when-not old
-                       new-spec))
-                   [(if scrollable?
-                      "overlay-scrollable"
-                      "overlay")
-                    overlay-spec])
+    (let [scrollable? (or scrollable?
+                          (:scrollable (meta overlay-fn)))]
+      {:db (if overlay-spec
+             (update db
+                     :showing-overlay
+                     (fn [old new-spec]
+                       (when-not old
+                         new-spec))
+                     [{:scrollable? scrollable?}
+                      overlay-spec])
 
-           ; always dismiss
-           (assoc db :showing-overlay nil))
-     :make-overlay-closeable! (and overlay-spec
-                                   (nil? (:showing-overlay db)))}))
+             ; always dismiss
+             (assoc db :showing-overlay nil))
+       :make-overlay-closeable! (and overlay-spec
+                                     (nil? (:showing-overlay db)))})))
 
 (reg-event-fx
   :title!

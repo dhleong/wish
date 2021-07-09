@@ -22,7 +22,7 @@
 
 ; ======= generic "info" overlay ==========================
 
-(defn info [entity]
+(defn ^:scrollable info [entity]
   [:div (styles/info-overlay)
    (when-let [n (:name entity)]
      [:div.name n])

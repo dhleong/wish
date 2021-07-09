@@ -118,16 +118,14 @@
                               (not prepares?)))
              [:div.manage-link
               [link>evt [:toggle-overlay
-                         [#'spell-management/overlay s]
-                         :scrollable? true]
+                         [#'spell-management/overlay s]]
                (str "Manage " prepared-label " spells")]])
            (when acquires?
              [:div.manage-link
               [link>evt [:toggle-overlay
                          [#'spell-management/overlay
                           s
-                          :mode :acquisition]
-                         :scrollable? true]
+                          :mode :acquisition]]
                (str "Manage " (:acquired-label s))]])]
 
           (when-not fixed-list?
