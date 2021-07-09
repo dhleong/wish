@@ -38,13 +38,27 @@
          [:p.error-info
           [recursive-stack e]]])))
 
+(defn formatted-text-fragment
+  ([text] (formatted-text-fragment nil text))
+  ([{:keys [first-container]} text]
+   (let [containers (repeat [:div.p])
+         containers (if first-container
+                      (cons first-container containers)
+                      containers)]
+     (->> text
+          ->hiccup
+          (map
+            (fn [container content]
+              ; each container is a vector, into which we render as, eg:
+              ; [:div.p content]
+              (conj container content))
+            containers)
+          (into [:<>])))))
+
 (defn formatted-text
   [container-spec text]
-  (into [container-spec]
-        (map
-          (fn [p]
-            [:div.p p])
-          (->hiccup text))))
+  [container-spec
+   [formatted-text-fragment text]])
 
 (defn link
   "Drop-in replacement for :a that inserts the # in links if necessary"

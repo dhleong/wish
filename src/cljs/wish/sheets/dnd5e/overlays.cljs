@@ -1,8 +1,7 @@
 (ns ^{:author "Daniel Leong"
       :doc "Overlays"}
   wish.sheets.dnd5e.overlays
-  (:require [clojure.string :as str]
-            [reagent-forms.core :refer [bind-fields]]
+  (:require [reagent-forms.core :refer [bind-fields]]
             [wish.inventory :as inv]
             [wish.sheets.dnd5e.events :as events]
             [wish.sheets.dnd5e.overlays.spell-management
@@ -10,11 +9,10 @@
             [wish.sheets.dnd5e.subs :as subs]
             [wish.sheets.dnd5e.subs.abilities :as abilities]
             [wish.sheets.dnd5e.subs.inventory :as inventory]
-            [wish.sheets.dnd5e.subs.proficiency :as proficiency]
+            [wish.sheets.dnd5e.overlays.generic-info :as info]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.widgets :refer [consume-use-block
                                                item-quantity-manager
-                                               spell-aoe
                                                spell-card]]
             [wish.util :refer [<sub >evt click>evt click>evts]]
             [wish.views.widgets :as widgets
@@ -23,67 +21,6 @@
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
 
 ; ======= generic "info" overlay ==========================
-
-(def ^:private properties
-  {:finesse? "Finesse"
-   :heavy? "Heavy"
-   :light? "Light"
-   :reach? "Reach"
-   :special? "Special"
-   :two-handed? "Two-handed"
-   :uses-ammunition? "Uses Ammunition"
-   :versatile "Versatile"})
-
-(defn- generic-info [entity]
-  (let [{:keys [aoe damage dice range]} entity
-        proficiency-bonus (<sub [::proficiency/bonus])]
-    (when (or aoe damage dice range)
-      [:table.info
-       [:tbody
-        (when-let [cast-time (:time entity)]
-          [:tr
-           [:th.header "Cast Time"]
-           [:td cast-time]])
-
-        (when range
-          [:tr
-           [:th.header "Range"]
-           (if (string? range)
-             [:td range]
-             (let [[near far] range]
-               [:td near " / " far " ft."]))])
-
-        (when aoe
-          [:tr
-           [:th.header "Area of Effect"]
-           [:td [spell-aoe aoe]]])
-
-        (when-let [flags (->> properties
-                              keys
-                              (filter entity)
-                              (map properties)
-                              seq)]
-          [:tr
-           [:th.header "Properties"]
-           [:td (str/join "; " flags)]])
-
-        (when damage
-          [:tr
-           [:th.header "Damage Type"]
-           [:td (str/capitalize
-                  (name damage))]])
-
-        (when dice
-          [:tr
-           [:th.header (if damage
-                         "Damage"
-                         "Healing")]
-           [:td (if (fn? dice)
-                  (dice (assoc (:wish/container entity)
-                               :proficiency-bonus proficiency-bonus))
-                  dice)]])
-        ]]
-      )))
 
 (defn info [entity]
   [:div (styles/info-overlay)
@@ -94,7 +31,9 @@
      [spell-card entity]
 
      [:<>
-      [generic-info entity]
+      [info/generic-info entity]
+
+      [info/ally entity]
 
       (when-let [d (:desc entity)]
         [formatted-text :div.desc d])
@@ -118,7 +57,7 @@
   [:div (styles/info-overlay)
    [:div.name (:name entity)]
 
-   [generic-info entity]
+   [info/generic-info entity]
 
    (let [{:keys [spell-level duration]} entity]
      (when (or spell-level duration)

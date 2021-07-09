@@ -129,6 +129,7 @@
    [:<>
     (for [[id label] labeled-abilities]
       (let [{:keys [score modifier mod]} (get abilities id)]
+        (println abilities id "->" (get abilities id))
         ^{:key id}
         [:div.ability {:class (when mod
                                 (case mod
@@ -144,31 +145,35 @@
          [:div.score "(" score ")"]
          ]))]))
 
+(defn abilities-block [& {:keys [abilities save-extras]}]
+  [:div (abilities-section-style)
+   [:div.abilities
+    [abilities-display abilities :clickable]]
+
+   [:div.info "Saves"]
+
+   [:div.abilities
+    (for [[id _label] labeled-abilities]
+      (let [{:keys [save proficient?]} (get abilities id)]
+        ^{:key id}
+        [:span.save
+         [:div.mod save]
+         [:div.proficiency
+          {:class (when proficient?
+                    "proficient")}]]))]
+
+   ; This is a good place for things like Elven advantage
+   ; on saving throws against being charmed
+   (when (seq save-extras)
+     [:ul.extras
+      (for [item save-extras]
+        ^{:key (:id item)}
+        [:li (:desc item)])])])
+
 (defn abilities-section []
-  (let [abilities (<sub [::abilities/info])]
-    [:div (abilities-section-style)
-     [:div.abilities
-      [abilities-display abilities :clickable]]
-
-     [:div.info "Saves"]
-
-     [:div.abilities
-      (for [[id _label] labeled-abilities]
-        (let [{:keys [save proficient?]} (get abilities id)]
-          ^{:key id}
-          [:span.save
-           [:div.mod save]
-           [:div.proficiency
-            {:class (when proficient?
-                      "proficient")}]]))]
-
-     ; This is a good place for things like Elven advantage
-     ; on saving throws against being charmed
-     (when-let [save-extras (<sub [::proficiency/ability-extras])]
-       [:ul.extras
-        (for [item save-extras]
-          ^{:key (:id item)}
-          [:li (:desc item)])])]))
+  [abilities-block
+   :abilities (<sub [::abilities/info])
+   :save-extras (<sub [::proficiency/ability-extras])])
 
 
 ; ======= Skills ===========================================
