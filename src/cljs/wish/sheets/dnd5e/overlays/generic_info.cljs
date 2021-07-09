@@ -2,7 +2,8 @@
   (:require [clojure.string :as str]
             [spade.core :refer [defattrs]]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
-            [wish.sheets.dnd5e.util :refer [ability->mod]]
+            [wish.sheets.dnd5e.util :refer [ability->mod
+                                            mod->str]]
             [wish.sheets.dnd5e.widgets :refer [spell-aoe]]
             [wish.util :refer [<sub]]
             [wish.views.widgets :refer [formatted-text-fragment]]))
@@ -82,7 +83,7 @@
 (defn- ->abilities-info [raw-abilities]
   (reduce-kv
     (fn [m id score]
-      (let [modifier (ability->mod score)]
+      (let [modifier (mod->str (ability->mod score))]
         (assoc m id {:score score
                      :modifier modifier
                      :save modifier})))
