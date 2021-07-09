@@ -129,7 +129,6 @@
    [:<>
     (for [[id label] labeled-abilities]
       (let [{:keys [score modifier mod]} (get abilities id)]
-        (println abilities id "->" (get abilities id))
         ^{:key id}
         [:div.ability {:class (when mod
                                 (case mod
