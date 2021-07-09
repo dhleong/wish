@@ -4,6 +4,7 @@
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.util :refer [ability->mod
                                             mod->str]]
+            [wish.sheets.dnd5e.views.shared :refer [challenge-indicator]]
             [wish.sheets.dnd5e.widgets :refer [spell-aoe]]
             [wish.util :refer [<sub]]
             [wish.views.widgets :refer [formatted-text-fragment]]))
@@ -125,6 +126,9 @@
     [:<>
      (when (:size entity)
        [:div.desc
+        (when-let [cr (:challenge entity)]
+          [challenge-indicator {:inline? true} cr])
+
         (str/capitalize (name (:size entity)))
         " "
         (str/capitalize (name (:type entity)))])
