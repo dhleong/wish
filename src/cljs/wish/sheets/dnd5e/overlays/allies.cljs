@@ -5,25 +5,10 @@
             [wish.inventory :refer [instantiate-id]]
             [wish.sheets.dnd5e.overlays.style :as styles]
             [wish.sheets.dnd5e.subs.allies :as allies]
-            [wish.style.flex :as flex]
             [wish.util :refer [click>evt click>evts <sub >evt]]
+            [wish.sheets.dnd5e.views.shared :refer [challenge-indicator]]
             [wish.views.widgets :as widgets :refer-macros [icon]]
             [wish.views.widgets.virtual-list :refer [virtual-list]]))
-
-(defattrs challenge-indicator-attrs []
-  (merge flex/vertical
-         flex/center
-         {:padding-right "8px"})
-  [:.label {:font-size "80%"}])
-
-(defn- challenge-indicator [rating]
-  [:div (challenge-indicator-attrs)
-   [:div.label "CR"]
-   [:div.value (case rating
-                 0.125 "⅛"
-                 0.25 "¼"
-                 0.5 "½"
-                 rating)]])
 
 (defattrs ally-attrs []
   {:display :flex
