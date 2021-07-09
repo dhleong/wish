@@ -865,6 +865,13 @@
     (when category-id
       (first (engine/inflate-list sources [category-id])))))
 
+(reg-sub
+  :allies/inflated-of
+  :<- [:composite-sheet-engine-state]
+  :<- [:class-levels]
+  (fn [[source levels] [_ entity]]
+    (inflate-ally source [:levels levels] entity)))
+
 
 ; ======= character builder-related ========================
 

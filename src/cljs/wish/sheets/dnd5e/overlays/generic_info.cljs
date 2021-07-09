@@ -1,5 +1,6 @@
 (ns wish.sheets.dnd5e.overlays.generic-info
   (:require [clojure.string :as str]
+            [spade.core :refer [defattrs]]
             [wish.sheets.dnd5e.subs.proficiency :as proficiency]
             [wish.sheets.dnd5e.util :refer [ability->mod]]
             [wish.sheets.dnd5e.widgets :refer [spell-aoe]]
@@ -88,24 +89,61 @@
     {}
     raw-abilities))
 
+(defattrs feature-label-attrs [italics?]
+  {:color :*header*
+   :font-style (when italics?
+                 :italic)
+   :font-weight :bold})
+
+(defn- feature-label
+  ([label] (feature-label nil label))
+  ([{:keys [italics?]} label]
+   [:span (feature-label-attrs italics?)
+    label "\u00A0\u00A0"]))
+
 (defn- prefixed-formatted-text [label text]
   [:div.desc
-   [formatted-text-fragment {:first-container [:div.p [:b label]]}
+   [formatted-text-fragment {:first-container [:div.p [feature-label label]]}
     text]])
 
-(defn ally [entity]
+(defn- feature-listing [feature]
+  [:div.desc
+   [formatted-text-fragment {:first-container [:div.p
+                                               [feature-label {:italics? true}
+                                                (:name feature)]]}
+    (:desc feature)]])
+
+(defn- features-listing [features]
   [:<>
-   (when (:size entity)
-     [:div.desc
-      (str/capitalize (name (:size entity)))
-      " "
-      (str/capitalize (name (:type entity)))])
+   (for [{:keys [id] :as feature} features]
+     ^{:key id}
+     [feature-listing feature])])
 
-   (when-some [abilities (:abilities entity)]
-     [@abilities-block
-      :abilities (->abilities-info abilities)])
+(defn ally [entity]
+  (let [entity (<sub [:allies/inflated-of entity])]
+    [:<>
+     (when (:size entity)
+       [:div.desc
+        (str/capitalize (name (:size entity)))
+        " "
+        (str/capitalize (name (:type entity)))])
 
-   (when-some [senses (:senses entity)]
-     [prefixed-formatted-text "Senses: " senses])
-   (when-some [speed (:speed entity)]
-     [prefixed-formatted-text "Speed: " speed])])
+     (when-some [abilities (:abilities entity)]
+       [@abilities-block
+        :abilities (->abilities-info abilities)])
+
+     (when-some [senses (:senses entity)]
+       [prefixed-formatted-text "Senses:" senses])
+     (when-some [speed (:speed entity)]
+       [prefixed-formatted-text "Speed:" speed])
+
+     (when-let [features (seq (:sorted-features entity))]
+       [features-listing features])
+
+     (when-let [attacks (seq (vals (:attacks (:attrs entity))))]
+       [:<>
+        [:h4 "Actions"]
+        ; We might consider extra details on attacks, but the feature listing
+        ; is probably sufficient for now
+        [features-listing attacks]])
+     ]))

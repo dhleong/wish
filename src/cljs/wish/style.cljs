@@ -12,17 +12,20 @@
 (def link-color "#fbc02d")
 
 (defglobal global-styles
+  [":root" {:*text* text-primary-on-light
+            :*header* "#000"}]
+  [:a {:color link-color
+       :text-decoration :none}
+   [:&:hover {:color (color/lighten link-color 0.20)}]]
+
   (at-media media/dark-scheme
+    [":root" {:*text* text-primary-on-dark
+              :*header* header-primary-on-dark}]
     [:body {:background "#000"
             :color text-primary-on-dark}]
     [:input :textarea :select {:background-color "#444"
                                :color text-primary-on-dark}]
     [:h1 :h2 :h3 :h4 :h5 {:color header-primary-on-dark}])
-
-  [:a {:color link-color
-       :text-decoration :none}
-   [:&:hover {:color (color/lighten link-color 0.20)}]]
-
   )
 
 (defn asset [n]
