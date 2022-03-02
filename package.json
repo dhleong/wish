@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "highlight.js": "10.4.1",
-    "karma": "^6.3.4",
+    "karma": "^6.3.16",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cljs-test": "^0.1.0",
     "less": "^3.12.2",
