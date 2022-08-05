@@ -19,6 +19,7 @@
 (def ^:private non-storable-providers #{:wish :demo})
 
 (reg-sub :device-type :device-type)
+(reg-sub :touch? :touch?)
 (reg-sub :showing-overlay :showing-overlay)
 
 (reg-sub

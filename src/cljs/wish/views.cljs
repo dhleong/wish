@@ -35,6 +35,11 @@
     "(max-width: 479px)" [:set-device :smartphone]
     [:set-device :default]]
 
+   [media-tracker
+    "(hover: none) and (pointer: coarse)" [:set-touch true]
+    "(hover: none) and (pointer: fine)" [:set-touch true]
+    [:set-touch false]]
+
    [error-boundary
     [router pages]]
 

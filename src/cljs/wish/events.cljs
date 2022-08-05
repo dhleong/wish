@@ -43,6 +43,12 @@
   (fn-traced [db [device-type]]
     (assoc db :device-type device-type)))
 
+(reg-event-db
+  :set-touch
+  [trim-v]
+  (fn-traced [db [touch?]]
+    (assoc db :touch? touch?)))
+
 (reg-event-fx
   ::update-keymap
   [trim-v (inject-cofx ::inject/sub [:meta/kind])]

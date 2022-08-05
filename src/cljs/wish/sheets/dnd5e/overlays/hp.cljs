@@ -12,7 +12,13 @@
             [wish.views.widgets :as widgets
              :refer-macros [icon]
              :refer [expandable formatted-text]]
-            [wish.views.widgets.fast-numeric]))
+            [wish.views.widgets.fast-numeric]
+            [wish.views.widgets.spinning-modifier
+             :refer [spinning-modifier]]))
+
+(defn- apply-hp-delta! [delta max-hp]
+  (>evt [::events/update-hp delta max-hp])
+  (>evt [:toggle-overlay nil]))
 
 (defn- condition-widget
   [[id level] _on-delete]
@@ -118,8 +124,7 @@
    {:on-submit (fn-click
                  (let [{:keys [heal damage]} @state]
                    (log "Update HP: heal +" heal "  -" damage)
-                   (>evt [::events/update-hp (- heal damage) max-hp])
-                   (>evt [:toggle-overlay nil])))}
+                   (apply-hp-delta! (- heal damage) max-hp)))}
    [:div.sections
 
     [:div.quick-adjust
@@ -191,6 +196,50 @@
       :save! #(>evt [::events/temp-max-hp! %2])}]]])
 
 
+(defn- non-touchable-ui [{:keys [state hp max-hp max-mod new-hp]}]
+  [:<>
+   [:h4 "Hit Points"]
+   [hp-form
+    :hp hp
+    :max-hp max-hp
+    :max-mod max-mod]
+
+   [:h5.centered.section-header "Quick Adjust"]
+   [quick-adjust-form state
+    :hp hp
+    :max-hp max-hp
+    :new-hp new-hp]
+   ])
+
+(defn- touchable-ui [{:keys [state hp max-hp]}]
+  [:<>
+   [:h4 "Hit Points"]
+
+   [:div.touchable
+    [spinning-modifier
+     state
+     :initial hp
+     :maximum max-hp
+     :delta->color (fn delta->color [delta]
+                     (cond
+                       (> delta 0) "#00cc00"
+                       (< delta 0) "#cc0000"))
+     :per-rotation (condp > max-hp
+                     100 20
+                     40)
+     :path [:heal]]
+
+    (when (let [delta (:heal @state)]
+            (and delta (not= 0 delta)))
+      [:div.sections
+       [:input.apply {:type 'button
+                      :value "Apply!"
+                      :on-click (fn-click
+                                  (apply-hp-delta! (:heal @state) max-hp))
+                      }] ])
+    ]
+   ])
+
 ; ======= public interface ================================
 
 (defn overlay []
@@ -198,27 +247,27 @@
     (let [[hp max-hp max-mod] (<sub [::hp/state])
           temp-hp (<sub [::hp/temp])
           {:keys [heal damage]} @state
+          touch? (<sub [:touch?])
+
           new-hp (max
                    0  ; you can't go negative in 5e
                    (min (+ max-hp temp-hp) ; don't collapse temp-hp above max
                         (- (+ hp heal)
-                           damage)))]
+                           damage)))
+
+          data {:state state
+                :hp hp
+                :max-hp max-hp
+                :max-mod max-mod
+                :new-hp new-hp}]
 
       [:div (styles/hp-overlay)
        (when (= 0 hp)
          [saving-throws])
 
-       [:h4 "Hit Points"]
-       [hp-form
-        :hp hp
-        :max-hp max-hp
-        :max-mod max-mod]
-
-       [:h5.centered.section-header "Quick Adjust"]
-       [quick-adjust-form state
-        :hp hp
-        :max-hp max-hp
-        :new-hp new-hp]
+       (if touch?
+         [touchable-ui data]
+         [non-touchable-ui data])
 
        ; temporary health management
        [:h5.centered.section-header "Temporary Health"]
